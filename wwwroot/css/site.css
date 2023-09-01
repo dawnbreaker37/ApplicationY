@@ -1,0 +1,248 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 717px) {
+  html {
+    font-size: 17px;
+  }
+}
+
+.dropdown-menu {
+    border: 0;
+    background-color: white;
+    border-radius: 6px;
+    transition: all ease 0.2s;
+}
+.dropdown-item {
+    cursor: pointer;
+    border-radius: 6px;
+    background-color: transparent;
+    transition: all ease 0.3s;
+}
+.dropdown-item:hover,
+.dropdown-item:active {
+    background-color: rgb(240, 240, 240);
+}
+
+.warning-badge {
+    color: white;
+    background-color: darkorange;
+    border-radius: 5px;
+    transition: all ease 0.3s;
+}
+.warning-badge:hover,
+.warning-badge:active {
+    background-color: #f8f9fa;
+    color: black;
+}
+
+.bot-navbar {
+    z-index: 0;
+    width: 100%;
+    border-radius: 0;
+    background-color: #f8f9fa;
+    text-align: center;
+    border: 0;
+    border-top: 1px solid rgb(240, 240, 240);
+    transition: all ease 0.3s;
+}
+
+.main-sidebar {
+    left: 0;
+    position: absolute;
+    width: 35%;
+    height: 100%;
+    max-height: 100%;
+    border-radius: 0;
+    background-color: white;
+    border-right: 1px solid rgb(240, 240, 240);
+    display: block;
+    transition: all ease 0.35s;
+}
+
+.fw-500 {
+    font-weight: 500;
+}
+
+.form-control {
+    border: 1px solid rgb(240, 240, 240);
+    border-radius: 8px;
+    padding: 12px;
+    outline: 0;
+    transition: all ease 0.25s;
+}
+.form-control:focus {
+    outline: 1px solid rgb(240, 240, 240);
+}
+
+.btn-standard-with-no-colour {
+    cursor: pointer;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: all ease 0.25s;
+}
+.btn-standard-not-animated {
+    cursor: pointer;
+    color: black;
+    background-color: transparent;
+    border: 0;
+    font-weight: 500;
+    border-radius: 6px;
+    padding: 5px 6px 5px 6px;
+    transition: all ease 0.25s;
+}
+.btn-standard-not-animated:hover,
+.btn-standard-not-animated:active {
+    background-color: rgb(240, 240, 240);
+}
+.btn-standard {
+    cursor: pointer;
+    padding: 0;
+    color: black;
+    background-color: transparent;
+    border: 0;
+    font-weight: 500;
+    border-radius: 6px;
+    transition: all ease 0.25s;
+}
+.btn-standard:hover,
+.btn-standard:active {
+    padding: 4px 6px 4px 6px;
+    background-color: rgb(240, 240, 240);
+}
+.btn-main-light {
+    border-radius: 6px;
+    padding: 3px;
+    font-weight: 500;
+    color: #f8f9fa;
+    border-bottom: 1px solid transparent;
+    background-color: transparent;
+    transition: all ease 0.25s;
+}
+.btn-main-light:hover,
+.btn-main-light:active {
+    color: #f8f9fa;
+    border-radius: 0;
+    border-bottom: 1px solid #f8f9fa;
+}
+.btn-main-light:focus {
+    color: #f8f9fa;
+    border-radius: 6px;
+    border-bottom: 1px solid transparent;
+}
+.smallside-modal-container {
+    z-index: 1;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    position: fixed;
+    overflow-y: auto;
+    transition: all ease 0.45s;
+    bottom: -1200px;
+    display: none;
+}
+
+.smallside-box-container {
+    z-index: 1000;
+    overflow-y: auto;
+    bottom: -1200px;
+    display: none;
+    background-color: white;
+    position: fixed;
+    border-radius: 8px 8px 1px 1px;
+    transition: all ease 0.5s;
+}
+
+.btn-navbar {
+    cursor: pointer;
+    background-color: transparent;
+    color: black;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    text-decoration: none;
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+.btn-navbar:hover,
+.btn-navbar:active{
+    color: #0d6efd;
+    border-radius: 0;
+    border-bottom: 2px solid #0d6efd;
+}
+
+.safe-font {
+    font-family: 'Trebuchet MS';
+}
+
+.container {
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+.main-container {
+    z-index: 10;
+    position: fixed;
+    overflow-y: auto;
+    border-radius: 8px 8px 2px 2px;
+    background-color: white;
+    bottom: -1200px;
+    display: none;
+    transition: all ease 0.55s;
+}
+.box-container {
+    border-radius: 10px;
+    background-color: white;
+    transition: all ease 0.3s;
+}
+.card-modal-container {
+    width: 125px;
+    z-index: 1;
+    border-radius: 6px 6px 1px 1px;
+    position: fixed;
+    background-color: white;
+    bottom: -1200px;
+    display: none;
+    transition: all ease 0.5s;
+}
+
+.btn-back {
+    cursor: pointer;
+    font-weight: 500;
+    border: 0;
+    background-color: transparent;
+    color: black;
+    border-radius: 8px;
+    transition: all ease 0.25s;
+}
+.btn-back:hover,
+.btn-back:active {
+    background-color: rgb(240, 240, 240);
+}
+.btn-close {
+    padding: 8px;
+    cursor: pointer;
+    background-color: transparent;
+    border-radius: 34px;
+    transition: all ease 0.3s;
+}
+.btn-close:hover,
+.btn-close:active {
+    background-color: rgb(240, 240, 240);
+}
+
+.shadow-standard {
+    box-shadow: rgba(0, 0, 0, 0.1) 1px -2px 2px;
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+  background-color: #fdfdfd;
+}

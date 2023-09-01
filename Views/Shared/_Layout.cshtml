@@ -1,0 +1,53 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"] - ApplicationY</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/ApplicationY.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <header>
+        <nav class="navbar navbar-expand-sm fixed-bottom text-center bot-navbar shadow-sm p-2 ps-3 pe-3" id="MainBotOffNavbar">
+            <div class="container text-center mx-auto mt-1">
+                <div class="row text-center" id="MainBotOffNavbar_Box">
+                    <div class="col" style="display: none;" id="ReserveColumn_Container">
+                        <button type="button" class="btn btn-navbar w-100" style="display: none;" id="FourthReserve_Btn"></button>
+                    </div>
+                    <div class="col">
+                        <a asp-controller="Home" asp-action="Index" class="btn btn-navbar w-100" id="HomeLink_Btn"> <i class="fas fa-home text-muted"></i> <br /> Home</a>
+                        <button type="button" class="btn btn-navbar w-100" style="display: none;" id="FirstReserve_Btn"></button>
+                    </div>
+                    <div class="col">
+                        <a asp-controller="Home" asp-action="Search" class="btn btn-navbar w-100" id="SearchLink_Btn"> <i class="fas fa-search text-muted"></i> <br /> Search</a>
+                        <button type="button" class="btn btn-navbar w-100" style="display: none;" id="SecondReserve_Btn"></button>
+                    </div>
+                    <div class="col">
+                        <a asp-controller="User" asp-action="Profile" class="btn btn-navbar w-100" id="ProfileLink_Btn"> <i class="fas fa-user-circle text-muted"></i> <br /> Account</a>
+                        <button type="button" class="btn btn-navbar w-100" style="display: none;" id="ThirdReserve_Btn"></button>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    </header>
+    <div class="smallside-modal-container p-3 text-start shadow-sm" id="MainModal_Container">
+        <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>
+        <button type="button" class="btn btn-standard me-2 btn-sm" style="display: none;" id="MMC_FirstBtn">Button 1</button>
+        <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
+    </div>
+    <div class="container">
+        <main role="main" class="pb-3">
+            @RenderBody()
+        </main>
+    </div>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://kit.fontawesome.com/6430643143.js" crossorigin="anonymous"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

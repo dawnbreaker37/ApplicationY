@@ -1,0 +1,85 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Verify Your Account";
+
+    User UserInfo = ViewBag.UserInfo;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="box-container shadow-sm p-3 text-center">
+        <button type="button" class="btn btn-navbar w-100 smallside-btn-open-container btn-sm" id="AboutVerification_Container-Open"> <i class="fas fa-info-circle"></i> <br />About Verification</button>
+        <button type="button" class="btn btn-standard-not-animated smallside-btn-close btn-sm me-2 d-sm-block d-xs-block d-md-none d-lg-none d-xl-none"> <i class="fas fa-times"></i> <br />Close</button>
+    </div>
+</div>
+
+<div class="main-container p-3 shadow-standard" id="Preload_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="AboutVerification_Container-OpenY">About Verification</button>
+        <h5 class="h5 text-truncate">Verification</h5>
+    </div>
+    <div class="mt-4">
+        @if (UserInfo.EmailConfirmed)
+        {
+            <div class="box-container bg-light p-3">
+                <h2 class="h2 text-center"> <i class="fas fa-check-square"></i> </h2>
+                <h5 class="h5 display-4">Your account is verified</h5>
+                <small class="card-text text-muted">You've already verified your account before. Now, your account is quite safer and have some improved features. More in About Verification part of this page</small>
+            </div>
+        }
+        else
+        {
+            <div>
+                <form method="post" asp-controller="Account" asp-action="SendEmailConfirmationCode" id="SendEmailConfirmationCode_Form">
+                    <div>
+                        <input type="hidden" name="Id" value="@UserInfo.Id" />
+                        <label class="form-label fw-500 ms-1" for="SC_Email">Email</label>
+                        <input type="email" class="form-control" autocomplete="off" id="SC_Email" name="Email" value="@UserInfo.Email" placeholder="Enter your email here" />
+                    </div>
+                    <div class="ms-1 mt-1">
+                        <small class="card-text text-muted">We'll receive you a special code by your email. After receiving the code you need to enter it to verify your email and therefore your account</small>
+                    </div>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col col-8">
+                                <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Send Code</button>
+                            </div>
+                            <div class="col col-4">
+                                <button type="button" class="btn btn-light text-truncate btn-standard-with-no-colour w-100 btn-open-container" id="ChangedMyEmail_Container-Open">I've changed my email</button> 
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+    </div>
+</div>
+
+<div class="main-container p-3 shadow-standard" id="Verification_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Verification_Container-Close"></button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="AboutVerification_Container-OpenX">About Verification</button>
+        <h5 class="h5 text-truncate">Verification, Part 2/2</h5>
+    </div>
+    <div class="mt-4">
+        <div>
+            <form method="post" asp-controller="User" asp-action="Verify" id="VerifyAccount_Form">
+                <div>
+                    <label class="form-label fw-500">Email</label>
+                    <input type="email" class="form-control" readonly value="@UserInfo.Email" />
+                </div>
+                <div class="mt-3">
+                    <input type="hidden" id="VAF_Token" name="Token" />
+                    <input type="hidden" name="Email" id="VAF_Email" value="@UserInfo.Email" />
+                    <input type="hidden" name="Id" id="VAF_Id" value="@UserInfo.Id" />
+                    <label class="form-label fw-500 ms-1" for="VAF_Code">Code</label>
+                    <input type="text" class="form-control" autocomplete="off" id="VAF_Code" name="Code" placeholder="Enter received code here" />
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+

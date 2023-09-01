@@ -1,0 +1,43 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Your Account";
+
+    User? UserInfo = ViewBag.UserInfo;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="box-container shadow-sm p-3 text-center">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-pencil-alt"></i> <br />Edit Account</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditMainSettings_Container-Open"> <i class="fas fa-cogs"></i> <br />Main Settings</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditSecuritySettings-Open"> <i class="fas fa-lock"></i> <br />Security Settings</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="smallside-box-container p-3 shadow-standard" id="EditAccount_Container">
+    <div>
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditAccount_Container-Close"></button>
+        <h5 class="h5 text-truncate">Edit Information</h5>
+        <div class="mt-4">
+        </div>
+    </div>
+</div>
+<div class="main-container p-3 shadow-standard" id="Preload_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="EditAccount_Container-OpenY">Edit</button>
+        @if (!UserInfo.EmailConfirmed)
+        {
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your account isn't verified. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to verify your account. It'll take 2-3 mins, but after you'll have more secured account with some improved features. More about it in <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>verification page</a>"> <i class="fas fa-check"></i> Verify Now</button>
+        }
+        <h5 class="h5 text-truncate">About You</h5>
+    </div>
+    <div class="mt-4">
+    </div>
+</div>

@@ -1,0 +1,333 @@
+﻿@model SignIn_ViewModel
+@{
+    ViewData["Title"] = "Log Or Sign In";
+
+    bool IsForSigningIn = ViewBag.Reason;
+}
+
+<div class="main-sidebar p-3 shadow-sm" id="Main_SideBar">
+    <div class="mt-1">
+        <h4 class="h4 safe-font">Let us tell you about us!</h4>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard" id="PasswordRecovering_Container">
+        <div>
+            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecovering_Container-Close"></button>
+            <h5 class="h5 text-truncate">Password Recovering</h5>
+            <div class="mt-4">
+                <form method="post" asp-controller="Account" asp-action="PasswordRecovering" id="PasswordRecovering_Form">
+                    <div>
+                        <input type="hidden" id="PR_CurrentTypeVal" value="0" />
+                        <label class="form-label fw-500 ms-1" for="PR_Username" id="PR_Username_Lbl">Username</label>
+                        <input type="text" class="form-control" id="PR_Username" name="Username" autocomplete="off" placeholder="Enter your username here" />
+                    </div>
+                    <div class="mt-3">
+                        <input type="hidden" name="ByUsername" id="PR_ByUsername" value="true" />
+                        <label class="form-label fw-500 ms-1" for="PR_ReserveCode">Reserve Code</label>
+                        <input type="text" class="form-control" id="PR_ReserveCode" max="6" autocomplete="off" name="ReserveCode" placeholder="Enter reserve code here" />
+                    </div>
+                    <small class="card-text text-muted">Reserve code is a 6-digit code gave at the time of your registration</small>
+                    <div class="mt-3">
+                        <div class="row">
+                            <div class="col col-8">
+                                <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check</button>
+                            </div>
+                            <div class="col col-4">
+                                <button type="button" class="btn btn-light btn-standard-with-no-colour w-100 text-truncate" id="ChangeRecoveringType_Btn">Continue With Email</button>
+                            </div>
+                        </div>
+                        <div class="row mt-2">
+                            <div class="col">
+                                <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour smallside-btn-open-container " id="PasswordRecoveringViaEmail_Container-Open">I Don't Remember My Code</button>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard" id="PasswordRecoveringViaEmail_Container">
+        <div>
+            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecoveringViaEmail_Container-Close"></button>
+            <h5 class="h5 text-truncate">Password Recovering Via Email</h5>
+            <div class="mt-4">
+                <form method="post" asp-controller="Account" asp-action="SendCode" id="SendCode_Form">
+                    <div>
+                        <label class="form-label fw-500 ms-1" for="SC_Email">Email</label>
+                        <input type="email" class="form-control" autocomplete="off" id="SC_Email" name="Email" placeholder="Enter your email here" />
+                    </div>
+                    <div class="ms-1 mt-1">
+                        <small class="card-text text-muted">We'll receive you your reserve code by your email. After receiving the code you can enter it and recover your password</small>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Send Code</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard" id="CreateNewPassword_Container">
+        <div>
+            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="CreateNewPassword_Container-Close"></button>
+            <h5 class="h5 text-truncate">Create New Password</h5>
+            <div class="mt-4">
+                <form method="post" asp-controller="Account" asp-action="UpdatePassword" id="UpdatePassword_Form">
+                    <div>
+                        <input type="hidden" name="SearchByUsername" id="SearchByUsername_Val" value="true" />
+                        <input type="hidden" name="ReserveCode" id="UP_ReserveCode" value="" />
+                        <input type="hidden" name="Token" id="UP_Token" value="" />
+                        <label class="form-label fw-500 ms-1" for="CN_EmailOrUsername">Email Or Username</label>
+                        <input type="text" class="form-control" autocomplete="off" id="CN_EmailOrUsername" name="EmailOrUsername" placeholder="Your email or username" readonly />
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label fw-500 ms-1" for="NewPassword">New Password</label>
+                        <input type="password" class="form-control" autocomplete="off" id="NewPassword" name="Password" placeholder="Enter your new password here" maxlength="24" />
+                    </div>
+                    <small class="card-text text-muted">Password must contain from 8 and up to 24 digits</small>
+                    <div class="mt-3">
+                        <label class="form-label fw-500 ms-1" for="NewPassword_Confirm">Confirm Password</label>
+                        <input type="password" class="form-control" autocomplete="off" id="NewPassword_Confirm" name="PasswordConfirm" placeholder="Confirm your password here" />
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Update and Save</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+@*    <div class="mt-1">
+        <h4 class="h4 safe-font">Let us tell you about the details of signing in</h4>
+        <div class="box-container shadow-sm p-2 mt-3">
+            <p class="card-text fw-500">Where will be used your email?</p>
+            <small class="card-text text-muted">Your email won't be used and showed anywhere in this application. Your email will only be needed to receive some news from us about application updates and in process of recovering/changin your password.</small>
+        </div>
+        <div class="box-container shadow-sm p-2 mt-3">
+            <p class="card-text fw-500">What's username?</p>
+            <small class="card-text text-muted">Username is an unique instrument for your account to have an easy entry to it. It must contain from 4 and up to 24 digits. Username won't be displayed anywhere and is only used for logging in. <br/>The sticker behind <strong>Username</strong> label is showing the status of your chosen username. <br/>Username can't be changed after its creation.</small>
+            <div></div>
+            <label class="card-text fw-500 mt-3"> <i class="fas fa-times-circle text-danger"></i> Username</label>
+            <div></div>
+            <small class="card-text">Username isn't free</small>
+            <div class="mt-2"></div>
+            <label class="card-text fw-500"> <i class="fas fa-check-double text-primary"></i> Username</label>
+            <div></div>
+            <small class="card-text">Username is free</small>
+        </div>
+        <div class="box-container shadow-sm p-2 mt-3">
+            <p class="card-text fw-500">What's searchname?</p>
+            <small class="card-text text-muted"><strong>Searchname</strong> is an instrument for improved and facilitated search of users. Searchname must be unique and must contain from 4 and up to 16 digits. <br/>Searchname can be changed at anytime in your profile page.</small>
+        </div>
+        <div class="box-container shadow-sm p-2 mt-3">
+            <p class="card-text fw-500">How do you create an iconic profile?</p>
+            <small class="card-text text-muted">After you have finished your registration and wrote and remembered your reserve code we recommend you to go to your profile page and start to edit your profile. Start from adding a description about you or your company, add an image for account and then change your searchname to find you easily by search.</small>
+        </div>
+    </div>*@
+</div>
+
+<div class="main-container p-3 shadow-standard" id="SignInComplete_Container">
+    <div class="text-center">
+        <h3 class="h3 text-primary">You've successfully signed in</h3>
+        <small class="card-text text-muted">Please, remember or note the code below. You'll need with any neccessary actions with your account, such as password recovery or change</small>
+        <div class="mt-3 box-container shadow-sm p-3">
+            <h1 class="h1 display-4 safe-font" id="CodeText_Label">0abc12</h1>
+            <small class="card-text text-muted">Continue if you have already saved this somewhere</small>
+        </div>
+        <div class="mt-3">
+            <div class="row">
+                <div class="col col-7">
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-primary btn-standard-with-no-colour w-100">Continue</a>
+                </div>
+                <div class="col col-5">
+                    <button type="button" class="btn btn-back btn-light btn-standard-with-no-colour btn-open-container w-100" id="Preload_Container-Open">Stay On This Page</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@if (IsForSigningIn)
+{
+    <div class="main-container p-3 shadow-standard" id="Second_Container">
+        <div>
+@*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
+            <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Second_Container-Close"></button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Preload_Container-Open">Sign In</button>
+            <h5 class="h5 text-truncate">Log In</h5>
+        </div>
+        <div class="mt-4">
+            <form method="post" asp-controller="Account" asp-action="LogIn" id="LogIn_Form">
+                <div>
+                    <label asp-for="UserName" for="LogIn_UserName" class="form-label fw-500 ms-1">Username or email</label>
+                    <input asp-for="UserName" id="LogIn_UserName" class="form-control" autocomplete="off" placeholder="Enter your username or email" />
+                </div>
+                <small class="card-text text-muted">You can use your username or email to log in to your account</small>
+                <div class="mt-3">
+                    <label asp-for="Password" for="LogIn_Password" class="form-label fw-500 ms-1">Password</label>
+                    <input asp-for="Password" id="LogIn_Password" class="form-control" placeholder="Enter your password here" />
+                </div>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col col-7">
+                            <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100" id="LogInSbmt_Btn">Enter</button>
+                        </div>
+                        <div class="col col-5">
+                            <button type="button" class="btn btn-light btn-standard-with-no-colour smallside-btn-open-container w-100" id="PasswordRecovering_Container-Open">Forgot Password?</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="main-container p-3 shadow-standard" id="Preload_Container">
+        <div>
+@*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
+            <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Preload_Container-Close"></button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Second_Container-Open">Log In</button>
+            @*        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>*@
+            <h5 class="h5 text-truncate">Sign In</h5>
+        </div>
+        <div class="mt-4">
+            <div class="d-none">
+                <form method="get" asp-controller="Account" asp-action="IsUserNameUnique" id="IsUserNameUnique_Form">
+                    <input type="hidden" name="UserName" id="IUNU_Val" />
+                </form>
+            </div>
+            <form method="post" asp-controller="Account" asp-action="SignIn" id="SignIn_Form">
+                @*            <div class="form-floating">
+                <input asp-for="Email" class="form-control" placeholder="name@example.com" autocomplete="off" />
+                <label class="fw-500" asp-for="Email">Email Address</label>
+            </div>*@
+                <div class="mt-2">
+                    <label class="fw-500 ms-1" asp-for="Email">Email Address</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="Email"></span>
+                    <input asp-for="Email" class="form-control shadow-none mt-2" placeholder="emailname@example.com" />
+                </div>
+                <div class="mt-3">
+                    <small><span class="card-text ms-1" style="border-radius: 5px;" id="IUNU_Badge"></span></small>
+                    <label class="fw-500 ms-1" asp-for="UserName">Username</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="UserName"></span>
+                    <input asp-for="UserName" class="form-control shadow-none mt-2" autocomplete="off" placeholder="Enter your username" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted ms-1">Username must be unique and cannot be changed later. Username is used for easy entry to your account. Either way you can use your email to enter</small>
+                </div>
+                <div class="mt-3">
+                    <label class="fw-500 ms-1" asp-for="Password">Password</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="Password"></span>
+                    <input asp-for="Password" class="form-control shadow-none mt-2" placeholder="Enter password" />
+                </div>
+                <small class="card-text text-muted ms-1">Password must contain from 8 and up to 24 digits</small>
+                <div class="mt-3">
+                    <label class="fw-500 ms-1" asp-for="PasswordConfirm">Confirm Password</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="PasswordConfirm"></span>
+                    <input asp-for="PasswordConfirm" class="form-control shadow-none mt-2" placeholder="Confirm your password" />
+                </div>
+                <small class="card-text text-muted ms-1">Confirm your password</small>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col col-7">
+                            <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour" disabled id="SignInSbmt_Btn">Create</button>
+                        </div>
+                        <div class="col col-5">
+                            <button type="button" class="btn btn-light btn-standard-with-no-colour w-100 btn-open-container" id="Second_Container-Open">Log In</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+else
+{
+    <div class="main-container p-3 shadow-standard" id="Preload_Container">
+        <div>
+@*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
+            <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Preload_Container-Close"></button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end mt-1 btn-open-container" id="Second_Container-Open">Sign In</button>
+            <h5 class="h5 text-truncate">Log In</h5>
+        </div>
+        <div class="mt-4">
+            <form method="post" asp-controller="Account" asp-action="LogIn" id="LogIn_Form">
+                <div>
+                    <label asp-for="UserName" for="LogIn_UserName" class="form-label fw-500 ms-1">Username or email</label>
+                    <input asp-for="UserName" id="LogIn_UserName" class="form-control" autocomplete="off" placeholder="Enter your username or email" />
+                </div>
+                <small class="card-text text-muted">You can use your username or email to log in to your account</small>
+                <div class="mt-3">
+                    <label asp-for="Password" for="LogIn_Password" class="form-label fw-500 ms-1">Password</label>
+                    <input asp-for="Password" id="LogIn_Password" class="form-control" placeholder="Enter your password here" />
+                </div>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col col-7">
+                            <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100" id="LogInSbmt_Btn">Enter</button>
+                        </div>
+                        <div class="col col-5">
+                            <button type="button" class="btn btn-light btn-standard-with-no-colour smallside-btn-open-container w-100" id="PasswordRecovering_Container-Open">Forgot Password?</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+    <div class="main-container p-3 shadow-standard" id="Second_Container">
+        <div>
+@*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
+            <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Second_Container-Close"></button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Preload_Container-Open">Log In</button>
+            @*        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>*@
+            <h5 class="h5 text-truncate">Sign In</h5>
+        </div>
+        <div class="mt-4">
+            <div class="d-none">
+                <form method="get" asp-controller="Account" asp-action="IsUserNameUnique" id="IsUserNameUnique_Form">
+                    <input type="hidden" name="UserName" id="IUNU_Val" />
+                </form>
+            </div>
+            <form method="post" asp-controller="Account" asp-action="SignIn" id="SignIn_Form">
+                @*            <div class="form-floating">
+            <input asp-for="Email" class="form-control" placeholder="name@example.com" autocomplete="off" />
+            <label class="fw-500" asp-for="Email">Email Address</label>
+            </div>*@
+                <div class="mt-2">
+                    <label class="fw-500 ms-1" asp-for="Email">Email Address</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="Email"></span>
+                    <input asp-for="Email" class="form-control shadow-none mt-2" placeholder="emailname@example.com" />
+                </div>
+                <div class="mt-3">
+                    <small><span class="card-text ms-1" style="border-radius: 5px;" id="IUNU_Badge"></span></small>
+                    <label class="fw-500 ms-1" asp-for="UserName">Username</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="UserName"></span>
+                    <input asp-for="UserName" class="form-control shadow-none mt-2" autocomplete="off" placeholder="Enter your username" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted ms-1">Username must be unique and cannot be changed later. Username is used for easy entry to your account. Either way you can use your email to enter</small>
+                </div>
+                <div class="mt-3">
+                    <label class="fw-500 ms-1" asp-for="Password">Password</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="Password"></span>
+                    <input asp-for="Password" class="form-control shadow-none mt-2" placeholder="Enter password" />
+                </div>
+                <small class="card-text text-muted ms-1">Password must contain from 8 and up to 24 digits</small>
+                <div class="mt-3">
+                    <label class="fw-500 ms-1" asp-for="PasswordConfirm">Confirm Password</label>
+                    <span class="badge warning-badge mb-1" asp-validation-for="PasswordConfirm"></span>
+                    <input asp-for="PasswordConfirm" class="form-control shadow-none mt-2" placeholder="Confirm your password" />
+                </div>
+                <small class="card-text text-muted ms-1">Confirm your password</small>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col col-7">
+                            <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour" disabled id="SignInSbmt_Btn">Create</button>
+                        </div>
+                        <div class="col col-5">
+                            <button type="button" class="btn btn-light btn-standard-with-no-colour w-100 btn-open-container" id="Second_Container-Open">Log In</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
