@@ -31,14 +31,23 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
+                    int ProfileFullnessPercentage = 0;
+
                     TimeSpan DaysTillLastChange = DateTime.Now.Subtract(UserInfo.PasswordResetDate.Date);
                     bool PermissionToChangePassword;
                     if (DaysTillLastChange.TotalDays >= 28) PermissionToChangePassword = true;
                     else PermissionToChangePassword = false;
 
+                    if (UserInfo.Description != null) ProfileFullnessPercentage += 20;
+                    if (UserInfo.EmailConfirmed) ProfileFullnessPercentage += 20;
+                    if (UserInfo.CreatedAt != null) ProfileFullnessPercentage += 20;
+                    if (UserInfo.Link1 != null || UserInfo.Link2 != null) ProfileFullnessPercentage += 20;
+                    if (UserInfo.UserName != UserInfo.PseudoName) ProfileFullnessPercentage += 20;
+
                     ViewBag.UserInfo = UserInfo;
                     ViewBag.LastPasswordChangeDays = DaysTillLastChange.Days;
                     ViewBag.PermissionToChangePassword = PermissionToChangePassword;
+                    ViewBag.ProfileFullnessPercentage = ProfileFullnessPercentage;
 
                     return View();
                 }

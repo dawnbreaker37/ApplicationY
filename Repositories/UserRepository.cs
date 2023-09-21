@@ -73,6 +73,16 @@ namespace ApplicationY.Repositories
             return false;
         }
 
+        public async Task<bool> EditPersonalInfoAsync(EditPersonalInfo_ViewModel Model)
+        {
+            if(Model.Id != 0)
+            {
+                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsCompany, Model.IsCompany).SetProperty(u => u.CreatedAt, Model.CreatedAt));
+                if (Result != 0) return true;
+            }
+            return false;
+        }
+
         public async Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model)
         {
             if (Model != null && !String.IsNullOrEmpty(Model.SearchName))
@@ -80,7 +90,7 @@ namespace ApplicationY.Repositories
                 bool IsSearchNameFree = await _context.Users.AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
                 if (!IsSearchNameFree)
                 {
-                    int Result = await _context.Users.Where(u => u.SearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName).SetProperty(u => u.Description, Model.Description));
+                    int Result = await _context.Users.Where(u => u.SearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
                     if (Result != 0) return true;
                 }
             }

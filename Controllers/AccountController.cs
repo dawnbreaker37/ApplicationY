@@ -207,6 +207,18 @@ namespace ApplicationY.Controllers
             return Json(new { success = false, alert = "Something went wrong while we tried to edit/add links to your account. Please, check all your entered datas and try again. All fields need to be entered and they can't be empty" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditPersonalInfo(EditPersonalInfo_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _userRepository.EditPersonalInfoAsync(Model);
+                if (Result) return Json(new { success = true, alert = "Your personal information has successfully updated", result = Model });
+                else return Json(new { success = false, alert = "An error occured while trying to update your personal information. Please, check correctness of entered datas and try again. Also check the correctness of entered data value (d/m/yyyy), for example: 1/12/2020" });
+            }
+            else return Json(new { success = false, alert = "An error occured while trying to update your personal information. Please, check all datas and try again" });
+        }
+
         [HttpGet]
         public async Task<IActionResult> IsSearchNameUnique(int Id, string SearchName)
         {

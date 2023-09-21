@@ -10,6 +10,7 @@ namespace ApplicationY.Interfaces
         public Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model);
         public Task<bool> EditDescriptionAsync(EditDescription_ViewModel Model);
         public Task<bool> EditLinksAsync(EditLinks_ViewModel Model);
+        public Task<bool> EditPersonalInfoAsync(EditPersonalInfo_ViewModel Model);
         public Task<bool> LogInAsync(LogIn_ViewModel Model);
         public Task<bool> IsUserNameUniqueAsync(string UserName);
         public Task<bool> IsSearchNameUniqueAsync(int Id, string SearchName);

@@ -186,7 +186,6 @@ $("#EditMainInfo_Form").on("submit", function (event) {
             $("#RealSearchName").val(response.result.searchName);
             $("#SearchName").val(response.result.searchName);
             $("#PseudoName").val(response.result.pseudoName);           
-            $("#Description").val(response.result.description);
             if (response.result.pseudoName != null) {
                 $("#AYA_Pseudoname").html(" <i class='fas fa-user-circle text-primary'></i> " + response.result.pseudoName);
                 $("#AYA_Searchname").html(" <i class='fas fa-at text-primary'></i> " + response.result.searchName);
@@ -196,12 +195,6 @@ $("#EditMainInfo_Form").on("submit", function (event) {
             else {
                 $("#AY_Username").text(response.result.userName);
                 $("#AY_SearchName").html(" <i class='fas fa-at text-dark'></i> <span class='text-dark'>Searchname:</span> " + response.result.searchName);
-            }
-            if (response.result.description != null) {
-                $("#AY_Description").html(response.result.description);
-            }
-            else {
-                $("#AY_Description").text("No profile description");
             }
 
             animatedClose(false, "EditAccount_Container");
@@ -250,6 +243,30 @@ $("#EditLinks_Form").on("submit", function (event) {
         else {
             animatedClose(false, "LinkEdit_Container");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
+$("#EditPersonalInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "EditPersonalInfo_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            if (response.result.isCompany) {
+                $("#AY_IsCompany").html("<i class='far fa-building text-primary'></i>  You are a company");
+            }
+            else {
+                $("#AY_IsCompany").html("<i class='fas fa-user-tie text-primary'></i>  You are a personal user");
+            }
+            $("#AY_CreatedDate").html(" <i class='fas fa-clock text-primary'></i> Signed or created at: " + convertDateAndTime(response.result.createdAt, true));
+        }
+        else {
+            animatedClose(false, "EditPersonalInfo_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.75);
         }
     });
 });
@@ -496,15 +513,16 @@ $("#EPI_Date_Day").on("keyup change", function () {
     let dayValue = $(this).val();
     let monthValue = $("#EPI_Date_Month").val();
     let yearValue = $("#EPI_Date_Year").val();
-    //if (monthValue < 10) monthValue = "0" + monthValue;
-    //else if (monthValue > 12 || monthValue <= 0) {
-    //    monthValue = "01";
-    //    $("#EPI_Date_Month").val(1);
-    //}
+
     if (dayValue < 10) dayValue = "0" + dayValue;
     else if (dayValue > 31 || dayValue <= 0) {
         dayValue = "01";
         $("#EPI_Date_Day").val(1);
+    }
+    if (monthValue < 10) monthValue = "0" + monthValue;
+    else if (monthValue > 12 || monthValue <= 0) {
+        monthValue = "01";
+        $("#EPI_Date_Month").val(1);
     }
 
     $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
@@ -514,16 +532,17 @@ $("#EPI_Date_Month").on("keyup change", function () {
     let dayValue = $("#EPI_Date_Day").val();
     let monthValue = $(this).val();
     let yearValue = $("#EPI_Date_Year").val();
+
+    if (dayValue < 10) dayValue = "0" + dayValue;
+    else if (dayValue > 31 || dayValue <= 0) {
+        dayValue = "01";
+        $("#EPI_Date_Day").val(1);
+    }
     if (monthValue < 10) monthValue = "0" + monthValue;
     else if (monthValue > 12 || monthValue <= 0) {
         monthValue = "01";
         $("#EPI_Date_Month").val(1);
     }
-    //if (dayValue < 10) dayValue = "0" + dayValue;
-    //else if (dayValue > 31 || dayValue <= 0) {
-    //    dayValue = "01";
-    //    $("#EPI_Date_Day").val(1);
-    //}
   
     $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
     $("#EPI_DateInfo").text(dayValue + "/" + monthValue + "/" + yearValue);
@@ -534,8 +553,19 @@ $("#EPI_Date_Year").on("keyup change", function () {
     let yearValue = $(this).val();
     let dT = new Date();
     let currentYear = dT.getFullYear();
+
     if (yearValue > currentYear) yearValue = currentYear;
     $("#EPI_Date_Year").val(yearValue);
+    if (dayValue < 10) dayValue = "0" + dayValue;
+    else if (dayValue > 31 || dayValue <= 0) {
+        dayValue = "01";
+        $("#EPI_Date_Day").val(1);
+    }
+    if (monthValue < 10) monthValue = "0" + monthValue;
+    else if (monthValue > 12 || monthValue <= 0) {
+        monthValue = "01";
+        $("#EPI_Date_Month").val(1);
+    }
 
     $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
     $("#EPI_DateInfo").text(dayValue + "/" + monthValue + "/" + yearValue);
@@ -1026,4 +1056,16 @@ $(document).on("mouseover", ".info-popover", function (event) {
 });
 $(document).on("mouseout", ".info-popover", function () {
     $(".info-popover").popover("hide");
+});
+$(document).on("click", ".form-check-input", function (event) {
+    let trueId = event.target.id;
+    let value = $("#" + trueId).val();
+    value = value == "false" ? false : true;
+
+    if (value) {
+        $("#" + trueId).val(false);
+    }
+    else {
+        $("#" + trueId).val(true);
+    }
 });

@@ -93,6 +93,16 @@ html {
     backdrop-filter: blur(4px);
 }
 
+.progress-bar {
+    background-color: #0d6efd;
+    transition: all ease 0.3s;
+}
+.progress {
+    height: 17px;
+    border-radius: 8px;
+    transition: all ease 0.35s;
+}
+
 .number-form-control {
     cursor: pointer;
     font-size: x-large;
