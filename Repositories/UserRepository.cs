@@ -32,10 +32,11 @@ namespace ApplicationY.Repositories
                     User NewUser = new User
                     {
                         SearchName = "id-" + RandomId,
-                        UserName = Model.UserName,
+                        UserName = Model.UserName,                      
                         Email = Model.Email,
                         ReserveCode = ReserveCode,
-                        PseudoName = null
+                        PseudoName = Model.UserName,
+                        CreatedAt = null
                     };
 
                     IdentityResult? Result = await _userManager.CreateAsync(NewUser, Model.Password);
@@ -50,6 +51,40 @@ namespace ApplicationY.Repositories
                 }
             }
             return null;
+        }
+
+        public async Task<bool> EditDescriptionAsync(EditDescription_ViewModel Model)
+        {
+            if(Model.Id != 0 && !String.IsNullOrEmpty(Model.Description))
+            {
+                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Description, Model.Description));
+                if (Result != 0) return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> EditLinksAsync(EditLinks_ViewModel Model)
+        {
+            if((Model.Id) != 0 && (!String.IsNullOrEmpty(Model.Link1) && !String.IsNullOrEmpty(Model.Link2)))
+            {
+                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Link1, Model.Link1).SetProperty(u => u.Link1Tag, Model.Link1Tag).SetProperty(u => u.Link2, Model.Link2).SetProperty(u => u.Link2Tag, Model.Link2Tag));
+                if (Result != 0) return true;
+            }
+            return false;
+        }
+
+        public async Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model)
+        {
+            if (Model != null && !String.IsNullOrEmpty(Model.SearchName))
+            {
+                bool IsSearchNameFree = await _context.Users.AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
+                if (!IsSearchNameFree)
+                {
+                    int Result = await _context.Users.Where(u => u.SearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName).SetProperty(u => u.Description, Model.Description));
+                    if (Result != 0) return true;
+                }
+            }
+            return false;
         }
 
         public async Task<User?> GetUserByIdAsync(int Id, bool NeedLargerInfo)
@@ -68,9 +103,19 @@ namespace ApplicationY.Repositories
             else return null;
         }
 
+        public async Task<bool> IsSearchNameUniqueAsync(int Id, string SearchName)
+        {
+            if(Id != 0 && !String.IsNullOrEmpty(SearchName))
+            {
+                bool Result = await _context.Users.AsNoTracking().AnyAsync(u => (u.Id != Id) && (u.SearchName != null && u.SearchName.ToLower() == SearchName.ToLower()));
+                if(Result) return true;
+            }
+            return false;
+        }
+
         public async Task<bool> IsUserNameUniqueAsync(string UserName)
         {
-            bool Result = await _context.Users.AnyAsync(u => u.UserName == null || u.UserName.ToLower() == UserName.ToLower());
+            bool Result = await _context.Users.AsNoTracking().AnyAsync(u => u.UserName == null || u.UserName.ToLower() == UserName.ToLower());
             return Result;
         }
 

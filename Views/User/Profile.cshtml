@@ -1,33 +1,419 @@
-﻿@model User
+﻿@model EditAccount_ViewModel
 @{
     ViewData["Title"] = "Your Account";
 
     User? UserInfo = ViewBag.UserInfo;
+    bool PermissionToChangePassword = ViewBag.PermissionToChangePassword;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+    </div>
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-pencil-alt"></i> <br />Edit Account</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-edit"></i> <br />Main</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditMainSettings_Container-Open"> <i class="fas fa-cogs"></i> <br />Main Settings</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditSecuritySettings_Container-Open"> <i class="fas fa-lock"></i> <br />Security</button>
             </div>
-            <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditSecuritySettings-Open"> <i class="fas fa-lock"></i> <br />Security Settings</button>
+            <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
+            </div>
+            <div class="col d-none d-lg-block d-xl-block d-md-block">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="fas fa-user-circle"></i> <br />About</button>
             </div>
         </div>
     </div>
 </div>
+
+<div class="smallside-box-container p-3 shadow-standard" id="EditPersonalInfo_Container">
+    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditPersonalInfo_Container-Close"></button>
+    <h5 class="h5 text-truncate">Edit Personal Information</h5>
+    <div class="mt-4">
+        <form method="post" asp-controller="Account" asp-action="EditPersonalInfo" id="EditPersonalInfo_Form">
+            <div class="d-none">
+                <input type="hidden" name="CreatedAt" id="EPI_CreatedAt" value="@UserInfo.CreatedAt" />
+            </div>
+            <div>
+                @if (UserInfo.CreatedAt != null)
+                {
+                    <div class="row">
+                    <label class="form-label fw-500">Set date of birth/creation ∙ <span class="card-text text-muted fw-normal" id="EPI_DateInfo">@UserInfo.CreatedAt?.Day/@UserInfo.CreatedAt?.Month/@UserInfo.CreatedAt?.Year</span></label>
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Day" class="number-form-control w-100" placeholder="0" value="@UserInfo.CreatedAt?.Day" min="1" max="31" />
+                        </div>
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Month" class="number-form-control w-100" placeholder="0" value="@UserInfo.CreatedAt?.Month" min="1" max="12" />
+                        </div>
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Year" class="number-form-control w-100" placeholder="0" value="@DateTime.Now.Year" min="1875" max="@UserInfo.CreatedAt?.Year" />
+                        </div>
+                    </div>
+                }
+                else
+                {
+                    <label class="form-label fw-500" id="EPI_DateInfo">Set date of birth/creation <span class="card-text text-muted">01/01/@DateTime.Now.Year</span></label>
+                    <div class="row">
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Day" class="number-form-control w-100" placeholder="0" value="1" min="1" max="31" />
+                        </div>
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Month" class="number-form-control w-100" placeholder="0" value="1" min="1" max="12" />
+                        </div>
+                        <div class="col col-4">
+                            <input type="number" id="EPI_Date_Year" class="number-form-control w-100" placeholder="0" value="@DateTime.Now.Year" min="1840" max="@DateTime.Now.Year" />
+                        </div>
+                    </div>
+                }
+                <div class="mt-3">
+                    @if (UserInfo.IsCompany)
+                    {
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="EPI_IsCompany" name="IsCompany" value="true" />
+                            <label class="form-check-label fw-500" for="EPI_IsCompany">Are you a company?</label>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="EPI_IsCompany" name="IsCompany" value="false" />
+                            <label class="form-check-label fw-500" for="EPI_IsCompany">Are you a company?</label>
+                        </div>
+                    }
+                </div>
+                <div class="ms-1">
+                   <small class="card-text text-muted">If you are a personal user switch to off position</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour">Submit Changes</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
 <div class="smallside-box-container p-3 shadow-standard" id="EditAccount_Container">
     <div>
+        <div class="d-none">
+            <input type="hidden" id="RealUserName" value="@UserInfo.UserName" />
+        </div>
+        <div class="d-none">
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Account" asp-action="IsSearchNameUnique" id="IsSearchnameUnique_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+                <input type="hidden" name="SearchName" value="@UserInfo.SearchName" id="ISNU_Searchname" />
+            </form>
+        </div>
         <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditAccount_Container-Close"></button>
         <h5 class="h5 text-truncate">Edit Information</h5>
         <div class="mt-4">
+            <form method="post" asp-controller="Account" asp-action="EditMainInfo" id="EditMainInfo_Form">
+                <div class="d-none">
+                    <input type="hidden" asp-for="Id" value="@UserInfo.Id" />
+                    <input type="hidden" asp-for="RealSearchName" value="@UserInfo.SearchName" />
+                </div>
+                <div>
+                    <label asp-for="PseudoName" class="form-label fw-500 ms-1">Pseudoname</label>
+                    <span class="badge warning-badge" asp-validation-for="PseudoName"></span>
+                    <input asp-for="PseudoName" class="form-control" autocomplete="off" placeholder="Enter your pseudoname here" value="@UserInfo.PseudoName" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">Is showed as your nickname when you post or comment anything. Can't be used for signing in</small>
+                </div>
+                <div class="mt-3">
+                    <label asp-for="SearchName" id="SearchName_Lbl" class="form-label fw-500 ms-1">Searchname</label>
+                    <span class="badge warning-badge" asp-validation-for="SearchName"></span>
+                    <input asp-for="SearchName" class="form-control" autocomplete="off" placeholder="Enter your searchname here" value="@UserInfo.SearchName" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted" id="EA_SearchnameLbl">Is used for searching and relocating to your page</small>
+                </div>
+                <div class="mt-3">
+                    <label asp-for="Description" class="form-label fw-500 ms-1">Description</label>
+                    <span class="badge warning-badge" asp-validation-for="Description"></span>
+                    <textarea name="Description" id="Description" class="form-control" rows="6" placeholder="Enter the description here">@UserInfo.Description</textarea>
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">Up to 600 characters</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-standard-with-no-colour btn-primary btn-sm w-100" id="EditFormSbmt_Btn">Submit changes</button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
+
+<div class="smallside-box-container p-3 shadow-standard" id="PasswordChangeSubmit_Container">
+    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChangeSubmit_Container-Close"></button>
+    <h5 class="h5 text-truncate">Change Password, Step 2/2</h5>
+    <div class="mt-4">
+        <form method="post" asp-controller="Account" asp-action="ChangePassword_Final" id="ChangePassword_Final_Form">
+            <div class="d-none">
+                <input type="hidden" name="UserId" id="PCS_UserId" />
+                <input type="hidden" name="CurrentPassword" id="PCS_CurrentPassword" />
+                <input type="hidden" name="NewPassword" id="PCS_NewPassword" />
+            </div>
+            <div>
+                <label class="form-label fw-500 ms-1" for="ConfirmPassword">Confirm Password</label>
+                <input type="password" name="ConfirmPassword" id="ConfirmPassword" class="form-control" placeholder="Confirm your new password here" />
+            </div>
+            <div class="ms-1">
+                <small class="card-text text-muted">Enter your new generated password</small>
+            </div>
+            <div class="mt-3">
+                <label class="form-label fw-500 ms-1" for="PCS_ReserveCode">Reserve Code</label>
+                <input type="text" name="ReserveCode" id="PCS_ReserveCode" maxlength="6" class="form-control" placeholder="Enter your reserve code" />
+            </div>
+            <div class="mt-3">
+                <div class="row">
+                    <div class="col col-7">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check & Submit</button>
+                    </div>
+                    <div class="col col-5">
+                        <button type="button" class="btn btn-light btn-standard-with-no-colour w-100">I Don't My Reserve Code</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<div class="smallside-box-container p-3 shadow-standard" id="PasswordChange_Container">
+    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChange_Container-Close"></button>
+    <h5 class="h5 text-truncate">Change Password, Step 1/2</h5>
+    <div class="mt-4">
+        <div class="box-container p-2 bg-light">
+            <p class="card-text fw-500"> <i class="fas fa-exclamation-triangle text-warning"></i> Warning</p>
+            <small class="card-text">Pay attention that after this change you won't able to change your password again for 28 days</small>
+        </div>
+        <div class="mt-2">
+            <form method="post" asp-controller="Account" asp-action="ChangePassword_First" id="ChangePassword_First_Form">
+                <div>
+                    <label class="form-label fw-500 ms-1" for="CurrentPassword">Current Password</label>
+                    <input type="password" name="CurrentPassword" id="CurrentPassword" class="form-control" placeholder="Enter your current password here" />
+                </div>
+                <div class="mt-3">
+                    <label class="form-label fw-500 ms-1" for="NewPassword">New Password</label>
+                    <input type="password" name="NewPassword" id="NewPassword" class="form-control" placeholder="Enter your new password here" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">If current password is correct you'll need to enter your reserve code</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check and continue</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
+    <button type="button" class="btn btn-back btn-sm float-end ms-1">Back</button>
+    <h5 class="h5 text-truncate">Add Option To Text</h5>
+    <div class="mt-4">
+        <div class="bordered-container p-2">
+            <small class="card-text text-muted">Type:</small>
+            <small class="card-text" id="AddOption_Badge">No Item</small>
+            <input type="hidden" id="AddOption_Type_Val" value="0" />
+            <input type="hidden" id="AddOption_WhereAndFrom_Val" />
+        </div>
+        <div class="mt-2">
+            <label class="form-label fw-500 ms-1">Enter Text Value</label>
+            <input type="text" class="form-control" id="AddOption_Val1" autocomplete="off" placeholder="Enter the value here" />
+        </div>
+        <div class="ms-1">
+            <small class="card-text text-muted">This part will show in special, selected by you form</small>
+        </div>
+        <div class="mt-3">
+            <label class="form-label fw-500 ms-1">Enter Link</label>
+            <input type="text" class="form-control" autocomplete="off" id="AddOption_Val2" disabled placeholder="Enter the link here" />
+        </div>
+        <div class="mt-3">
+            <button type="button" class="btn btn-primary btn-standard-with-no-colour w-100" disabled id="AddOptionSbmt_Btn">Add Option</button>
+        </div>
+    </div>
+</div>
+
+<div class="smallside-box-container p-3 shadow-standard" id="EditDescription_Container">
+    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditDescription_Container-Close"></button>
+    <h5 class="h5 text-truncate">Edit Description</h5>
+    <div class="mt-4">
+        <form method="post" asp-controller="Account" asp-action="EditDescription" id="EditDescription_Form">
+            <div>
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+                <label class="form-label fw-500 ms-1" asp-for="Description" for="ED_Description">Description</label>
+                <div class="box-container bg-light mt-2 p-2">
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-1" data-html="ED_Description" id="AddOpt-1"> <i class="fas fa-bold"></i> Bold</button>
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option" data-html="ED_Description" id="AddOpt-2"> <i class="fas fa-link"></i> Add Link</button>
+                </div>
+                <textarea class="form-control mt-1" id="ED_Description" name="Description" rows="5" placeholder="Enter your description here" maxlength="600">@UserInfo.Description</textarea>
+            </div>
+            <div class="mt-3">
+                <div class="row">
+                    <div class="col col-7">
+                        <button type="submit" class="btn btn-primary btn-sm btn-standard-with-no-colour w-100"> <i class="fas fa-check"></i> Submit Changes</button>
+                    </div>
+                    <div class="col col-5">
+                        <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour w-100"> <i class="fas fa-info-circle"></i> Info</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+@if (!UserInfo.IsEmailChanged)
+{
+    <div class="smallside-box-container p-3 shadow-standard" id="EmailChange_Container">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="EmailChange_Container-Close"></button>
+        <button type="button" class="btn btn-outline-light text-dark btn-standard-with-no-colour border-0 btn-sm float-end mt-1 info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Click <span class='badge bg-light shadow-sm text-dark warning-badge'>Send Reserve Code</span> to send your reserve code to your current account. Click <span class='badge bg-light text-dark warning-badge'>Change Via One-Time Code</span> to receive a one-time code to your email and change email by that code" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
+        <h5 class="h5 text-truncate">Change Email Via Reserve Code</h5>
+        <div class="mt-4">
+            <form method="post" asp-controller="Account" asp-action="ChangeEmailViaReserveCode" id="ChangeEmailViaReserveCode_Form">
+                <div>
+                    <input type="hidden" name="Id" value="@UserInfo.Id" />
+                    <label asp-for="Email" class="form-label fw-500 ms-1">Current Email</label>
+                    <input type="email" class="form-control" disabled readonly value="@UserInfo.Email" />
+                    <input type="hidden" asp-for="Email" value="@UserInfo.Email" />
+                </div>
+                <div class="mt-3">
+                    <label for="NewEmail" class="form-label fw-500 ms-1">New Email</label>
+                    <input type="email" id="NewEmail" autocomplete="off" name="NewEmail" class="form-control" placeholder="Enter your new email" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">Your new email must be unique and can't be used before for another account</small>
+                </div>
+                <div class="mt-3">
+                    <label for="ReserveCode" class="form-label fw-500 ms-1">Reserve Code</label>
+                    <input type="text" maxlength="6" autocomplete="off" class="form-control" id="ReserveCode" name="ReserveCode" placeholder="Enter your 6-digit reserve code here" />
+                </div>
+                <div class="mt-3">
+                    <label for="CEVRC_Password" class="form-label fw-500 ms-1">Password</label>
+                    <input type="password" maxlength="24" autocomplete="off" class="form-control" id="CEVRC_Password" name="Password" placeholder="Enter your password here" />
+                </div>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col col-6">
+                            <button type="submit" class="btn btn-primary btn-sm btn-standard-with-no-colour w-100">Submit</button>
+                        </div>
+                        <div class="col col-6">
+                            <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour text-truncate w-100">Send Reserve Code</button>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col">
+                            <button type="button" class="btn btn-light btn-sm w-100 btn-standard-with-no-colour text-truncate">Change Via One-Time Code</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+}
+
+<div class="smallside-box-container p-3 shadow-standard" id="LinkEdit_Container">
+    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="LinkEdit_Container-Close"></button>
+    <h5 class="h5 text-truncate">Edit Links</h5>
+    <div class="mt-4">
+        <form method="post" asp-controller="Account" asp-action="EditLinks" id="EditLinks_Form">
+            <div>
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+                <label class="form-label fw-500 ms-1" for="Link1Tag">First Link Tag</label>
+                <input type="text" class="form-control" name="Link1Tag" id="Link1Tag" maxlength="50" autocomplete="off" placeholder="Enter web-page or social network name here" value="@UserInfo.Link1Tag" />
+            </div>
+            <div class="mt-3">
+                <label class="form-label fw-500 ms-1" for="Link1">First Link</label>
+                <input type="text" class="form-control" name="Link1" id="Link1" autocomplete="off" placeholder="Enter first link here" value="@UserInfo.Link1" />
+            </div>
+            <div class="ms-1">
+                <small class="card-text text-muted">Add link to your web-page or to some social network like X, Facebook, Youtube, Instagram and etc.</small>
+            </div>
+            <div class="mt-3">
+                <label class="form-label fw-500 ms-1" for="Link2Tag">Second Link Tag</label>
+                <input type="text" class="form-control" name="Link2Tag" id="Link2Tag" maxlength="50" placeholder="Enter second web-page or social network name here" value="@UserInfo.Link2Tag" />
+            </div>
+            <div class="mt-3">
+                <label class="form-label fw-500 ms-1" for="Link2">Second Link</label>
+                <input type="text" class="form-control" name="Link2" id="Link2" autocomplete="off" placeholder="Enter second link here" value="@UserInfo.Link2" />
+            </div>
+            <div class="mt-3">
+                <div class="row">
+                    <div class="col col-6">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Submit Changes</button>
+                    </div>
+                    <div class="col col-6">
+                        <div class="btn-group w-100" role="group" aria-label="Small button group">
+                            <a href="#" class="btn btn-light btn-standard-with-no-colour" id="FirstLinkTest_Btn">First Link</a>
+                            <a href="#" class="btn btn-light btn-standard-with-no-colour" id="SecondLinkTest_Btn">Second Link</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="main-container p-3 shadow-standard" id="EditSecuritySettings_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="EditSecuritySettings_Container-Close"></button>
+        <h6 class="h5 text-truncate">Security</h6>
+    </div>
+    <div class="mt-4">
+        <div class="box-container bg-light p-3">
+            @if (UserInfo.PseudoName != null)
+            {
+                <h2 class="h2 safe-font">@UserInfo.PseudoName</h2>
+            }
+            else
+            {
+                <h2 class="h2 safe-font">@UserInfo.UserName</h2>
+            }
+            <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-inbox"></i> Inbox:</span> @UserInfo.Email</small>
+            <div></div>
+            @if(!UserInfo.IsEmailChanged)
+            {
+                <button type="button" class="btn btn-text btn-sm mt-1 smallside-btn-open-container" id="EmailEdit_Container-Open"> <i class="fas fa-pencil-alt"></i> Change</button>
+            }
+            else
+            {
+                <small class="card-text text-muted">You've already changed your email address once</small>
+            }
+            <div class="border-top mt-2 pt-2"></div>
+            @if (PermissionToChangePassword)
+            {
+                <div>
+                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-check-double text-primary"></i> Is able to change</small>
+                    <div class="mt-1"></div>
+                    @if (ViewBag.LastPasswordChangeDays > 100)
+                    {
+                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span> haven't changed before or more than 100 days passed</small>
+                    }
+                    else
+                    {
+                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span>@ViewBag.LastPasswordChangeDays days</small>
+                    }
+                    <div></div>
+                    <button type="button" class="btn btn-sm btn-text smallside-btn-open-container mt-1" id="PasswordChange_Container-Open"> <i class="fas fa-pencil-alt"></i> Change</button>
+                </div>
+            }
+            else
+            {
+                <div>
+                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-times text-danger"></i> Isn't able to change</small>
+                    <div class="mt-1"></div>
+                    <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update:</span> @ViewBag.LastPasswordChangeDays/28 days</small>
+                    <div></div>
+                    <button type="button" class="btn btn-sm btn-text mt-1" disabled> <i class="fas fa-pencil-alt"></i> Change</button>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
 <div class="main-container p-3 shadow-standard" id="Preload_Container">
     <div>
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
@@ -39,5 +425,102 @@
         <h5 class="h5 text-truncate">About You</h5>
     </div>
     <div class="mt-4">
+        <div class="box-container bg-light p-3">
+            @if (UserInfo.PseudoName == null)
+            {
+                <h1 class="h1 safe-font" id="AY_Username">@UserInfo.UserName</h1>
+                <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i> <span class="text-dark">Searchname:</span> @UserInfo.SearchName</small>
+            }
+            else
+            {
+                <h1 class="h1 safe-font" id="AY_Username">@UserInfo.PseudoName</h1>
+                <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i>, <i class="fas fa-hashtag text-dark"></i> <span class="text-dark">Searchname, Username:</span> @UserInfo.SearchName, @UserInfo.UserName</small>
+            }
+            <div class="mt-2"></div>
+            <small class="card-text text-muted" id="AY_Email"> <i class="fas fa-inbox text-dark"></i> <span class="text-dark">Inbox:</span> @UserInfo.Email</small>
+            <div></div>
+            @if (!UserInfo.IsEmailChanged)
+            {
+                <button type="button" class="btn btn-text info-popover mt-2 btn-sm smallside-btn-open-container" id="EmailChange_Container-Open" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Click to change your email. Notice, that you can change you email once per account"> <i class="fas fa-pen-square"></i> Edit Email</button>
+            }
+        </div>
+        <div class="card-group mt-1">
+            <div class="card shadow-sm p-3 me-1">
+                <div>
+                    @if (UserInfo.Description != null)
+                    {
+                        <h6 class="h6">Description</h6>
+                        <div></div>
+                        <small class="card-text white-space-on" id="AY_Description">@UserInfo.Description</small>
+                    }
+                    else
+                    {
+                        <h6 class="h6">Description</h6>
+                        <div></div>
+                        <small class="card-text white-space-on" id="AY_Description">No profile description</small>
+                    }
+                    <div></div>
+                    <button type="button" class="btn btn-text btn-sm smallside-btn-open-container mt-1" id="EditDescription_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3 me-1">
+                <div>
+                    <h6 class="h6">Links</h6>
+                    @if(UserInfo.Link1 == null)
+                    {
+                        <a href="#" class="text-decoration-none text-dark" id="AY_Link1"><small class="card-text"> <i class="fas fa-globe text-primary"></i> First Link: <span class="text-primary">Empty</span></small></a>
+                    }
+                    else
+                    {
+                        <a href="@UserInfo.Link1" class="text-decoration-none text-dark" id="AY_Link1"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Official <span class="text-primary">@UserInfo.Link1Tag</span> Link</small></a>
+                    }
+                    <div></div>
+                    @if (UserInfo.Link2 == null)
+                    {
+                        <a href="#" class="text-decoration-none text-dark" id="AY_Link2"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Second Link: <span class="text-primary">Empty</span></small></a>
+                    }
+                    else
+                    {
+                        <a href="@UserInfo.Link2" class="text-decoration-none text-dark" id="AY_Link2"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Official <span class="text-primary">@UserInfo.Link2Tag</span> Link</small></a>
+                    }
+                    <div class="mt-2 pt-1 border-top"></div>
+                    <small class="card-text"> <i class="fas fa-info-circle text-primary"></i> You can also add links in your account description part</small>
+                    <div></div>
+                    <button type="button" class="btn btn-text mt-2 btn-sm smallside-btn-open-container" id="LinkEdit_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3">
+                <div>
+                    <h6 class="h6">Personal Information</h6>
+                    <small class="card-text" id="AYA_Pseudoname"> <i class="fas fa-user-circle text-primary"></i> @UserInfo.PseudoName</small>
+                    <div></div>
+                    <small class="card-text" id="AYA_Searchname"> <i class="fas fa-at text-primary"></i> @UserInfo.SearchName</small>
+                    <div></div>
+                    <small class="card-text" id="AY_Inbox"> <i class="fas fa-inbox text-primary"></i> @UserInfo.Email</small>
+                    <div></div>
+                    <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
+                    <div class="mt-2 border-top pt-2"></div>
+                    @if(UserInfo.IsCompany)
+                    {
+                        <small class="card-text" id="AY_IsCompany"> <i class="far fa-building text-primary"></i>  You are a company</small>
+                    }
+                    else
+                    {
+                        <small class="card-text" id="AY_IsCompany"> <i class="fas fa-user-tie text-primary"></i>  You are a personal startuper</small>
+                    }
+                    <div></div>
+                    @if(UserInfo.CreatedAt == null)
+                    {
+                        <small class="card-text" id="AY_CreatedDate"> <i class="fas fa-clock text-primary"></i>  Signed or created at: no entered date</small>
+                    }
+                    else
+                    {
+                        <small class="card-text" id="AY_CreatedDate"> <i class="fas fa-clock text-primary"></i>  Signed or created at: @UserInfo.CreatedAt?.ToString("dd MMM yyyy")</small>
+                    }
+                    <div></div>
+                    <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditPersonalInfo_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

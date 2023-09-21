@@ -67,6 +67,37 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> ChangePassword_First(PasswordChange_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                User? UserInfo = await _userManager.GetUserAsync(User);
+                if (UserInfo != null && !String.IsNullOrEmpty(Model.CurrentPassword))
+                {
+                    bool Result = await _userManager.CheckPasswordAsync(UserInfo, Model.CurrentPassword);
+                    if (Result) return Json(new { success = true, currentPassword = Model.CurrentPassword, newPassword = Model.NewPassword, userId = UserInfo.Id, alert = "Password is correct. Now, let's confirm the new one and submit it all by reserve code" });
+                    else return Json(new { success = false, alert = "Password is incorrent. Please, try again. May be you've entered wrong password" });
+                }
+            }
+            return Json(new { success = false, alert = "An error occured while checking your account. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword_Final(PasswordChange_ViewModel Model)
+        {
+            if(ModelState.IsValid)
+            {
+                User? UserInfo = await _userManager.FindByIdAsync(Model.UserId.ToString());
+                Model.UserInfo = UserInfo;
+                bool Result = await _accountRepository.ChangePasswordAsync(Model);
+
+                if (Result) return Json(new { success = true, alert = "Your password has successfully changed" });
+                else return Json(new { success = false, alert = "An error occured while trying to change your password. May be it's reserve code problem. Please, try again it later" });
+            }
+            return Json(new { success = false, alert = "Wrong new entered password or reserve code. Please, check it and try again later" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> PasswordRecovering(string Username, bool ByUsername, string ReserveCode)
         {
             string? Result;
@@ -75,6 +106,18 @@ namespace ApplicationY.Controllers
 
             if (Result != null) return Json(new { success = true, token = Result, reserveCode = ReserveCode, alert = "Account submitted successfully. Now you can create your new password" });
             else return Json(new { success = false, alert = "Reserve code or email/username are wrong. Please, try it again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeEmailViaReserveCode(ChangeEmail_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _accountRepository.ChangeEmailViaReserveCodeAsync(Model);
+                if (Result) return Json(new { success = true, email = Model.NewEmail, alert = "Your email has successfully changed" });
+                else return Json(new { success = false, alert = "An error occured while trying to change your email. May be you've entered wrong password or reserve code. Anyway, please, try it again later" });
+            }
+            return Json(new { success = false, alert = "An error occured while trying to change your email" });
         }
 
         [HttpPost]
@@ -130,6 +173,47 @@ namespace ApplicationY.Controllers
             return Json(new { success = false, text = "An error occured while sending email. Please, try again later" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> EditMainInfo(EditAccount_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _userRepository.EditUserInfoAsync(Model);
+                if (Result) return Json(new { success = true, result = Model, alert = "Your account info has edited successfully" });
+                else return Json(new { success = false, alert = "An error occured while editing your account. Please, check all entered datas and try again" });
+            }
+            return Json(new { success = false, alert = "Some entered datas are wrong. Please, check them, and try to edit again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditDescription(EditDescription_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _userRepository.EditDescriptionAsync(Model);
+                if (Result) return Json(new { success = true, description = Model.Description, alert = "Your account description has successfully edited" });
+            }
+            return Json(new { success = false, alert = "An error occured while trying to edit your account description. Please, check all datas and try it again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditLinks(EditLinks_ViewModel Model)
+        {
+            if(ModelState.IsValid)
+            {
+                bool Result = await _userRepository.EditLinksAsync(Model);
+                if (Result) return Json(new { success = true, alert = "Links have successfully updated recently", link1 = Model.Link1, link2 = Model.Link2, link1Tag = Model.Link1Tag, link2Tag = Model.Link2Tag });
+            }
+            return Json(new { success = false, alert = "Something went wrong while we tried to edit/add links to your account. Please, check all your entered datas and try again. All fields need to be entered and they can't be empty" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> IsSearchNameUnique(int Id, string SearchName)
+        {
+            bool Result = await _userRepository.IsSearchNameUniqueAsync(Id, SearchName);
+            if (Result) return Json(new { success = false, alert = "Searchname isn't free. Please, try to use another one" });
+            else return Json(new { success = true });
+        }
 
         [HttpGet]
         public async Task<IActionResult> IsUserNameUnique(string UserName)

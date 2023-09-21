@@ -4,6 +4,7 @@ namespace ApplicationY.ViewModels
 {
     public class LogIn_ViewModel
     {
+        [MaxLength(90)]
         [Required(ErrorMessage = "Username or email are required")]
         public string? UserName { get; set; }
         [DataType(DataType.Password)]

@@ -31,7 +31,14 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
+                    TimeSpan DaysTillLastChange = DateTime.Now.Subtract(UserInfo.PasswordResetDate.Date);
+                    bool PermissionToChangePassword;
+                    if (DaysTillLastChange.TotalDays >= 28) PermissionToChangePassword = true;
+                    else PermissionToChangePassword = false;
+
                     ViewBag.UserInfo = UserInfo;
+                    ViewBag.LastPasswordChangeDays = DaysTillLastChange.Days;
+                    ViewBag.PermissionToChangePassword = PermissionToChangePassword;
 
                     return View();
                 }
@@ -62,6 +69,6 @@ namespace ApplicationY.Controllers
 
             }
             return Json(new { success = false, alert = "Something went wrong while trying to confirm your email. Please, try again later" });
-        }
+        }       
     }
 }

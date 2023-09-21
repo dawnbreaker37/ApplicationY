@@ -32,12 +32,39 @@
             </div>
         </nav>
     </header>
+
+    <div class="static-bar shadow-standard p-2" id="StatusBar_Container">
+        <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close">Close</button>
+        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="fas fa-bell"></i> Notification</button>
+    </div>
+
+    <div class="modal shadow-sm fade" id="StaticBackdrop_Container" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="StaticBackdrop_ContainerLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="SB_C-Title">SBC title</h1>
+                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-2" id="SB_C-Body">
+                    ...
+                </div>
+                <div class="d-none">
+                    <form method="post" asp-controller="Notifications" asp-action="Remove" id="RemoveNotification_Form">
+                        <input type="hidden" name="Id" id="RN_Id_Val" value="0" />
+                        <input type="hidden" name="UserId" id="RN_UserId_Val" value="0" />
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-modal-container p-3 text-start shadow-sm" id="MainModal_Container">
         <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>
         <button type="button" class="btn btn-standard me-2 btn-sm" style="display: none;" id="MMC_FirstBtn">Button 1</button>
         <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
     </div>
     <div class="container">
+        <button type="button" class="btn btn-primary bg-primary btn-right-bottom-fixed btn-static-bar-open" id="StatusBar_Container-Open"> <i class="fas fa-bell btn-static-bar-open" id="StatusBar_Container-OpenX"></i> </button>
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

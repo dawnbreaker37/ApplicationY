@@ -8,6 +8,26 @@ html {
   }
 }
 
+.modal-content {
+    border-radius: 8px;
+    border: 0;
+    transition: all ease 0.25s;
+}
+
+.static-bar {
+    z-index: 0;
+    border-radius: 0;
+    background-color: white;
+    bottom: -1200px;
+    display: none;
+    position: fixed;
+    transition: all ease 0.3s;
+}
+
+.white-space-on {
+    white-space: pre-line;
+}
+
 .dropdown-menu {
     border: 0;
     background-color: white;
@@ -65,15 +85,79 @@ html {
     font-weight: 500;
 }
 
+.info-popover-show {
+    color: black;
+    border-radius: 8px;
+    border: 1px solid rgb(240, 240, 240);
+    background-color: transparent;
+    backdrop-filter: blur(4px);
+}
+
+.number-form-control {
+    cursor: pointer;
+    font-size: x-large;
+    font-family: 'Trebuchet MS';
+    border: 2px solid #0d6efd;
+    border-radius: 8px;
+    padding: 10px;
+    outline: 0;
+    transition: all ease 0.35s;
+}
+.number-form-control:hover,
+.number-form-control:active {
+    border-color: rgb(240, 240, 240);
+}
+.number-form-control:focus {
+    border-color: rgb(240, 240, 240);
+    border-radius: 34px;
+}
+
+.card {
+    background-color: white;
+    border: none;
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+
 .form-control {
     border: 1px solid rgb(240, 240, 240);
-    border-radius: 8px;
-    padding: 12px;
+    border-radius: 7px;
+    resize: none;
+    padding: 9px;
     outline: 0;
     transition: all ease 0.25s;
 }
 .form-control:focus {
     outline: 1px solid rgb(240, 240, 240);
+}
+
+.btn-right-bottom-fixed {
+    cursor: pointer;
+    border-radius: 34px;
+    color: #fdfdfd;
+    position: fixed;
+    right: 6px;
+    transition: all ease 0.3s;
+}
+.btn-right-bottom-fixed:hover,
+.btn-right-bottom-fixed:active {
+    animation-name: bell-ring;
+    animation-delay: 0.1s;
+    animation-duration: 0.4s;
+}
+
+.btn-text {
+    background-color: transparent;
+    cursor: pointer;
+    padding: 3px 0;
+    border-radius: 34px;
+    font-weight: 500;
+    transition: all ease 0.25s;
+}
+.btn-text:hover,
+.btn-text:active {
+    padding: 3px 6px;
+    background-color: rgb(240, 240, 240);
 }
 
 .btn-standard-with-no-colour {
@@ -193,6 +277,12 @@ html {
     background-color: white;
     transition: all ease 0.3s;
 }
+.bordered-container {
+    border: 1px solid rgb(240, 240, 240);
+    border-radius: 8px;
+    background-color: transparent;
+    transition: all ease 0.3s;
+}
 .card-modal-container {
     width: 125px;
     z-index: 1;
@@ -245,4 +335,16 @@ html {
 body {
   margin-bottom: 60px;
   background-color: #fdfdfd;
+}
+
+@keyframes bell-ring {
+    0%, 100% {
+        transform: rotate(0deg);
+    }
+    20%, 60% {
+        transform: rotate(10deg);
+    }
+    40%, 80% {
+        transform: rotate(-10deg);
+    }
 }

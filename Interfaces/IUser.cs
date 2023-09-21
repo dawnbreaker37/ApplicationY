@@ -7,8 +7,12 @@ namespace ApplicationY.Interfaces
     {
         public Task<User?> GetUserByIdAsync(int Id, bool NeedsLargerInfo);
         public Task<string?> CreateUserAsync(SignIn_ViewModel Model);
+        public Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model);
+        public Task<bool> EditDescriptionAsync(EditDescription_ViewModel Model);
+        public Task<bool> EditLinksAsync(EditLinks_ViewModel Model);
         public Task<bool> LogInAsync(LogIn_ViewModel Model);
         public Task<bool> IsUserNameUniqueAsync(string UserName);
+        public Task<bool> IsSearchNameUniqueAsync(int Id, string SearchName);
         public Task<string?> SubmitAccountByReserveCodeAsync(string? Username, string? Email, string ReserveCode);
         public Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email, string Code);
         public IQueryable<User>? GetUserBySearchName(string SearchName);

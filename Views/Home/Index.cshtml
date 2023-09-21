@@ -1,9 +1,19 @@
 ﻿@model User
 @{
     ViewData["Title"] = "Home Page";
+
+    User? UserInfo = ViewBag.UserInfo;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div class="d-none">
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
+    </div>
+    }
     <div class="container text-center p-2 shadow-sm">
         <button type="button" class="btn btn-standard-not-animated btn-open-container me-2" id="UniversalFirst_Container-Open"> <i class="fas fa-stream"></i> <br /> Newsline</button>
         <div class="dropdown d-inline me-2">

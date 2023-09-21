@@ -10,5 +10,6 @@ namespace ApplicationY.Data
         public Context(DbContextOptions<Context> Options) : base(Options) { }
         public DbSet<User> Users { get; set; }
         public DbSet<TemporaryCode> TemporaryCodes { get; set; }
+        public DbSet<Notification> Notifications { get; set; }
     }
 }

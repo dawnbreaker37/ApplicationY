@@ -5,12 +5,17 @@ let lastContainerName = undefined;
 let currentContainerName = null;
 
 window.onload = function () {
+    let currentUrl = document.location.href;
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
     fullWidth = window.innerWidth;
     fullHeigth = window.innerHeight;
     displayCorrect(fullWidth);
     animatedOpen(false, "Preload_Container", true);
     navBarBtnSelector(document.location.href);
+
+    if (currentUrl.toLowerCase().includes("/profile")) {
+        textDecoder("AY_Description", true);
+    }
 }
 window.onresize = function () {
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
@@ -37,6 +42,29 @@ $("#UserName").on("change", function (event) {
             $("#IUNU_Badge").removeClass("text-primary");
             $("#IUNU_Badge").addClass("text-danger");
             $("#IUNU_Badge").html(" <i class='fas fa-times-circle'></i>");
+        }
+    });
+});
+$("#SearchName").on("change", function (event) {
+    event.preventDefault();
+    $("#ISNU_Searchname").val($(this).val());
+
+    let url = $("#IsSearchnameUnique_Form").attr("action");
+    let data = $("#IsSearchnameUnique_Form").serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#SearchName_Lbl").html(" <i class='fas fa-check-double text-primary'></i> Searchname");
+            $("#EditFormSbmt_Btn").attr("disabled", false);
+            $("#EA_SearchnameLbl").text("Is used for searching and relocating to your page");
+        }
+        else {
+            $("#SearchName_Lbl").html(" <i class='fas fa-times-circle text-danger'></i> Searchname");
+            $("#EditFormSbmt_Btn").prop("disabled", true);
+            $("#EA_SearchnameLbl").html(" <i class='fas fa-times-circle text-danger'></i> " + response.alert);
+            setTimeout(function () {
+                $("#EA_SearchnameLbl").text("Is used for searching and relocating to your page");
+            }, 5000);
         }
     });
 });
@@ -77,6 +105,155 @@ $("#LogIn_Form").on("submit", function (event) {
         }
     });
 });
+
+$("#ChangePassword_First_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#PCS_UserId").val(response.userId);
+            $("#PCS_CurrentPassword").val(response.currentPassword);
+            $("#PCS_NewPassword").val(response.newPassword);
+            animatedClose(false, "PasswordChange_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            setTimeout(function () {
+                animatedOpen(false, "PasswordChangeSubmit_Container", true, false);
+            }, 3550);
+        }
+        else {
+            $("#CurrentPassword").val("");
+            animatedClose(false, "PasswordChange_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.75);
+            setTimeout(function () {
+                animatedOpen(false, "PasswordChange_Container", true, false);
+            }, 4100);
+        }
+    });
+});
+$("#ChangePassword_Final_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#PasswordChange_Container-Open").attr("disabled", true);
+            $("#PasswordUpdateDate_Lbl").html(" <span class='text-dark'> <i class='fas fa-redo-alt'></i> Elapsed time from last update:</span> Few seconds ago")
+            animatedClose(false, "PasswordChangeSubmit_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+        else {
+            $("#CurrentPassword").val("");
+            animatedClose(false, "PasswordChangeSubmit_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            setTimeout(function () {
+                animatedOpen(false, "PasswordChangeSubmit_Container", true, false);
+            }, 3550);
+        }
+    });
+});
+
+$("#ChangeEmailViaReserveCode_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "EmailChange_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
+            $("#AY_Email").html(' <i class="fas fa-inbox text-dark"></i> <span class="text-dark">Inbox:</span> ' + response.email);
+            $("#EmailChange_Container-Open").fadeOut(300);
+        }
+        else {
+            animatedClose(false, "EmailChange_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
+            $("#EmailChange_Container-Open").fadeOut(300);
+        }
+    });
+});
+
+$("#EditMainInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let userName = $("#RealUserName").val();
+            $("#RealSearchName").val(response.result.searchName);
+            $("#SearchName").val(response.result.searchName);
+            $("#PseudoName").val(response.result.pseudoName);           
+            $("#Description").val(response.result.description);
+            if (response.result.pseudoName != null) {
+                $("#AYA_Pseudoname").html(" <i class='fas fa-user-circle text-primary'></i> " + response.result.pseudoName);
+                $("#AYA_Searchname").html(" <i class='fas fa-at text-primary'></i> " + response.result.searchName);
+                $("#AY_Username").text(response.result.pseudoName);
+                $("#AY_SearchName").html(" <i class='fas fa-at text-dark'></i>, <i class='fas fa-hashtag text-dark'></i> <span class='text-dark'>Searchname, Username:</span> " + response.result.searchName + ", " + userName);
+            }
+            else {
+                $("#AY_Username").text(response.result.userName);
+                $("#AY_SearchName").html(" <i class='fas fa-at text-dark'></i> <span class='text-dark'>Searchname:</span> " + response.result.searchName);
+            }
+            if (response.result.description != null) {
+                $("#AY_Description").html(response.result.description);
+            }
+            else {
+                $("#AY_Description").text("No profile description");
+            }
+
+            animatedClose(false, "EditAccount_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.75);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+$("#EditDescription_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "EditDescription_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            $("#Description").val(response.description);
+            $("#AY_Description").html(response.description);
+            textDecoder("AY_Description", true);
+        }
+        else {
+            animatedClose(false, "EditDescription_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+$("#EditLinks_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "LinkEdit_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            if (response.link1Tag != null) $("#AY_Link1").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Official <span class='text-primary'>" + response.link1Tag + "</span> Link</small>");
+            else $("#AY_Link1").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Unknow Link</small>");
+            $("#AY_Link1").attr("href", response.link1);
+            if (response.link2Tag != null) $("#AY_Link2").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Official <span class='text-primary'>" + response.link2Tag + "</span> Link</small>");
+            else $("#AY_Link2").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Unknow Link</small>");
+            $("#AY_Link2").attr("href", response.link2);
+        }
+        else {
+            animatedClose(false, "LinkEdit_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
 $("#SendCode_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -174,6 +351,91 @@ $("#SendEmailConfirmationCode_Form").on("submit", function (event) {
     });
 });
 
+$(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
+    event.preventDefault();
+
+    let url = $("#RemoveAllNotifications_Form").attr("action");
+    let data = $("#RemoveAllNotifications_Form").serialize();
+    console.log(url);
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#StaticBackdrop_Container").modal("hide");
+            setTimeout(function () {
+                $("#SB_C-Body").empty();
+            }, 300);
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+        else {
+            $("#StaticBackdrop_Container").modal("hide");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
+$("#GetNotifications_Btn").on("click", function (event) {
+    event.preventDefault();
+    let url = $("#GetNotifications_Form").attr("action");
+    let data = $("#GetNotifications_Form").serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#SB_C-Body").empty();
+            $("#SB_C-Title").text("Notifications ∙ " + response.count.toLocaleString());
+            if (response.count != 0) {
+                let formDiv = $("<div class='mt-2'></div>");
+                let formTag = $("<form method='post' action='/Notifications/RemoveAllNotifications' id='RemoveAllNotifications_Form'></form>");
+                let formInput = $("<input type='hidden' name='Id' />");
+                let formSbmtBtn = $("<button type='submit' class='btn btn-outline-danger border-0 btn-sm float-end ms-1 btn-standard-with-no-colour'>Remove All</button>");
+                formTag.append(formInput);
+                formTag.append(formSbmtBtn);
+                formDiv.append(formTag);
+                formInput.val(response.userId);
+
+                $.each(response.notifications, function (index) {
+                    let div = $("<div class='bordered-container p-2 mt-1 mb-1'></div>");
+                    let dateTime = $("<small class='card-text text-muted float-end ms-1'></small>");
+                    let title = $("<h6 class='h6 text-truncate'></h6>");
+                    let separatorDiv = $("<div class='mt-3'></div>");
+                    let separatorDiv2 = $("<div class='mt-1'></div>");
+                    let text = $("<small class='card-text'></small>");
+                    let removeBtn = $("<button type='button' class='btn btn-text btn-sm remove-notification'>&times; Remove</button>");
+
+                    dateTime.html(convertDateAndTime(response.notifications[index].sentAt, false));
+                    title.html(response.notifications[index].title);
+                    text.html(response.notifications[index].description);
+
+                    removeBtn.attr("id", "RemoveNotification-" + response.notifications[index].id);
+                    div.attr("id", "Notification_Container-" + response.notifications[index].id);
+
+                    div.append(dateTime);
+                    div.append(title);
+                    div.append(separatorDiv);
+                    div.append(text);
+                    div.append(separatorDiv2);
+                    div.append(removeBtn);
+                    $("#SB_C-Body").append(div);
+                });
+                $("#SB_C-Body").append(formDiv);
+            }
+            else {
+                let div = $("<div class='box-container p-2 mt-1 mb-1 text-center'></div>");
+                let anima = $("<h3 class='display-4'> <i class='far fa-bell-slash'></i> </h3>");
+                let title = $("<h5 class='h5 safe-font mt-2'>No notifications</h5>");
+                let text = $("<small class='card-text'>You haven't received any notifications yet</small>");
+
+                div.append(anima);
+                div.append(title);
+                div.append(text);
+                $("#SB_C-Body").append(div);
+            }
+
+            openStaticBackdrop(null);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
 $("#ChangeRecoveringType_Btn").on("click", function () {
     let currentTypeName = $("#PR_CurrentTypeVal").val();
     animatedClose(false, "PasswordRecovering_Container");
@@ -198,6 +460,141 @@ $("#ChangeRecoveringType_Btn").on("click", function () {
 /*    }, 8000);*/
 });
 
+$("#AddOptionSbmt_Btn").on("click", function () {
+    let type = $("#AddOption_Type_Val").val();
+    let value1 = $("#AddOption_Val1").val();
+    let value2 = $("#AddOption_Val2").val();
+    let whereAndFrom = $("#AddOption_WhereAndFrom_Val").val();
+
+    if (type != 0) {
+        animatedOpen(false, "EditDescription_Container", true, false);
+        addOptionToText(whereAndFrom, type, value1, value2);
+        $("#AddOption_Val1").val("");
+        $("#AddOption_Val2").val("");
+        $("#AddOptionSbmt_Btn").attr("disabled", true);
+    }
+    else openModal("Can't add this type of text. Please, try other type", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 2.75);
+});
+$("#AddOption_Val1").on("keyup", function () {
+    let value = $(this).val();
+    let type = $("#AddOption_Type_Val").val();
+    if (value != "" && type != 2) {
+        $("#AddOptionSbmt_Btn").attr("disabled", false);
+    }
+    else $("#AddOptionSbmt_Btn").attr("disabled", true);
+});
+$("#AddOption_Val2").on("keyup change", function () {
+    let value = $(this).val();
+    let type = $("#AddOption_Type_Val").val();
+    if (type == 2 && value == "") {
+        $("#AddOptionSbmt_Btn").attr("disabled", true);
+    }
+    else $("#AddOptionSbmt_Btn").attr("disabled", false);
+});
+
+$("#EPI_Date_Day").on("keyup change", function () {
+    let dayValue = $(this).val();
+    let monthValue = $("#EPI_Date_Month").val();
+    let yearValue = $("#EPI_Date_Year").val();
+    //if (monthValue < 10) monthValue = "0" + monthValue;
+    //else if (monthValue > 12 || monthValue <= 0) {
+    //    monthValue = "01";
+    //    $("#EPI_Date_Month").val(1);
+    //}
+    if (dayValue < 10) dayValue = "0" + dayValue;
+    else if (dayValue > 31 || dayValue <= 0) {
+        dayValue = "01";
+        $("#EPI_Date_Day").val(1);
+    }
+
+    $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
+    $("#EPI_DateInfo").text(dayValue + "/" + monthValue + "/" + yearValue);
+});
+$("#EPI_Date_Month").on("keyup change", function () {
+    let dayValue = $("#EPI_Date_Day").val();
+    let monthValue = $(this).val();
+    let yearValue = $("#EPI_Date_Year").val();
+    if (monthValue < 10) monthValue = "0" + monthValue;
+    else if (monthValue > 12 || monthValue <= 0) {
+        monthValue = "01";
+        $("#EPI_Date_Month").val(1);
+    }
+    //if (dayValue < 10) dayValue = "0" + dayValue;
+    //else if (dayValue > 31 || dayValue <= 0) {
+    //    dayValue = "01";
+    //    $("#EPI_Date_Day").val(1);
+    //}
+  
+    $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
+    $("#EPI_DateInfo").text(dayValue + "/" + monthValue + "/" + yearValue);
+});
+$("#EPI_Date_Year").on("keyup change", function () {
+    let dayValue = $("#EPI_Date_Day").val();
+    let monthValue = $("#EPI_Date_Month").val();
+    let yearValue = $(this).val();
+    let dT = new Date();
+    let currentYear = dT.getFullYear();
+    if (yearValue > currentYear) yearValue = currentYear;
+    $("#EPI_Date_Year").val(yearValue);
+
+    $("#EPI_CreatedAt").val(dayValue + "." + monthValue + "." + yearValue + " 00:00:00");
+    $("#EPI_DateInfo").text(dayValue + "/" + monthValue + "/" + yearValue);
+});
+
+$("#Link1Tag").on("keyup change", function () {
+    $("#FirstLinkTest_Btn").html($(this).val());
+});
+$("#Link2Tag").on("keyup change", function () {
+    $("#SecondLinkTest_Btn").html($(this).val());
+});
+$("#Link1").on("keyup change", function () {
+    $("#FirstLinkTest_Btn").attr("href", $(this).val());
+});
+$("#Link2").on("keyup change", function () {
+    $("#SecondLinkTest_Btn").attr("href", $(this).val());
+});
+
+$(document).on("click", ".remove-notification", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0 || trueId != null || trueId != undefined) {
+        let userId = $("#PageInfo_UserId").val();
+        $("#RN_Id_Val").val(trueId);
+        $("#RN_UserId_Val").val(userId);
+
+        let url = $("#RemoveNotification_Form").attr("action");
+        let data = $("#RemoveNotification_Form").serialize();
+        $.post(url, data, function (response) {
+            if (response.success) {
+                if (response.count > 0) {
+                    $("#SB_C-Title").text("Notifications ∙ " + response.count.toLocaleString());
+                    slideToLeftAnimation("Notification_Container-" + trueId);
+                    //$("#Notification_Container-" + response.id).fadeOut(300);
+                }
+                else {
+                    $("#SB_C-Title").text("Notifications ∙ " + response.count.toLocaleString());
+                    slideToLeftAnimation("Notification_Container-" + trueId);                  
+                    setTimeout(function () {
+                        $("#SB_C-Body").empty();
+                        let div = $("<div class='box-container p-2 mt-1 mb-1 text-center'></div>");
+                        let anima = $("<h3 class='display-4'> <i class='far fa-bell-slash'></i> </h3>");
+                        let title = $("<h5 class='h5 safe-font mt-2'>No notifications</h5>");
+                        let text = $("<small class='card-text'>You haven't received any notifications yet</small>");
+
+                        div.append(anima);
+                        div.append(title);
+                        div.append(text);
+                        $("#SB_C-Body").append(div);
+                    }, 500);
+                }
+            }
+            else {
+                $("#StaticBackdrop_Container").modal("hide");
+                openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            }
+        });
+    }
+});
+
 $(document).on("click", ".btn-back", function (event) {
     openLastContainer(lastContainerName);
 });
@@ -217,6 +614,12 @@ $(document).on("click", ".smallside-btn-open-container", function (event) {
 $(document).on("click", ".smallside-btn-close", function () {
     smallBarAnimatedOpenAndClose(false);
 });
+$(document).on("click", ".smallside-btn-close-n-open", function (event) {
+    let trueId = getTrueName(event.target.id);
+    animatedClose(true, "smallside-box-container");
+    smallBarAnimatedOpenAndClose(false);
+    animatedOpen(false, trueId, true, true);
+});
 $(document).on("mouseover", ".smallside-modal-open-by-hover", function (event) {
     let alert = $("#" + event.target.id).attr("data-content");
     if (alert != undefined || alert != null) {
@@ -224,6 +627,138 @@ $(document).on("mouseover", ".smallside-modal-open-by-hover", function (event) {
         else openModal(alert, " <i class='fas fa-times'></i> Close", null, 2, null, null, null, 7.5);
     } 
 });
+$(document).on("click", ".btn-static-bar-open", function (event) {
+    let trueId = getTrueName(event.target.id);
+    let currentBtnBottom = $("#" + trueId + "-Open").css("bottom");
+    let currentBarHeight = $("#" + trueId).innerHeight();
+
+    currentBtnBottom = parseInt(currentBtnBottom) + currentBarHeight + 2;
+    $("#" + trueId).fadeIn(0);
+    $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
+    $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 18 + "px");
+    $("#" + trueId + "-Open").attr("disabled", true);
+    setTimeout(function () {
+        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
+    }, 325);
+});
+$(document).on("click", ".btn-status-bar-close", function (event) {
+    let trueId = getTrueName(event.target.id);
+    let currentBtnBottom = $("#" + trueId + "-Open").css("bottom");
+    currentBtnBottom = parseInt(currentBtnBottom) + 18;
+
+    $("#" + trueId).css("z-index", "-1000");
+    $("#" + trueId).css("bottom", "-1200px");
+    setTimeout(function () {
+        $("#" + trueId).css("z-index", "0");
+        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
+    }, 50);
+    setTimeout(function () {
+        $("#" + trueId).fadeOut(500);
+        $("#" + trueId + "-Open").css("bottom", botNavbarH + 9 + "px");
+        $("#" + trueId + "-Open").attr("disabled", false);
+    }, 275);
+});
+$(document).on("click", ".btn-static-backdrop-open", function (event) {
+    openStaticBackdrop(event.target.id);
+});
+
+$(document).on("click", ".add-option", function (event) {
+    let type = getTrueId(event.target.id);
+    let whereAndFrom = $("#" + event.target.id).attr("data-html");
+    type = parseInt(type);
+
+    animatedOpen(false, "AddOption_Container", false, false);
+    $("#AddOption_Type_Val").val(type);
+    $("#AddOption_WhereAndFrom_Val").val(whereAndFrom);
+    switch (type) {
+        case 1:
+            $("#AddOption_Badge").html("Bold Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
+        case 2:
+            $("#AddOption_Badge").html("Link Text");
+            $("#AddOption_Val2").attr("disabled", false);
+            break;
+        default:
+            $("#AddOption_Badge").html("Bold Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
+    }
+});
+
+function textDecoder(element, isFromText) {
+    let value;
+    if (isFromText) value = $("#" + element).text();
+    else value = $("#" + element).val();
+
+    value = value.replaceAll("[[", "<span class='fw-500'>");
+    value = value.replaceAll("]]", "</span>");
+    value = value.replaceAll("[{", "<a class='text-decoration-none text-primary'");
+    value = value.replaceAll("}]", "</a>");
+
+    if (isFromText) $("#" + element).html(value);
+    else $("#" + element).val(value);
+}
+
+function addOptionToText(element, type, value1, value2) {
+    let textBefore;
+    let textAfter;
+    let text = $("#" + element).val();
+    let cursorPosition = $("#" + element).prop("selectionStart");
+    textBefore = text.substring(0, cursorPosition);
+    textAfter = text.substring(cursorPosition);
+    type = parseInt(type);
+
+    switch (type) {
+        case 1:
+            textBefore = textBefore + " [[" + value1 + "]]";
+            break;
+        case 2:
+            textBefore = textBefore + "[{ href='" + value2 + "'>" + value1 + "}]";
+            break;
+        default:
+            textBefore = textBefore + " [[" + value1 + "]]";
+            break;
+    }
+
+    $("#" + element).val(textBefore + textAfter);
+}
+
+function convertDateAndTime(value, asShort) {
+    let dT = new Date(value);
+    let day = 0;
+    let month = 0;
+    let hr = 0;
+    let min = 0;
+    let fullAlert;
+
+    if (dT.getHours() < 10) hr = "0" + dT.getHours();
+    else hr = dT.getHours();
+    if (dT.getMinutes() < 10) min = "0" + dT.getMinutes();
+    else min = dT.getMinutes();
+
+    if (dT.getDate() < 10) day = "0" + dT.getDate();
+    else day = dT.getDate();
+
+    if (asShort) {
+        if (dT.getMonth() < 10) month = "0" + dT.getMonth() + 1;
+        else month = dT.getMonth() + 1;
+
+        fullAlert = day + "/" + month + "/" + dT.getFullYear() + ", at " + hr + ":" + min;
+    }
+    else {
+        let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        month = months[dT.getMonth()];
+
+        fullAlert = day + " " + month + ", at " + hr + ":" + min;
+    }
+
+    return fullAlert;
+}
+
+function getTrueId(fullName) {
+    return fullName.substring(fullName.lastIndexOf("-") + 1);
+}
 
 function getTrueName(fullName) {
     let separatorIndex = fullName.lastIndexOf("-");
@@ -320,6 +855,19 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
     }
 }
 
+function slideToLeftAnimation(element) {
+    let elementCurrentLeft = $("#" + element).css("left");
+    elementCurrentLeft = parseInt(elementCurrentLeft);
+
+    $("#" + element).css("position", "relative");
+    $("#" + element).css("border", "none");
+    $("#" + element).css("margin-left", elementCurrentLeft + 16 + "px");
+    setTimeout(function () {
+        $("#" + element).css("margin-left", "-1200px");
+    }, 350);
+    $("#" + element).fadeOut(500);
+}
+
 function navBarBtnSelector(href) {
     if (href.toLowerCase().includes("create")) {
         $("#SearchLink_Btn").fadeOut(0);
@@ -347,10 +895,13 @@ function displayCorrect(width) {
     $(".main-container").css("height", neededH + "px");
     $(".main-container").css("max-height", neededH + "px");
     $(".smallside-box-container").css("max-height", neededH + "px");
+    $(".btn-right-bottom-fixed").css("bottom", botNavbarH + 10 + "px");
 
     if (width < 717) {
         $(".main-container").css("width", "100%");
         $(".main-container").css("left", 0);
+        $(".static-bar").css("width", "100%");
+        $(".static-bar").css("left", 0);
         $(".smallside-box-container").css("width", "99%");
         $(".smallside-box-container").css("left", "2px");
         $(".smallside-modal-container").css("left", "2.4%");
@@ -364,6 +915,7 @@ function displayCorrect(width) {
         $("#Main_SideBar").fadeOut(0);
     }
     else {
+        $("#Main_SideBar").css("width", "35%");
         let leftBarW = $("#Main_SideBar").innerWidth() + 3;
         let leftW = fullWidth - leftBarW - 3;
         let smallSideContainerW = leftBarW - 5;
@@ -372,6 +924,8 @@ function displayCorrect(width) {
         $("#Main_SideBar").css("left", 0);
         $(".main-container").css("width", leftW + "px");
         $(".main-container").css("left", leftBarW + "px");
+        $(".static-bar").css("width", leftW + "px");
+        $(".static-bar").css("left", leftBarW + "px");
         $(".smallside-box-container").css("width", smallSideContainerW + "px");
         $(".smallside-box-container").css("left", "2px");
         $(".smallside-modal-container").css("left", "10px");
@@ -400,6 +954,7 @@ function smallBarAnimatedOpenAndClose(open) {
 }
 
 function animatedOpen(forAll, element, sticky, closeOtherContainers) {
+    smallBarAnimatedOpenAndClose(false);
     if (closeOtherContainers) animatedClose(true, "main-container");
     else animatedClose(true, "smallside-box-container");
     setTimeout(function () {
@@ -444,6 +999,15 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
     }, 175);
 }
 
+function openStaticBackdrop(id) {
+    if (id == null || id == undefined || id == "") {
+        $("#StaticBackdrop_Container").modal("toggle");
+    }
+    else {
+        $("#" + id).modal("toggle");
+    }
+}
+
 function animatedClose(forAll, elemet) {
     if (forAll) {
         /*        $("." + elemet).css("bottom", "24px");*/
@@ -456,3 +1020,10 @@ function animatedClose(forAll, elemet) {
         $("#" + elemet).fadeOut(250);
     }
 }
+
+$(document).on("mouseover", ".info-popover", function (event) {
+    $("#" + event.target.id).popover("show");
+});
+$(document).on("mouseout", ".info-popover", function () {
+    $(".info-popover").popover("hide");
+});
