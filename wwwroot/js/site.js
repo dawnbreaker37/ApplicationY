@@ -278,8 +278,10 @@ $("#SendCode_Form").on("submit", function (event) {
 
     $.post(url, data, function (response) {
         if (response.success) {
+            $(".modal").modal("hide");
             $("#PR_Username").val(response.email);
             openModal(response.text, null, null, null, null, null, null, 3.75);
+
             setTimeout(function () {
                 $("#ChangeRecoveringType_Btn").click();
             }, 350);
@@ -373,7 +375,6 @@ $(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
 
     let url = $("#RemoveAllNotifications_Form").attr("action");
     let data = $("#RemoveAllNotifications_Form").serialize();
-    console.log(url);
     $.post(url, data, function (response) {
         if (response.success) {
             $("#StaticBackdrop_Container").modal("hide");
@@ -445,7 +446,7 @@ $("#GetNotifications_Btn").on("click", function (event) {
                 $("#SB_C-Body").append(div);
             }
 
-            openStaticBackdrop(null);
+            openStaticBackdrop(null, false);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -653,8 +654,7 @@ $(document).on("click", ".smallside-btn-close-n-open", function (event) {
 $(document).on("mouseover", ".smallside-modal-open-by-hover", function (event) {
     let alert = $("#" + event.target.id).attr("data-content");
     if (alert != undefined || alert != null) {
-        if (fullWidth >= 717) openModal(alert, " <i class='fas fa-times'></i> Close", null, 2, null, null, null, 7.5);
-        else openModal(alert, " <i class='fas fa-times'></i> Close", null, 2, null, null, null, 7.5);
+        openModal(alert, " <i class='fas fa-times'></i> Close", null, 2, null, null, null, Infinity);
     } 
 });
 $(document).on("click", ".btn-static-bar-open", function (event) {
@@ -689,7 +689,7 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
     }, 275);
 });
 $(document).on("click", ".btn-static-backdrop-open", function (event) {
-    openStaticBackdrop(event.target.id);
+    openStaticBackdrop(event.target.id, true);
 });
 
 $(document).on("click", ".add-option", function (event) {
@@ -771,8 +771,9 @@ function convertDateAndTime(value, asShort) {
     else day = dT.getDate();
 
     if (asShort) {
-        if (dT.getMonth() < 10) month = "0" + dT.getMonth() + 1;
-        else month = dT.getMonth() + 1;
+        month = parseInt(dT.getMonth()) + 1;
+        if (dT.getMonth() < 10) month = "0" + month;
+        else month = month + 1;
 
         fullAlert = day + "/" + month + "/" + dT.getFullYear() + ", at " + hr + ":" + min;
     }
@@ -810,13 +811,34 @@ function openLastContainer(element) {
 }
 
 function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToDo, btn2Action, fadeOutTimer) {
-    $("#MMC_Text").html(text);
-    $("#MainModal_Container").fadeIn(0);
-    $("#MainModal_Container").css("z-index", "1000");
-    $("#MainModal_Container").css("bottom", "24px");
     setTimeout(function () {
-        $("#MainModal_Container").css("bottom", "8px");
-    }, 500);
+        let currentContainerB = $("#" + currentContainerName).css("bottom");
+        let currentContainerH = $("#" + currentContainerName).innerHeight();
+        let containersFullHeight = parseInt(currentContainerB) + parseInt(currentContainerH);
+        let windowFullHeight = fullHeigth;
+
+        $("#MMC_Text").html(text);
+        $("#MainModal_Container").fadeIn(0);
+        $("#MainModal_Container").css("z-index", "1000");
+
+        let modalH = $("#MainModal_Container").innerHeight();
+        windowFullHeight -= modalH + 8;
+
+        if (containersFullHeight > 0 && containersFullHeight < windowFullHeight) {
+            $("#MainModal_Container").css("bottom", containersFullHeight + 24 + "px");
+            setTimeout(function () {
+                $("#MainModal_Container").css("bottom", containersFullHeight + 8 + "px");
+            }, 500);
+        }
+        else {
+            animatedClose(true, "smallside-box-container");
+            $("#MainModal_Container").css("bottom", "24px");
+            setTimeout(function () {
+                $("#MainModal_Container").css("bottom", "8px");
+            }, 500);
+        }
+    }, 150);
+
     setTimeout(function () {
         $("#MainModal_Container").css("bottom", "-1200px");
         $("#MainModal_Container").fadeOut(300);
@@ -1029,23 +1051,23 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
     }, 175);
 }
 
-function openStaticBackdrop(id) {
+function openStaticBackdrop(id, truncate) {
+    $(".modal").modal("hide");
     if (id == null || id == undefined || id == "") {
         $("#StaticBackdrop_Container").modal("toggle");
     }
     else {
+        if (truncate) id = getTrueName(id);
         $("#" + id).modal("toggle");
     }
 }
 
 function animatedClose(forAll, elemet) {
     if (forAll) {
-        /*        $("." + elemet).css("bottom", "24px");*/
         $("." + elemet).css("bottom", "-1200px");
         $("." + elemet).fadeOut(250);
     }
     else {
-        /*        $("#" + elemet).css("bottom", "24px");*/
         $("#" + elemet).css("bottom", "-1200px");
         $("#" + elemet).fadeOut(250);
     }
