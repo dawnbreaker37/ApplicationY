@@ -6,10 +6,10 @@ namespace ApplicationY.ViewModels
     {
         [Required]
         public int Id { get; set; }
-        [Required]
         [DataType(DataType.DateTime)]
-        public DateTime CreatedAt { get; set; }
+        public DateTime? CreatedAt { get; set; }
         [Required]
         public bool IsCompany { get; set; }
+        public int CountryId { get; set; }
     }
 }

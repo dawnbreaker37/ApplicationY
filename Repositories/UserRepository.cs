@@ -53,6 +53,16 @@ namespace ApplicationY.Repositories
             return null;
         }
 
+        public async Task<string?> EditCountryInfoAsync(int Id, int CountryId)
+        {
+            if(Id != 0 && CountryId != 0)
+            {
+                int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.CountryId, CountryId));
+                if (Result != 0) return await _context.Countries.AsNoTracking().Where(c => c.Id == CountryId).Select(c => c.ISO + ", " + c.Name).FirstOrDefaultAsync();
+            }
+            return null;
+        }
+
         public async Task<bool> EditDescriptionAsync(EditDescription_ViewModel Model)
         {
             if(Model.Id != 0 && !String.IsNullOrEmpty(Model.Description))
@@ -73,14 +83,15 @@ namespace ApplicationY.Repositories
             return false;
         }
 
-        public async Task<bool> EditPersonalInfoAsync(EditPersonalInfo_ViewModel Model)
+        public async Task<string?> EditPersonalInfoAsync(EditPersonalInfo_ViewModel Model)
         {
-            if(Model.Id != 0)
+            if(Model.Id != 0 && Model.CountryId != 0)
             {
-                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsCompany, Model.IsCompany).SetProperty(u => u.CreatedAt, Model.CreatedAt));
-                if (Result != 0) return true;
+                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u=>u.CountryId, Model.CountryId).SetProperty(u => u.IsCompany, Model.IsCompany).SetProperty(u => u.CreatedAt, Model.CreatedAt));
+                if (Result != 0 && Model.CountryId != 0) return await _context.Countries.AsNoTracking().Where(c => c.Id == Model.CountryId).Select(c => c.ISO + ", " + c.Name).FirstOrDefaultAsync();
+                else return "No country";
             }
-            return false;
+            return null;
         }
 
         public async Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model)
@@ -101,7 +112,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new User { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Email = u.Email, EmailConfirmed = u.EmailConfirmed }).FirstOrDefaultAsync(u => u.Id == Id);
+                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new User { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Email = u.Email, EmailConfirmed = u.EmailConfirmed, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
                 else return await _context.Users.AsNoTracking().Select(u => new User { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;

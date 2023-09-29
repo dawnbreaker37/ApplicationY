@@ -210,10 +210,12 @@ namespace ApplicationY.Controllers
         [HttpPost]
         public async Task<IActionResult> EditPersonalInfo(EditPersonalInfo_ViewModel Model)
         {
+            //if(Model.CreatedAt.Year == 1) Model.CreatedAt = DateTime.Now;
             if (ModelState.IsValid)
             {
-                bool Result = await _userRepository.EditPersonalInfoAsync(Model);
-                if (Result) return Json(new { success = true, alert = "Your personal information has successfully updated", result = Model });
+                //Model.CreatedAt = null;
+                string? Result = await _userRepository.EditPersonalInfoAsync(Model);
+                if (Result != null) return Json(new { success = true, alert = "Your personal information has successfully updated", result = Model, country = Result });
                 else return Json(new { success = false, alert = "An error occured while trying to update your personal information. Please, check correctness of entered datas and try again. Also check the correctness of entered data value (d/m/yyyy), for example: 1/12/2020" });
             }
             else return Json(new { success = false, alert = "An error occured while trying to update your personal information. Please, check all datas and try again" });

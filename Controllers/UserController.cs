@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationY.Controllers
 {
@@ -31,23 +32,35 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
-                    int ProfileFullnessPercentage = 0;
+                    UserInfo.Country = await _context.Countries.AsNoTracking().FirstOrDefaultAsync(c => c.Id == UserInfo.CountryId);
 
+                    double ProfileFullnessPercentage = 0;
                     TimeSpan DaysTillLastChange = DateTime.Now.Subtract(UserInfo.PasswordResetDate.Date);
                     bool PermissionToChangePassword;
                     if (DaysTillLastChange.TotalDays >= 28) PermissionToChangePassword = true;
                     else PermissionToChangePassword = false;
 
-                    if (UserInfo.Description != null) ProfileFullnessPercentage += 20;
-                    if (UserInfo.EmailConfirmed) ProfileFullnessPercentage += 20;
-                    if (UserInfo.CreatedAt != null) ProfileFullnessPercentage += 20;
-                    if (UserInfo.Link1 != null || UserInfo.Link2 != null) ProfileFullnessPercentage += 20;
-                    if (UserInfo.UserName != UserInfo.PseudoName) ProfileFullnessPercentage += 20;
+                    if (UserInfo.Description != null) ProfileFullnessPercentage += 16.66;
+                    if (UserInfo.EmailConfirmed) ProfileFullnessPercentage += 16.66;
+                    if (UserInfo.CreatedAt != null) ProfileFullnessPercentage += 16.66;
+                    if (UserInfo.Link1 != null || UserInfo.Link2 != null) ProfileFullnessPercentage += 16.66;
+                    if (UserInfo.UserName != UserInfo.PseudoName) ProfileFullnessPercentage += 16.66;
+
+                    List<Country>? CountriesList;
+                    if (UserInfo.CountryId == null) CountriesList = await _context.Countries.AsNoTracking().ToListAsync();
+                    else
+                    {
+                        CountriesList = await _context.Countries.AsNoTracking().ToListAsync();
+                        ProfileFullnessPercentage += 16.66;
+                    }
+                    int RoundedFullnessPercentage = (int)ProfileFullnessPercentage;
 
                     ViewBag.UserInfo = UserInfo;
                     ViewBag.LastPasswordChangeDays = DaysTillLastChange.Days;
                     ViewBag.PermissionToChangePassword = PermissionToChangePassword;
-                    ViewBag.ProfileFullnessPercentage = ProfileFullnessPercentage;
+                    ViewBag.ProfileFullnessPercentage = Math.Round(ProfileFullnessPercentage, 1);
+                    ViewBag.Int32FullnessPercentage = RoundedFullnessPercentage;
+                    ViewBag.Countries = CountriesList;
 
                     return View();
                 }

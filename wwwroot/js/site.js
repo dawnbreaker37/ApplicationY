@@ -14,7 +14,7 @@ window.onload = function () {
     navBarBtnSelector(document.location.href);
 
     if (currentUrl.toLowerCase().includes("/profile")) {
-        textDecoder("AY_Description", true);
+        textDecoder("AY_Description", true, true);
     }
 }
 window.onresize = function () {
@@ -216,7 +216,7 @@ $("#EditDescription_Form").on("submit", function (event) {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
             $("#Description").val(response.description);
             $("#AY_Description").html(response.description);
-            textDecoder("AY_Description", true);
+            textDecoder("AY_Description", true, true);
         }
         else {
             animatedClose(false, "EditDescription_Container");
@@ -256,13 +256,25 @@ $("#EditPersonalInfo_Form").on("submit", function (event) {
         if (response.success) {
             animatedClose(false, "EditPersonalInfo_Container");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+
+            if (response.countryId != 0) {
+                $("#AY_Country").text("Your country: " + response.country);
+                $("#AY_CountryAdditional").text("Your country: " + response.country);
+                $("#CurrentCountry_Badge").html("<i class='fas fa-globe-americas'></i> " + response.country);
+                $("#CurrentCountry_Badge").removeClass("bg-light text-dark");
+                $("#CurrentCountry_Badge").addClass("bg-primary text-light");
+            }
             if (response.result.isCompany) {
                 $("#AY_IsCompany").html("<i class='far fa-building text-primary'></i>  You are a company");
             }
             else {
                 $("#AY_IsCompany").html("<i class='fas fa-user-tie text-primary'></i>  You are a personal user");
             }
-            $("#AY_CreatedDate").html(" <i class='fas fa-clock text-primary'></i> Signed or created at: " + convertDateAndTime(response.result.createdAt, true));
+            if (response.result.createdAt != null) {
+                let dateTimeVal = convertDateAndTime(response.result.createdAt, true);
+                dateTimeVal = dateTimeVal.substring(0, dateTimeVal.lastIndexOf(","));
+                $("#AY_CreatedDate").html(" <i class='fas fa-clock text-primary'></i> Signed or created at: " + dateTimeVal);
+            }
         }
         else {
             animatedClose(false, "EditPersonalInfo_Container");
@@ -385,6 +397,24 @@ $(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
         }
         else {
             $("#StaticBackdrop_Container").modal("hide");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
+$("#CreateProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#LookAtProject_Btn").attr("href", "/Project/ProjectInfo/" + response.link);
+            animatedClose(false, "Preload_Container");
+            openModal(response.alert, "Go To Project Page", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/ProjectInfo/" + response.link, 2, null, 3.75);
+            animatedOpen(false, "Completed_Container");
+        }
+        else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
         }
     });
@@ -625,8 +655,150 @@ $(document).on("click", ".remove-notification", function (event) {
         });
     }
 });
+$("#TextPart").on("keyup", function () {
+    lengthCounter("TextPart", 6000);
+});
+$("#Project_Description").on("keyup", function () {
+    lengthCounter("Project_Description", 1600);
+});
+$("#ProjectLink1").on("keyup change", function () {
+    let value = $(this).val();
+    if (value != "") {
+        if (!value.includes("http") || !value.includes("www")) {
+            value = "https://www." + value;
+        }
+        $("#Link1Example_Btn").html(" <i class='fas fa-link'></i> Click to go by this link");
+        $("#Link1Example_Btn").attr("href", value);
+        $("#Link1_Link").text(value);
+        $("#Link1_Link").fadeIn(300);
+    }
+    else {
+        $("#Link1Example_Btn").html(" <i class='fas fa-globe'></i> No entered first link");
+        $("#Link1Example_Btn").attr("href", "#");
+        $("#Link1_Link").text("No link");
+        $("#Link1_Link").fadeOut(300);
+    }
+});
+$("#ProjectLink2").on("keyup change", function () {
+    let value = $(this).val();
+    if (value != "") {
+        if (!value.includes("http") || !value.includes("www")) {
+            value = "https://www." + value;
+        }
+        $("#Link2Example_Btn").html(" <i class='fas fa-link'></i> Click to go by this link");
+        $("#Link2Example_Btn").attr("href", value);
+        $("#Link2_Link").text(value);
+        $("#Link2_Link").fadeIn(300);
+    }
+    else {
+        $("#Link2Example_Btn").html(" <i class='fas fa-globe'></i> No entered first link");
+        $("#Link2Example_Btn").attr("href", "#");
+        $("#Link2_Link").text("No link");
+        $("#Link2_Link").fadeOut(300);
+    }
+});
+$("#YoutubeLink").on("keyup change", function () {
+    let value = $(this).val();
+    let trueLink = youtubeLinkCorrector(value);
+    if (trueLink[trueLink.length - 1] != "/") {
+        $("#NoVideo_Box").fadeOut(300);
+        setTimeout(function () {
+            $("#YT_VideoPlayer").attr("src", trueLink);
+            $("#YT_VideoPlayer_Box").fadeIn(300);
+        }, 200);
+    }
+    else {
+        $("#YT_VideoPlayer_Box").fadeOut(300);
+        $("#YT_VideoPlayer").attr("src", null);
+        setTimeout(function () {
+            $("#NoVideo_Box").fadeIn(300);
+        }, 200);
+    }
+    $("#YT_VideoLink_Lbl").text("Link: " + value);
+    $("#YT_VideoLink_Btn").attr("href", value);
 
-$(document).on("click", ".btn-back", function (event) {
+    openModal("Watch to your selected video from Youtube to be sure that you've entered the true one", " <i class='fab fa-youtube text-danger'></i> Check Video", " <i class='fas fa-times text-danger'></i> Close", 4, "YTPreview_Container", 2, null, 5.5);
+});
+$("#ProjectPrice").on("change", function () {
+    let value = $(this).val();
+    let percentageFromFull = value / 10000000 * 100;
+    let finalValue = parseInt(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+    $("#ProjectPrice_Badge").html(finalValue);
+    $("#ProjectPricePercentage_Badge").html(percentageFromFull.toFixed(2) + "%");
+});
+$("#IncreaseStep_Btn").on("click", function () {
+    let currentStep = $("#ProjectPrice").attr("step");
+    currentStep = parseInt(currentStep);
+
+    if (currentStep >= 100 && currentStep < 1000) {
+        currentStep += 100;
+    }
+    else if (currentStep >= 1000 && currentStep < 10000) {
+        currentStep += 500;
+    }
+    else if (currentStep >= 10000 && currentStep < 25000) {
+        currentStep += 1000;
+    }
+    else if (currentStep >= 25000 && currentStep < 50000) {
+        currentStep += 5000;
+    }
+    else if (currentStep >= 50000 && currentStep < 100000) {
+        currentStep += 10000;
+    }
+    else if (currentStep >= 100000 && currentStep < 1000000) {
+        currentStep += 10000;
+    }
+    else if (currentStep >= 10000000) {
+        currentStep += 0;
+    }
+    else {
+        currentStep += 100000;
+    }
+    $("#ProjectPrice").attr("step", currentStep);
+    currentStep = currentStep.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+    $("#StepOfRange_Span").text("Step: " + currentStep);
+});
+$("#DecreaseStep_Btn").on("click", function () {
+    let currentStep = $("#ProjectPrice").attr("step");
+    currentStep = parseInt(currentStep);
+
+    if (currentStep <= 100) {
+        currentStep -= 0;
+    }
+    else if (currentStep > 100 && currentStep < 1000) {
+        currentStep -= 100;
+    }
+    else if (currentStep >= 1000 && currentStep < 10000) {
+        currentStep -= 500;
+    }
+    else if (currentStep >= 10000 && currentStep < 25000) {
+        currentStep -= 1000;
+    }
+    else if (currentStep >= 25000 && currentStep < 50000) {
+        currentStep -= 5000;
+    }
+    else if (currentStep >= 50000 && currentStep < 100000) {
+        currentStep -= 10000;
+    }
+    else if (currentStep >= 100000 && currentStep < 1000000) {
+        currentStep -= 10000;
+    }
+    else {
+        currentStep -= 100000;
+    }
+    $("#ProjectPrice").attr("step", currentStep);
+    currentStep = currentStep.toLocaleString("en-US", { style: "currency", currency: "USD" });
+
+    $("#StepOfRange_Span").text("Step: " + currentStep);
+});
+
+$("#PreviewTheProject_Btn").on("click", function () {
+    previewCombinizer(true);
+});
+
+$(document).on("click", ".btn-back", function () {
     openLastContainer(lastContainerName);
 });
 $(document).on("click", ".btn-close", function (event) {
@@ -667,8 +839,10 @@ $(document).on("click", ".btn-static-bar-open", function (event) {
     $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
     $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 18 + "px");
     $("#" + trueId + "-Open").attr("disabled", true);
+    $("#" + trueId + "-Open").css("transform", "rotate(-45deg)");
     setTimeout(function () {
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
+        $("#" + trueId + "-Open").css("transform", "rotate(180deg)");
     }, 325);
 });
 $(document).on("click", ".btn-status-bar-close", function (event) {
@@ -681,6 +855,7 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
     setTimeout(function () {
         $("#" + trueId).css("z-index", "0");
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
+        $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
     }, 50);
     setTimeout(function () {
         $("#" + trueId).fadeOut(500);
@@ -697,6 +872,7 @@ $(document).on("click", ".add-option", function (event) {
     let whereAndFrom = $("#" + event.target.id).attr("data-html");
     type = parseInt(type);
 
+    smallBarAnimatedOpenAndClose(true);
     animatedOpen(false, "AddOption_Container", false, false);
     $("#AddOption_Type_Val").val(type);
     $("#AddOption_WhereAndFrom_Val").val(whereAndFrom);
@@ -709,6 +885,14 @@ $(document).on("click", ".add-option", function (event) {
             $("#AddOption_Badge").html("Link Text");
             $("#AddOption_Val2").attr("disabled", false);
             break;
+        case 3:
+            $("#AddOption_Badge").html("Underlined Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
+        case 4:
+            $("#AddOption_Badge").html("Italic Styled Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
         default:
             $("#AddOption_Badge").html("Bold Text");
             $("#AddOption_Val2").attr("disabled", true);
@@ -716,7 +900,7 @@ $(document).on("click", ".add-option", function (event) {
     }
 });
 
-function textDecoder(element, isFromText) {
+function textDecoder(element, isFromText, needsTheReplacement) {
     let value;
     if (isFromText) value = $("#" + element).text();
     else value = $("#" + element).val();
@@ -725,9 +909,58 @@ function textDecoder(element, isFromText) {
     value = value.replaceAll("]]", "</span>");
     value = value.replaceAll("[{", "<a class='text-decoration-none text-primary'");
     value = value.replaceAll("}]", "</a>");
+    value = value.replaceAll("{[", "<span class='text-decoration-underline'>");
+    value = value.replaceAll("[^", "<span class='fst-italic'>");
 
-    if (isFromText) $("#" + element).html(value);
-    else $("#" + element).val(value);
+    if (needsTheReplacement) {
+        if (isFromText) $("#" + element).html(value);
+        else $("#" + element).val(value);
+    }
+
+    return value;
+}
+
+function previewCombinizer(previewingProject) {
+    if (previewingProject) {
+        let title = $("#Name").val();
+        let smallerDescription = textDecoder("Project_Description", null, false);
+        let longerDescription = textDecoder("TextPart", null, false);
+        let link1 = $("#ProjectLink1").val();
+        let link2 = $("#ProjectLink1").val();
+        let ytLink = $("#YoutubeLink").val();
+        let projectPrice = $("#ProjectPrice").val();
+        
+        $("#Preview_Title").text(title);
+        $("#Preview_ShortDescription").html(smallerDescription);
+        $("#Preview_LongDescription").html(longerDescription);
+        if (link1 != null) {
+            $("#Preview_LinkBtn1").attr("href", link1);
+            $("#Preview_LinkText1").text("Link: " + link1);
+        }
+        if (link2 != null) {
+            $("#Preview_LinkBtn2").attr("href", link2);
+            $("#Preview_LinkText2").text("Link: " + link2);
+        }
+
+        if (projectPrice != 0) {
+            $("#Preview_TagPrice").text(parseFloat(projectPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+            $("#Preview_TagPriceDescription").text("needs this project for his start");
+        }
+        else {
+            $("#Preview_TagPrice").text("No investments");
+            $("#Preview_TagPriceDescription").text("There's no needed investments for this project. Anyway, the owner of project can add the investments part later");
+        }
+    }
+
+    animatedOpen(false, "Preview_Container", true, true);
+}
+
+function lengthCounter(element, maxValue) {
+    let text = $("#" + element).val();
+    let length = text.length;
+    let leftSymbols = maxValue - length;
+
+    $("#" + element + "-LengthSpan").text(length + "/" + maxValue + ", -" + leftSymbols);
 }
 
 function addOptionToText(element, type, value1, value2) {
@@ -741,10 +974,16 @@ function addOptionToText(element, type, value1, value2) {
 
     switch (type) {
         case 1:
-            textBefore = textBefore + " [[" + value1 + "]]";
+            textBefore = textBefore + "[[" + value1 + "]]";
             break;
         case 2:
             textBefore = textBefore + "[{ href='" + value2 + "'>" + value1 + "}]";
+            break;
+        case 3:
+            textBefore = textBefore + "{[" + value1 + "]]";
+            break;
+        case 4:
+            textBefore = textBefore + "[^" + value1 + "]]";
             break;
         default:
             textBefore = textBefore + " [[" + value1 + "]]";
@@ -798,15 +1037,28 @@ function getTrueName(fullName) {
     return substringedName;
 }
 
-function openLastContainer(element) {
-    if (element == undefined) {
-        return false;
-    }
-    else if (element == null) {
-        animatedOpen(false, "Preload_Container", true);
+function youtubeLinkCorrector(initialLink) {
+    let trueLink;
+    if (initialLink.includes("watch")) {
+        trueLink = initialLink.substring(initialLink.lastIndexOf("=") + 1);
     }
     else {
-        animatedOpen(false, element, true);
+        trueLink = initialLink.substring(initialLink.lastIndexOf("/") + 1);
+    }
+    trueLink = "https://www.youtube.com/embed/" + trueLink;
+
+    return trueLink;
+}
+
+function openLastContainer(element) {
+    if (element == undefined) {
+        animatedOpen(false, "Preload_Container", true, true);
+    }
+    else if (element == null) {
+        return false;
+    }
+    else {
+        animatedOpen(false, element, true, true);
     }
 }
 
@@ -860,12 +1112,22 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 1:
                 $("#MMC_FirstBtn").on("click", function () {
-                    animatedOpen(false, btn1Action, true);
+                    animatedOpen(false, btn1Action, true, true);
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
                 });
                 break;
             case 2:
                 $("#MMC_FirstBtn").on("click", function () {
                     animatedClose(false, "MainModal_Container");
+                });
+                break;
+            case 4:
+                $("#MMC_FirstBtn").on("click", function () {
+                    smallBarAnimatedOpenAndClose(true);
+                    animatedOpen(false, btn1Action, false, false);
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
                 });
                 break;
             default:
@@ -925,7 +1187,7 @@ function navBarBtnSelector(href) {
         $("#SearchLink_Btn").fadeOut(0);
         $("#SecondReserve_Btn").fadeIn(0);
         $("#SecondReserve_Btn").addClass("btn-open-container");
-        $("#SecondReserve_Btn").html(" <i class='fas fa-sign-in-alt'></i> <br/>Sign or Log In");
+        $("#SecondReserve_Btn").html(" <i class='fas fa-sign-in-alt text-muted'></i> <br/>Enter");
         $("#SecondReserve_Btn").attr("id", "Preload_Container-OpenY");
     }
     else if ((href.toLowerCase().includes("index") || href.toLowerCase()[href.length - 1] == "/") && (fullWidth < 717)) {
@@ -1090,4 +1352,10 @@ $(document).on("click", ".form-check-input", function (event) {
     else {
         $("#" + trueId).val(true);
     }
+});
+
+$(document).on("change", ".datalist-select", function (event) {
+    //let value = $(this).val();
+    //let text = $(this).text();
+    //console.log(value);
 });

@@ -98,6 +98,17 @@ html {
     font-weight: 500;
 }
 
+.yt-container {
+    height: 475px;
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+
+.form-select {
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+
 .info-popover-show {
     color: black;
     border-radius: 8px;
@@ -360,6 +371,43 @@ body {
   background-color: #fdfdfd;
 }
 
+.text-len-badge {
+    background-color: #0d6efd;
+    color: #f8f9fa;
+    border: 1px solid #0d6efd;
+    font-family: 'Trebuchet MS';
+    transition: all ease 0.3s;
+}
+.text-len-badge:hover,
+.text-len-badge:active {
+    border: 1px solid rgb(240, 240, 240);
+    animation-name: text-len-animation;
+    animation-duration: 0.5s;
+    animation-delay: 0.05s;
+}
+
+.yt-icon {
+    cursor: pointer;
+}
+.yt-icon:hover,
+.yt-icon:active {
+    animation-delay: 0.05s;
+    animation: yt-animation 1s linear infinite;
+}
+
+@keyframes text-len-animation {
+    0% {
+        background-color: #f8f9fa;
+    }
+    100% {
+        border-radius: 34px;
+        background-color: #f8f9fa;
+    }
+}
+
+@keyframes yt-animation {
+
+}
 @keyframes bell-ring {
     0%, 100% {
         transform: rotate(0deg);
@@ -369,5 +417,26 @@ body {
     }
     40%, 80% {
         transform: rotate(-10deg);
+    }
+}
+
+@media screen and (max-height: 650px) {
+    .yt-container {
+        height: 160px;
+    }
+} 
+@media screen and (max-height: 800px) {
+    .yt-container {
+        height: 200px;
+    }
+}
+@media screen and (max-height: 1000px) {
+    .yt-container {
+        height: 280px;
+    }
+}
+@media screen and (max-height: 1250px) {
+    .yt-container {
+        height: 345px;
     }
 }

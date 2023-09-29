@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ApplicationY.Models
 {
@@ -26,7 +27,11 @@ namespace ApplicationY.Models
         public string? Link2 { get; set; }
         public DateTime? CreatedAt { get; set; }
         public bool IsCompany { get; set; }
+        [ForeignKey("Country")]
+        public int? CountryId { get; set; }
+        public Country? Country { get; set; }
         public List<TemporaryCode>? TemporaryCodes { get; set; }
         public List<Notification>? Notifications { get; set; }
+        public List<Project>? Projects { get; set; }
     }
 }

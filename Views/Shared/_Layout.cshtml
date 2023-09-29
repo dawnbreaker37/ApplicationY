@@ -35,7 +35,8 @@
 
     <div class="static-bar shadow-standard p-2" id="StatusBar_Container">
         <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close">Close</button>
-        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="fas fa-bell"></i> Notification</button>
+        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="fas fa-bell"></i> Notifications</button>
+        <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="fas fa-plus"></i> Create Project</a>
     </div>
 
     <div class="modal shadow-sm fade" id="StaticBackdrop_Container" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="StaticBackdrop_ContainerLabel" aria-hidden="true">
@@ -64,7 +65,7 @@
         <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
     </div>
     <div class="container">
-        <button type="button" class="btn btn-primary bg-primary btn-right-bottom-fixed btn-static-bar-open" id="StatusBar_Container-Open"> <i class="fas fa-bell btn-static-bar-open" id="StatusBar_Container-OpenX"></i> </button>
+        <button type="button" class="btn btn-primary bg-primary btn-right-bottom-fixed btn-static-bar-open" id="StatusBar_Container-Open"> <i class="fas fa-chevron-up btn-static-bar-open" id="StatusBar_Container-OpenX"></i> </button>
         <main role="main" class="pb-3">
             @RenderBody()
         </main>
