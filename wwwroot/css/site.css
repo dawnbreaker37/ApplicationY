@@ -165,19 +165,44 @@ html {
     outline: 1px solid rgb(240, 240, 240);
 }
 
+.btn-group-member {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    border-radius: 8px;
+    border-bottom: 2px solid transparent;
+    transition: all ease 0.275s;
+}
+.btn-group-member:hover,
+.btn-group-member:active {
+    border-bottom: 2px solid #0d6efd;
+    border-radius: 8px 8px 0 0;
+}
+.btn-group-member-danger {
+    background-color: #f8f9fa;
+    font-weight: 500;
+    border-radius: 8px;
+    border-bottom: 2px solid transparent;
+    transition: all ease 0.275s;
+}
+.btn-group-member-danger:hover,
+.btn-group-member-danger:active {
+    border-bottom: 2px solid #dc3545;
+    border-radius: 8px 8px 0 0;
+}
+
 .btn-right-bottom-fixed {
     cursor: pointer;
     border-radius: 34px;
+    background-color: #0d6efd;
     color: #fdfdfd;
     position: fixed;
     right: 6px;
-    transition: all ease 0.3s;
+    transition: all ease 0.4s;
 }
 .btn-right-bottom-fixed:hover,
 .btn-right-bottom-fixed:active {
-    animation-name: bell-ring;
-    animation-delay: 0.1s;
-    animation-duration: 0.4s;
+    background-color: #f8f9fa;
+    color: #0d6efd;
 }
 
 .btn-text {
@@ -407,17 +432,6 @@ body {
 
 @keyframes yt-animation {
 
-}
-@keyframes bell-ring {
-    0%, 100% {
-        transform: rotate(0deg);
-    }
-    20%, 60% {
-        transform: rotate(10deg);
-    }
-    40%, 80% {
-        transform: rotate(-10deg);
-    }
 }
 
 @media screen and (max-height: 650px) {

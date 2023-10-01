@@ -410,9 +410,8 @@ $("#CreateProject_Form").on("submit", function (event) {
     $.post(url, data, function (response) {
         if (response.success) {
             $("#LookAtProject_Btn").attr("href", "/Project/ProjectInfo/" + response.link);
-            animatedClose(false, "Preload_Container");
+            animatedOpen(false, "Completed_Container", true, true);
             openModal(response.alert, "Go To Project Page", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/ProjectInfo/" + response.link, 2, null, 3.75);
-            animatedOpen(false, "Completed_Container");
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -655,6 +654,11 @@ $(document).on("click", ".remove-notification", function (event) {
         });
     }
 });
+$("#Name").on("keyup", function () {
+    let value = $(this).val();
+    if (value.length > 0) $("#PreviewTheProject_Btn").attr("disabled", false);
+    else $("#PreviewTheProject_Btn").attr("disabled", true);
+});
 $("#TextPart").on("keyup", function () {
     lengthCounter("TextPart", 6000);
 });
@@ -839,11 +843,11 @@ $(document).on("click", ".btn-static-bar-open", function (event) {
     $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
     $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 18 + "px");
     $("#" + trueId + "-Open").attr("disabled", true);
-    $("#" + trueId + "-Open").css("transform", "rotate(-45deg)");
+    $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
     setTimeout(function () {
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
-        $("#" + trueId + "-Open").css("transform", "rotate(180deg)");
-    }, 325);
+        $("#" + trueId + "-Open").html(" <i class='fas fa-times'></i> ");
+    }, 250);
 });
 $(document).on("click", ".btn-status-bar-close", function (event) {
     let trueId = getTrueName(event.target.id);
@@ -855,12 +859,13 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
     setTimeout(function () {
         $("#" + trueId).css("z-index", "0");
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
-        $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
+        $("#" + trueId + "-Open").css("transform", "rotate(-360deg)");
     }, 50);
     setTimeout(function () {
         $("#" + trueId).fadeOut(500);
         $("#" + trueId + "-Open").css("bottom", botNavbarH + 9 + "px");
         $("#" + trueId + "-Open").attr("disabled", false);
+        $("#" + trueId + "-Open").html(" <i class='fas fa-bars btn-static-bar-open' id='StatusBar_Container-OpenX'></i> ");
     }, 275);
 });
 $(document).on("click", ".btn-static-backdrop-open", function (event) {
@@ -1065,6 +1070,7 @@ function openLastContainer(element) {
 function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToDo, btn2Action, fadeOutTimer) {
     setTimeout(function () {
         let currentContainerB = $("#" + currentContainerName).css("bottom");
+        let currentContainerType = $("#" + currentContainerName).hasClass("smallside-box-container");
         let currentContainerH = $("#" + currentContainerName).innerHeight();
         let containersFullHeight = parseInt(currentContainerB) + parseInt(currentContainerH);
         let windowFullHeight = fullHeigth;
@@ -1076,7 +1082,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
         let modalH = $("#MainModal_Container").innerHeight();
         windowFullHeight -= modalH + 8;
 
-        if (containersFullHeight > 0 && containersFullHeight < windowFullHeight) {
+        if (containersFullHeight > 0 && containersFullHeight < windowFullHeight && currentContainerType) {
             $("#MainModal_Container").css("bottom", containersFullHeight + 24 + "px");
             setTimeout(function () {
                 $("#MainModal_Container").css("bottom", containersFullHeight + 8 + "px");
@@ -1183,7 +1189,7 @@ function slideToLeftAnimation(element) {
 }
 
 function navBarBtnSelector(href) {
-    if (href.toLowerCase().includes("create")) {
+    if (href.toLowerCase().includes("account/create")) {
         $("#SearchLink_Btn").fadeOut(0);
         $("#SecondReserve_Btn").fadeIn(0);
         $("#SecondReserve_Btn").addClass("btn-open-container");
@@ -1196,7 +1202,7 @@ function navBarBtnSelector(href) {
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
         $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
     }
-    else if (href.toLowerCase().includes("profile") && fullWidth < 717) {
+    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
         $("#HomeLink_Btn").fadeOut(0);
         $("#FirstReserve_Btn").fadeIn(0);
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");

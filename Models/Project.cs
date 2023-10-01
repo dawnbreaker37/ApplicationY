@@ -15,7 +15,13 @@ namespace ApplicationY.Models
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
-        public int PriceOfProject { get; set; }
+        public int TargetPrice { get; set; }
+        public int PastTargetPrice { get; set; }
+        public int Views { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime LastUpdatedAt { get; set; }
+        public bool IsRemoved { get; set; }
+        public bool IsClosed { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }
         public User? User { get; set; }

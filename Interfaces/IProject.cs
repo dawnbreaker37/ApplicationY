@@ -7,7 +7,7 @@ namespace ApplicationY.Interfaces
     {
         public Task<string?> CreateAsync(CreateProject_ViewModel Model);
         public Task<Project?> GetProjectAsync(int Id);
-        public Task<Project?> GetUsersAllProjectsAsync(int UserId);
+        public IQueryable<Project?> GetUsersAllProjectsAsync(int UserId, bool GetAdditionalInfo);
         public Task<int> GetUsersLastProjectIdAsync(int UserId);
     }
 }

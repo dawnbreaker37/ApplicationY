@@ -631,15 +631,17 @@
         <div class="card-group mt-2">
             <div class="card p-3 shadow-sm">
                 <div>
-                    <h5 class="h5">Country</h5>
-                    @if (UserInfo.CountryId == null)
-                    {
-                        <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">You haven't selected your country yet</span></small>
-                    }
-                    else
-                    {
-                        <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">Your country: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span></small>
-                    }
+                    <h6 class="h6">Country</h6>
+                    <div class="mt-3">
+                        @if (UserInfo.CountryId == null)
+                        {
+                            <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">You haven't selected your country yet</span></small>
+                        }
+                        else
+                        {
+                            <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">Your country: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span></small>
+                        }
+                    </div>
                     <div class="pt-2 mt-2 border-top"></div>
                     <small class="card-text"> <i class="fas fa-info-circle text-primary"></i> Your country information will be used to inform your future viewers about your localization and geopoisition. It'll be never used to locate or show your actual position in your country, such as your city or street address</small>
                     <div></div>
@@ -647,20 +649,20 @@
                 </div>
             </div>
             <div class="card p-3 ms-1 shadow-sm">
-                <h5 class="h5">Account perfectionism</h5>
-                <div class="mt-4">
+                <h6 class="h6">Account Perfectionism</h6>
+                <div class="mt-3">
                     @if (ProfileFullnessPercentage == 100)
                     {
                         <span class="badge bg-light text-primary float-end ms-1 warning-badge safe-font" id="FullnessPercentage_Badge">100%</span>
-                        <h5 class="h5">Your account is perfectly designed</h5>
+                        <h6 class="h6">Your account is perfectly designed</h6>
                     }
                     else
                     {
                         <span class="badge bg-light text-primary float-end ms-1 warning-badge safe-font" id="FullnessPercentage_Badge">@ProfileFullnessPercentage%</span>
-                        <h5 class="h5">You can do more for your account</h5>
+                        <h6 class="h6">You can do more for your account</h6>
                     }
                 </div>
-                <div class="progress mt-2" id="Fullness_Progress">
+                <div class="progress mt-1" id="Fullness_Progress">
                     <div class="progress-bar" role="progressbar" id="Fullness_ProgressBar" aria-label="FullnessProgress" aria-valuenow="@ProfileFullnessPercentage" aria-valuemin="0" aria-valuemax="100" style="width: @ViewBag.Int32FullnessPercentage%"></div>
                 </div>
                 <div class="mt-3">

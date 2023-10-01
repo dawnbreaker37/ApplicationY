@@ -31,22 +31,22 @@ namespace ApplicationY.Repositories
                 {
                     if (Model.TextPart.Length <= 4000)
                     {
-                        Part1 = Model.TextPart.Substring(4000);
+                        Part1 = Model.TextPart;
                     }
                     else if (Model.TextPart.Length > 4000 && Model.TextPart.Length <= 8000)
                     {
-                        Part1 = Model.TextPart.Substring(4000);
-                        Part2 = Model.TextPart.Substring(4000, 4000);
+                        Part1 = Model.TextPart.Substring(0, 4000);
+                        Part2 = Model.TextPart.Substring(4000, Model.TextPart.Length - 4000);
                     }
                     else if (Model.TextPart.Length > 8000)
                     {
-                        Part1 = Model.TextPart.Substring(4000);
+                        Part1 = Model.TextPart.Substring(0, 4000);
                         Part2 = Model.TextPart.Substring(4000, 4000);
-                        Part3 = Model.TextPart.Substring(8000, 4000);
+                        Part3 = Model.TextPart.Substring(8000, Model.TextPart.Length - 8000);
                     }
                     else
                     {
-                        Part1 = Model.TextPart.Substring(4000);
+                        Part1 = Model.TextPart;
                     }
                 }
 
@@ -61,8 +61,13 @@ namespace ApplicationY.Repositories
                     TextPart2 = Part2,
                     TextPart3 = Part3,
                     UserId = Model.UserId,
-                    PriceOfProject = Model.ProjectPrice
+                    TargetPrice = Model.ProjectPrice,
+                    PastTargetPrice = 0,
+                    Views = 0,
+                    CreatedAt = DateTime.Now,
+                    LastUpdatedAt = DateTime.Now
                 };
+
                 await _context.AddAsync(project);
                 await _context.SaveChangesAsync();
 
@@ -76,17 +81,22 @@ namespace ApplicationY.Repositories
             throw new NotImplementedException();
         }
 
-        public Task<Project?> GetUsersAllProjectsAsync(int UserId)
+        public IQueryable<Project?> GetUsersAllProjectsAsync(int UserId, bool GetAdditionalInfo)
         {
-            throw new NotImplementedException();
+            if(UserId != 0)
+            {
+                if (!GetAdditionalInfo) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
+                else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, Link1 = p.Link1, Link2 = p.Link2, YoutubeLink = p.YoutubeLink, UserId = p.UserId });
+            }
+            return null;
         }
 
         public async Task<int> GetUsersLastProjectIdAsync(int UserId)
         {
             if(UserId != 0)
             {
-                Project? LastProjectInfo = await _context.Projects.AsNoTracking().Select(u => new Project { Id = u.Id, UserId = u.UserId }).LastOrDefaultAsync(u => u.UserId == UserId);
-                if(LastProjectInfo != null) return LastProjectInfo.Id;
+                Project? LastProjectInfo = await _context.Projects.AsNoTracking().Select(u => new Project { Id = u.Id, UserId = u.UserId }).OrderBy(u => u.Id).FirstOrDefaultAsync(u => u.UserId == UserId);
+                if (LastProjectInfo != null) return LastProjectInfo.Id;
             }
             return 0;
         }

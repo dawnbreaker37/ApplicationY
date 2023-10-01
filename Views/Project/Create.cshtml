@@ -37,7 +37,7 @@
     </div>
 
     <div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close"></button>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
         <h5 class="h5 text-truncate">Add Option To Text</h5>
         <div class="mt-4">
             <div class="bordered-container p-2">
@@ -101,15 +101,29 @@
         <h6 class="h5 text-truncate">Preview The Project</h6>
     </div>
     <div class="mt-4">
-        <div class="box-container bg-light p-2">
+        <div class="box-container">
             <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
-            <a asp-controller="User" asp-action="Page" asp-route-Id="@UserInfo.SearchName" class="text-decoration-none"><small class="card-text text-muted" id="Preview_UserName">@UserInfo.PseudoName</small></a>
-            <div class="mt-3"></div>
-            <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour"> <i class="fas fa-bell"></i> Subscribe</button>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="fas fa-bell"></i> Subscribe</button>
+                <h5 class="h5 safe-font">@UserInfo.PseudoName</h5>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br/> Like</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-comments"></i> <br /> Comments</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-ellipsis-h"></i> <br/> More</button>
+                </div>
+            </div>
         </div>
         <div class="box-container shadow-sm p-2 mt-2">
-            <p class="card-text" id="Preview_ShortDescription">Shorter description</p>
-            <p class="card-text mt-1" id="Preview_LongDescription">Main description</p>
+            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
         </div>
         <div class="card-group mt-2">
             <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
@@ -146,6 +160,7 @@
 
 <div class="main-container p-3 shadow-standard" id="Preload_Container">
     <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <h6 class="h5 text-truncate">Create Project</h6>
     </div>
     <div class="mt-4">
@@ -204,7 +219,7 @@
                     <div></div>
                     <small class="card-text text-muted">If your project needs some investments to have a good start you can add needed investments price. Some people may like your project and invest in it</small>
                     <div class="mt-2"></div>
-                    <button class="btn btn-light btn-standard-with-no-colour" type="button" data-bs-toggle="collapse" data-bs-target="#Investments_Box" aria-expanded="false" aria-controls="Investments_Box"> <i class="fas fa-search-dollar"></i> Add Investments Part</button>
+                    <button class="btn btn-light btn-sm btn-standard-with-no-colour" type="button" data-bs-toggle="collapse" data-bs-target="#Investments_Box" aria-expanded="false" aria-controls="Investments_Box"> <i class="fas fa-search-dollar"></i> Add Target Price</button>
                     <div>
                         <div class="collapse w-100" id="Investments_Box">
                             <div class="card bordered-container p-3 mt-2">
@@ -242,7 +257,7 @@
                         <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour"> <i class="fas fa-plus-circle"></i> Create</button>
                     </div>
                     <div class="col col-5">
-                        <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour text-truncate" id="PreviewTheProject_Btn"> <i class="fas fa-eye"></i> Have a look</button>
+                        <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour text-truncate" disabled id="PreviewTheProject_Btn"> <i class="fas fa-eye"></i> Have a look</button>
                     </div>
                 </div>
             </div>

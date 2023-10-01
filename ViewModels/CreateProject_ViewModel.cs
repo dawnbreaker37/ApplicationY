@@ -19,7 +19,7 @@ namespace ApplicationY.ViewModels
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
-        [MaxLength(10000000)]
+        [DataType(DataType.Currency)]
         public int ProjectPrice { get; set; }
         [Required]
         public int UserId { get; set; }

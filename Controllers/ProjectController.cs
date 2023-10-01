@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationY.Controllers
 {
@@ -38,7 +39,7 @@ namespace ApplicationY.Controllers
             if (ModelState.IsValid)
             {
                 User? UserInfo = await _userManager.GetUserAsync(User);
-                if (UserInfo != null && UserInfo.Id == Model.UserId)
+                if (UserInfo?.Id == Model.UserId)
                 {
                     string? Result = await _projectRepository.CreateAsync(Model);
                     if (Result != null)
@@ -51,6 +52,31 @@ namespace ApplicationY.Controllers
                 else return Json(new { success = false, alert = "Please, check all datas and be sure that you've entered them correctly" });
             }
             else return Json(new { success = false, alert = "Please, log in or sign in to create a project" });
+        }
+
+        public async Task<IActionResult> All()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                User? UserInfo = await _userManager.GetUserAsync(User);
+                if (UserInfo != null)
+                {
+                    IQueryable<Project?> UserAllProjects_Preview = _projectRepository.GetUsersAllProjectsAsync(UserInfo.Id, false);
+                    if (UserAllProjects_Preview != null)
+                    {
+                        List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();
+                        int Count = Projects.Count;
+
+                        ViewBag.UserInfo = UserInfo;
+                        ViewBag.Projects = Projects;
+                        ViewBag.Count = Count;
+
+                        return View();
+                    }
+                }
+            }
+            else return RedirectToAction("Create", "Account");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

@@ -1,0 +1,70 @@
+﻿@model Project
+@{
+    ViewData["Title"] = "Your All Projects";
+
+    User? UserInfo = ViewBag.UserInfo;
+    int Count = ViewBag.Count;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+        <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
+    </div>
+</div>
+<div class="main-container p-3 shadow-standard" id="Preload_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <h6 class="h5 text-truncate">Project List</h6>
+    </div>
+    <div class="mt-4">
+        @if(Count > 0)
+        {
+            @foreach(Project Item in ViewBag.Projects)
+            {
+                <div class="card bordered-container p-2 ps-3 pe-3 mt-2" id="ProjectContainer-@Item.Id">
+                    <h3 class="h3 display-6 safe-font" id="ProjectName-@Item.Id">@Item.Name</h3>
+                    @if (Item.TargetPrice != 0)
+                    {
+                        <small class="card-text text-muted" id="ProjectPrice-@Item.Id">Target: $@Item.TargetPrice.ToString("N0")</small>
+                    }
+                    else
+                    {
+                        <small class="card-text text-muted" id="ProjectPrice-@Item.Id">No target price</small>
+                    }
+                    <div class="mt-1"></div>
+                    <small class="card-text text-muted">Created at: @Item.CreatedAt.ToString("MM/dd/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
+                    <div class="mt-2">
+                        <p class="card-text white-space-on" id="ProjectDescription-@Item.Id">@Item.Description</p>
+                        <p class="card-text"><small class="text-muted" id="ProjectLastUpdated-@Item.Id">Last updated: @Item.LastUpdatedAt.ToString("MM/dd/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small></p>
+                        <button type="button" class="btn btn-text btn-sm select-project" data-bs-toggle="collapse" data-bs-target="#ProjectCollapse-@Item.Id" aria-expanded="false" aria-controls="ProjectCollapse-@Item.Id" id="ProjectSelect-@Item.Id"> <i class="fas fa-check"></i> Select</button>
+                    </div>
+                        <div class="mt-1">
+                            <div class="collapse" id="ProjectCollapse-@Item.Id">
+                                <div class="card card-body border-0 p-0 bordered-container w-100">
+                                    <div class="row">
+                                        <div class="col">
+                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-align-left text-primary"></i> <br /> Look</button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-pen-square text-primary"></i> <br /> Edit</button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-lock text-primary"></i> <br /> Lock</button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="button" class="btn btn-group-member-danger w-100"> <i class="fas fa-trash-alt text-danger"></i> <br /> Delete</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                </div>
+            }
+        }
+    </div>
+</div>
+
+
