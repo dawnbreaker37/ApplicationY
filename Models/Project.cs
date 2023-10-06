@@ -16,6 +16,8 @@ namespace ApplicationY.Models
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
         public int TargetPrice { get; set; }
+        [MaxLength(400)]
+        public string? PriceChangeAnnotation { get; set; }
         public int PastTargetPrice { get; set; }
         public int Views { get; set; }
         public DateTime CreatedAt { get; set; }

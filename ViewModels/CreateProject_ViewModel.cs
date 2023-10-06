@@ -4,6 +4,7 @@ namespace ApplicationY.ViewModels
 {
     public class CreateProject_ViewModel
     {
+        public int Id { get; set; }
         [Required(ErrorMessage = "Title name for project is required")]
         [MinLength(3, ErrorMessage = "Min. length of project title is 3 digits")]
         [MaxLength(40, ErrorMessage = "Max. length of project title is 40 digits")]
@@ -21,6 +22,9 @@ namespace ApplicationY.ViewModels
         public string? YoutubeLink { get; set; }
         [DataType(DataType.Currency)]
         public int ProjectPrice { get; set; }
+        [MaxLength(400, ErrorMessage = "Please, try to describe your price change annotation shorter")]
+        public string? TargetPriceChangeAnnotation { get; set; }
+        public int CurrentPrice { get; set; }
         [Required]
         public int UserId { get; set; }
     }

@@ -5,6 +5,8 @@ using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Reflection.Metadata.Ecma335;
+using System.Text;
 
 namespace ApplicationY.Controllers
 {
@@ -77,6 +79,69 @@ namespace ApplicationY.Controllers
             }
             else return RedirectToAction("Create", "Account");
             return RedirectToAction("Index", "Home");
+        }
+
+        public async Task<IActionResult> Edit(int Id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                User? UserInfo = await _userManager.GetUserAsync(User);
+                if (UserInfo != null)
+                { 
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
+                    if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
+                    {
+                        string? MainFullText = null;
+                        StringBuilder? FullText = new StringBuilder(ProjectInfo.TextPart1);
+                        if (!String.IsNullOrEmpty(ProjectInfo.TextPart2)) FullText = FullText?.Append(ProjectInfo.TextPart2);
+                        if (!String.IsNullOrEmpty(ProjectInfo.TextPart3)) FullText = FullText?.Append(ProjectInfo.TextPart3);
+
+                        double PercentageOfTargetPrice = Math.Round((double)(ProjectInfo.TargetPrice / 10000000 * 100), 1);
+                        if (FullText != null) MainFullText = FullText?.ToString();
+
+                        ViewBag.UserInfo = UserInfo;
+                        ViewBag.ProjectInfo = ProjectInfo;
+                        ViewBag.FullText = MainFullText;
+                        ViewBag.FullTextLength = MainFullText?.Length;
+                        ViewBag.PercentageOfTargetPrice = PercentageOfTargetPrice;
+
+                        return View();
+                    }
+                    else return RedirectToAction("Index", "Home");
+                }
+            }
+            return RedirectToAction("Create", "Account");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProject(CreateProject_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                string? Result = await _projectRepository.EditAsync(Model);
+                if (Result != null) return Json(new { success = true, alert = "The " + Result + " project has successfully updated. Go by link below to check the updated project", link = Model.Id });
+                else return Json(new { success = false, alert = "An error occured while trying to update project information. Please, check all entered datas and then try again" });
+            }
+            return Json(new { success = false, alert = "Something from entered datas is wrong. Please, check them all and then try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Remove(int Id, int UserId)
+        {
+            int Result = await _projectRepository.RemoveAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, Id = Result, alert = "Selected project has successfully removed" });
+            else return Json(new { success = false, alert = "Unable to remove selected project at this moment. Please, try again later" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFullProject(int Id, bool GetAdditionalInfo)
+        {
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetAdditionalInfo);
+            if (ProjectInfo != null)
+            {
+                return Json(new { success = true, result = ProjectInfo });
+            }
+            else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
         }
     }
 }

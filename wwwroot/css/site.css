@@ -353,6 +353,16 @@ html {
     transition: all ease 0.5s;
 }
 
+.accordion-body {
+    border-radius: 8px;
+    transition: all ease 0.3s;
+}
+.accordion-item {
+    border-radius: 8px;
+    border: 0;
+    transition: all ease 0.3s;
+}
+
 .btn-back {
     cursor: pointer;
     font-weight: 500;

@@ -409,12 +409,123 @@ $("#CreateProject_Form").on("submit", function (event) {
 
     $.post(url, data, function (response) {
         if (response.success) {
-            $("#LookAtProject_Btn").attr("href", "/Project/ProjectInfo/" + response.link);
+            $("#LookAtProject_Btn").attr("href", "/Project/Info/" + response.link);
             animatedOpen(false, "Completed_Container", true, true);
-            openModal(response.alert, "Go To Project Page", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/ProjectInfo/" + response.link, 2, null, 3.75);
+            openModal(response.alert, "Go To Project", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/Info/" + response.link, 2, null, 3.75);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+$("#EditProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#LookAtProject_Btn").attr("href", "/Project/Info/" + response.link);
+            animatedOpen(false, "Completed_Container", true, true);
+            openModal(response.alert, "Go To Project", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/Info/" + response.link, 2, null, 3.75);
+        }
+        else {
+            animatedOpen(false, "Preload_Container", true, true);
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+$("#RemoveProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = $("#ProjectsCount_Span").text();
+            currentCount = parseInt(currentCount);
+            smallBarAnimatedOpenAndClose(false);
+            animatedClose(false, "RemoveProject_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            currentCount--;
+            if (currentCount > 0) {
+                animatedOpen(false, "Preload_Container", true, true);
+                $("#ProjectsCount_Span").text(currentCount);
+                $("#ProjectContainer-" + response.id).fadeOut(350);
+            }
+            else {
+                animatedOpen(false, "Preload_Container", true, true);
+                $("#ProjectsCount_Lbl").fadeOut(325);
+                $("#HaveProjects_Box").fadeOut(325);
+                $("#NoProjects_Box").fadeIn(650);
+            }
+        }
+        else {
+            smallBarAnimatedOpenAndClose(false);
+            animatedClose(false, "RemoveProject_Container");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
+$("#GetFullProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            let fullText;
+
+            $("#Preview_Title").text(response.result.name);
+            $("#Preview_ShortDescription").text(response.result.description);
+            if (response.result.textPart1 != null) fullText = response.result.textPart1;
+            if (response.result.textPart2 != null) fullText += response.result.textPart2;
+            if (response.result.textPart3 != null) fullText += response.result.textPart3;
+
+            $("#Preview_LongDescription").text(fullText);
+            let value = textDecoder("Preview_LongDescription", true, null);
+            $("#Preview_LongDescription").html(value);
+
+            if (response.result.targetPrice != 0) {
+                $("#InverToProject_Box").fadeIn(300);
+                $("#Preview_TagPrice").text(parseInt(response.result.targetPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                $("#Preview_TagPriceDescription").text("needs this project for his start");
+            }
+            else {
+                $("#InverToProject_Box").fadeOut(300);
+                $("#Preview_TagPrice").text("No target price");
+                $("#Preview_TagPriceDescription").text("this project isn't a startup");
+            }
+
+            if (response.result.link1 != null) {
+                $("#Preview_LinkBtn1").attr("href", response.result.link1);
+                $("#Preview_LinkBtn1").removeClass("disabled");
+                $("#Preview_LinkBtn1").html(' <i class="fas fa-external-link-alt"></i> Click To Relocate');
+                $("#Preview_LinkText1").text(response.result.link1);
+            }
+            else {
+                $("#Preview_LinkBtn1").attr("href", "#");
+                $("#Preview_LinkBtn1").addClass("disabled");
+                $("#Preview_LinkBtn1").html(' <i class="fas fa-external-link-alt"></i> No Link');
+                $("#Preview_LinkText1").text("No external first link");
+            }
+            if (response.result.link2 != null) {
+                $("#Preview_LinkBtn2").attr("href", response.result.link1);
+                $("#Preview_LinkBtn2").removeClass("disabled");
+                $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> Click To Relocate');
+                $("#Preview_LinkText2").text(response.result.link1);
+            }
+            else {
+                $("#Preview_LinkBtn2").attr("href", "#");
+                $("#Preview_LinkBtn2").addClass("disabled");
+                $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> No Link');
+                $("#Preview_LinkText2").text("No external second link");
+            }
+            animatedOpen(false, "ProjectView_Container", true, true);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
         }
     });
 });
@@ -727,9 +838,46 @@ $("#ProjectPrice").on("change", function () {
     let value = $(this).val();
     let percentageFromFull = value / 10000000 * 100;
     let finalValue = parseInt(value).toLocaleString("en-US", { style: "currency", currency: "USD" });
+    let currentPrice = $("#CurrentPrice").val();
 
     $("#ProjectPrice_Badge").html(finalValue);
     $("#ProjectPricePercentage_Badge").html(percentageFromFull.toFixed(2) + "%");
+    let newPricePercentage = 0;
+
+    if (currentPrice != undefined) {
+        if (currentPrice != value) {
+            currentPrice = parseFloat(currentPrice);
+            value = parseFloat(value);
+            if (currentPrice != 0) {
+                if (value > currentPrice) newPricePercentage = value / currentPrice * 100;
+                else newPricePercentage = (100 - (value / currentPrice * 100)) * -1;
+            }
+            else newPricePercentage = value / 10000000 * 100;
+
+            if (newPricePercentage > 0) {
+                $("#UpdatedPrice_Badge").addClass("bg-success");
+                $("#UpdatedPrice_Badge").removeClass("bg-danger");
+                $("#UpdatedPrice_Badge").text("+" + newPricePercentage.toFixed(2) + "%");
+            }
+            else {
+                $("#UpdatedPrice_Badge").addClass("bg-danger");
+                $("#UpdatedPrice_Badge").removeClass("bg-success");
+                $("#UpdatedPrice_Badge").text(newPricePercentage.toFixed(2) + "%");
+            }         
+            $("#TPCAnnotation_Box").removeClass("d-none");
+        }
+        else {
+            $("#TPCAnnotation_Box").addClass("d-none");
+            $("#TargetPriceChangeAnnotation").val("");
+            $("#TargetPriceAnnotation_Collapse").addClass("collapsed");
+            $("#TargetPriceAnnotation_Collapse").removeClass("show");
+            $("#TargetPriceAnnotation_Collapse").removeClass("collapsed");
+
+            $("#UpdatedPrice_Badge").addClass("bg-success");
+            $("#UpdatedPrice_Badge").removeClass("bg-danger");
+            $("#UpdatedPrice_Badge").text("Same Target");
+        }
+    }
 });
 $("#IncreaseStep_Btn").on("click", function () {
     let currentStep = $("#ProjectPrice").attr("step");
@@ -800,6 +948,32 @@ $("#DecreaseStep_Btn").on("click", function () {
 
 $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
+});
+
+$(document).on("click", ".select-to-remove", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0 || trueId != "") {
+        $("#RP_ProjectId").val(trueId);
+        smallBarAnimatedOpenAndClose(true);
+        animatedOpen(false, "RemoveProject_Container", false, false);
+    }
+    else {
+        openModal("Unable to remove this project right now. Please, try again later", null, null, null, null, null, null, 3);
+    }
+});
+$(document).on("click", ".project-box", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0 && trueId != "") {
+        let selectedProjectName = $("#ProjectName-" + trueId).text();
+
+        $("#SelectedProjectName_Lbl").text(selectedProjectName);
+        $("#GPI_Id").val(trueId);
+        $(".have-an-edit").attr("href", "/Project/Edit/" + trueId);
+        $(".have-a-lock").attr("id", "HaveALock-" + trueId);
+        $(".select-to-remove").attr("id", "HaveARemove-" + trueId);
+        smallBarAnimatedOpenAndClose(true);
+        animatedOpen(false, "SettingsOfProject_Container", false, false);
+    }
 });
 
 $(document).on("click", ".btn-back", function () {
@@ -927,17 +1101,22 @@ function textDecoder(element, isFromText, needsTheReplacement) {
 
 function previewCombinizer(previewingProject) {
     if (previewingProject) {
+        let previousPricePercentage = 0;
         let title = $("#Name").val();
         let smallerDescription = textDecoder("Project_Description", null, false);
         let longerDescription = textDecoder("TextPart", null, false);
         let link1 = $("#ProjectLink1").val();
         let link2 = $("#ProjectLink1").val();
         let ytLink = $("#YoutubeLink").val();
-        let projectPrice = $("#ProjectPrice").val();
-        
+        let projectPrice = $("#CurrentPrice").val();
+        let currentPrice = $("#ProjectPrice").val();
+        projectPrice = parseInt(projectPrice);
+        currentPrice = parseInt(currentPrice);
+
         $("#Preview_Title").text(title);
         $("#Preview_ShortDescription").html(smallerDescription);
         $("#Preview_LongDescription").html(longerDescription);
+
         if (link1 != null) {
             $("#Preview_LinkBtn1").attr("href", link1);
             $("#Preview_LinkText1").text("Link: " + link1);
@@ -946,13 +1125,34 @@ function previewCombinizer(previewingProject) {
             $("#Preview_LinkBtn2").attr("href", link2);
             $("#Preview_LinkText2").text("Link: " + link2);
         }
-
         if (projectPrice != 0) {
-            $("#Preview_TagPrice").text(parseFloat(projectPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
-            $("#Preview_TagPriceDescription").text("needs this project for his start");
+            if (projectPrice != currentPrice) {
+                if (currentPrice > projectPrice) previousPricePercentage = currentPrice / projectPrice * 100;
+                else previousPricePercentage = (100 - currentPrice / projectPrice * 100) * -1;
+
+                $("#Preview_PrevTagPrice").fadeIn(300);
+                if (previousPricePercentage > 0) {
+                    $("#Preview_TagPrice").text(parseFloat(currentPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + parseFloat(projectPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, +" + previousPricePercentage.toFixed(1) + "%");
+                    $("#Preview_PrevTagPrice").removeClass("text-danger");
+                    $("#Preview_PrevTagPrice").addClass("text-success");
+                    $("#Preview_TagPriceDescription").text("needs this project for his start");
+                }
+                else {
+                    $("#Preview_TagPrice").text(parseFloat(currentPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + parseFloat(projectPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, " + previousPricePercentage.toFixed(1) + "%");
+                    $("#Preview_PrevTagPrice").addClass("text-danger");
+                    $("#Preview_PrevTagPrice").removeClass("text-sucess")
+                }
+            }
+            else {
+                $("#Preview_PrevTagPrice").fadeOut(300);
+                $("#Preview_TagPrice").text(parseFloat(projectPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
+            }
         }
         else {
             $("#Preview_TagPrice").text("No investments");
+            $("#Preview_PrevTagPrice").fadeOut(300);
             $("#Preview_TagPriceDescription").text("There's no needed investments for this project. Anyway, the owner of project can add the investments part later");
         }
     }

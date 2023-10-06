@@ -13,7 +13,155 @@
             <input type="hidden" name="Id" value="@UserInfo.Id" />
         </form>
     </div>
+
+    <div class="box-container shadow-sm p-3 text-center">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-list-ul"></i> <br />Projects</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="ChartBar_Container-Open"> <i class="far fa-chart-bar"></i> <br />Chart Bar</button>
+            </div>
+            <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard" id="SettingsOfProject_Container">
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="SettingsOfProject_Container-Close"></button>
+        <h5 class="h5 text-truncate">Settings Of Project</h5>
+        <div class="mt-4">
+            <div class="bordered-container p-2 pb-1">
+                <small class="card-text text-muted">Selected Project</small>
+                <div class="border-top pt-2 mt-2"></div>
+                <h6 class="h6 text-primary safe-font" id="SelectedProjectName_Lbl">Project</h6>
+            </div>
+            <div class="mt-1">
+                <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                    <input type="hidden" name="Id" id="GPI_Id" value="0" />
+                    <input type="hidden" name="GetAdditionalInfo" id="GPI_GetAdditionalInfo" value="True" />
+                    <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Look</button>
+                </form>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted">Have a sidelook on your own project</small>
+                </div>
+            </div>
+            <div class="mt-3">
+                <a href="#" class="btn btn-group-member text-start have-an-edit w-100"> <i class="fas fa-pen-square text-primary"></i> Edit</a>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted mt-2">Edit any info of your project</small>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-group-member text-start have-a-lock w-100"> <i class="fas fa-lock text-primary"></i> Lock</button>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted">Lock your project for up to 7 days. The project'll not appear in search and recommendation lists of all users</small>
+                </div>
+            </div>
+            <div class="mt-3">
+                <button type="button" class="btn btn-group-member-danger text-start select-to-remove w-100"> <i class="fas fa-trash-alt text-danger"></i> Delete</button>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted">Remove your project</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard" id="RemoveProject_Container">
+        <button type="button" class="btn btn-close float-end ms-1" id="RemoveProject_Container-Close" aria-label="close"></button>
+        <h5 class="h5 text-truncate">Remove Project</h5>
+        <div class="mt-4">
+            <div>
+                <div class="box-container bg-light text-center p-3">
+                    <h2 class="h2 text-danger"> <i class="far fa-trash-alt"></i> </h2>
+                    <p class="card-text fw-500 safe-font">Are You Sure?</p>
+                    <div></div>
+                    <small class="card-text text-muted">Are you sure to remove this project? Later you'll not be able to recover it by any way</small>
+                </div>
+                <div class="mt-1">
+                    <form method="post" asp-controller="Project" asp-action="Remove" id="RemoveProject_Form">
+                        <input type="hidden" name="Id" id="RP_ProjectId" value="0" />
+                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <div class="row mt-3">
+                            <div class="col col-7">
+                                <button type="submit" class="btn btn-danger btn-standard-with-no-colour text-truncate w-100">Yes, Remove It</button>
+                            </div>
+                            <div class="col col-5">
+                                <button type="button" class="btn btn-light btn-standard-with-no-colour text-truncate w-100" onclick="smallBarAnimatedOpenAndClose(false); animatedClose(false, 'RemoveProject_Container');">Don't Remove</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<div class="main-container p-3 shadow-standard" id="ProjectView_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="ProjectView_Container-Close"></button>
+        <h6 class="h5 text-truncate">Project View</h6>
+    </div>
+    <div class="mt-4">
+        <div class="box-container">
+            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="far fa-bell"></i> Subscribe</button>
+                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 me-1"> <i class="far fa-paper-plane"></i> Send Message</button>
+                <h5 class="h5 safe-font">@UserInfo.PseudoName</h5>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="box-container shadow-sm p-2 mt-2">
+            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
+        </div>
+        <div class="card-group mt-2">
+            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+                <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$0.00</h3>
+                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
+                <div class="mt-3" id="InverToProject_Box">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                    <div></div>
+                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                    <div></div>
+                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3" id="Preview_LinksBox">
+                <h6 class="h6">Main Links</h6>
+                <div class="border-top mt-1 pt-1"></div>
+                <div>
+                    <a href="#" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText1">First Link Href</small>
+                </div>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
 <div class="main-container p-3 shadow-standard" id="Preload_Container">
     <div>
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
@@ -22,47 +170,44 @@
     <div class="mt-4">
         @if(Count > 0)
         {
-            @foreach(Project Item in ViewBag.Projects)
-            {
-                <div class="card bordered-container p-2 ps-3 pe-3 mt-2" id="ProjectContainer-@Item.Id">
-                    <h3 class="h3 display-6 safe-font" id="ProjectName-@Item.Id">@Item.Name</h3>
-                    @if (Item.TargetPrice != 0)
-                    {
-                        <small class="card-text text-muted" id="ProjectPrice-@Item.Id">Target: $@Item.TargetPrice.ToString("N0")</small>
-                    }
-                    else
-                    {
-                        <small class="card-text text-muted" id="ProjectPrice-@Item.Id">No target price</small>
-                    }
-                    <div class="mt-1"></div>
-                    <small class="card-text text-muted">Created at: @Item.CreatedAt.ToString("MM/dd/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
-                    <div class="mt-2">
-                        <p class="card-text white-space-on" id="ProjectDescription-@Item.Id">@Item.Description</p>
-                        <p class="card-text"><small class="text-muted" id="ProjectLastUpdated-@Item.Id">Last updated: @Item.LastUpdatedAt.ToString("MM/dd/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small></p>
-                        <button type="button" class="btn btn-text btn-sm select-project" data-bs-toggle="collapse" data-bs-target="#ProjectCollapse-@Item.Id" aria-expanded="false" aria-controls="ProjectCollapse-@Item.Id" id="ProjectSelect-@Item.Id"> <i class="fas fa-check"></i> Select</button>
-                    </div>
-                        <div class="mt-1">
-                            <div class="collapse" id="ProjectCollapse-@Item.Id">
-                                <div class="card card-body border-0 p-0 bordered-container w-100">
-                                    <div class="row">
-                                        <div class="col">
-                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-align-left text-primary"></i> <br /> Look</button>
-                                        </div>
-                                        <div class="col">
-                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-pen-square text-primary"></i> <br /> Edit</button>
-                                        </div>
-                                        <div class="col">
-                                            <button type="button" class="btn btn-group-member w-100"> <i class="fas fa-lock text-primary"></i> <br /> Lock</button>
-                                        </div>
-                                        <div class="col">
-                                            <button type="button" class="btn btn-group-member-danger w-100"> <i class="fas fa-trash-alt text-danger"></i> <br /> Delete</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
+            <small class="card-text text-muted" id="ProjectsCount_Lbl">You have <span id="ProjectsCount_Span">@Count</span> actual project(s)</small>
+            <div id="HaveProjects_Box">
+                @foreach(Project Item in ViewBag.Projects)
+                {
+                    <div class="card bordered-container project-box p-2 mt-2" id="ProjectContainer-@Item.Id">
+                        <h3 class="h3 safe-font w-auto project-box" id="ProjectName-@Item.Id">@Item.Name</h3>
+                        @if (Item.TargetPrice != 0)
+                        {
+                            <small class="card-text text-muted w-auto project-box" id="ProjectPrice-@Item.Id"> <i class="fas fa-coins text-primary"></i> Target: $@Item.TargetPrice.ToString("N0")</small>
+                        }
+                        else
+                        {
+                            <small class="card-text text-muted w-auto project-box" id="ProjectPrice-@Item.Id"> <i class="fas fa-coins text-primary"></i> No target price</small>
+                        }
+                        <div class="mt-1"></div>
+                        <small class="card-text text-muted w-auto project-box" id="ProjectCreated-@Item.Id"> <i class="far fa-calendar-alt text-primary"></i> Created at: @Item.CreatedAt.ToString("MM/dd/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
+                        <p class="card-text w-auto project-box" id="ProjectLastUpdatedY-@Item.Id"><small class="text-muted project-box" id="ProjectLastUpdated-@Item.Id"> <i class="fas fa-sync text-primary"></i> Last updated: @Item.LastUpdatedAt.ToString("MM/dd/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small></p>
+                        <div>
+                            <p class="card-text white-space-on project-box" id="ProjectDescription-@Item.Id">@Item.Description</p>
+                            <div class="mt-1"></div>
+                            <small class="card-text text-muted project-box" id="ProjectHelp-@Item.Id"> <i class="fas fa-ellipsis-h"></i> Click at any free part of box, to open settings box of selected project</small>
                         </div>
-                </div>
-            }
+                    </div>
+                }
+            </div>
+            <div class="box-container text-center mt-5" style="display: none;" id="NoProjects_Box">
+                <h2 class="h2"> <i class="far fa-times-circle"></i> </h2>
+                <h3 class="h3 safe-font">No Current Projects</h3>
+                <small class="card-text text-muted">You haven't get any ongoing projects yet. All your currently available or already stopped projects will appear on this page for you to choose one of them for editing, locking or deleting</small>
+            </div>
+        }
+        else
+        {
+            <div class="box-container text-center mt-5" id="NoProjects_Box">
+                <h2 class="h2"> <i class="far fa-times-circle"></i> </h2>
+                <h3 class="h3 safe-font">No Current Projects</h3>
+                <small class="card-text text-muted">You haven't get any ongoing projects yet. All your currently available or already stopped projects will appear on this page for you to choose one of them for editing, locking or deleting</small>
+            </div>
         }
     </div>
 </div>
