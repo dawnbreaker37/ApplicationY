@@ -285,6 +285,22 @@ html {
     display: none;
 }
 
+.bubble-container {
+    border-radius: 12px;
+    background-color: transparent;
+    border: 1px solid #f8f9fa;
+    max-height: 75%;
+    width: 70%;
+    position: fixed;
+    backdrop-filter: blur(4px);
+    z-index: 1000;
+    display: none;
+    bottom: -1200px;
+    left: 50%;
+    transform: translate(-50%, 0);
+    transition: all ease 0.5s;
+}
+
 .smallside-box-container {
     z-index: 1000;
     overflow-y: auto;

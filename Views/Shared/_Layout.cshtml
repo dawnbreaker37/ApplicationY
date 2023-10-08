@@ -40,7 +40,23 @@
         <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> All Projects</a>
     </div>
 
-    <div class="modal shadow-sm fade" id="StaticBackdrop_Container" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="StaticBackdrop_ContainerLabel" aria-hidden="true">
+    <div class="bubble-container mx-auto shadow-sm p-3" id="NotificationsLiquid_Container">
+        <button type="button" class="btn btn-standard-not-animated rounded-pill btn-close-liquid-container me-1" id="SB_C-Title"></button>
+        <div class="text-center" id="NotificationsLiquid_Container_Box">
+@*            <h6 class="h6" id="SB_C-Title"></h6>*@
+            <div class="bg-transparent" id="SB_C-Body">
+
+            </div>
+            <div class="d-none">
+                <form method="post" asp-controller="Notifications" asp-action="Remove" id="RemoveNotification_Form">
+                    <input type="hidden" name="Id" id="RN_Id_Val" value="0" />
+                    <input type="hidden" name="UserId" id="RN_UserId_Val" value="0" />
+                </form>
+            </div>
+        </div>
+    </div>
+
+@*    <div class="modal shadow-sm fade" id="StaticBackdrop_Container" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="StaticBackdrop_ContainerLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -58,7 +74,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div>*@
 
     <div class="smallside-modal-container p-3 text-start shadow-sm" id="MainModal_Container">
         <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>

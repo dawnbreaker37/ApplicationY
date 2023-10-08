@@ -537,7 +537,7 @@ $("#GetNotifications_Btn").on("click", function (event) {
     $.get(url, data, function (response) {
         if (response.success) {
             $("#SB_C-Body").empty();
-            $("#SB_C-Title").text("Notifications ∙ " + response.count.toLocaleString());
+            $("#SB_C-Title").html(" <i class='fas fa-times btn-close-liquid-container'></i>  Notifications ∙ " + response.count.toLocaleString());
             if (response.count != 0) {
                 let formDiv = $("<div class='mt-2'></div>");
                 let formTag = $("<form method='post' action='/Notifications/RemoveAllNotifications' id='RemoveAllNotifications_Form'></form>");
@@ -586,7 +586,8 @@ $("#GetNotifications_Btn").on("click", function (event) {
                 $("#SB_C-Body").append(div);
             }
 
-            openStaticBackdrop(null, false);
+            bubbleAnimation("NotificationsLiquid_Container", true);
+            //openStaticBackdrop(null, false);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -1470,6 +1471,49 @@ function smallBarAnimatedOpenAndClose(open) {
             $("#Main_SideBar").fadeOut(750);
             $("#Main_SideBar").css("left", "-1200px");
         }
+    }
+}
+
+$(document).on("click", ".btn-open-liquid-container", function (event) {
+    let trueId = getTrueName(event.target.id);
+    bubbleAnimation(trueId, true);
+});
+$(document).on("click", ".btn-close-liquid-container", function (event) {
+    let trueId = getTrueName(event.target.id);
+    bubbleAnimation(trueId, false);
+});
+
+function bubbleAnimation(element, isForOpening) {
+    if (isForOpening) {
+        $("#" + element).fadeIn(0);
+        $("#" + element + "_Box").fadeOut(0);
+        $("#" + element).css("z-index", "1000");
+        $("#" + element).css("width", "10%");
+        $("#" + element).css("bottom", "280px");
+        setTimeout(function () {
+            $("#" + element).css("width", "75%");
+        }, 300);
+        setTimeout(function () {
+            $("#" + element + "_Box").fadeIn(300);
+        }, 350);
+        setTimeout(function () {
+            $("#" + element).css("bottom", "220px");
+        }, 600);
+        setTimeout(function () {
+            $("#" + element).css("width", "70%");
+            $("#" + element).css("bottom", "240px");
+        }, 1050);
+    }
+    else {
+        $(".bubble-container").css("bottom", "280px");
+        $(".bubble-container").css("width", "75%");
+        setTimeout(function () {
+            $(".bubble-container").css("width", "10%");
+            $(".bubble-container").css("z-index", "-1");
+        }, 400);
+        setTimeout(function () {
+            $(".bubble-container").css("bottom", "-1200px");
+        }, 550);
     }
 }
 
