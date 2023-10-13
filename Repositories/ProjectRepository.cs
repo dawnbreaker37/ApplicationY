@@ -124,7 +124,19 @@ namespace ApplicationY.Repositories
 
         public async Task<Project?> GetProjectAsync(int Id, bool GetAdditionalInfo)
         {
-            if (GetAdditionalInfo) return await _context.Projects.AsNoTracking().FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved);
+            Project? ProjectInfo = null;
+            if (GetAdditionalInfo)
+            {
+                ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved);
+                if(ProjectInfo != null)
+                {
+                    ProjectInfo.Views++;
+                    _context.Update(ProjectInfo);
+                    await _context.SaveChangesAsync();
+
+                    return ProjectInfo;
+                }
+            }
             return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
         }
 

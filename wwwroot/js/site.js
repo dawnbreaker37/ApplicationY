@@ -16,6 +16,9 @@ window.onload = function () {
     if (currentUrl.toLowerCase().includes("/profile")) {
         textDecoder("AY_Description", true, true);
     }
+    else if (currentUrl.toLocaleLowerCase().includes("/info")) {
+        textDecoder("Preview_LongDescription", true, true);
+    }
 }
 window.onresize = function () {
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
@@ -479,6 +482,8 @@ $("#GetFullProject_Form").on("submit", function (event) {
 
             $("#Preview_Title").text(response.result.name);
             $("#Preview_ShortDescription").text(response.result.description);
+            $("#Preview_ViewsCnt").text(response.result.views);
+            $("#Preview_ProjectPageLink").attr("href", "/Project/Info/" + response.result.id);
             if (response.result.textPart1 != null) fullText = response.result.textPart1;
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
@@ -526,6 +531,46 @@ $("#GetFullProject_Form").on("submit", function (event) {
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
+        }
+    });
+});
+
+$("#SendMessage_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#MsgSendSbmt_Btn").css("transform", "rotate(360deg)");
+            $("#MsgSendSbmt_Btn").html(' <i class="fas fa-check"></i> ');
+            $("#MsgSendSbmt_Btn").attr("disabled", true);
+            $("#Text").attr("disabled", true);
+            setTimeout(function () {
+                $("#Text").attr("disabled", false);
+                $("#Text").val("");
+                $("#MsgSendSbmt_Btn").attr("disabled", false);
+                $("#MsgSendSbmt_Btn").css("transform", "rotate(-360deg)");
+                $("#MsgSendSbmt_Btn").html(" <i class='fas fa-arrow-up'></i> ");
+            }, 2500);
+        }
+        else {
+            $("#MsgSendSbmt_Btn").css("transform", "rotate(360deg)");
+            $("#MsgSendSbmt_Btn").html(' <i class="fas fa-times"></i> ');
+            $("#MsgSendSbmt_Btn").attr("disabled", true);
+            $("#MsgSendSbmt_Btn").removeClass("bg-primary");
+            $("#MsgSendSbmt_Btn").addClass("bg-danger");
+            $("#Text").attr("disabled", true);
+            setTimeout(function () {
+                $("#MsgSendSbmt_Btn").removeClass("bg-danger");
+                $("#MsgSendSbmt_Btn").addClass("bg-primary");
+                $("#MsgSendSbmt_Btn").css("transform", "rotate(-360deg)");
+                $("#Text").attr("disabled", false);
+                $("#Text").val("");
+                $("#MsgSendSbmt_Btn").attr("disabled", false);
+                $("#MsgSendSbmt_Btn").html(" <i class='fas fa-arrow-up'></i> ");
+            }, 3250);
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
         }
     });
 });
@@ -588,6 +633,70 @@ $("#GetNotifications_Btn").on("click", function (event) {
 
             bubbleAnimation("NotificationsLiquid_Container", true);
             //openStaticBackdrop(null, false);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+$("#GetMessages_Btn").on("click", function (event) {
+    event.preventDefault();
+    let url = $("#GetAllMessages_Form").attr("action");
+    let data = $("#GetAllMessages_Form").serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            if (response.count > 0) {
+                $("#SB_C-Body").empty();
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Messages ∙ " + response.count.toLocaleString());
+                $.each(response.result, function (index) {
+                    let div = $("<div class='box-container p-2 pe-3 mt-1 mb-1 bordered-container'></div>");
+                    let senderName = $("<h6 class='h6 text-primary safe-font'></h6>");
+                    let text = $("<p class='card-text'></p>");
+                    let dateAndTime = $("<small class='card-text text-muted ms-1 float-end'></small>");
+                    let isChecked = $("<small class='card-text float-end ms-2 is-checked-icon'></small>");
+                    let buttonsDiv = $("<div class='box-container'></div>");
+                    let removeBtn = $("<button type='button' class='btn btn-text btn-sm mt-2 select-to-remove-the-msg'> <i class='fas fa-times-circle text-danger'></i> Remove</button>")
+                    let markAsReadBtn = $("<button type='button' class='btn btn-text btn-sm mt-2 select-to-mark me-2'> <i class='fas fa-check-double text-primary'></i> Mark as Read</button>");
+
+                    text.html(response.result[index].text);
+                    dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
+                    if (response.result[index].isChecked) {
+                        isChecked.html(" <i class='fas fa-check-double text-primary'></i> ");
+                        markAsReadBtn.fadeOut(0);
+                    }
+                    else isChecked.html(" <i class='fas fa-check text-muted'></i> ");
+                    senderName.text(response.result[index].senderName);
+
+                    div.attr("id", "AllMessages-" + response.result[index].id);
+                    text.attr("id", "AllMessagesText-" + response.result[index].id);
+                    dateAndTime.attr("id", "AllMessagesDate-" + response.result[index].id);
+                    isChecked.attr("id", "AllMessagesIsChecked-" + response.result[index].id);
+                    removeBtn.attr("id", "MessageRemove-" + response.result[index].id);
+                    markAsReadBtn.attr("id", "MessageMarkAsRead-" + response.result[index].id);
+
+                    buttonsDiv.append(markAsReadBtn);
+                    buttonsDiv.append(removeBtn);
+                    div.append(isChecked);
+                    div.append(dateAndTime);
+                    div.append(senderName);
+                    div.append(text);
+                    div.append(buttonsDiv);
+                    $("#SB_C-Body").append(div);
+                });
+                let checkAll_SbmtBtn = $("<button type='button' class='btn btn-text mt-1 btn-sm select-to-mark' id='MarkAllMessagesAsRead--256'> <i class='fas fa-check-double text-primary'></i> Mark All as Read</button>");
+                $("#SB_C-Body").append(checkAll_SbmtBtn);           
+            }
+            else {
+                let div = $("<div class='p-3 text-center'></div>");
+                let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
+                let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
+                let text = $("<small class='card-text text-muted'>You haven't get any messages. All of them will lately will appear here to edit, check or remove</small>");
+                div.append(iconTitle);
+                div.append(textTitle);
+                div.append(text);
+                $("#SB_C-Body").append(div);
+            }
+            bubbleAnimation("NotificationsLiquid_Container", true);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -774,6 +883,11 @@ $("#Name").on("keyup", function () {
 $("#TextPart").on("keyup", function () {
     lengthCounter("TextPart", 6000);
 });
+$("#Text").on("keyup", function () {
+    let value = lengthCounter("Text", 2500);
+    if (value < 6) $("#MsgSendSbmt_Btn").attr("disabled", true);
+    else $("#MsgSendSbmt_Btn").attr("disabled", false);
+});
 $("#Project_Description").on("keyup", function () {
     lengthCounter("Project_Description", 1600);
 });
@@ -951,6 +1065,48 @@ $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
 });
 
+$(document).on("click", ".select-to-mark", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let userId = $("#PageInfo_UserId").val();
+    $("#MaR_Id_Val").val(trueId);
+    $("#MaR_UserId_Val").val(userId);
+
+    if (userId != 0 && trueId != "") {
+        event.preventDefault();
+        let url = $("#MarkAsRead_Form").attr("action");
+        let data = $("#MarkAsRead_Form").serialize();
+        $.post(url, data, function (response) {
+            if (response.success) {
+                if (response.id == -256) {
+                    $(".is-checked-icon").html(" <i class='fas fa-check-double text-primary'></i> ");
+                    $(".select-to-mark").html(" <i class='fas fa-check-double text-primary'></i> Marked as Read");
+                    $(".select-to-mark").attr("disabled", true);
+                    //bubbleAnimation("NotificationsLiquid_Container", false);
+                    //let div = $("<div class='p-3 text-center'></div>");
+                    //let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
+                    //let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
+                    //let text = $("<small class='card-text text-muted'>You haven't get any messages. All of them will lately will appear here to edit, check or remove</small>");
+                    //div.append(iconTitle);
+                    //div.append(textTitle);
+                    //div.append(text);
+                    //$("#SB_C-Body").append(div);
+
+                    //bubbleAnimation("NotificationsLiquid_Container", true);
+                }
+                else {
+                    $("#AllMessagesIsChecked-" + response.id).html(" <i class='fas fa-check-double text-primary'></i> ");
+                    $("#MessageMarkAsRead-" + response.id).attr("disabled", true);
+                    $("#MessageMarkAsRead-" + response.id).html(" <i class='fas fa-check-double text-primary'></i> Marked as Read");
+                }
+            }
+            else {
+                bubbleAnimation("NotificationsLiquid_Container", false);
+                openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            }
+        });
+    }
+});
+
 $(document).on("click", ".select-to-remove", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 || trueId != "") {
@@ -1045,6 +1201,15 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
 });
 $(document).on("click", ".btn-static-backdrop-open", function (event) {
     openStaticBackdrop(event.target.id, true);
+});
+
+$(document).on("click", ".btn-open-liquid-container", function (event) {
+    let trueId = getTrueName(event.target.id);
+    bubbleAnimation(trueId, true);
+});
+$(document).on("click", ".btn-close-liquid-container", function (event) {
+    let trueId = getTrueName(event.target.id);
+    bubbleAnimation(trueId, false);
 });
 
 $(document).on("click", ".add-option", function (event) {
@@ -1167,6 +1332,8 @@ function lengthCounter(element, maxValue) {
     let leftSymbols = maxValue - length;
 
     $("#" + element + "-LengthSpan").text(length + "/" + maxValue + ", -" + leftSymbols);
+
+    return length;
 }
 
 function addOptionToText(element, type, value1, value2) {
@@ -1233,7 +1400,7 @@ function convertDateAndTime(value, asShort) {
 }
 
 function getTrueId(fullName) {
-    return fullName.substring(fullName.lastIndexOf("-") + 1);
+    return fullName.substring(fullName.indexOf("-") + 1);
 }
 
 function getTrueName(fullName) {
@@ -1326,7 +1493,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_FirstBtn").on("click", function () {
-                    animatedClose(false, "MainModal_Container");
+                    closeContainerBubbleAnimation("MainModal_Container", true);
                 });
                 break;
             case 4:
@@ -1361,7 +1528,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_SecondBtn").on("click", function () {
-                    animatedClose(false, "MainModal_Container");
+                    closeContainerBubbleAnimation("MainModal_Container", true);
                 });
                 break;
             default:
@@ -1415,6 +1582,7 @@ function displayCorrect(width) {
     let neededH = fullHeigth - 24;
     $(".main-container").css("height", neededH + "px");
     $(".main-container").css("max-height", neededH + "px");
+    $(".bubble-container").css("max-height", neededH + "px");
     $(".smallside-box-container").css("max-height", neededH + "px");
     $(".btn-right-bottom-fixed").css("bottom", botNavbarH + 10 + "px");
 
@@ -1474,46 +1642,80 @@ function smallBarAnimatedOpenAndClose(open) {
     }
 }
 
-$(document).on("click", ".btn-open-liquid-container", function (event) {
-    let trueId = getTrueName(event.target.id);
-    bubbleAnimation(trueId, true);
-});
-$(document).on("click", ".btn-close-liquid-container", function (event) {
-    let trueId = getTrueName(event.target.id);
-    bubbleAnimation(trueId, false);
-});
+function containerBubbleAnimation(element) {
+    let currentContainerH = $("#" + element).innerHeight();
+    let neededH = fullHeigth - currentContainerH - 20;
+
+    if (fullWidth >= 1024) $("#" + element).css("width", "75%");
+    else $("#" + element).css("width", "95%");
+
+    $("#" + element).css("left", "50%");
+    $("#" + element).css("transform", "translateX(-50%)");
+    $("#" + element).css("bottom", neededH + "px");
+    $("#" + element).css("background-color", "transparent");
+    $("#" + element).css("backdrop-filter", "blur(5px)");
+    $("#" + element).css("border", "1px solid rgb(240, 240, 240)");
+}
+function closeContainerBubbleAnimation(element, isForSmallSide) {
+    let smallSideContainerW = $("#Main_SideBar").innerWidth() - 19;
+
+    setTimeout(function () {
+        $("#" + element).css("border", "1px solid transparent");
+        $("#" + element).css("transform", "none");
+        $("#" + element).css("background-color", "#f8f9fa");
+    }, 250);
+    animatedClose(false, element);
+    if (isForSmallSide) {
+        animatedClose(false, element);
+        setTimeout(function () {
+            if (fullWidth < 717) {
+                $("#" + element).css("left", "2.4%");
+                $("#" + element).css("width", "95%");
+            }
+            else {
+                $("#" + element).css("left", "10px");
+                $("#" + element).css("width", smallSideContainerW + "px");
+            }
+        }, 300);
+    }
+}
 
 function bubbleAnimation(element, isForOpening) {
     if (isForOpening) {
-        $("#" + element).fadeIn(0);
-        $("#" + element + "_Box").fadeOut(0);
+        $(".container").css("filter", "blur(4px)");
+        $(".smallside-modal-container").css("filter", "blur(4px)");
+        $(".static-bar").css("filter", "blur(4px)");
+        $(".main-container").not("bubble-container box-container").css("filter", "blur(4px)");
+        $("#" + element).fadeIn(300);
         $("#" + element).css("z-index", "1000");
-        $("#" + element).css("width", "10%");
-        $("#" + element).css("bottom", "280px");
+        $("#" + element).css("top", "55px");
         setTimeout(function () {
             $("#" + element).css("width", "75%");
-        }, 300);
+        }, 150);
         setTimeout(function () {
-            $("#" + element + "_Box").fadeIn(300);
-        }, 350);
-        setTimeout(function () {
-            $("#" + element).css("bottom", "220px");
-        }, 600);
-        setTimeout(function () {
+            $("#" + element).css("top", "10px");
             $("#" + element).css("width", "70%");
-            $("#" + element).css("bottom", "240px");
-        }, 1050);
+        }, 450);
+        setTimeout(function () {
+            $("#" + element).css("top", "25px");
+        }, 900);
     }
     else {
-        $(".bubble-container").css("bottom", "280px");
+        $(".bubble-container").css("top", "60px");
         $(".bubble-container").css("width", "75%");
         setTimeout(function () {
-            $(".bubble-container").css("width", "10%");
+            $(".container").css("filter", "none");
+            $(".main-container").not("bubble-container box-container").css("filter", "none");
+            $(".smallside-modal-container").css("filter", "none");
+            $(".static-bar").css("filter", "none");
+
+            $(".bubble-container").css("width", "70%");
             $(".bubble-container").css("z-index", "-1");
-        }, 400);
+        }, 300);
         setTimeout(function () {
-            $(".bubble-container").css("bottom", "-1200px");
-        }, 550);
+            $(".bubble-container").css("top", "-1200px");
+            $(".bubble-container").fadeOut(300);
+        }, 500);
     }
 }
 
@@ -1584,6 +1786,20 @@ function animatedClose(forAll, elemet) {
         $("#" + elemet).fadeOut(250);
     }
 }
+
+$("#MMC_Text").on("click", function () {
+    containerBubbleAnimation("MainModal_Container");
+    //let currentContainerH = $("#MainModal_Container").innerHeight();
+    //let neededH = fullHeigth - currentContainerH - 20;
+
+    //$("#MainModal_Container").css("left", "50%");
+    //$("#MainModal_Container").css("transform", "translateX(-50%)");
+    //$("#MainModal_Container").css("width", "75%");
+    //$("#MainModal_Container").css("bottom", neededH + "px");
+    //$("#MainModal_Container").css("background-color", "transparent");
+    //$("#MainModal_Container").css("backdrop-filter", "blur(5px)");
+    //$("#MainModal_Container").css("border", "1px solid rgb(240, 240, 240)");
+});
 
 $(document).on("mouseover", ".info-popover", function (event) {
     $("#" + event.target.id).popover("show");

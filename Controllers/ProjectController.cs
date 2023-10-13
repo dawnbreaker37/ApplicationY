@@ -5,7 +5,6 @@ using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using System.Reflection.Metadata.Ecma335;
 using System.Text;
 
 namespace ApplicationY.Controllers
@@ -142,6 +141,43 @@ namespace ApplicationY.Controllers
                 return Json(new { success = true, result = ProjectInfo });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
+        }
+
+        public async Task<IActionResult> Info(int Id)
+        {
+            if(Id != 0)
+            {
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
+                if(ProjectInfo != null)
+                {
+                    double PreviousPricePercentage = 0;
+
+                    StringBuilder sb = new StringBuilder();
+                    sb.Append(ProjectInfo.TextPart1);
+                    if (ProjectInfo.TextPart2 != null) sb.Append(ProjectInfo.TextPart2);
+                    if(ProjectInfo.TextPart3 != null) sb.Append(ProjectInfo.TextPart3);
+
+                    if (ProjectInfo.PastTargetPrice != 0)
+                    {
+                        PreviousPricePercentage = (double)ProjectInfo.TargetPrice / ProjectInfo.PastTargetPrice * 100;
+                        if (PreviousPricePercentage < 100) PreviousPricePercentage = Math.Round(100 - PreviousPricePercentage, 1) * -1;
+                        else PreviousPricePercentage = Math.Round(PreviousPricePercentage - 100, 1);
+                    }
+
+                    if (User.Identity.IsAuthenticated)
+                    {
+                        User? UserInfo = await _userManager.GetUserAsync(User);
+                        if (UserInfo != null) ViewBag.UserInfo = UserInfo;
+                        else ViewBag.UserInfo = null;
+                    }
+                    ViewBag.ProjectInfo = ProjectInfo;
+                    ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
+                    ViewBag.FullText = sb;
+
+                    return View();
+                }
+            }
+            return RedirectToAction("Index", "Home");
         }
     }
 }

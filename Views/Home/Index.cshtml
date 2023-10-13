@@ -9,9 +9,13 @@
     @if (User.Identity.IsAuthenticated)
     {
         <div class="d-none">
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
             <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
             <input type="hidden" name="Id" value="@UserInfo.Id" />
         </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
     </div>
     }
     <div class="container text-center p-2 shadow-sm">

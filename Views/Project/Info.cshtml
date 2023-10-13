@@ -1,0 +1,208 @@
+﻿@model Project
+@{
+    ViewData["Title"] = "Project Info";
+
+    User? UserInfo = ViewBag.UserInfo;
+    Project? ProjectInfo = ViewBag.ProjectInfo;
+    double PrevPricePercentageChange = ViewBag.TargetPriceChangePerc;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    @if (UserInfo != null)
+    {
+        <div class="d-none">
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+    </div>
+    }
+    <div class="box-container shadow-sm p-3 text-center">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="fas fa-file-invoice-dollar"></i> <br />About</button>
+            </div>
+            <div class="col">
+                <form method="get" asp-controller="User" asp-action="GetUserInfo" id="GetUserInfo_Form">
+                    <input type="hidden" name="Id" value="@ProjectInfo.UserId" />
+                    <button type="submit" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-user-circle"></i> <br/>About @ProjectInfo.User?.PseudoName</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    @if (UserInfo != null)
+    {
+        <div class="smallside-box-container p-3 shadow-standard" id="SendMessage_Container">
+            <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Send Message</h5>
+            <div class="mt-4">
+                <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessage_Form">
+                    <div class="d-none">
+                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col col-1">
+                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MsgSendSbmt_Btn" disabled> <i class="fas fa-arrow-up"></i></button>
+                        </div>
+                        <div class="col col-8">
+                            <textarea name="Text" id="Text" rows="1" placeholder="Enter text here" class="form-control w-100 form-control-sm send-msg-form-control"></textarea>
+                        </div>
+                        <div class="col col-1">
+                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn"> <i class="far fa-clock"></i> </button>
+                        </div>
+                        <div class="col col-2">
+                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn w-100"> <i class="fas fa-backspace"></i> </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    }
+</div>
+
+<div class="main-container p-3 shadow-standard" id="Preload_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <h6 class="h5 text-truncate">Project</h6>
+    </div>
+    <div class="mt-4">
+        <div class="box-container">
+            <h1 class="h1 text-primary safe-font" id="Preview_Title">@ProjectInfo.Name</h1>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                @if (UserInfo != null)
+                {
+                    <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="far fa-bell"></i> Subscribe</button>
+                    <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 me-1 smallside-btn-open-container" id="SendMessage_Container-Open"> <i class="far fa-paper-plane"></i> Send Message</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end text-danger ms-1" disabled> <i class="far fa-bell"></i> Sign In</button>
+                    <button type="button" class="btn btn-light text-danger btn-standard-with-no-colour btn-sm float-end ms-1 me-1" disabled> <i class="far fa-paper-plane"></i> Sign In</button>
+                }
+                <h5 class="h5 safe-font">@ProjectInfo.User?.PseudoName</h5>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="collapse mt-2" id="MoreInfo_Collapse">
+            <div class="card box-container shadow-sm p-3 pb-2">
+                <h5 class="h5">Additional Info</h5>
+                <div class="row mt-2 border-top pt-3 ms-1 me-1 text-center">
+                    <div class="col">
+                        <h6 class="h6">Views</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_ViewsCnt">@ProjectInfo.Views.ToString("N0")</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Likes</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LikesCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Category</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_Category">Unknown</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="box-container shadow-sm p-2 mt-2">
+            <p class="card-text white-space-on" id="Preview_ShortDescription">@ProjectInfo.Description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">@ViewBag.FullText</p>
+        </div>
+        <div class="card-group mt-2">
+            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+                @if (ProjectInfo.TargetPrice != 0)
+                {
+                    <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$@ProjectInfo.TargetPrice.ToString("N0")</h3>
+                    @if(ProjectInfo.PastTargetPrice != 0)
+                    {
+                        if(PrevPricePercentageChange > 0)
+                        {
+                            <p class="card-text text-success safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, +@PrevPricePercentageChange%</p>
+                        }
+                        else
+                        {
+                            <p class="card-text text-danger safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, @PrevPricePercentageChange%</p>
+                        }
+                    }
+                    <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
+                    <div class="mt-3" id="InverToProject_Box">
+                        <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                        <div></div>
+                        <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                    </div>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                        <div></div>
+                        <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                    </div>
+                }
+                else
+                {
+                    <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">No Target Price</h3>
+                    <small class="card-text text-muted" id="Preview_TagPriceDescription">this project isn't a startup</small>
+                    <div class="mt-3" style="display: none;" id="InverToProject_Box">
+                        <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                        <div></div>
+                        <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                    </div>
+                    <div class="mt-2">
+                        <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                        <div></div>
+                        <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                    </div>
+                }
+            </div>
+            <div class="card shadow-sm p-3" id="Preview_LinksBox">
+                <h6 class="h6">Main Links</h6>
+                <div class="border-top mt-1 pt-1"></div>
+                @if (ProjectInfo.Link1 != null)
+                {
+                    <div>
+                        <a href="@ProjectInfo.Link1" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                        <div></div>
+                        <small class="card-text text-muted" id="Preview_LinkText1">@ProjectInfo.Link1</small>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <a href="#" class="btn btn-text btn-sm w-auto text-start disabled" id="Preview_LinkBtn1"> <i class="fas fa-times-circle"></i> No Link</a>
+                        <div></div>
+                        <small class="card-text text-muted" id="Preview_LinkText1">No First Link</small>
+                    </div>
+                }
+                @if (ProjectInfo.Link2 != null)
+                {
+                    <div class="mt-2">
+                        <a href="@ProjectInfo.Link2" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                        <div></div>
+                        <small class="card-text text-muted" id="Preview_LinkText2">@ProjectInfo.Link2</small>
+                    </div>
+                }
+                else
+                {
+                    <div class="mt-2">
+                        <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start disabled" id="Preview_LinkBtn2"> <i class="fas fa-times-circle"></i> No Link</a>
+                        <div></div>
+                        <small class="card-text text-muted" id="Preview_LinkText2">No Second Link Href</small>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

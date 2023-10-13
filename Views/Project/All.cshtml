@@ -12,6 +12,9 @@
         <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
             <input type="hidden" name="Id" value="@UserInfo.Id" />
         </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
     </div>
 
     <div class="box-container shadow-sm p-3 text-center">
@@ -121,7 +124,29 @@
                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
                 </div>
                 <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="collapse mt-2" id="MoreInfo_Collapse">
+            <div class="card box-container shadow-sm p-3 pb-2">
+                <h5 class="h5">Additional Info</h5>
+                <div class="row mt-2 border-top pt-2 ms-1 me-1 text-center">
+                    <div class="col">
+                        <h6 class="h6">Views</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_ViewsCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Likes</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LikesCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Category</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_Category">Unknown</small>
+                    </div>
+                </div>
+                <div class="mt-2 border-top pt-2">
+                    <a href="#" class="btn btn-text btn-sm" id="Preview_ProjectPageLink"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
                 </div>
             </div>
         </div>

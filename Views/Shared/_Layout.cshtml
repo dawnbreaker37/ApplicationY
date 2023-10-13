@@ -35,14 +35,15 @@
 
     <div class="static-bar shadow-standard p-2" id="StatusBar_Container">
         <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
+        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" id="GetMessages_Btn"> <i class="far fa-comments"></i> Messages</button>
         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> Notifications</button>
         <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> Create</a>
-        <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> All Projects</a>
+        <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> Projects</a>
     </div>
 
     <div class="bubble-container mx-auto shadow-sm p-3" id="NotificationsLiquid_Container">
         <button type="button" class="btn btn-standard-not-animated rounded-pill btn-close-liquid-container me-1" id="SB_C-Title"></button>
-        <div class="text-center" id="NotificationsLiquid_Container_Box">
+        <div id="NotificationsLiquid_Container_Box">
 @*            <h6 class="h6" id="SB_C-Title"></h6>*@
             <div class="bg-transparent" id="SB_C-Body">
 
@@ -51,6 +52,14 @@
                 <form method="post" asp-controller="Notifications" asp-action="Remove" id="RemoveNotification_Form">
                     <input type="hidden" name="Id" id="RN_Id_Val" value="0" />
                     <input type="hidden" name="UserId" id="RN_UserId_Val" value="0" />
+                </form>
+                <form method="post" asp-controller="Messages" asp-action="Remove" id="RemoveMessages_Form">
+                    <input type="hidden" name="Id" id="RM_Id_Val" value="0" />
+                    <input type="hidden" name="UserId" id="RM_UserId_Val" value="0" />
+                </form>
+                <form method="post" asp-controller="Messages" asp-action="MarkAsRead" id="MarkAsRead_Form">
+                    <input type="hidden" name="MessageId" id="MaR_Id_Val" value="0" />
+                    <input type="hidden" name="UserId" id="MaR_UserId_Val" value="0" />
                 </form>
             </div>
         </div>
@@ -76,13 +85,16 @@
         </div>
     </div>*@
 
-    <div class="smallside-modal-container p-3 text-start shadow-sm" id="MainModal_Container">
+    <div class="smallside-modal-container p-3 text-start shadow-sm backdrop-filter-blur" id="MainModal_Container">
         <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>
         <button type="button" class="btn btn-standard me-2 btn-sm" style="display: none;" id="MMC_FirstBtn">Button 1</button>
         <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
     </div>
     <div class="container">
-        <button type="button" class="btn btn-right-bottom-fixed btn-static-bar-open" id="StatusBar_Container-Open"> <i class="fas fa-bars btn-static-bar-open" id="StatusBar_Container-OpenX"></i> </button>
+        @if (User.Identity.IsAuthenticated)
+        {
+            <button type="button" class="btn btn-right-bottom-fixed btn-static-bar-open" id="StatusBar_Container-Open"> <i class="fas fa-bars btn-static-bar-open" id="StatusBar_Container-OpenX"></i> </button>
+        }
         <main role="main" class="pb-3">
             @RenderBody()
         </main>

@@ -11,6 +11,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient(typeof(IBase<>), typeof(Base<>));
 builder.Services.AddTransient<IProject, ProjectRepository>();
+builder.Services.AddTransient<IMessage, MessageRepository>();
 builder.Services.AddTransient<IUser, UserRepository>();
 builder.Services.AddTransient<INotifications, NotificationsRepository>();
 builder.Services.AddTransient<IAccount, AccountRepository>();

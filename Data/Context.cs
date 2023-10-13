@@ -13,5 +13,6 @@ namespace ApplicationY.Data
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Project> Projects { get; set; }
+        public DbSet<Message> Messages { get; set; }
     }
 }

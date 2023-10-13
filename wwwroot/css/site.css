@@ -276,6 +276,7 @@ html {
 }
 .smallside-modal-container {
     z-index: 1;
+    border: 1px solid transparent;
     background-color: #f8f9fa;
     border-radius: 8px;
     position: fixed;
@@ -295,10 +296,10 @@ html {
     backdrop-filter: blur(4px);
     z-index: 1000;
     display: none;
-    bottom: -1200px;
+    top: -1200px;
     left: 50%;
     transform: translate(-50%, 0);
-    transition: all ease 0.5s;
+    transition: all ease 0.45s;
 }
 
 .smallside-box-container {
@@ -414,12 +415,37 @@ html {
 
 html {
   position: relative;
-  min-height: 100%;
+  min-height: 100%; 
 }
 
 body {
   margin-bottom: 60px;
   background-color: #fdfdfd;
+}
+
+
+.send-msg-form-control {
+    border-radius: 34px;
+    outline: none;
+    transition: all ease 0.3s;
+}
+.send-msg-form-control:focus {
+    border-radius: 8px;
+}
+
+.rounded-message-btn {
+    color: white;
+    font-weight: 500;
+    border: 1px solid transparent;
+    background-color: #0d6efd;
+    border-radius: 34px;
+    transition: all ease 0.35s;
+}
+.rounded-message-btn:hover,
+.rounded-message-btn:active {
+    background-color: #f8f9fa;
+    color: #0d6efd;
+    border-color: rgb(240, 240, 240);
 }
 
 .text-len-badge {
@@ -444,6 +470,23 @@ body {
 .yt-icon:active {
     animation-delay: 0.05s;
     animation: yt-animation 1s linear infinite;
+}
+
+.fast-transition {
+    transition: all ease 0.25s;
+}
+.standard-transition {
+    transition: all ease 0.325s;
+}
+.long-transition {
+    transition: all ease 0.65s;
+}
+
+.backdrop-filter-blur {
+    backdrop-filter: blur(5px);
+}
+.appeared-container {
+    filter: drop-shadow(45px);
 }
 
 @keyframes text-len-animation {

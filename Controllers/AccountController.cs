@@ -13,15 +13,17 @@ namespace ApplicationY.Controllers
     {
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
+        private readonly SignInManager<User> _signInManager;
         private readonly IUser _userRepository;
         private readonly IAccount _accountRepository;
         private readonly IMailService _mailServiceRepository;
 
-        public AccountController(Context context, UserManager<User> userManager, IUser userRepository, IAccount accountRepository, IMailService mailServiceRepository)
+        public AccountController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IUser userRepository, IAccount accountRepository, IMailService mailServiceRepository)
         {
             _context = context;
             _userManager = userManager;
             _userRepository = userRepository;
+            _signInManager = signInManager;
             _accountRepository = accountRepository; 
             _mailServiceRepository = mailServiceRepository;
         }
@@ -52,6 +54,13 @@ namespace ApplicationY.Controllers
                 if (Result) return Json(new { success = true, alert = "You've logged in successfully. You'll be relocated to main page in a moment" });
             }
             return Json(new { success = false, alert = "Wrong username/email or password. Please, try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogOut()
+        {
+            await _signInManager.SignOutAsync();
+            return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]
