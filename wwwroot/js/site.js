@@ -654,9 +654,18 @@ $("#GetMessages_Btn").on("click", function (event) {
                     let text = $("<p class='card-text'></p>");
                     let dateAndTime = $("<small class='card-text text-muted ms-1 float-end'></small>");
                     let isChecked = $("<small class='card-text float-end ms-2 is-checked-icon'></small>");
-                    let buttonsDiv = $("<div class='box-container'></div>");
-                    let removeBtn = $("<button type='button' class='btn btn-text btn-sm mt-2 select-to-remove-the-msg'> <i class='fas fa-times-circle text-danger'></i> Remove</button>")
-                    let markAsReadBtn = $("<button type='button' class='btn btn-text btn-sm mt-2 select-to-mark me-2'> <i class='fas fa-check-double text-primary'></i> Mark as Read</button>");
+
+                    let dropdown = $("<div class='dropdown'></div>");
+                    let dropdownOpenBtn = $("<button type='button' class='btn btn-sm btn-outline-primary btn-standard-with-no-colour border-0 float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+                    let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1'></div>");
+                    let dropdownLi0 = $("<li></li>");
+                    let dropdownLi1 = $("<li></li>");
+                    let dropdownLi2 = $("<li></li>");
+                    let dropdownLi3 = $("<li></li>");
+                    let removeBtn = $("<button type='button' class='btn btn-sm dropdown-item text-danger select-to-remove-the-msg'> <i class='fas fa-times-circle'></i> Remove</button>")
+                    let markAsReadBtn = $("<button type='button' class='dropdown-item select-to-mark mb-1'> <i class='fas fa-check-double'></i> Mark as Read</button>");
+                    let selectToReply = $("<button type='button' class='dropdown-item select-to-reply mb-1'> <i class='fas fa-reply'></i> Reply</button>");
+                    let msgInfoBtn = $("<button type='button' class='dropdown-item select-for-info mb-1'> <i class='fas fa-info-circle'></i> About This Message</button>");
 
                     text.html(response.result[index].text);
                     dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
@@ -674,13 +683,22 @@ $("#GetMessages_Btn").on("click", function (event) {
                     removeBtn.attr("id", "MessageRemove-" + response.result[index].id);
                     markAsReadBtn.attr("id", "MessageMarkAsRead-" + response.result[index].id);
 
-                    buttonsDiv.append(markAsReadBtn);
-                    buttonsDiv.append(removeBtn);
+                    dropdownLi0.append(msgInfoBtn);
+                    dropdownLi1.append(markAsReadBtn);
+                    dropdownLi2.append(selectToReply);
+                    dropdownLi3.append(removeBtn);
+                    dropdownUl.append(dropdownLi0);
+                    dropdownUl.append(dropdownLi1);
+                    dropdownUl.append(dropdownLi2);
+                    dropdownUl.append(dropdownLi3);
+                    dropdown.append(dropdownOpenBtn);
+                    dropdown.append(dropdownUl);
+
+                    div.append(dropdown);
+                    div.append(senderName);
                     div.append(isChecked);
                     div.append(dateAndTime);
-                    div.append(senderName);
                     div.append(text);
-                    div.append(buttonsDiv);
                     $("#SB_C-Body").append(div);
                 });
                 let checkAll_SbmtBtn = $("<button type='button' class='btn btn-text mt-1 btn-sm select-to-mark' id='MarkAllMessagesAsRead--256'> <i class='fas fa-check-double text-primary'></i> Mark All as Read</button>");

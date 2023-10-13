@@ -50,6 +50,8 @@ html {
 .dropdown-item {
     cursor: pointer;
     border-radius: 6px;
+    padding: 3px 6px;
+    font-size: medium;
     background-color: transparent;
     transition: all ease 0.3s;
 }
