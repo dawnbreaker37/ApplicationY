@@ -488,6 +488,31 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
+            if (response.result.pastTargetPrice != 0) {
+                $("#Preview_PrevTagPrice").removeClass("d-none");
+                $("#Preview_TagPriceAnnotationSeparator").removeClass("d-none");
+                if (response.result.priceChangeAnnotation != null) {
+                    $("#Preview_TagPriceAnnotation").removeClass("d-none");
+                    $("#Preview_TagPriceAnnotation").html(response.result.priceChangeAnnotation);
+                }
+                let percentageChange = parseInt(response.result.targetPrice) / parseInt(response.result.pastTargetPrice) * 100;
+                if (percentageChange < 100) {
+                    percentageChange = (100 - percentageChange) * -1;
+                    $("#Preview_PrevTagPrice").addClass("text-danger");
+                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + response.result.pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, " + percentageChange.toLocaleString() + "%");
+                }
+                else {
+                    percentageChange = 100 - percentageChange;
+                    $("#Preview_PrevTagPrice").addClass("text-success");
+                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + response.result.pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, " + percentageChange.toLocaleString() + "%");
+                }
+            }
+            else {
+                $("#Preview_TagPriceAnnotation").addClass("d-none");
+                $("#Preview_PrevTagPrice").addClass("d-none");
+                $("#Preview_TagPriceAnnotationSeparator").addClass("d-none");
+            }
+
             $("#Preview_LongDescription").text(fullText);
             let value = textDecoder("Preview_LongDescription", true, null);
             $("#Preview_LongDescription").html(value);
@@ -620,7 +645,7 @@ $("#GetNotifications_Btn").on("click", function (event) {
                 $("#SB_C-Body").append(formDiv);
             }
             else {
-                let div = $("<div class='box-container p-2 mt-1 mb-1 text-center'></div>");
+                let div = $("<div class='box-container p-2 mt-1 mb-1 text-center bg-transparent'></div>");
                 let anima = $("<h3 class='display-4'> <i class='far fa-bell-slash'></i> </h3>");
                 let title = $("<h5 class='h5 safe-font mt-2'>No notifications</h5>");
                 let text = $("<small class='card-text'>You haven't received any notifications yet</small>");
@@ -632,7 +657,6 @@ $("#GetNotifications_Btn").on("click", function (event) {
             }
 
             bubbleAnimation("NotificationsLiquid_Container", true);
-            //openStaticBackdrop(null, false);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -645,8 +669,8 @@ $("#GetMessages_Btn").on("click", function (event) {
     let data = $("#GetAllMessages_Form").serialize();
     $.get(url, data, function (response) {
         if (response.success) {
+            $("#SB_C-Body").empty();
             if (response.count > 0) {
-                $("#SB_C-Body").empty();
                 $("#SB_C-Title").html(" <i class='fas fa-times'></i> Messages ∙ " + response.count.toLocaleString());
                 $.each(response.result, function (index) {
                     let div = $("<div class='box-container p-2 pe-3 mt-1 mb-1 bordered-container'></div>");
@@ -713,6 +737,7 @@ $("#GetMessages_Btn").on("click", function (event) {
                 div.append(textTitle);
                 div.append(text);
                 $("#SB_C-Body").append(div);
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Messages ∙ " + response.count.toLocaleString());
             }
             bubbleAnimation("NotificationsLiquid_Container", true);
         }
@@ -1099,17 +1124,6 @@ $(document).on("click", ".select-to-mark", function (event) {
                     $(".is-checked-icon").html(" <i class='fas fa-check-double text-primary'></i> ");
                     $(".select-to-mark").html(" <i class='fas fa-check-double text-primary'></i> Marked as Read");
                     $(".select-to-mark").attr("disabled", true);
-                    //bubbleAnimation("NotificationsLiquid_Container", false);
-                    //let div = $("<div class='p-3 text-center'></div>");
-                    //let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
-                    //let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
-                    //let text = $("<small class='card-text text-muted'>You haven't get any messages. All of them will lately will appear here to edit, check or remove</small>");
-                    //div.append(iconTitle);
-                    //div.append(textTitle);
-                    //div.append(text);
-                    //$("#SB_C-Body").append(div);
-
-                    //bubbleAnimation("NotificationsLiquid_Container", true);
                 }
                 else {
                     $("#AllMessagesIsChecked-" + response.id).html(" <i class='fas fa-check-double text-primary'></i> ");

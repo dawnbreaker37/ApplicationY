@@ -53,10 +53,16 @@
                             <textarea name="Text" id="Text" rows="1" placeholder="Enter text here" class="form-control w-100 form-control-sm send-msg-form-control"></textarea>
                         </div>
                         <div class="col col-1">
-                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn"> <i class="far fa-clock"></i> </button>
+                            <div class="dropstart">
+                                <button type="button" class="btn btn-sm mt-1 rounded-message-btn" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
+                                <ul class="dropdown-menu shadow-sm p-1">
+                                    <li><button class="dropdown-item select-to-get-email mb-1"> <i class="fas fa-envelope-open-text"></i> Write Via Mail</button></li>
+                                    <li><button class="dropdown-item select-to-other-links"> <i class="fas fa-paperclip"></i> Other Links of <span class="fw-500">@ProjectInfo.User?.PseudoName</span></button></li>
+                                </ul>
+                            </div>
                         </div>
                         <div class="col col-2">
-                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn w-100"> <i class="fas fa-backspace"></i> </button>
+                            <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100"> <i class="fas fa-backspace"></i> </button>
                         </div>
                     </div>
                 </form>
@@ -132,11 +138,16 @@
                     {
                         if(PrevPricePercentageChange > 0)
                         {
-                            <p class="card-text text-success safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, +@PrevPricePercentageChange%</p>
+                            <p class="card-text text-success safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, +@PrevPricePercentageChange.ToString("N0")%</p>
+                            @if (ProjectInfo.PriceChangeAnnotation != null)
+                            {
+                                <small class="card-text text-muted white-space-on"> <i class="fas fa-quote-right text-primary"></i> @ProjectInfo.PriceChangeAnnotation</small>
+                                <div class="border-top mt-2 pt-1"></div>
+                            }
                         }
                         else
                         {
-                            <p class="card-text text-danger safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, @PrevPricePercentageChange%</p>
+                            <p class="card-text text-danger safe-font"><span class="text-decoration-line-through">$@ProjectInfo.PastTargetPrice.ToString("N0")</span>, @PrevPricePercentageChange.ToString("N0")%</p>
                         }
                     }
                     <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
