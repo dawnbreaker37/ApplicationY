@@ -13,6 +13,7 @@ namespace ApplicationY.ViewModels
         public bool IsRemoved { get; set; }
         public int? SenderId { get; set; }
         public bool IsChecked { get; set; }
+        public int RepliesCount { get; set; }
         public DateTime SentAt { get; set; }
         public string? SenderName { get; set; }
         public string? ProjectName { get; set; }

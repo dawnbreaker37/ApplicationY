@@ -8,15 +8,21 @@
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
-    <div class="d-none">
-        <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
-        <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
-            <input type="hidden" name="Id" value="@UserInfo.Id" />
-        </form>
-        <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
-            <input type="hidden" name="Id" value="@UserInfo.Id" />
-        </form>
-    </div>
+    @if (UserInfo != null)
+    {
+        <div class="d-none">
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+        </div>
+    }
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">

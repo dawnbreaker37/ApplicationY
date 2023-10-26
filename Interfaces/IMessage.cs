@@ -5,10 +5,17 @@ namespace ApplicationY.Interfaces
 {
     public interface IMessage
     {
+        public Task<GetMessages_ViewModel?> GetMessageInfo(int Id);
         public IQueryable<Message>? GetAllMessagesOfProject(int ProjectId);
-        public IQueryable<GetMessages_ViewModel>? GetAllMyMessages(int UserId);
+        public IQueryable<GetMessages_ViewModel>? GetAllMyMessages(int UserId, bool GetSentMessages);
         public Task<bool> SendAsync(SendMessage_ViewModel Model);
+        public Task<bool> SendCommentReplyAsync(SendReply_ViewModel Model);
         public Task<int> CheckAsync(int MessageId, int UserId);
-        public Task<bool> RemoveAsync(int Id, int UserId);
+        public Task<int> RemoveAsync(int Id, int UserId);
+        public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId);
+        public IQueryable<GetReplies_ViewModel>? GetReplies(int CommentId);
+        public Task<int> SendCommentAsync(SendComment_ViewModel Model);
+        public Task<int> GetProjectCommentsCountAsync(int ProjectId);
+        public Task<GetCommentaries_ViewModel?> GetLastCommentsInfoAsync(int ProjectId);
     }
 }

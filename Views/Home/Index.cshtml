@@ -16,6 +16,9 @@
             <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
     </div>
     }
     <div class="container text-center p-2 shadow-sm">

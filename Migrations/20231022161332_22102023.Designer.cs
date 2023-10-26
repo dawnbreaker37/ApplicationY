@@ -4,6 +4,7 @@ using ApplicationY.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationY.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20231022161332_22102023")]
+    partial class _22102023
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -247,14 +250,14 @@ namespace ApplicationY.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<int?>("CommentId")
-                        .HasColumnType("int");
-
                     b.Property<bool>("IsChecked")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
+
+                    b.Property<int?>("MessageId")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("SentAt")
                         .HasColumnType("datetime2");
@@ -267,7 +270,7 @@ namespace ApplicationY.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CommentId");
+                    b.HasIndex("MessageId");
 
                     b.HasIndex("UserId");
 
@@ -619,15 +622,15 @@ namespace ApplicationY.Migrations
 
             modelBuilder.Entity("ApplicationY.Models.Reply", b =>
                 {
-                    b.HasOne("ApplicationY.Models.Comment", "Comment")
+                    b.HasOne("ApplicationY.Models.Message", "Message")
                         .WithMany("Replies")
-                        .HasForeignKey("CommentId");
+                        .HasForeignKey("MessageId");
 
                     b.HasOne("ApplicationY.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId");
 
-                    b.Navigation("Comment");
+                    b.Navigation("Message");
 
                     b.Navigation("User");
                 });
@@ -703,14 +706,14 @@ namespace ApplicationY.Migrations
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.Comment", b =>
-                {
-                    b.Navigation("Replies");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Country", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.Message", b =>
+                {
+                    b.Navigation("Replies");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Project", b =>

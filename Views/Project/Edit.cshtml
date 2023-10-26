@@ -8,15 +8,21 @@
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
-    <div class="d-none">
-        <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
-        <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
-            <input type="hidden" name="Id" value="@UserInfo.Id" />
-        </form>
-        <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
-            <input type="hidden" name="Id" value="@UserInfo.Id" />
-        </form>
-    </div>
+    @if (UserInfo != null)
+    {
+        <div class="d-none">
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+        </div>
+    }
 
     <div class="smallside-box-container p-3 shadow-standard" id="YTPreview_Container">
         <button type="button" class="btn btn-close float-end ms-1" id="YTPreview_Container-Close" aria-label="close"></button>

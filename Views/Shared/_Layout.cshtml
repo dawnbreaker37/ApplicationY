@@ -35,7 +35,14 @@
 
     <div class="static-bar shadow-standard p-2" id="StatusBar_Container">
         <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
-        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" id="GetMessages_Btn"> <i class="far fa-comments"></i> Messages</button>
+        <div class="dropdown">
+            <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" data-bs-toggle="dropdown" aria-expanded="false"> <i class="far fa-comments"></i> Messages</button>
+            <ul class="dropdown-menu p-1 shadow-sm">
+                <li><button type="button" class="dropdown-item mb-1" id="GetMessages_Btn"> <i class="fas fa-reply-all"></i> Received</button></li>
+                <li><button type="button" class="dropdown-item" id="GetSentMessages_Btn"> <i class="fas fa-comment-dots"></i> Sent</button></li>
+            </ul>
+        </div>
+@*         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" id="GetMessages_Btn"> <i class="far fa-comments"></i> Messages</button> *@
         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> Notifications</button>
         <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> Create</a>
         <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> Projects</a>
@@ -61,29 +68,16 @@
                     <input type="hidden" name="MessageId" id="MaR_Id_Val" value="0" />
                     <input type="hidden" name="UserId" id="MaR_UserId_Val" value="0" />
                 </form>
+                <form method="get" asp-controller="Messages" asp-action="GetMessageInfo" id="GetMessageInfo_Form">
+                    <input type="hidden" name="Id" id="GMI_Id_Val" value="0" />
+                </form>
+                <form method="post" asp-controller="Messages" asp-action="RemoveSentMessage" id="RemoveSentMessage_Form">
+                    <input type="hidden" name="Id" id="RSM_Id_Val" value="0" />
+                    <input type="hidden" name="UserId" id="RSM_UserId_Val" value="0" />
+                </form>
             </div>
         </div>
     </div>
-
-@*    <div class="modal shadow-sm fade" id="StaticBackdrop_Container" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="StaticBackdrop_ContainerLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-scrollable modal-dialog-centered">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="SB_C-Title">SBC title</h1>
-                    <button type="button" class="btn-close btn-sm" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body p-2" id="SB_C-Body">
-                    ...
-                </div>
-                <div class="d-none">
-                    <form method="post" asp-controller="Notifications" asp-action="Remove" id="RemoveNotification_Form">
-                        <input type="hidden" name="Id" id="RN_Id_Val" value="0" />
-                        <input type="hidden" name="UserId" id="RN_UserId_Val" value="0" />
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>*@
 
     <div class="smallside-modal-container p-3 text-start shadow-sm backdrop-filter-blur" id="MainModal_Container">
         <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>

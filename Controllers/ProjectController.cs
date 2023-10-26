@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
+using static System.Net.WebRequestMethods;
 
 namespace ApplicationY.Controllers
 {
@@ -13,13 +14,15 @@ namespace ApplicationY.Controllers
     {
         private readonly UserManager<User> _userManager;
         private readonly IProject _projectRepository;
+        private readonly IMessage _messageRepository;
         private readonly Context _context;
 
-        public ProjectController(UserManager<User> userManager, IProject projectRepository, Context context)
+        public ProjectController(UserManager<User> userManager, IProject projectRepository, IMessage messageRepository, Context context)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _context = context;
+            _messageRepository = messageRepository;
         }
 
         public async Task<IActionResult> Create()
@@ -62,7 +65,7 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
-                    IQueryable<Project?> UserAllProjects_Preview = _projectRepository.GetUsersAllProjectsAsync(UserInfo.Id, false);
+                    IQueryable<Project?> UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false);
                     if (UserAllProjects_Preview != null)
                     {
                         List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();
@@ -78,6 +81,32 @@ namespace ApplicationY.Controllers
             }
             else return RedirectToAction("Create", "Account");
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllProjects(ProjectFilters_ViewModel Model)
+        {
+            User? UserInfo = await _userManager.GetUserAsync(User);
+            if (UserInfo != null)
+            {
+                Model.UserId = UserInfo.Id;
+                if (ModelState.IsValid)
+                {
+                    IQueryable<Project?>? Projects_Review = _projectRepository.GetUserAllProjectsByFilters(Model);
+                    if (Projects_Review != null)
+                    {
+                        List<Project?>? Projects = await Projects_Review.ToListAsync();
+                        int Count = Projects.Count;
+
+                        ViewBag.UserInfo= UserInfo;
+                        ViewBag.Projects = Projects;
+                        ViewBag.Count = Count;
+
+                        return View("All");
+                    }
+                }
+            }
+            return RedirectToAction("All", "Project");
         }
 
         public async Task<IActionResult> Edit(int Id)
@@ -132,6 +161,38 @@ namespace ApplicationY.Controllers
             else return Json(new { success = false, alert = "Unable to remove selected project at this moment. Please, try again later" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> LockTheProject(int Id, int UserId)
+        {
+            int Result = await _projectRepository.CloseProjectAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, alert = " <i class='fas fa-lock text-danger'></i> Selected project has been successfully locked. Now, it's invisible for all users for up to 7 days", id = Id });
+            else return Json(new { success = false, alert = "An error occured while trying to lock selected project" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UnlockTheProject(int Id, int UserId)
+        {
+            int Result = await _projectRepository.UnlockProjectAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, alert = " <i class='fas fa-lock-open text-primary'></i> The selected project is now visible again for everyone.", id = Id });
+            else return Json(new { success = false, alert = "An error occured while trying to unlock the selected project" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Like(int ProjectId, int UserId)
+        {
+            int Result = await _projectRepository.LikeTheProjectAsync(ProjectId, UserId);
+            if (Result != 0) return Json(new { success = true, projectId = ProjectId });
+            else return Json(new { success = false, alert = "An unexpected error occured. May be, you've already liked this project" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveFromLiked(int ProjectId, int UserId)
+        {
+            int Result = await _projectRepository.RemoveFromLikesAsync(ProjectId, UserId);
+            if (Result != 0) return Json(new { success = true, projectId = ProjectId });
+            else return Json(new { success = false, alert = "An error occured while trying to remove the project from your liked projects list. May be, you've already removed it from your liked list" });
+        }
+
         [HttpGet]
         public async Task<IActionResult> GetFullProject(int Id, bool GetAdditionalInfo)
         {
@@ -150,7 +211,14 @@ namespace ApplicationY.Controllers
                 Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
                 if(ProjectInfo != null)
                 {
+                    GetCommentaries_ViewModel? LastSentComment = null;
+                    string? YoutubeVideoLink = null;
+                    string? AdditionalYoutubeLink = null;
+                    bool HasAlreadyBeenLiked = false;
                     double PreviousPricePercentage = 0;
+                    int LikesCount = await _projectRepository.ProjectLikesCount(Id);
+                    int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
+                    if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
 
                     StringBuilder sb = new StringBuilder();
                     sb.Append(ProjectInfo.TextPart1);
@@ -164,15 +232,32 @@ namespace ApplicationY.Controllers
                         else PreviousPricePercentage = Math.Round(PreviousPricePercentage - 100, 1);
                     }
 
+                    if (ProjectInfo.YoutubeLink != null)
+                    {
+                        YoutubeVideoLink = "https://www.youtube.com/embed/" + ProjectInfo.YoutubeLink;
+                        AdditionalYoutubeLink= "https://www.youtube.com/watch?v=" + @ProjectInfo.YoutubeLink;
+                    }
+
                     if (User.Identity.IsAuthenticated)
                     {
                         User? UserInfo = await _userManager.GetUserAsync(User);
-                        if (UserInfo != null) ViewBag.UserInfo = UserInfo;
+
+                        if (UserInfo != null)
+                        {
+                            HasAlreadyBeenLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, UserInfo.Id);
+                            ViewBag.UserInfo = UserInfo;
+                        }
                         else ViewBag.UserInfo = null;
                     }
                     ViewBag.ProjectInfo = ProjectInfo;
                     ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
                     ViewBag.FullText = sb;
+                    ViewBag.LikesCount = LikesCount;
+                    ViewBag.CommentsCount = CommentsCount;
+                    ViewBag.LastSentCommentInfo = LastSentComment;
+                    ViewBag.IsLiked = HasAlreadyBeenLiked;
+                    ViewBag.YTLink = YoutubeVideoLink;
+                    ViewBag.AdditionalYTLink = AdditionalYoutubeLink;
 
                     return View();
                 }

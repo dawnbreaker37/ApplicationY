@@ -14,5 +14,8 @@ namespace ApplicationY.Data
         public DbSet<Country> Countries { get; set; }
         public DbSet<Project> Projects { get; set; }
         public DbSet<Message> Messages { get; set; }
+        public DbSet<Reply> Replies { get; set; }
+        public DbSet<Like> Likes { get; set; }  
+        public DbSet<Comment> Comments { get; set; }
     }
 }

@@ -41,23 +41,36 @@ html {
     white-space: pre-line;
 }
 
+.bg-deep-purple {
+    background-color: rebeccapurple;
+}
+
+.scrollbar-hidden {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+}
+.scrollbar-hidden::-webkit-scrollbar {
+    display: none;
+}
+
 .dropdown-menu {
     border: 0;
-    background-color: white;
+    background-color: #f8f9fa;
+    border: 1px solid rgb(240, 240, 240);
     border-radius: 6px;
-    transition: all ease 0.2s;
+    transition: all ease 0.175s;
 }
 .dropdown-item {
     cursor: pointer;
     border-radius: 6px;
     padding: 3px 6px;
     font-size: medium;
-    background-color: transparent;
+    background-color: #f8f9fa;
     transition: all ease 0.3s;
 }
 .dropdown-item:hover,
 .dropdown-item:active {
-    background-color: rgb(240, 240, 240);
+    background-color: white;
 }
 
 .warning-badge {
@@ -98,6 +111,15 @@ html {
 
 .fw-500 {
     font-weight: 500;
+}
+
+.card-box-container {
+    background-color: #f8f9fa;
+    border-radius: 8px 8px 1px 1px;
+    transition: all ease 0.3s;
+    z-index: 1000;
+    display: none;
+    bottom: -1200px;
 }
 
 .yt-container {
@@ -489,6 +511,13 @@ body {
 }
 .appeared-container {
     filter: drop-shadow(45px);
+}
+
+.mh-perc-65 {
+    max-height: 65%;
+}
+.border-straight { 
+    border-radius: 0;
 }
 
 @keyframes text-len-animation {

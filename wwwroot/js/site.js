@@ -488,6 +488,9 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
+            $("#Preview_PublishedDate").text(convertDateAndTime(response.result.createdAt));
+            $("#Preview_LastUpdatedDate").text(convertDateAndTime(response.result.lastUpdatedAt));
+
             if (response.result.pastTargetPrice != 0) {
                 $("#Preview_PrevTagPrice").removeClass("d-none");
                 $("#Preview_TagPriceAnnotationSeparator").removeClass("d-none");
@@ -502,9 +505,9 @@ $("#GetFullProject_Form").on("submit", function (event) {
                     $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + response.result.pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, " + percentageChange.toLocaleString() + "%");
                 }
                 else {
-                    percentageChange = 100 - percentageChange;
+                    percentageChange = (100 - percentageChange) * -1;
                     $("#Preview_PrevTagPrice").addClass("text-success");
-                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + response.result.pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, " + percentageChange.toLocaleString() + "%");
+                    $("#Preview_PrevTagPrice").html("<span class='text-decoration-line-through'>" + response.result.pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }) + "</span>, +" + percentageChange.toLocaleString() + "%");
                 }
             }
             else {
@@ -560,6 +563,98 @@ $("#GetFullProject_Form").on("submit", function (event) {
     });
 });
 
+$("#LikeTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#NotLiked_Box").addClass("d-none");
+            $("#AlreadyLiked_Box").removeClass("d-none");
+            setTimeout(function () {
+                $("#RemoveLikeSbmt_Btn").html(' <i class="far fa-grin-hearts text-primary"></i><br/>Liked');
+                $("#RemoveLikeSbmt_Btn").css("transform", "scale(1.25)");
+            }, 75);
+            setTimeout(function () {
+                $("#RemoveLikeSbmt_Btn").html(' <i class="fas fa-heart text-primary"></i><br/>Liked');
+                $("#RemoveLikeSbmt_Btn").css("transform", "scale(1)");
+            }, 625);
+        }
+        else {
+            openModal(response.alert, "<i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+$("#RemoveFromLiked_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#AlreadyLiked_Box").addClass("d-none");
+            $("#NotLiked_Box").removeClass("d-none");
+            setTimeout(function () {
+                $("#LikeSbmt_Btn").html(' <i class="fas fa-heart-broken text-danger"></i><br/>Like');
+                $("#LikeSbmt_Btn").css("transform", "scale(1.25)");
+            }, 75);
+            setTimeout(function () {
+                $("#LikeSbmt_Btn").css("transform", "scale(1)");
+            }, 575);
+            setTimeout(function () {
+                $("#LikeSbmt_Btn").html(' <i class="far fa-heart"></i><br/>Like');
+            }, 4000);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
+$("#LockTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "SettingsOfProject_Container");
+            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.5);
+            setTimeout(function () {
+                $("#LockProject_Box").addClass("d-none");
+                $("#UnlockProject_Box").removeClass("d-none");
+            }, 300);
+            $("#ProjectLockInfo-" + response.id).html("<small class='card-text text-muted'> <i class='fas fa-lock text-danger'></i> Lock Info: Locked</small>");
+            $("#ProjectIsLocked-" + response.id).val(true);
+        }
+        else {
+            openModal(response.alert, "<i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+$("#UnlockTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "SettingsOfProject_Container");
+            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.5);
+            setTimeout(function () {
+                $("#UnlockProject_Box").addClass("d-none");
+                $("#LockProject_Box").removeClass("d-none");
+            }, 300);
+            $("#ProjectLockInfo-" + response.id).html("<small class='card-text text-muted'> <i class='fas fa-lock text-primary'></i> Lock Info: Unlocked</small>");
+            $("#ProjectIsLocked-" + response.id).val(false);
+        }
+        else {
+            openModal(response.alert, "<i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
 $("#SendMessage_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -595,6 +690,161 @@ $("#SendMessage_Form").on("submit", function (event) {
                 $("#MsgSendSbmt_Btn").attr("disabled", false);
                 $("#MsgSendSbmt_Btn").html(" <i class='fas fa-arrow-up'></i> ");
             }, 3250);
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
+$("#SendReply_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let count = $("#RTC_Count").val();
+
+            $("#RTCC_TextValue").val("");
+            $("#RTCSbmt_Btn").attr("disabled", true);
+            $("#RTCSbmt_Btn").html(" <i class='fas fa-check'></i> Sent");
+            setTimeout(function () {
+                $("#RTCSbmt_Btn").html(" <i class='fas fa-arrow-up'></i> ");
+                $("#RTCSbmt_Btn").attr("disabled", false);
+            }, 2750);
+
+            let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
+            let title = $("<h6 class='h6'></h6>");
+            let text = $("<small class='card-text white-space-on'></small>");
+            let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+
+            title.html("You");
+            text.html(response.text);
+            sentAt.text("Few seconds ago");
+
+            div.append(sentAt);
+            div.append(title);
+            div.append(text);
+            if (count > 0) {
+                $("#RepliesList_Box").prepend(div);
+            }
+            else {
+                $("#RepliesList_Box").empty();
+                $("#RepliesList_Box").append(div);
+            }
+        }
+        else {
+            $("#RTCC_TextValue").val("");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+
+$("#SendComment_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = $("#CommentsCount_Val").val();
+            currentCount++;
+
+            let textVal = $("#SendComment_Text").val();
+            let div = $("<div class='box-container mt-2 p-2 border-top'></div>");
+            let title = $("<h6 class='h6'></h6>");
+            let text = $("<small class='card-text'></small>");
+            let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+
+            title.text("You");
+            text.html(textVal);
+            sentAt.text(convertDateAndTime(response.date));
+
+            div.append(sentAt);
+            div.append(title);
+            div.append(text);
+
+            $("#CommentsCount_Val").val(currentCount);
+            $("#CommentsCount_Span").html(currentCount.toLocaleString());
+            $("#CommentsCountMain_Span").html(currentCount.toLocaleString());
+            if (currentCount <= 1) {
+                $("#CommentsMain_Box").empty();
+                $("#CommentsMain_Box").append(div);
+            }
+            else {
+                $("#CommentsMain_Box").prepend(div);
+            }
+
+            $("#SendCommentSbmt_Btn").html(" <i class='fas fa-check'></i> ");
+            $("#SendCommentSbmt_Btn").attr("disabled", true);
+            $("#SendComment_Text").attr("disabled", true);
+            $("#SendComment_Text").attr("rows", 1);
+            $("#SendComment_Text").val("");
+            setTimeout(function () {
+                $("#SendCommentSbmt_Btn").html(" <i class='fas fa-arrow-up'></i> ");
+                $("#SendCommentSbmt_Btn").attr("disabled", false);
+                $("#SendComment_Text").attr("disabled", false);
+            }, 4500);
+        }
+        else {
+            $("#SendComment_Text").attr("rows", 1);
+            $("#SendComment_Text").val("");
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
+$("#GetComments_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#CommentsMain_Box").empty();
+            if (response.count > 0) {
+                $.each(response.result, function (index) {
+                    let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
+                    let title = $("<h6 class='h6'></h6>");
+                    let text = $("<small class='card-text white-space-on'></small>");
+                    let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+                    let separatorOne = $("<div class='mt-2'></div>");
+                    let getAndSendRepliesBtn = $("<button type='button' class='btn btn-text btn-sm send-reply-to-comment'></button>")
+
+                    title.text(response.result[index].senderName);
+                    text.html(response.result[index].text);
+                    sentAt.text(convertDateAndTime(response.result[index].sentAt, true));
+                    title.attr("id", "GetAndSendReplyTitle-" + response.result[index].id);
+                    text.attr("id", "GetAndSendReplyText-" + response.result[index].id);
+                    getAndSendRepliesBtn.attr("id", "GetAndSendReply-" + response.result[index].id);
+                    getAndSendRepliesBtn.html(" <i class='fas fa-reply'></i> Replies (" + response.result[index].repliesCount.toLocaleString() + ")");
+
+                    div.append(sentAt);
+                    div.append(title);
+                    div.append(text);
+                    div.append(separatorOne);
+                    div.append(getAndSendRepliesBtn);
+
+                    $("#CommentsMain_Box").append(div);
+                });
+            }
+            else {
+                let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+                let title = $("<h3 class='h3 text-primary'></h3>");
+                let titleText = $("<h6 class='h6 safe-font'></h6>");
+                let text = $("<small class='card-text text-muted'></small>");
+
+                title.html(" <i class='fas fa-comment-slash'></i> ");
+                titleText.text("No recently sent comments");
+                text.text("Try to look up for them later");
+
+                div.append(title);
+                div.append(titleText);
+                div.append(text);
+                $("#CommentsMain_Box").append(div);
+            }
+            smallBarAnimatedOpenAndClose(true);
+            animatedOpen(false, "Comments_Container", false, false);
+        }
+        else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
         }
     });
@@ -671,13 +921,15 @@ $("#GetMessages_Btn").on("click", function (event) {
         if (response.success) {
             $("#SB_C-Body").empty();
             if (response.count > 0) {
-                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Messages ∙ " + response.count.toLocaleString());
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Received Messages ∙ " + response.count.toLocaleString());
+
                 $.each(response.result, function (index) {
                     let div = $("<div class='box-container p-2 pe-3 mt-1 mb-1 bordered-container'></div>");
                     let senderName = $("<h6 class='h6 text-primary safe-font'></h6>");
                     let text = $("<p class='card-text'></p>");
                     let dateAndTime = $("<small class='card-text text-muted ms-1 float-end'></small>");
                     let isChecked = $("<small class='card-text float-end ms-2 is-checked-icon'></small>");
+                    let separatorOne = $("<div class='mt-3'></div>");
 
                     let dropdown = $("<div class='dropdown'></div>");
                     let dropdownOpenBtn = $("<button type='button' class='btn btn-sm btn-outline-primary btn-standard-with-no-colour border-0 float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
@@ -686,10 +938,11 @@ $("#GetMessages_Btn").on("click", function (event) {
                     let dropdownLi1 = $("<li></li>");
                     let dropdownLi2 = $("<li></li>");
                     let dropdownLi3 = $("<li></li>");
-                    let removeBtn = $("<button type='button' class='btn btn-sm dropdown-item text-danger select-to-remove-the-msg'> <i class='fas fa-times-circle'></i> Remove</button>")
+                    //let removeBtn = $("<button type='button' class='btn btn-sm dropdown-item text-danger select-to-remove-the-msg'> <i class='fas fa-times-circle'></i> Remove</button>")
                     let markAsReadBtn = $("<button type='button' class='dropdown-item select-to-mark mb-1'> <i class='fas fa-check-double'></i> Mark as Read</button>");
                     let selectToReply = $("<button type='button' class='dropdown-item select-to-reply mb-1'> <i class='fas fa-reply'></i> Reply</button>");
                     let msgInfoBtn = $("<button type='button' class='dropdown-item select-for-info mb-1'> <i class='fas fa-info-circle'></i> About This Message</button>");
+                    let msgHideBtn = $("<button type='button' class='dropdown-item select-to-hide'> <i class='fas fa-minus-circle text-danger'></i> Hide</button>");
 
                     text.html(response.result[index].text);
                     dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
@@ -701,16 +954,19 @@ $("#GetMessages_Btn").on("click", function (event) {
                     senderName.text(response.result[index].senderName);
 
                     div.attr("id", "AllMessages-" + response.result[index].id);
+                    senderName.attr("id", "SentFrom-" + response.result[index].id);
                     text.attr("id", "AllMessagesText-" + response.result[index].id);
                     dateAndTime.attr("id", "AllMessagesDate-" + response.result[index].id);
                     isChecked.attr("id", "AllMessagesIsChecked-" + response.result[index].id);
-                    removeBtn.attr("id", "MessageRemove-" + response.result[index].id);
                     markAsReadBtn.attr("id", "MessageMarkAsRead-" + response.result[index].id);
+                    msgInfoBtn.attr("id", "MessageInfoBtn-" + response.result[index].id);
+                    selectToReply.attr("id", "MessageReplyToBtn-" + response.result[index].id);
+                    msgHideBtn.attr("id", "MessageToHideBtn-" + response.result[index].id);
 
                     dropdownLi0.append(msgInfoBtn);
                     dropdownLi1.append(markAsReadBtn);
                     dropdownLi2.append(selectToReply);
-                    dropdownLi3.append(removeBtn);
+                    dropdownLi3.append(msgHideBtn);
                     dropdownUl.append(dropdownLi0);
                     dropdownUl.append(dropdownLi1);
                     dropdownUl.append(dropdownLi2);
@@ -720,6 +976,7 @@ $("#GetMessages_Btn").on("click", function (event) {
 
                     div.append(dropdown);
                     div.append(senderName);
+                    div.append(separatorOne);
                     div.append(isChecked);
                     div.append(dateAndTime);
                     div.append(text);
@@ -737,7 +994,7 @@ $("#GetMessages_Btn").on("click", function (event) {
                 div.append(textTitle);
                 div.append(text);
                 $("#SB_C-Body").append(div);
-                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Messages ∙ " + response.count.toLocaleString());
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> Received Messages ∙ " + response.count.toLocaleString());
             }
             bubbleAnimation("NotificationsLiquid_Container", true);
         }
@@ -745,6 +1002,120 @@ $("#GetMessages_Btn").on("click", function (event) {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
         }
     });
+});
+
+$(document).on("submit", "#RemoveAllSentMessages_Form", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            bubbleAnimation("NotificationsLiquid_Container", false);
+            setTimeout(function () {
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> No Sent Messages");
+                $("#SB_C-Body").empty();
+                let div = $("<div class='p-3 text-center'></div>");
+                let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
+                let textTitle = $("<h3 class='h3 safe-font'>No Sent Messages</h3>");
+                let text = $("<small class='card-text text-muted'>All sent messages have been successfully removed</small>");
+                div.append(iconTitle);
+                div.append(textTitle);
+                div.append(text);
+                $("#SB_C-Body").append(div);
+            }, 600);
+            setTimeout(function () {
+                bubbleAnimation("NotificationsLiquid_Container", true);
+            }, 1250);
+        }
+        else {
+            bubbleAnimation("NotificationsLiquid_Container", false);
+            setTimeout(function () {
+                openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            }, 500);
+        }
+    })
+});
+
+$("#GetSentMessages_Btn").on("click", function (event) {
+    event.preventDefault();
+    let url = $("#GetAllSentMessages_Form").attr("action");
+    let data = $("#GetAllSentMessages_Form").serialize();
+    let userId = $("#PageInfo_UserId").val();
+    if (parseInt(userId)) {
+        $.get(url, data, function (response) {
+            if (response.success) {
+                $("#SB_C-Body").empty();
+                if (response.count > 0) {
+                    $("#SB_C-Title").html(" <i class='fas fa-times'></i> Sent Messages ∙ " + response.count.toLocaleString());
+
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='box-container p-2 pe-3 mt-1 mb-1 bordered-container'></div>");
+                        let senderName = $("<h6 class='h6 text-primary safe-font'></h6>");
+                        let text = $("<p class='card-text'></p>");
+                        let dateAndTime = $("<small class='card-text text-muted ms-1 float-end'></small>");
+                        let isChecked = $("<small class='card-text float-end ms-2 is-checked-icon'></small>");
+                        let separatorOne = $("<div class='mt-3'></div>");
+
+                        let dropdown = $("<div class='dropdown'></div>");
+                        let dropdownOpenBtn = $("<button type='button' class='btn btn-sm btn-outline-primary btn-standard-with-no-colour border-0 float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+                        let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1'></div>");
+                        let dropdownLi0 = $("<li></li>");
+                        let dropdownLi1 = $("<li></li>");
+                        let removeBtn = $("<button type='button' class='btn btn-sm dropdown-item text-danger select-to-remove-the-msg'> <i class='fas fa-times-circle'></i> Remove</button>")
+                        let msgInfoBtn = $("<button type='button' class='dropdown-item select-for-info mb-1'> <i class='fas fa-info-circle'></i> About This Message</button>");
+
+                        text.html(response.result[index].text);
+                        dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
+                        if (response.result[index].isChecked) {
+                            isChecked.html(" <i class='fas fa-check-double text-primary'></i> ");
+                        }
+                        else isChecked.html(" <i class='fas fa-check text-muted'></i> ");
+                        senderName.text("Sent By You");
+
+                        div.attr("id", "AllSentMessages-" + response.result[index].id);
+                        senderName.attr("id", "SentFrom-" + response.result[index].id);
+                        text.attr("id", "AllMessagesText-" + response.result[index].id);
+                        dateAndTime.attr("id", "AllMessagesDate-" + response.result[index].id);
+                        isChecked.attr("id", "AllMessagesIsChecked-" + response.result[index].id);
+                        removeBtn.attr("id", "MessageRemove-" + response.result[index].id);
+                        msgInfoBtn.attr("id", "MessageInfoBtn-" + response.result[index].id);
+
+                        dropdownLi0.append(msgInfoBtn);
+                        dropdownLi1.append(removeBtn);
+                        dropdownUl.append(dropdownLi0);
+                        dropdownUl.append(dropdownLi1);
+                        dropdown.append(dropdownOpenBtn);
+                        dropdown.append(dropdownUl);
+
+                        div.append(dropdown);
+                        div.append(senderName);
+                        div.append(separatorOne);
+                        div.append(isChecked);
+                        div.append(dateAndTime);
+                        div.append(text);
+                        $("#SB_C-Body").append(div);
+                    });
+                    let removeAllMsgsForm = $("<div><form method='post' action='/Messages/RemoveSentMessage' id='RemoveAllSentMessages_Form'><input type='hidden' name='Id' value='-256' /> <input type='hidden' name='UserId' value='" + userId + "' /> <button type='submit' class= 'btn btn-text btn-sm' > <i class='fas fa-trash-alt text-danger'></i> Remove All</button ></form ></div>");
+                    $("#SB_C-Body").append(removeAllMsgsForm);
+                }
+                else {
+                    let div = $("<div class='p-3 text-center'></div>");
+                    let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
+                    let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
+                    let text = $("<small class='card-text text-muted'>You haven't get any messages. All of them will lately will appear here to edit, check or remove</small>");
+                    div.append(iconTitle);
+                    div.append(textTitle);
+                    div.append(text);
+                    $("#SB_C-Body").append(div);
+                    $("#SB_C-Title").html(" <i class='fas fa-times'></i> Sent Messages ∙ " + response.count.toLocaleString());
+                }
+                bubbleAnimation("NotificationsLiquid_Container", true);
+            }
+            else {
+                openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            }
+        });
+    }
 });
 
 $("#ChangeRecoveringType_Btn").on("click", function () {
@@ -769,6 +1140,71 @@ $("#ChangeRecoveringType_Btn").on("click", function () {
 /*    setTimeout(function () {*/
         animatedOpen(false, "PasswordRecovering_Container", false, false);
 /*    }, 8000);*/
+});
+
+$("#GetMailOfCreator_Btn").on("click", function () {
+    let email = $("#ProjectCreator_Email").val();
+    if (email != "" || email != null) {
+        let usersMailLink;
+        let icon;
+        let bgColor;
+
+        let trueMail = email.substring(email.indexOf("@") + 1);
+        switch (trueMail) {
+            case "gmail.com":
+                usersMailLink = "https://mail.google.com";
+                icon = "@gmail.com, <i class='fab fa-google'></i> Google";
+                bgColor = "bg-primary text-light";
+                break;
+            case "yahoo.com":
+                usersMailLink = "https://mail.yahoo.com/";
+                icon = "@yahoo.com, <i class='fab fa-yahoo'></i> Yahoo!";
+                bgColor = "bg-deep-purple text-light";
+                break;
+            case "outlook.com":
+                usersMailLink = "https://outlook.live.com/mail/";
+                icon = "@outlook.com, <i class='fab fa-microsoft'></i> Microsoft";
+                bgColor = "bg-info text-light";
+                break;
+            case "icloud.com":
+                usersMailLink = "https://www.icloud.com/";
+                icon = "@icloud.com, <i class='fab fa-apple'></i> Apple";
+                bgColor = "bg-light text-dark";
+                break;
+            case "yandex.ru":
+                usersMailLink = "https://360.yandex.com/mail/";
+                icon = "@yandex.ru, <i class='fab fa-yandex-international'></i> Yandex";
+                bgColor = "bg-warning text-light";
+                break;
+            case "mail.com":
+                usersMailLink = "https://www.mail.com/";
+                icon = "@mail.com, <i class='fas fa-envelope-open'></i> Mail.com";
+                bgColor = "bg-info text-light";
+                break;
+            case "aol.com":
+                usersMailLink = "https://mail.aol.com/";
+                icon = "@aol.com, <i class='fab fa-yahoo'></i> Yahoo!";
+                bgColor = "bg-primary text-light";
+                break;
+            case "mail.ru":
+                usersMailLink = "https://mail.ru/";
+                icon = "@mail.ru, <i class='fab fa-vk'></i> VK";
+                bgColor = "bg-primary text-light";
+                break;
+            default:
+                usersMailLink = "#";
+                icon = "Not founded mail service";
+                bgColor = "bg-light text-dark";
+                break;
+        }
+
+        if (usersMailLink != "#") {
+            openModal("By clicking the bottom button you're going to be relocated to author's e-mail service web-site or application to send him / her your message. If you don't want do that just ignore and close this widget and write him via our message service. It's much faster and easier! <div class= 'border-top mt-2 pt-2'></div> <small><span class='p-1 " + bgColor + " warning-badge'>" + icon + "</span></small>", " <i class= 'fas fa-times text-danger' ></i> Close", "Send Via " + icon, 2, null, 0, usersMailLink, Infinity);
+        }
+        else {
+            openModal("User's email is hidden or it's an unexpected by us email service application. Anyway, we recommend you to text him via direct messages of our application or relocate manually to this user's mail service web-site/application", "Got It!", null, 2, null, null, null, Infinity);
+        }
+    }
 });
 
 $("#AddOptionSbmt_Btn").on("click", function () {
@@ -918,6 +1354,198 @@ $(document).on("click", ".remove-notification", function (event) {
         });
     }
 });
+
+$(document).on("click", ".send-reply-to-comment", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let userName = $("#GetAndSendReplyTitle-" + trueId).text();
+        let text = $("#GetAndSendReplyText-" + trueId).text();
+        $("#RTC_User").html(userName);
+        $("#RTC_Username").html(userName);
+        $("#RTC_TextValue").html(text);
+        $("#RTC_CommentId_Val").val(trueId);
+        $("#GAR_Id_Val").val(trueId);
+
+        let url = $("#GetAllReplies_Form").attr("action");
+        let data = $("#GetAllReplies_Form").serialize();
+        $.get(url, data, function (response) {
+            if (response.success) {
+                $("#RepliesList_Box").empty();
+                $("#RTC_Count").val(response.count);
+                if (response.count > 0) {
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
+                        let title = $("<h6 class='h6'></h6>");
+                        let text = $("<small class='card-text white-space-on'></small>");
+                        let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+
+                        title.html(response.result[index].username);
+                        text.html(response.result[index].text);
+                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true));
+
+                        div.append(sentAt);
+                        div.append(title);
+                        div.append(text);
+                        $("#RepliesList_Box").append(div);
+                    });
+                }
+                else {
+                    let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+                    let titleText = $("<h4 class='h4 safe-font'></h4>");
+                    let text = $("<small class='card-text text-muted'></small>");
+
+                    titleText.text("No Replies");
+                    text.text("Try to be the first one who has replied to this comment");
+                    div.append(titleText);
+                    div.append(text);
+                    $("#RepliesList_Box").append(div);
+                }
+            }
+            else {
+                let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+                let titleText = $("<h4 class='h4 safe-font'></h4>");
+                let text = $("<small class='card-text text-muted'></small>");
+
+                titleText.text("No Replies");
+                text.text("Try to be the first one who is going to reply to this comment");
+                div.append(titleText);
+                div.append(text);
+                $("#RepliesList_Box").append(div);
+            }
+        });
+
+        smallBarAnimatedOpenAndClose(true);
+        animatedOpen(false, "ReplyToComment_Container", false, false);
+    }
+    else {
+        openModal("You can't send reply for this comment", null, null, null, null, null, null, 2.75);
+    }
+});
+
+$(document).on("click", ".select-to-hide", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let btnText = $("#SB_C-Title").text();
+        let currentCount = btnText.substring(btnText.lastIndexOf(" ") + 1);
+        currentCount = parseInt(currentCount);
+        currentCount--;
+        if (currentCount > 0) {
+            slideToLeftAnimation("AllMessages-" + trueId);
+            $("#SB_C-Title").html(" <i class='fas fa-times'></i> Received Messages ∙ " + currentCount.toLocaleString());
+        }
+        else {
+            slideToLeftAnimation("AllMessages-" + trueId);
+            $("#MarkAllMessagesAsRead--256").fadeOut(350);
+            setTimeout(function () {
+                let div = $("<div class='p-3 text-center'></div>");
+                let iconTitle = $("<h1 class='h1'> <i class='fas fa-minus-circle'></i> </h1>");
+                let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
+                let text = $("<small class='card-text text-muted'>You've hidden all your received messages. They'll recover by next opening</small>");
+                div.append(iconTitle);
+                div.append(textTitle);
+                div.append(text);
+                $("#SB_C-Body").append(div);
+                $("#SB_C-Title").html(" <i class='fas fa-times'></i> No Messages ∙ All Hidden");
+            }, 350);
+        }
+    }
+});
+
+$(document).on("click", ".select-to-remove-the-msg", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let userId = $("#PageInfo_UserId").val();
+    if (parseInt(trueId) && parseInt(userId)) {
+        $("#RSM_Id_Val").val(trueId);
+        $("#RSM_UserId_Val").val(userId);
+        let url = $("#RemoveSentMessage_Form").attr("action");
+        let data = $("#RemoveSentMessage_Form").serialize();
+        $.post(url, data, function (response) {
+            if (response.success) {
+                let currentCount = $("#SB_C-Title").text().substring($("#SB_C-Title").text().lastIndexOf(" ") + 1);
+                currentCount = parseInt(currentCount);
+                currentCount--;
+                if (currentCount > 0) {
+                    $("#SB_C-Title").html(" <i class='fas fa-times'></i> Sent Messages ∙ " + currentCount.toLocaleString());
+                    slideToLeftAnimation("AllSentMessages-" + response.id);
+                }
+                else {
+                    bubbleAnimation("NotificationsLiquid_Container", false);
+                    setTimeout(function () {
+                        $("#SB_C-Title").html(" <i class='fas fa-times'></i> No Sent Messages");
+                        $("#SB_C-Body").empty();
+                        let div = $("<div class='p-3 text-center'></div>");
+                        let iconTitle = $("<h1 class='h1'> <i class='fas fa-comment-slash'></i> </h1>");
+                        let textTitle = $("<h3 class='h3 safe-font'>No Messages</h3>");
+                        let text = $("<small class='card-text text-muted'>You haven't get any messages. All of them will lately will appear here to edit, check or remove</small>");
+                        div.append(iconTitle);
+                        div.append(textTitle);
+                        div.append(text);
+                        $("#SB_C-Body").append(div);
+                    }, 600);
+                    setTimeout(function () {
+                        bubbleAnimation("NotificationsLiquid_Container", true);
+                    }, 1250);
+                }
+            }
+            else {
+                bubbleAnimation("NotificationsLiquid_Container", false);
+                setTimeout(function () {
+                    openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+                }, 500);
+            }
+        });
+    }
+});
+$(document).on("click", ".select-for-info", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0) {
+        $("#GMI_Id_Val").val(trueId);
+        let url = $("#GetMessageInfo_Form").attr("action");
+        let data = $("#GetMessageInfo_Form").serialize();
+
+        $.get(url, data, function (response) {
+            if (response.success) {
+                let sentBy = $("#SentFrom-" + trueId).text();
+                let div = $("<div class='box-container p-3 mt-2'></div>");
+                let header = $("<h5 class='h5 text-primary safe-font mb-2'></h5>");
+                let separatorFirst = $("<div class='mt-1'></div>");
+                let separatorSecond = $("<div class='mt-1'></div>");
+                let sentDate = $("<small class='card-text'></small>");
+                let isChecked = $("<small class='card-text'></small>");
+                let projectName = $("<small class='card-text'></p>");
+                header.html(sentBy);
+                projectName.html("<span class='text-muted'>Project: </span>" + response.result.projectName);
+                sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt));
+                if (response.result.isChecked) {
+                    isChecked.html(" <i class='fas fa-check-double text-primary'></i> This message has been checked");
+                }
+                else {
+                    isChecked.html(" <i class='fas fa-check text-muted'></i> This message isn't checked");
+                }
+
+                div.append(header);
+                div.append(projectName);
+                div.append(separatorSecond);
+                div.append(sentDate);
+                div.append(separatorFirst);
+                div.append(isChecked);
+
+                bubbleAnimation("NotificationsLiquid_Container", false);
+                setTimeout(function () {
+                    $("#SB_C-Title").html(" <i class='fas fa-times'></i> Message Info");
+                    $("#SB_C-Body").empty();
+                    $("#SB_C-Body").append(div);
+                    bubbleAnimation("NotificationsLiquid_Container", true);
+                }, 800);
+            }
+            else {
+                closeContainerBubbleAnimation("NotificationsLiquid_Container", false);
+                openModal(response.alert, "<i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+            }
+        });
+    }
+});
+
 $("#Name").on("keyup", function () {
     let value = $(this).val();
     if (value.length > 0) $("#PreviewTheProject_Btn").attr("disabled", false);
@@ -926,10 +1554,22 @@ $("#Name").on("keyup", function () {
 $("#TextPart").on("keyup", function () {
     lengthCounter("TextPart", 6000);
 });
+$("#RTM_Text").on("keyup", function () {
+    let value = lengthCounter("RTM_Text", 1750);
+    if (value < 1) $("#ReplyToMsgSend_Btn").attr("disabled", true);
+    else $("#ReplyToMsgSend_Btn").attr("disabled", false);
+});
 $("#Text").on("keyup", function () {
     let value = lengthCounter("Text", 2500);
-    if (value < 6) $("#MsgSendSbmt_Btn").attr("disabled", true);
+    if (value < 1) $("#MsgSendSbmt_Btn").attr("disabled", true);
     else $("#MsgSendSbmt_Btn").attr("disabled", false);
+});
+$(".send-msg-form-control").on("keyup", function (event) {
+    let id = event.target.id;
+    if (id != "" || id != undefined) {
+        let length = $("#" + id).val().length;
+        rowsCountAutoCorrection(id, length);
+    } 
 });
 $("#Project_Description").on("keyup", function () {
     lengthCounter("Project_Description", 1600);
@@ -1108,6 +1748,68 @@ $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
 });
 
+$(document).on("click", ".select-to-reply", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0 || trueId != "") {
+        let userId = $("#PageInfo_UserId").val();
+        let neededWidth = fullWidth;
+        if (fullWidth >= 717) neededWidth = (fullWidth * 0.35) - 10;
+
+        bubbleAnimation("NotificationsLiquid_Container", false);
+        smallBarAnimatedOpenAndClose(true);
+
+        let messageSenderName = $("#SentFrom-" + trueId).text();
+        let messageText = $("#AllMessagesText-" + trueId).text();
+
+        let msgInfoBox = $("<div class='box-container bg-primary p-2'><small class='card-text text-light'> <i class='fas fa-reply'></i> Replying To...</small></div>");
+        let replyingTo = $("<h6 class='h6 text-light mt-2' id='ReplyingTo_Lbl'></h6>");
+        let replyingMsgTxt = $("<small class='card-text text-light text-truncate' id='ReplyingToTxt_Lbl'></small>");
+        msgInfoBox.append(replyingTo);
+        msgInfoBox.append(replyingMsgTxt);
+
+        let msgReplyMainContainer = $("<div class='smallside-box-container p-3 shadow-standard' id = 'MsgReply_Container' ></div > ");
+        let msgReplySecondaryBox = $("<div class='mt-4'></div>");
+        let msgReplyTitle = $("<h5 class='h5 text-truncate'>Reply</h5>");
+        let msgReplyCloseBtn = $("<button type='button' class='btn btn-close float-end ms-1' id='MsgReply_Container-Close' aria-label='Close'></button>");
+        let replyForm = $("<form method='post' action='/Messages/Reply' id='ReplyToMessage_Form'></form>");
+        let replyFormDiv = $("<div class='mt-1'></div>");
+        let replyFormDivRowBox = $("<div class='row'></div>'");
+        let replyFormDivLgCol = $("<div class='col col-10'></div>");
+        let replyFormDivSmCol = $("<div class='col col-2'></div>");
+        let replyUserId_Input = $("<input type='hidden' name='UserId' id='RTM_UserId_Val' value='0' />");
+        let replyMsgId_Input = $("<input type='hidden' name='MessageId' id='RTM_MsgId_Val' value='0' />");
+        let replyProjectId_Input = $("<input type='hidden' name='ProjectId' value='-256' />");
+        let replyMsgText_Input = $("<textarea class='form-control w-100 form-control-sm send-msg-form-control' rows='1' id='RTM_Text' name='Text' maxlength='1750' placeholder='Reply here'></textarea>");
+        let replySubmit_Btn = $("<button type='submit' class='btn btn-primary btn-sm w-100 mt-1 btn-standard-with-no-colour' id='ReplyToMsgSend_Btn'>Reply</button>");
+
+        replyingTo.text(messageSenderName);
+        replyingMsgTxt.text(messageText);
+        replyMsgId_Input.val(trueId);
+        replyUserId_Input.val(userId);
+
+        replyForm.append(replyUserId_Input);
+        replyForm.append(replyMsgId_Input);
+        replyFormDivLgCol.append(replyMsgText_Input);
+        replyFormDivLgCol.append(replyProjectId_Input);
+        replyFormDivSmCol.append(replySubmit_Btn);
+        replyFormDivRowBox.append(replyFormDivLgCol);
+        replyFormDivRowBox.append(replyFormDivSmCol);
+        replyForm.append(replyFormDivRowBox);
+        replyFormDiv.append(replyForm);
+
+        msgReplySecondaryBox.append(msgInfoBox);
+        msgReplySecondaryBox.append(replyFormDiv);
+        msgReplyMainContainer.append(msgReplyCloseBtn);
+        msgReplyMainContainer.append(msgReplyTitle);
+        msgReplyMainContainer.append(msgReplySecondaryBox);
+        $("#MsgReply_Container").remove();
+        $("#Main_SideBar").append(msgReplyMainContainer);
+        $("#MsgReply_Container").css("width", neededWidth + "px");
+
+        animatedOpen(false, "MsgReply_Container", false, false);
+    }
+});
+
 $(document).on("click", ".select-to-mark", function (event) {
     let trueId = getTrueId(event.target.id);
     let userId = $("#PageInfo_UserId").val();
@@ -1154,19 +1856,35 @@ $(document).on("click", ".project-box", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 && trueId != "") {
         let selectedProjectName = $("#ProjectName-" + trueId).text();
+        let isLocked = $("#ProjectIsLocked-" + trueId).val();
+        isLocked = isLocked == "false" ? false : true;
 
         $("#SelectedProjectName_Lbl").text(selectedProjectName);
         $("#GPI_Id").val(trueId);
         $(".have-an-edit").attr("href", "/Project/Edit/" + trueId);
         $(".have-a-lock").attr("id", "HaveALock-" + trueId);
         $(".select-to-remove").attr("id", "HaveARemove-" + trueId);
+
+        if (isLocked) {
+            $("#LockProject_Box").addClass("d-none");
+            $("#UnlockTheProject_Box").removeClass("d-none");
+        }
+        else {
+            $("#LockProject_Box").removeClass("d-none");
+            $("#UnlockTheProject_Box").addClass("d-none");
+        }
+        $("#LTP_Id_Val").val(trueId);
+        $("#ULTP_Id_Val").val(trueId);
+
         smallBarAnimatedOpenAndClose(true);
         animatedOpen(false, "SettingsOfProject_Container", false, false);
     }
 });
 
 $(document).on("click", ".btn-back", function () {
-    openLastContainer(lastContainerName);
+    let isSmallSideContainer = $("#" + lastContainerName).hasClass("smallside-box-container");
+    if (isSmallSideContainer) openLastContainer(lastContainerName, true);
+    else openLastContainer(lastContainerName, false);
 });
 $(document).on("click", ".btn-close", function (event) {
     let container = getTrueName(event.target.id);
@@ -1274,6 +1992,14 @@ $(document).on("click", ".add-option", function (event) {
             $("#AddOption_Badge").html("Bold Text");
             $("#AddOption_Val2").attr("disabled", true);
             break;
+    }
+});
+
+$(document).on("click", ".text-full-delete", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#" + trueId).val("");
+        openModal("Content from textbox has been deleted", "Got It", null, 2, null, null, null, 2.5);
     }
 });
 
@@ -1416,8 +2142,8 @@ function convertDateAndTime(value, asShort) {
 
     if (asShort) {
         month = parseInt(dT.getMonth()) + 1;
-        if (dT.getMonth() < 10) month = "0" + month;
-        else month = month + 1;
+        if (dT.getMonth() < 9) month = "0" + month;
+        else month = month;
 
         fullAlert = day + "/" + month + "/" + dT.getFullYear() + ", at " + hr + ":" + min;
     }
@@ -1455,7 +2181,37 @@ function youtubeLinkCorrector(initialLink) {
     return trueLink;
 }
 
-function openLastContainer(element) {
+function rowsCountAutoCorrection(element, length) {
+    let currentRowsCount = $("#" + element).attr("rows");
+    if (fullWidth < 717) {
+        if (length >= 39) {
+            if (length / currentRowsCount > 40) {
+                if (currentRowsCount < 9) {
+                    currentRowsCount++;
+                    $("#" + element).attr("rows", currentRowsCount);
+                }
+            }
+        }
+        else {
+            $("#" + element).attr("rows", 1);
+        }
+    }
+    else {
+        if (length >= 49) {
+            if (length / currentRowsCount > 50) {
+                if (currentRowsCount < 12) {
+                    currentRowsCount++;
+                    $("#" + element).attr("rows", currentRowsCount);
+                }
+            }
+        }
+        else {
+            $("#" + element).attr("rows", 1);
+        }
+    }
+}
+
+function openLastContainer(element, isSmallSideContainer) {
     if (element == undefined) {
         animatedOpen(false, "Preload_Container", true, true);
     }
@@ -1463,7 +2219,11 @@ function openLastContainer(element) {
         return false;
     }
     else {
-        animatedOpen(false, element, true, true);
+        if (!isSmallSideContainer) animatedOpen(false, element, true, true);
+        else {
+            smallBarAnimatedOpenAndClose(true);
+            animatedOpen(false, element, false, false);
+        }
     }
 }
 
@@ -1627,6 +2387,8 @@ function displayCorrect(width) {
         $(".smallside-box-container").css("left", "2px");
         $(".smallside-modal-container").css("left", "2.4%");
         $(".smallside-modal-container").css("width", "95%");
+        $(".card-box-container").css("width", "100%");
+        $(".card-box-container").css("left", "1px");
 
         $("#MainBotOffNavbar").css("width", "100%");
         $("#MainBotOffNavbar").css("left", 0);
@@ -1651,6 +2413,8 @@ function displayCorrect(width) {
         $(".smallside-box-container").css("left", "2px");
         $(".smallside-modal-container").css("left", "10px");
         $(".smallside-modal-container").css("width", smallSideContainerW - 19 + "px");
+        $(".card-box-container").css("width", smallSideContainerW + "px");
+        $(".card-box-container").css("left", "1px");
 
         $("#MainBotOffNavbar").css("width", leftW + "px");
         $("#MainBotOffNavbar_Box").css("width", leftW + "px");
@@ -1782,15 +2546,18 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
             }
             $("#" + element).css("border-radius", "10px");
             $("#" + element).fadeIn(25);
+            $("#" + element + "-CardBox").fadeIn(25);
             if (sticky) {
                 $("#" + element).css("bottom", "20px");
                 setTimeout(function () {
                     $("#" + element).css("bottom", 0);
+                    $("#" + element + "-CardBox").css("bottom", 0);
                     $("#" + element).css("border-radius", "8px 8px 1px 1px");
                 }, 550);
             }
             else {
                 $("#" + element).css("bottom", 0);
+                $("#" + element + "-CardBox").css("bottom", 0);
                 $("#" + element).css("border-radius", "8px 8px 1px 1px");
             }
         }
@@ -1811,26 +2578,20 @@ function openStaticBackdrop(id, truncate) {
 function animatedClose(forAll, elemet) {
     if (forAll) {
         $("." + elemet).css("bottom", "-1200px");
+        $(".card-box-container").css("bottom", "-1200px");
         $("." + elemet).fadeOut(250);
+        $(".card-box-container").fadeOut(250);
     }
     else {
         $("#" + elemet).css("bottom", "-1200px");
+        $("#" + elemet + "-CardBox").css("bottom", "-1200px");
         $("#" + elemet).fadeOut(250);
+        $("#" + elemet + "-CardBox").fadeOut(300);
     }
 }
 
 $("#MMC_Text").on("click", function () {
     containerBubbleAnimation("MainModal_Container");
-    //let currentContainerH = $("#MainModal_Container").innerHeight();
-    //let neededH = fullHeigth - currentContainerH - 20;
-
-    //$("#MainModal_Container").css("left", "50%");
-    //$("#MainModal_Container").css("transform", "translateX(-50%)");
-    //$("#MainModal_Container").css("width", "75%");
-    //$("#MainModal_Container").css("bottom", neededH + "px");
-    //$("#MainModal_Container").css("background-color", "transparent");
-    //$("#MainModal_Container").css("backdrop-filter", "blur(5px)");
-    //$("#MainModal_Container").css("border", "1px solid rgb(240, 240, 240)");
 });
 
 $(document).on("mouseover", ".info-popover", function (event) {
