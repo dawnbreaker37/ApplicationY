@@ -183,7 +183,7 @@ namespace ApplicationY.Repositories
         {
             if(UserId != 0)
             {
-                Project? LastProjectInfo = await _context.Projects.AsNoTracking().Select(u => new Project { Id = u.Id, UserId = u.UserId }).OrderBy(u => u.Id).FirstOrDefaultAsync(u => u.UserId == UserId && u.IsRemoved);
+                Project? LastProjectInfo = await _context.Projects.AsNoTracking().OrderBy(u => u.CreatedAt).Select(u => new Project { Id = u.Id, UserId = u.UserId, IsRemoved = u.IsRemoved }).FirstOrDefaultAsync(u => u.UserId == UserId && u.IsRemoved);
                 if (LastProjectInfo != null) return LastProjectInfo.Id;
             }
             return 0;

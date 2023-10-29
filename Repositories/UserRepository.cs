@@ -101,19 +101,19 @@ namespace ApplicationY.Repositories
                 bool IsSearchNameFree = await _context.Users.AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
                 if (!IsSearchNameFree)
                 {
-                    int Result = await _context.Users.Where(u => u.SearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
+                    int Result = await _context.Users.Where(u => u.SearchName != null && Model.RealSearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
                     if (Result != 0) return true;
                 }
             }
             return false;
         }
 
-        public async Task<User?> GetUserByIdAsync(int Id, bool NeedLargerInfo)
+        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo)
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new User { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Email = u.Email, EmailConfirmed = u.EmailConfirmed, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
-                else return await _context.Users.AsNoTracking().Select(u => new User { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName }).FirstOrDefaultAsync(u => u.Id == Id);
+                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
+                else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
         }

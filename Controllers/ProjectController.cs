@@ -65,7 +65,7 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
-                    IQueryable<Project?> UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false);
+                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false);
                     if (UserAllProjects_Preview != null)
                     {
                         List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();

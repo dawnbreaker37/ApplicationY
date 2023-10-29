@@ -69,11 +69,19 @@ namespace ApplicationY.Controllers
             else return RedirectToAction("Create", "Account");
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetShortUserInfo(int Id)
+        {
+            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true);
+            if (Result != null) return Json(new { success = true, result = Result });
+            else return Json(new { success = false });
+        }
+
         public async Task<IActionResult> Verify(int Id)
         {
             if (User.Identity.IsAuthenticated)
             {
-                User? UserInfo = await _userRepository.GetUserByIdAsync(Id, true);
+                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true);
                 ViewBag.UserInfo = UserInfo;
 
                 return View();

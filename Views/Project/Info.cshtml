@@ -30,6 +30,41 @@
             </form>
         </div>
 
+        <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+            <div class="mt-4">
+                <div class="box-container">
+                    <div class="box-container p-2 bg-light">
+                        <small class="badge bg-light text-dark warning-badge float-end" id="USI_CountryBadge">Country</small>
+                        <h3 class="h3 safe-font" id="USI_Username_Lbl">Pseudoname</h3>
+                        <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
+                    </div>
+                    <div class="row mt-2">
+                        <div class="col">
+                            <div class="box-container p-2 bg-light">
+                                <p class="card-text fw-500">Contact Info</p>
+                                <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="box-container p-2 bg-light">
+                                <p class="card-text fw-500">Links</p>
+                                <small class="card-text" id="USI_Link1_Lbl"></small>
+                                <div class="border-top pt-1 mt-2"></div>
+                                <small class="card-text" id="USI_Link2_Lbl"></small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mt-1 ms-1">
+                        <small class="card-text white-space-on mt-2" id="USI_Description_Lbl">Description</small>
+                        <div></div>
+                        <a href="#" class="btn btn-text mt-3 btn-sm" id="USI_Userpage_Link"> <i class="fas fa-chevron-right"></i> Page Link</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="ReplyToComment_Container">
             <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
             <h5 class="h5 text-truncate">Reply to <span class="text-primary" id="RTC_User"></span></h5>

@@ -19,7 +19,7 @@
             </form>
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
-        </form>
+            </form>
         }
     </div>
 
@@ -34,6 +34,16 @@
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
             </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="Comments_Container">
+        <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
+        <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">No Comments</span></h5>
+        <div class="d-none">
+            <input type="hidden" id="CommentsCount_Val" value="0" />
+        </div>
+        <div class="mt-3 mb-5" id="CommentsMain_Box">
         </div>
     </div>
 
@@ -74,6 +84,43 @@
         </div>
     </div>
 
+    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+        <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+        <div class="mt-4">
+            <div class="box-container">
+                <div class="box-container p-2 bg-light">
+                    <small class="badge bg-light text-dark warning-badge float-end" id="USI_CountryBadge">Country, CN</small>
+                    <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
+                    <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
+                </div>
+                <div class="card-group mt-2">
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Contact Info</p>
+                        <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
+                        <div class="mt-2"></div>
+                        <small class="card-text" id="USI_Date_Lbl"></small>
+                    </div>
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Links</p>
+                        <small class="card-text" id="USI_Link1_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
+                        <div class="border-top pt-1 mt-2"></div>
+                        <small class="card-text" id="USI_Link2_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
+                    </div>
+                </div>
+                <div class="mt-1 ms-1">
+                    <small class="card-text white-space-on mt-2" id="USI_Description_Lbl">Description</small>
+                    <div></div>
+                    <a href="#" class="btn btn-text mt-3 btn-sm" id="USI_Userpage_Link"> <i class="fas fa-chevron-right"></i> Page Link</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container p-3 shadow-standard" id="SettingsOfProject_Container">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="SettingsOfProject_Container-Close"></button>
         <h5 class="h5 text-truncate">Settings Of Project</h5>
@@ -87,7 +134,7 @@
                 <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
                     <input type="hidden" name="Id" id="GPI_Id" value="0" />
                     <input type="hidden" name="GetAdditionalInfo" id="GPI_GetAdditionalInfo" value="True" />
-                    <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Look</button>
+                    <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Preview</button>
                 </form>
                 <div class="mt-1 ms-1">
                     <small class="card-text text-muted">Have a sidelook on your own project</small>
@@ -103,7 +150,7 @@
                 <div id="LockProject_Box">
                     <form method="post" asp-controller="Project" asp-action="LockTheProject" id="LockTheProject_Form">
                         <input type="hidden" name="Id" id="LTP_Id_Val"  value="0" />
-                        <input type="hidden" name="UserId"  value="@UserInfo.Id" />
+                        <input type="hidden" name="UserId"  value="@UserInfo?.Id" />
                         <button type="submit" class="btn btn-group-member text-start have-a-lock w-100"> <i class="fas fa-lock text-danger"></i> Lock</button>
                     </form>
                     <div class="mt-1 ms-1">
@@ -113,7 +160,7 @@
                 <div class="d-none" id="UnlockTheProject_Box">
                     <form method="post" asp-controller="Project" asp-action="UnlockTheProject" id="UnlockTheProject_Form">
                         <input type="hidden" name="Id" id="ULTP_Id_Val" value="0" />
-                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <input type="hidden" name="UserId" value="@UserInfo?.Id" />
                         <button type="submit" class="btn btn-group-member text-start have-a-lock w-100"> <i class="fas fa-lock-open text-primary"></i> Unlock</button>
                     </form>
                     <div class="mt-1 ms-1">
@@ -144,7 +191,7 @@
                 <div class="mt-1">
                     <form method="post" asp-controller="Project" asp-action="Remove" id="RemoveProject_Form">
                         <input type="hidden" name="Id" id="RP_ProjectId" value="0" />
-                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <input type="hidden" name="UserId" value="@UserInfo?.Id" />
                         <div class="row mt-3">
                             <div class="col col-7">
                                 <button type="submit" class="btn btn-danger btn-standard-with-no-colour text-truncate w-100">Yes, Remove It</button>
@@ -158,12 +205,39 @@
             </div>
         </div>
     </div>
+
+    <div class="box-container card-box-container shadow-standard position-absolute p-2" id="Comments_Container-CardBox">
+        @if (UserInfo != null)
+        {
+            <div>
+                <form method="post" asp-controller="Messages" asp-action="SendComment" id="SendComment_Form">
+                    <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                    <input type="hidden" name="ProjectId" id="SCF_ProjectId_Val" value="0" />
+                    <div class="row">
+                        <div class="col col-10">
+                            <textarea class="form-control w-100 form-control-sm send-msg-form-control" rows="1" name="Text" id="SendComment_Text" placeholder="Enter your comment here" maxlength="1500"></textarea>
+                        </div>
+                        <div class="col col-2">
+                            <button type="submit" class="btn btn-primary rounded-message-btn btn-standard-with-no-colour btn-sm w-100 mt-1" id="SendCommentSbmt_Btn"> <i class="fas fa-arrow-up"></i> </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        }
+        else
+        {
+            <div>
+                <textarea class="form-control w-100 form-control-sm send-msg-form-control" rows="1" id="SendComment_Text" placeholder="Enter or sign in to send comment" disabled></textarea>
+                <a asp-controller="Account" asp-action="Create" class="btn btn-danger btn-standard-with-no-colour btn-sm" disabled> <i class="fas fa-times"></i> </a>
+            </div>
+        }
+    </div>
 </div>
 
 <div class="main-container p-3 shadow-standard" id="ProjectView_Container">
     <div>
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="ProjectView_Container-Close"></button>
-        <h6 class="h5 text-truncate">Project View</h6>
+        <h6 class="h5 text-truncate">Project Preview</h6>
     </div>
     <div class="mt-4">
         <div class="box-container">
@@ -171,16 +245,26 @@
         </div>
         <div class="box-container shadow-sm mt-2 p-2">
             <div class="p-2">
-                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1" disabled> <i class="far fa-bell"></i> Subscribe</button>
-                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 me-1" disabled> <i class="far fa-paper-plane"></i> Send Message</button>
-                <h5 class="h5 safe-font">@UserInfo.PseudoName</h5>
+                <a href="#" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1" id="Preview_ProjectPageLink2"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                <div>
+                    <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
+                        <input type="hidden" name="Id" id="GSU_Id_Val" value="0" />
+                        <button type="submit" class="btn btn-text btn-lg safe-font" >@UserInfo?.PseudoName</button>
+                    </form>
+@*                     data-bs-toggle="popover" data-bs-placement="bottom" data-bs-custom-class="info-popover-show shadow-sm p-0" data-bs-content="Go to user's page" *@
+                </div>
             </div>
             <div class="row mt-1">
                 <div class="col">
                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
                 </div>
                 <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                    <div>
+                        <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
+                            <input type="hidden" name="ProjectId" id="GCF_ProjectId_Val" value="0" />
+                            <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                        </form>
+                    </div>
                 </div>
                 <div class="col">
                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
@@ -216,6 +300,8 @@
                 </div>
                 <div class="mt-2 border-top pt-2">
                     <a href="#" class="btn btn-text btn-sm" id="Preview_ProjectPageLink"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                    <div></div>
+                    <small class="card-text text-muted">It's only the preview widget of this project. If you need full access to this project (like sending messages, commentaries, subscribing or to like it) go to the project page by link</small>
                 </div>
             </div>
         </div>
@@ -254,6 +340,22 @@
                     <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
                     <div></div>
                     <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
+                </div>
+            </div>
+        </div>
+        <div class="box-container mt-2 d-none" id="YT_VideoPlayer_MainBox">
+            <div class="card-group">
+                <div class="card me-1 p-3 pb-1 shadow-sm">
+                    <h6 class="h6"> <i class="fab fa-youtube text-danger"></i> Youtube Video</h6>
+                    <div class="box-container mt-2" id="YT_VideoPlayer_Box">
+                        <iframe class="yt-container w-100 ratio-16x9" id="YT_VideoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="card shadow-sm p-3 pb-2">
+                    <h6 class="h6"> <i class="fas fa-info-circle"></i> Additional Info</h6>
+                    <small class="card-text text-muted mt-2" id="YT_VideoLink_Lbl"> <i class="fas fa-external-link"></i> Link: </small>
+                    <div class="mt-1"></div>
+                    <a href="#" class="btn btn-text btn-sm text-start text-decoration-none mt-1" id="YT_VideoLink_Btn"> <i class="fab fa-youtube text-danger"></i> Watch On Youtube</a>
                 </div>
             </div>
         </div>

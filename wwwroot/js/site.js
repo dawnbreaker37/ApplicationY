@@ -274,7 +274,7 @@ $("#EditPersonalInfo_Form").on("submit", function (event) {
                 $("#AY_IsCompany").html("<i class='fas fa-user-tie text-primary'></i>  You are a personal user");
             }
             if (response.result.createdAt != null) {
-                let dateTimeVal = convertDateAndTime(response.result.createdAt, true);
+                let dateTimeVal = convertDateAndTime(response.result.createdAt, true, true);
                 dateTimeVal = dateTimeVal.substring(0, dateTimeVal.lastIndexOf(","));
                 $("#AY_CreatedDate").html(" <i class='fas fa-clock text-primary'></i> Signed or created at: " + dateTimeVal);
             }
@@ -385,6 +385,63 @@ $("#SendEmailConfirmationCode_Form").on("submit", function (event) {
     });
 });
 
+$("#GetShortUserInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#USI_UsernameTitle_Span").html(response.result.pseudoName);
+            $("#USI_Username_Lbl").html(response.result.pseudoName);
+            $("#USI_Searchname_Lbl").html("@" + response.result.searchName);
+            if (response.result.description != null) $("#USI_Description_Lbl").text(response.result.description);
+            else $("#USI_Description_Lbl").text("No user description");
+            $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
+            $("#USI_Userpage_Link").html(" <i class='fas fa-chevron-right'></i> " + response.result.pseudoName + "'s Page");
+            $("#USI_Inbox_Lbl").html(" <i class='fas fa-inbox text-primary'></i> " + response.result.email);
+            $("#USI_Date_Lbl").html(" <i class='far fa-calendar-alt text-primary'></i> Created At: " + convertDateAndTime(response.result.createdAt, false, false));
+            if (response.result.link1 != null) {
+                $("#USI_Link1Tag_Lbl").text(response.result.link1Tag);
+                $("#USI_Link1_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> " + response.result.link1);
+            }
+            else {
+                $("#USI_Link1_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external first link");
+                $("#USI_Link1Tag_Lbl").text("No Link Tag");
+            }
+            if (response.result.link2 != null) {
+                $("#USI_Link2Tag_Lbl").text(response.result.link2Tag);
+                $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> " + response.result.link2Tag);
+            }
+            else {
+                $("#USI_Link2Tag_Lbl").text("No Link Tag");
+                $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external second link");
+            }
+
+            if (response.result.countryFullName != null) {
+                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
+            }
+            else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
+
+            animatedOpen(false, "UserShortInfo_Container", false, false);
+        }
+        else {
+            $("#SB_C-Body").empty();
+            $("#SB_C-Title").html(" <i class='fas fa-times'></i> User Info");
+            let div = $("<div class='box-container bg-transparent mt-4 text-center'></div>");
+            let icon = $("<h1 class='h1'> <i class='fas fa-user-slash'></i> </h1>");
+            let title = $("<h3 class='h3 mt-2 safe-font'>No User Info</h3>");
+            let text = $("<small class='card-text text-muted'>This user's info is unable to get</small>");
+
+            div.append(icon);
+            div.append(title);
+            div.append(text);
+            $("#SB_C-Body").append(div);
+            bubbleAnimation("NotificationsLiquid_Container", true);
+        }
+    });
+});
+
 $(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
     event.preventDefault();
 
@@ -480,16 +537,33 @@ $("#GetFullProject_Form").on("submit", function (event) {
         if (response.success) {
             let fullText;
 
+            $("#GSU_Id_Val").val(response.result.userId);
+            $("#GCF_ProjectId_Val").val(response.result.id);
+            $("#SCF_ProjectId_Val").val(response.result.id);
             $("#Preview_Title").text(response.result.name);
             $("#Preview_ShortDescription").text(response.result.description);
             $("#Preview_ViewsCnt").text(response.result.views);
             $("#Preview_ProjectPageLink").attr("href", "/Project/Info/" + response.result.id);
+            $("#Preview_ProjectPageLink2").attr("href", "/Project/Info/" + response.result.id);
             if (response.result.textPart1 != null) fullText = response.result.textPart1;
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
-            $("#Preview_PublishedDate").text(convertDateAndTime(response.result.createdAt));
-            $("#Preview_LastUpdatedDate").text(convertDateAndTime(response.result.lastUpdatedAt));
+            $("#Preview_PublishedDate").text(convertDateAndTime(response.result.createdAt, false, true));
+            $("#Preview_LastUpdatedDate").text(convertDateAndTime(response.result.lastUpdatedAt, false, true));
+
+            if (response.result.youtubeLink != null) {
+                $("#YT_VideoPlayer_MainBox").removeClass("d-none");
+                $("#YT_VideoPlayer").attr("src", youtubeLinkCorrector(response.result.youtubeLink));
+                $("#YT_VideoLink_Lbl").html(" <i class='fas fa-link'></i> Link: https://www.youtube.com/watch?v=" + response.result.youtubeLink);
+                $("#YT_VideoLink_Btn").attr("href", "https://www.youtube.com/watch?v=" + response.result.youtubeLink);
+            }
+            else {
+                $("#YT_VideoPlayer_MainBox").addClass("d-none");
+                $("#YT_VideoPlayer").attr("src", null);
+                $("#YT_VideoLink_Lbl").html(" <i class='fas fa-link'></i> Link: Undefined");
+                $("#YT_VideoLink_Btn").attr("href", "#");
+            }
 
             if (response.result.pastTargetPrice != 0) {
                 $("#Preview_PrevTagPrice").removeClass("d-none");
@@ -544,10 +618,10 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 $("#Preview_LinkText1").text("No external first link");
             }
             if (response.result.link2 != null) {
-                $("#Preview_LinkBtn2").attr("href", response.result.link1);
+                $("#Preview_LinkBtn2").attr("href", response.result.link2);
                 $("#Preview_LinkBtn2").removeClass("disabled");
                 $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> Click To Relocate');
-                $("#Preview_LinkText2").text(response.result.link1);
+                $("#Preview_LinkText2").text(response.result.link2);
             }
             else {
                 $("#Preview_LinkBtn2").attr("href", "#");
@@ -757,7 +831,7 @@ $("#SendComment_Form").on("submit", function (event) {
 
             title.text("You");
             text.html(textVal);
-            sentAt.text(convertDateAndTime(response.date));
+            sentAt.text(convertDateAndTime(response.date, true, true));
 
             div.append(sentAt);
             div.append(title);
@@ -811,7 +885,7 @@ $("#GetComments_Form").on("submit", function (event) {
 
                     title.text(response.result[index].senderName);
                     text.html(response.result[index].text);
-                    sentAt.text(convertDateAndTime(response.result[index].sentAt, true));
+                    sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
                     title.attr("id", "GetAndSendReplyTitle-" + response.result[index].id);
                     text.attr("id", "GetAndSendReplyText-" + response.result[index].id);
                     getAndSendRepliesBtn.attr("id", "GetAndSendReply-" + response.result[index].id);
@@ -824,6 +898,8 @@ $("#GetComments_Form").on("submit", function (event) {
                     div.append(getAndSendRepliesBtn);
 
                     $("#CommentsMain_Box").append(div);
+                    $("#CommentsCount_Val").val(response.count);
+                    $("#CommentsCount_Span").text(response.count.toLocaleString());
                 });
             }
             else {
@@ -839,7 +915,10 @@ $("#GetComments_Form").on("submit", function (event) {
                 div.append(title);
                 div.append(titleText);
                 div.append(text);
+
                 $("#CommentsMain_Box").append(div);
+                $("#CommentsCount_Val").val(0);
+                $("#CommentsCount_Span").text(" out of comments");
             }
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "Comments_Container", false, false);
@@ -877,7 +956,7 @@ $("#GetNotifications_Btn").on("click", function (event) {
                     let text = $("<small class='card-text'></small>");
                     let removeBtn = $("<button type='button' class='btn btn-text btn-sm remove-notification'>&times; Remove</button>");
 
-                    dateTime.html(convertDateAndTime(response.notifications[index].sentAt, false));
+                    dateTime.html(convertDateAndTime(response.notifications[index].sentAt, false, true));
                     title.html(response.notifications[index].title);
                     text.html(response.notifications[index].description);
 
@@ -945,7 +1024,7 @@ $("#GetMessages_Btn").on("click", function (event) {
                     let msgHideBtn = $("<button type='button' class='dropdown-item select-to-hide'> <i class='fas fa-minus-circle text-danger'></i> Hide</button>");
 
                     text.html(response.result[index].text);
-                    dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
+                    dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true, true);
                     if (response.result[index].isChecked) {
                         isChecked.html(" <i class='fas fa-check-double text-primary'></i> ");
                         markAsReadBtn.fadeOut(0);
@@ -1065,7 +1144,7 @@ $("#GetSentMessages_Btn").on("click", function (event) {
                         let msgInfoBtn = $("<button type='button' class='dropdown-item select-for-info mb-1'> <i class='fas fa-info-circle'></i> About This Message</button>");
 
                         text.html(response.result[index].text);
-                        dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true);
+                        dateAndTime.text(convertDateAndTime(response.result[index].sentAt), true, true);
                         if (response.result[index].isChecked) {
                             isChecked.html(" <i class='fas fa-check-double text-primary'></i> ");
                         }
@@ -1381,7 +1460,7 @@ $(document).on("click", ".send-reply-to-comment", function (event) {
 
                         title.html(response.result[index].username);
                         text.html(response.result[index].text);
-                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true));
+                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
 
                         div.append(sentAt);
                         div.append(title);
@@ -1515,7 +1594,7 @@ $(document).on("click", ".select-for-info", function (event) {
                 let projectName = $("<small class='card-text'></p>");
                 header.html(sentBy);
                 projectName.html("<span class='text-muted'>Project: </span>" + response.result.projectName);
-                sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt));
+                sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt, true, true));
                 if (response.result.isChecked) {
                     isChecked.html(" <i class='fas fa-check-double text-primary'></i> This message has been checked");
                 }
@@ -2124,18 +2203,26 @@ function addOptionToText(element, type, value1, value2) {
     $("#" + element).val(textBefore + textAfter);
 }
 
-function convertDateAndTime(value, asShort) {
+function convertDateAndTime(value, asShort, showTimeInfo) {
     let dT = new Date(value);
+    let dTCurrent = new Date();
     let day = 0;
     let month = 0;
     let hr = 0;
     let min = 0;
     let fullAlert;
+    let year = 0;
 
     if (dT.getHours() < 10) hr = "0" + dT.getHours();
     else hr = dT.getHours();
     if (dT.getMinutes() < 10) min = "0" + dT.getMinutes();
     else min = dT.getMinutes();
+
+    if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
+    else {
+        if (asShort) year = "/" + dT.getFullYear();
+        else year = " " + dT.getFullYear();
+    }
 
     if (dT.getDate() < 10) day = "0" + dT.getDate();
     else day = dT.getDate();
@@ -2145,13 +2232,15 @@ function convertDateAndTime(value, asShort) {
         if (dT.getMonth() < 9) month = "0" + month;
         else month = month;
 
-        fullAlert = day + "/" + month + "/" + dT.getFullYear() + ", at " + hr + ":" + min;
+        if (showTimeInfo) fullAlert = day + "/" + month + year + ", at " + hr + ":" + min;
+        else fullAlert = day + "/" + month + year;
     }
     else {
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
         month = months[dT.getMonth()];
 
-        fullAlert = day + " " + month + ", at " + hr + ":" + min;
+        if (showTimeInfo) fullAlert = day + " " + month + year + ", at " + hr + ":" + min;
+        else fullAlert = day + " " + month + year;
     }
 
     return fullAlert;

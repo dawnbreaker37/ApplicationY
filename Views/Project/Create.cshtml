@@ -116,7 +116,7 @@
         <div class="box-container shadow-sm mt-2 p-2">
             <div class="p-2">
                 <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="fas fa-bell"></i> Subscribe</button>
-                <h5 class="h5 safe-font">@UserInfo.PseudoName</h5>
+                <h5 class="h5 safe-font">@UserInfo?.PseudoName</h5>
             </div>
             <div class="row mt-1">
                 <div class="col">
@@ -130,7 +130,7 @@
                 </div>
             </div>
         </div>
-        <div class="box-container shadow-sm p-2 mt-2">
+        <div class="box-container mt-2">
             <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
             <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
         </div>

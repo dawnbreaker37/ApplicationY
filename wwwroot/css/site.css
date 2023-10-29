@@ -136,6 +136,7 @@ html {
 .info-popover-show {
     color: black;
     border-radius: 8px;
+    font-size: medium;
     border: 1px solid rgb(240, 240, 240);
     background-color: transparent;
     backdrop-filter: blur(4px);
@@ -446,7 +447,6 @@ body {
   margin-bottom: 60px;
   background-color: #fdfdfd;
 }
-
 
 .send-msg-form-control {
     border-radius: 34px;

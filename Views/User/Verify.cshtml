@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Verify Your Account";
 
-    User UserInfo = ViewBag.UserInfo;
+    GetUserInfo_ViewModel UserInfo = ViewBag.UserInfo;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -19,7 +19,7 @@
         <h5 class="h5 text-truncate">Verification</h5>
     </div>
     <div class="mt-4">
-        @if (UserInfo.EmailConfirmed)
+        @if (UserInfo.IsEmailConfirmed)
         {
             <div class="box-container bg-light p-3">
                 <h2 class="h2 text-center"> <i class="fas fa-check-square"></i> </h2>
