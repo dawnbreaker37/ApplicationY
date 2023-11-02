@@ -75,7 +75,7 @@ namespace ApplicationY.Repositories
 
         public async Task<bool> EditLinksAsync(EditLinks_ViewModel Model)
         {
-            if((Model.Id) != 0 && (!String.IsNullOrEmpty(Model.Link1) && !String.IsNullOrEmpty(Model.Link2)))
+            if(Model.Id != 0)
             {
                 int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Link1, Model.Link1).SetProperty(u => u.Link1Tag, Model.Link1Tag).SetProperty(u => u.Link2, Model.Link2).SetProperty(u => u.Link2Tag, Model.Link2Tag));
                 if (Result != 0) return true;
@@ -112,7 +112,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
+                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
                 else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
@@ -121,6 +121,12 @@ namespace ApplicationY.Repositories
         public IQueryable<User>? GetUserBySearchName(string SearchName)
         {
             if (SearchName != null) return _context.Users.AsNoTracking().Where(u => (u.SearchName == null) || (u.SearchName.ToLower().Contains(SearchName.ToLower()))).Select(u => new User { Id = u.Id, UserName = u.UserName, SearchName = u.SearchName });
+            else return null;
+        }
+
+        public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
+        {
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
             else return null;
         }
 
@@ -138,6 +144,53 @@ namespace ApplicationY.Repositories
         {
             bool Result = await _context.Users.AsNoTracking().AnyAsync(u => u.UserName == null || u.UserName.ToLower() == UserName.ToLower());
             return Result;
+        }
+
+        public string? LinkIconModifier(string? LinkTag)
+        {
+            if (!String.IsNullOrEmpty(LinkTag))
+            {
+                string NewLinkTag = LinkTag.ToLower();
+                if (NewLinkTag.Contains("twitter"))
+                {
+                    NewLinkTag = " <i class='fab fa-twitter text-primary'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("x"))
+                {
+                    NewLinkTag = " <i class='fab fa-twitter text-primary'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("facebook"))
+                {
+                    NewLinkTag = " <i class='fab fa-facebook-square text-primary'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("instagram"))
+                {
+                    NewLinkTag = " <i class='fab fa-instagram'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("vk"))
+                {
+                    NewLinkTag = " <i class='fab fa-vk text-primary'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("telegram"))
+                {
+                    NewLinkTag = "<i class='fab fa-telegram text-primary'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("whatsapp"))
+                {
+                    NewLinkTag = " <i class='fab fa-whatsapp text-success'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("viber"))
+                {
+                    NewLinkTag = " <i class='fab fa-viber' id='style: color: rebeccapurple;'></i> " + LinkTag;
+                }
+                else if (NewLinkTag.Contains("youtube"))
+                {
+                    NewLinkTag = " <i class='fab fa-youtube text-danger'></i> " + LinkTag;
+                }
+                else NewLinkTag = LinkTag;
+                return NewLinkTag;
+            }
+            return null;
         }
 
         public async Task<bool> LogInAsync(LogIn_ViewModel Model)

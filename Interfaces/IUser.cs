@@ -5,6 +5,7 @@ namespace ApplicationY.Interfaces
 {
     public interface IUser : IBase<User>
     {
+        public Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname);
         public Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedsLargerInfo);
         public Task<string?> CreateUserAsync(SignIn_ViewModel Model);
         public Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model);
@@ -17,5 +18,6 @@ namespace ApplicationY.Interfaces
         public Task<string?> SubmitAccountByReserveCodeAsync(string? Username, string? Email, string ReserveCode);
         public Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email, string Code);
         public IQueryable<User>? GetUserBySearchName(string SearchName);
+        public string? LinkIconModifier(string? LinkTag);
     }
 }

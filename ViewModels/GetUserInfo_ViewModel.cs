@@ -20,6 +20,8 @@ namespace ApplicationY.ViewModels
         public DateTime? CreatedAt { get; set; }
         public bool IsCompany { get; set; }
         public string? CountryFullName { get; set; }
+        public int? ProjectsCount { get; set; }
         public Country? Country { get; set; }
+        public List<Project>? Projects { get; set; }
     }
 }

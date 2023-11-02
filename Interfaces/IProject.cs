@@ -18,5 +18,6 @@ namespace ApplicationY.Interfaces
         public Task<int> RemoveFromLikesAsync(int ProjectId, int UserId);
         public Task<bool> HasProjectBeenAlreadyLiked(int ProjectId, int UserId);
         public Task<int> ProjectLikesCount(int ProjectId);
+        public IQueryable<GetProjects_ViewModel>? GetRandomProjects(int Count);
     }
 }

@@ -15,14 +15,16 @@ namespace ApplicationY.Controllers
         private readonly SignInManager<User> _signInManager;
         private readonly IUser _userRepository;
         private readonly IAccount _accountRepository;
+        private readonly IProject _projectRepository;
 
-        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IAccount accountRepository, IUser userRepository)
+        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IAccount accountRepository, IUser userRepository, IProject projectRepository)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
             _userRepository = userRepository;
             _accountRepository = accountRepository;
+            _projectRepository = projectRepository;
         }
 
         public async Task<IActionResult> Profile()
@@ -87,6 +89,39 @@ namespace ApplicationY.Controllers
                 return View();
             }
             return RedirectToAction("Create", "Account");
+        }
+
+        public async Task<IActionResult> Info(string? Id)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                IQueryable<Project?>? UserProjects;
+                List<Project?>? UserProjectsResult = null;
+
+                User? UserInfo = await _userManager.GetUserAsync(User);
+                GetUserInfo_ViewModel? CurrentUserInfo = await _userRepository.GetUserBySearchnameAsync(Id);
+                if (CurrentUserInfo != null)
+                {
+                    if (UserInfo != null)
+                    {
+                        UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, UserInfo.Id, false);
+                        ViewBag.UserInfo = UserInfo;
+                    }
+                    else UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, 0, false);
+                    if(UserProjects != null) UserProjectsResult = await UserProjects.ToListAsync();
+
+                    if(CurrentUserInfo.Link1 != null) CurrentUserInfo.Link1 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link1);
+                    if(CurrentUserInfo?.Link2 != null) CurrentUserInfo.Link2 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link2);
+
+                    ViewBag.CurrentUserInfo = CurrentUserInfo;
+                    ViewBag.UserProjects = UserProjectsResult;
+                    ViewBag.ProjectsCount = UserProjectsResult?.Count;
+
+                    return View();
+                }
+                else return RedirectToAction("Index", "Home");
+            }
+            else return RedirectToAction("Create", "Account");
         }
 
         [HttpPost]

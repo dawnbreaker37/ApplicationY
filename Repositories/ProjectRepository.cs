@@ -267,5 +267,11 @@ namespace ApplicationY.Repositories
             }
             else return null;
         }
+
+        public IQueryable<GetProjects_ViewModel>? GetRandomProjects(int Count)
+        {
+            if (Count != 0) return _context.Projects.AsNoTracking().Where(p => p.Views >= 150 && !p.IsClosed && !p.IsRemoved && (p.LastUpdatedAt.Year == DateTime.Now.Year && p.LastUpdatedAt.DayOfYear <= DateTime.Now.DayOfYear - 24) || (p.LastUpdatedAt.Year == DateTime.Now.Year - 1 && p.LastUpdatedAt.DayOfYear >= 350)).Select(p=>new GetProjects_ViewModel { Name = p.Name, Id = p.Id, CreatedAt = p.CreatedAt, LastUpdatedAt =  p.LastUpdatedAt, Views = p.Views, TargetPrice = p.TargetPrice, Description = p.Description, UserName = p.User!.PseudoName, UserId = p.UserId }).Take(Count).OrderByDescending(p => p.Views);
+            else return _context.Projects.AsNoTracking().Where(p => p.Views >= 150 && !p.IsClosed && !p.IsRemoved && (p.LastUpdatedAt.Year == DateTime.Now.Year && p.LastUpdatedAt.DayOfYear <= DateTime.Now.DayOfYear - 24) || (p.LastUpdatedAt.Year == DateTime.Now.Year - 1 && p.LastUpdatedAt.DayOfYear >= 350)).Select(p => new GetProjects_ViewModel { Name = p.Name, Id = p.Id, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Views = p.Views, TargetPrice = p.TargetPrice, Description = p.Description, UserName = p.User!.PseudoName, UserId = p.UserId  }).Take(10).OrderByDescending(p => p.Views);
+        }
     }
 }

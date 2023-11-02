@@ -1,0 +1,19 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Search";
+
+    User? UserInfo = ViewBag.UserInfo;
+    int ProjectsCount = ViewBag.ProjectsCount;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+
+</div>
+
+<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Preload_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
+        <h6 class="h5 text-truncate">Search & Preview</h6>
+    </div>
+</div>
+

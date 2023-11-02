@@ -36,24 +36,28 @@
             <div class="mt-4">
                 <div class="box-container">
                     <div class="box-container p-2 bg-light">
-                        <small class="badge bg-light text-dark warning-badge float-end" id="USI_CountryBadge">Country</small>
-                        <h3 class="h3 safe-font" id="USI_Username_Lbl">Pseudoname</h3>
+                        <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
+                        <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
                         <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
+                        <div class="mt-1 border-top"></div>
+                        <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
                     </div>
-                    <div class="row mt-2">
-                        <div class="col">
-                            <div class="box-container p-2 bg-light">
-                                <p class="card-text fw-500">Contact Info</p>
-                                <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
-                            </div>
+                    <div class="card-group mt-2">
+                        <div class="card p-2 bg-light">
+                            <p class="card-text fw-500">Contact Info</p>
+                            <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
+                            <div class="mt-2"></div>
+                            <small class="card-text" id="USI_Date_Lbl"></small>
                         </div>
-                        <div class="col">
-                            <div class="box-container p-2 bg-light">
-                                <p class="card-text fw-500">Links</p>
-                                <small class="card-text" id="USI_Link1_Lbl"></small>
-                                <div class="border-top pt-1 mt-2"></div>
-                                <small class="card-text" id="USI_Link2_Lbl"></small>
-                            </div>
+                        <div class="card p-2 bg-light">
+                            <p class="card-text fw-500">Links</p>
+                            <small class="card-text" id="USI_Link1_Lbl"></small>
+                            <div></div>
+                            <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
+                            <div class="border-top pt-1 mt-2"></div>
+                            <small class="card-text" id="USI_Link2_Lbl"></small>
+                            <div></div>
+                            <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
                         </div>
                     </div>
                     <div class="mt-1 ms-1">
@@ -226,7 +230,13 @@
                     <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end text-danger ms-1" disabled> <i class="far fa-bell"></i> Sign In</button>
                     <button type="button" class="btn btn-light text-danger btn-standard-with-no-colour btn-sm float-end ms-1 me-1" disabled> <i class="far fa-paper-plane"></i> Sign In</button>
                 }
-                <h5 class="h5 safe-font">@ProjectInfo.User?.PseudoName</h5>
+                <div>
+                    <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
+                        <input type="hidden" name="Id" id="GSU_Id_Val" value="@UserInfo?.Id" />
+                        <button type="submit" class="btn btn-text btn-lg safe-font">@UserInfo?.PseudoName</button>
+                    </form>
+                    @*                     data-bs-toggle="popover" data-bs-placement="bottom" data-bs-custom-class="info-popover-show shadow-sm p-0" data-bs-content="Go to user's page" *@
+                </div>
             </div>
             <div class="row mt-1">
                 <div class="col">

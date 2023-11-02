@@ -16,8 +16,12 @@ window.onload = function () {
     if (currentUrl.toLowerCase().includes("/profile")) {
         textDecoder("AY_Description", true, true);
     }
-    else if (currentUrl.toLocaleLowerCase().includes("/info")) {
+    else if (currentUrl.toLowerCase().includes("/project/info")) {
         textDecoder("Preview_LongDescription", true, true);
+    }
+    else if (currentUrl.toLowerCase().includes("/user/info")) {
+        textDecoder("UserInfo_LinkTag1_Lbl", true, true);
+        textDecoder("UserInfo_LinkTag2_Lbl", true, true);
     }
 }
 window.onresize = function () {
@@ -418,26 +422,16 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
                 $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external second link");
             }
 
-            if (response.result.countryFullName != null) {
-                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
+            if (response.result.country != null) {
+                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.country.iso + ", " + response.result.country.name);
             }
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
+            $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
 
             animatedOpen(false, "UserShortInfo_Container", false, false);
         }
         else {
-            $("#SB_C-Body").empty();
-            $("#SB_C-Title").html(" <i class='fas fa-times'></i> User Info");
-            let div = $("<div class='box-container bg-transparent mt-4 text-center'></div>");
-            let icon = $("<h1 class='h1'> <i class='fas fa-user-slash'></i> </h1>");
-            let title = $("<h3 class='h3 mt-2 safe-font'>No User Info</h3>");
-            let text = $("<small class='card-text text-muted'>This user's info is unable to get</small>");
-
-            div.append(icon);
-            div.append(title);
-            div.append(text);
-            $("#SB_C-Body").append(div);
-            bubbleAnimation("NotificationsLiquid_Container", true);
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
         }
     });
 });
