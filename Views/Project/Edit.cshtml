@@ -47,6 +47,57 @@
         </div>
     </div>
 
+    <div class="smallside-box-container p-3 shadow-standard" id="AboutCategories_Container">
+        <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
+        <h5 class="h5 text-truncate">About Categories</h5>
+        <div class="mt-4">
+            <h6 class="h6">Categories For Projects</h6>
+            <small class="card-text">Owners of projects must choose one category from the prepared list which describes their project. Below in the list we'll show to you all categories to inform you</small>
+            <div class="mt-3">
+                <div class="bordered-container p-2">
+                    <h3 class="h3"> <i class="fas fa-code text-primary"></i> </h3>
+                    <h6 class="h6 safe-font text-primary">IT & Programming</h6>
+                    <small class="card-text text-muted">For all programmers and IT developers who needs for a help or a comment</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-microchip text-success"></i> </h3>
+                    <h6 class="h6 safe-font text-success">Technologies</h6>
+                    <small class="card-text text-muted">For all technological companies and individual people</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="far fa-newspaper text-danger"></i> </h3>
+                    <h6 class="h6 safe-font text-danger">Networks and Media</h6>
+                    <small class="card-text text-muted">For all new and old media and network sources</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-film"></i> </h3>
+                    <h6 class="h6 safe-font">Films and Movies</h6>
+                    <small class="card-text text-muted">For all talented and motivated people who wants to show their own masterpieces to others <i class="fas fa-heart text-dark"></i> </small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-gamepad text-primary"></i> </h3>
+                    <h6 class="h6 safe-font text-primary">Gaming</h6>
+                    <small class="card-text text-muted">For all gamers and game developers</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-stethoscope text-danger"></i> </h3>
+                    <h6 class="h6 safe-font text-danger">Medicine</h6>
+                    <small class="card-text text-muted">For all medical inventions and useful infos</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-car text-success"></i> </h3>
+                    <h6 class="h6 safe-font text-success">Automotive</h6>
+                    <small class="card-text text-muted">For all new and old (sometimes too old) carmakers to show their new and sometimes classic inventions</small>
+                </div>
+                <div class="bordered-container p-2 mt-2">
+                    <h3 class="h3"> <i class="fas fa-tablet-alt text-secondary"></i> </h3>
+                    <h6 class="h6 safe-font text-secondary">Devices</h6>
+                    <small class="card-text text-muted">For all large and small device makers</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
         <h5 class="h5 text-truncate">Add Option To Text</h5>
@@ -84,7 +135,7 @@
         <form method="post" asp-controller="Project" asp-action="EditProject" id="EditProject_Form">
             <div class="d-none">
                 <input type="hidden" asp-for="Id" value="@ProjectInfo.Id" />
-                <input type="hidden" asp-for="UserId" value="@UserInfo.Id" />
+                <input type="hidden" asp-for="UserId" value="@UserInfo!.Id" />
                 <input type="hidden" asp-for="CurrentPrice" value="@ProjectInfo.TargetPrice" />
             </div>
             <div>
@@ -148,7 +199,14 @@
             </div>
             <div class="mt-3">
                 <label class="form-label fw-500" asp-for="YoutubeLink">Youtube Link</label>
-                <input asp-for="YoutubeLink" class="form-control" autocomplete="off" placeholder="Enter full link here" value="https://www.youtube.com/watch?v=@ProjectInfo.YoutubeLink" />
+                @if(ProjectInfo.YoutubeLink != null)
+                {
+                    <input asp-for="YoutubeLink" class="form-control" autocomplete="off" placeholder="Paste full link here" value="https://www.youtube.com/watch?v=@ProjectInfo.YoutubeLink" />
+                }
+                else
+                {
+                    <input asp-for="YoutubeLink" class="form-control" autocomplete="off" placeholder="Place full link here" />
+                }
             </div>
             <div class="mt-4">
                 <div>
@@ -203,6 +261,33 @@
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div class="mt-3">
+                <label class="form-label fw-500">Select Category (@ViewBag.Count)</label>
+                <div></div>
+                <small class="card-text text-muted smallside-btn-open-container" id="AboutCategories_Container-Open">Click to know more about categories</small>
+                <span class="warning-badge" asp-validation-for="CategoryId"></span>
+                <div class="overflow-auto mh-280 scrollbar-hidden">
+                    <input type="hidden" id="LastCategoryId_Val" value="@ViewBag.LastCategoryId" />
+                    <input type="hidden" asp-for="CategoryId" value="@ProjectInfo.CategoryId" />
+                    @foreach (Category Item in ViewBag.Categories)
+                    {
+                        @if(Item.Id == ProjectInfo.CategoryId)
+                        {
+                            <div class="bordered-container category-select-container p-2 mt-1 mb-1" style="border: 1px solid #0d6efd;" id="CategoryValue-@Item.Id">
+                                <span class="category-icon category-select-container" id="CategoryIcon-@Item.Id">@Item.Description</span>
+                                <small class="card-text text-muted fw-500 category-select-container" id="CategoryName-@Item.Id">@Item.Name</small>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="bordered-container category-select-container p-2 mt-1 mb-1" id="CategoryValue-@Item.Id">
+                                <span class="category-icon category-select-container border-0" id="CategoryIcon-@Item.Id">@Item.Description</span>
+                                <small class="card-text text-muted fw-500 border-0 category-select-container" id="CategoryName-@Item.Id">@Item.Name</small>
+                            </div>
+                        }
+                    }
                 </div>
             </div>
             <div class="mt-3">

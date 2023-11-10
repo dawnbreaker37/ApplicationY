@@ -288,7 +288,6 @@
                         <input type="hidden" name="Id" id="GSU_Id_Val" value="0" />
                         <button type="submit" class="btn btn-text btn-lg safe-font" >@UserInfo?.PseudoName</button>
                     </form>
-@*                     data-bs-toggle="popover" data-bs-placement="bottom" data-bs-custom-class="info-popover-show shadow-sm p-0" data-bs-content="Go to user's page" *@
                 </div>
             </div>
             <div class="row mt-1">
@@ -433,9 +432,9 @@
                             <small class="card-text text-muted w-auto project-box" id="ProjectPrice-@Item.Id"> <i class="fas fa-coins text-primary"></i> No target price</small>
                         }
                         <div class="mt-1"></div>
-                        <small class="card-text text-muted w-auto project-box" id="ProjectCreated-@Item.Id"> <i class="far fa-calendar-alt text-primary"></i> Created at: @Item.CreatedAt.ToString("MM/dd/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
+                        <small class="card-text text-muted w-auto project-box" id="ProjectCreated-@Item.Id"> <i class="far fa-calendar-alt text-primary"></i> Created at: @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
                         <div></div>
-                        <small class="text-muted project-box" id="ProjectLastUpdated-@Item.Id"> <i class="fas fa-sync text-primary"></i> Last updated: @Item.LastUpdatedAt.ToString("MM/dd/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small>
+                        <small class="text-muted project-box" id="ProjectLastUpdated-@Item.Id"> <i class="fas fa-sync text-primary"></i> Last updated: @Item.LastUpdatedAt.ToString("dd/MM/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small>
                         @if (!Item.IsClosed)
                         {
                             <p class="card-text w-auto project-box" id="ProjectLockInfo-@Item.Id"><small class="text-muted project-box" id="ProjectLockInfoY-@Item.Id"> <i class="fas fa-lock-open text-primary"></i> Lock Info: Unlocked</small></p>

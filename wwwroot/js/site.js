@@ -18,10 +18,26 @@ window.onload = function () {
     }
     else if (currentUrl.toLowerCase().includes("/project/info")) {
         textDecoder("Preview_LongDescription", true, true);
+        textDecoder("CategoryMainIcon_Lbl", true, true);
+        setTimeout(function () {
+            $("#CategoryMainIcon_Lbl").removeClass("d-none");
+        }, 75);
     }
     else if (currentUrl.toLowerCase().includes("/user/info")) {
         textDecoder("UserInfo_LinkTag1_Lbl", true, true);
         textDecoder("UserInfo_LinkTag2_Lbl", true, true);
+    }
+    else if (currentUrl.toLowerCase().includes("/project/create")) {
+        let lastId = $("#LastCategoryId_Val").val();
+        for (let i = 1; i <= lastId; i++) {
+            textDecoder("CategoryIcon-" + i, true, true);
+        }
+    }
+    else if (currentUrl.toLowerCase().includes("/project/edit")) {
+        let lastId = $("#LastCategoryId_Val").val();
+        for (let i = 1; i <= lastId; i++) {
+            textDecoder("CategoryIcon-" + i, true, true);
+        }
     }
 }
 window.onresize = function () {
@@ -539,6 +555,8 @@ $("#GetFullProject_Form").on("submit", function (event) {
             $("#Preview_ViewsCnt").text(response.result.views);
             $("#Preview_ProjectPageLink").attr("href", "/Project/Info/" + response.result.id);
             $("#Preview_ProjectPageLink2").attr("href", "/Project/Info/" + response.result.id);
+            if (response.result.category != null) $("#Preview_Category").text(response.result.category.name);
+            else $("#Preview_Category").text("Unknown");
             if (response.result.textPart1 != null) fullText = response.result.textPart1;
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
@@ -923,6 +941,207 @@ $("#GetComments_Form").on("submit", function (event) {
     });
 });
 
+$("#SearchEverywhere_Keyword").on("change", function (event) {
+    event.preventDefault();
+    animatedOpen(false, "Waiter_Container", true, true);
+
+    let url = $("#SearchEverywhere_Form").attr("action");
+    let data = $("#SearchEverywhere_Form").serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            setTimeout(function () {
+                animatedOpen(false, "Preload_Container", true, true);
+
+                $("#UserResults_Box").empty();
+                $("#ProjectResults_Box").empty();
+                if (response.projectsCount > 0) {
+                    $.each(response.projectResult, function (index) {
+                        let div = $("<div class='box-container bg-light p-2 me-2 d-inline-block mw-responsive'></div>");
+                        let name = $("<h3 class='h3 safe-font text-primary'></h3>");
+                        let targetPrice = $("<small class='card-text text-primary safe-font fs-6'></small>");
+                        let userName = $("<small class='card-text'></small>");
+                        let prevTargetPrice = $("<small class='card-text text-muted text-decoration-line-through'></small>");
+                        let separatorOne = $("<div class='mt-3'></div>");
+                        let separatorZero = $("<div></div>");
+                        let separatorTwo = $("<div class='mt-2'></div>");
+                        let row = $("<div class='row'></div>");
+                        let row2 = $("<div class='row mt-2'></div>");
+                        let col1 = $("<div class='col'></div>");
+                        let col1Div = $("<div class='box-container bg-white p-2 text-center'></div>");
+                        let col1Title = $("<p class='card-text fw-500'>Created</p>");
+                        let col1Small1 = $("<small class='card-text text-muted safe-font'></small>");
+
+                        let col2 = $("<div class='col'></div>");
+                        let col2Div = $("<div class='box-container bg-white p-2 text-center'></div>");
+                        let col2Title = $("<p class='card-text fw-500'>Modified</p>");
+                        let col2Small1 = $("<small class='card-text text-muted safe-font'></small>");
+
+                        let col1Row2Col = $("<div class='col'></div>");
+                        let col1Row2Div = $("<div class='box-container bg-white p-2 text-center'></div>");
+                        let col1Row2Title = $("<p class='card-text fw-500'>Views</p>");
+                        let col1Row2Small1 = $("<small class='card-text text-muted safe-font'>0</p>");
+
+                        name.html(response.projectResult[index].name);
+                        userName.text(response.projectResult[index].userName);
+
+                        if (response.projectResult[index].targetPrice != 0) {
+                            targetPrice.html(response.projectResult[index].targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                            if (response.projectResult[index].pastTargetPrice != 0) {
+                                prevTargetPrice.html(response.projectResult[index].pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                            }
+                            else {
+                                prevTargetPrice.addClass("d-none");
+                            }
+                        }
+                        else {
+                            targetPrice.html("No Target Price");
+                            targetPrice.addClass("text-muted");
+                            targetPrice.removeClass("text-primary");
+                            prevTargetPrice.html("No Prev. Price");
+                            prevTargetPrice.removeClass("text-decoration-line-through");
+                        }
+
+                        col1Small1.text(convertDateAndTime(response.projectResult[index].createdAt, false, true));
+                        col2Small1.text(convertDateAndTime(response.projectResult[index].lastUpdatedAt, false, true));
+
+                        col1Div.append(col1Title);
+                        col1Div.append(col1Small1);
+                        col1.append(col1Div);
+
+                        col2Div.append(col2Title);
+                        col2Div.append(col2Small1);
+                        col2.append(col2Div);
+
+                        row.append(col1);
+                        row.append(col2);
+
+                        col1Row2Small1.text(response.projectResult[index].views.toLocaleString());
+                        col1Row2Div.append(col1Row2Title);
+                        col1Row2Div.append(col1Row2Small1);
+                        col1Row2Col.append(col1Row2Div);
+                        row2.append(col1Row2Col);
+
+                        div.append(name);
+                        div.append(targetPrice);
+                        div.append(separatorZero);
+                        div.append(prevTargetPrice);
+                        div.append(separatorOne);
+                        div.append(userName);
+                        div.append(separatorTwo);
+                        div.append(row);
+                        div.append(row2);
+
+                        $("#ProjectResults_Box").append(div);
+                    });
+                }
+                else {
+                    let div = $("<div class='text-center'></div>");
+                    let title = $("<h2 class='h2 safe-font'>No Project Found</h3>'");
+                    let text = $("<small class='text-muted'>There's no project found with similar name, description and target price</small>");
+                    div.append(title);
+                    div.append(text);
+                    $("#ProjectResults_Box").append(div);
+                    $("#ProjectResults_Box").removeClass("horizontal-scrolled-container");
+                    $("#ProjectResults_Box").addClass("box-container");
+                }
+
+                if (response.usersCount > 0) {
+                    $.each(response.userResult, function (index) {
+                        let div = $("<div class='box-container bg-light p-2 me-2 d-inline-block mw-responsive'></div>");
+                        let name = $("<h4 class='h4 safe-font text-primary'></h4>");
+                        let searchName = $("<small class='card-text text-muted fw-500'></small>");
+                        let separatorOne = $("<div class='mt-3'></div>");
+                        let separatorTwo = $("<div class='mt-3'></div>");
+                        let row = $("<div class='row'></div>");
+                        let col1 = $("<div class='col'></div>");
+                        let col1Div = $("<div class='box-container bg-white p-2 text-center'></div>");
+                        let col1Title = $("<p class='card-text fw-500'>Projects</p>");
+                        let col1Small1 = $("<small class='card-text'></small>");
+                        let col1SmallSeparator = $("<div></div>");
+                        let col1Small2 = $("<p class='card-text text-muted'></small>");
+
+                        let col2 = $("<div class='col'></div>");
+                        let col2Div = $("<div class='box-container bg-white p-2 text-center'></div>");
+                        let col2Title = $("<p class='card-text fw-500'>Status</p>");
+                        let col2Small1 = $("<small class='card-text'></small>");
+                        let col2SmallSeparator = $("<div></div>");
+                        let col2Small2 = $("<p class='card-text text-muted'></small>");
+
+                        let goToPageBtn = $("<a href='#' class='btn btn-text btn-sm me-3'> <i class='fas fa-info'></i> Go To Page</button>");
+                        let showCardBtn = $("<button type='button' class='btn btn-text btn-sm'> <i class='far fa-address-card'></i> Show Card</button>");
+
+                        goToPageBtn.attr("href", "/User/Info/" + response.userResult[index].searchName);
+
+                        if (response.userResult[index].countryFullName != null) name.html(response.userResult[index].pseudoName + "<small><span class='badge bg-white text-dark warning-badge fw-normal ms-5'> <i class='fas fa-globe-americas text-primary'></i> " + response.userResult[index].countryFullName + "</span></small>");
+                        else name.html(response.userResult[index].pseudoName + "<small><span class='badge bg-white text-dark warning-badge fw-normal ms-5'> <i class='fas fa-globe-americas text-primary'></i> Country Unknown</span></small>");
+
+                        searchName.text("@" + response.userResult[index].searchName);
+                        if (response.userResult[index].projectsCount != 0) {
+                            col1Small1.text(response.userResult[index].projectsCount);
+                            col1Small2.text("created");
+                        }
+                        else {
+                            col1Small1.text("No Created Projects");
+                            col1Small2.text("or they may be closed");
+                        }
+
+                        if (response.userResult[index].isCompany) {
+                            col2Small1.text("This's a company");
+                            col2Small2.text("business account");
+                        }
+                        else {
+                            col2Small1.text("He/She is an user");
+                            col2Small2.text("individual account");
+                        }
+
+                        col1Div.append(col1Title);
+                        col1Div.append(col1Small1);
+                        col1Div.append(col1SmallSeparator);
+                        col1Div.append(col1Small2);
+                        col1.append(col1Div);
+
+                        col2Div.append(col2Title);
+                        col2Div.append(col2Small1);
+                        col2Div.append(col2SmallSeparator);
+                        col2Div.append(col2Small2);
+                        col2.append(col2Div);
+
+                        row.append(col1);
+                        row.append(col2);
+
+                        div.append(name);
+                        div.append(searchName);
+                        div.append(separatorOne);
+                        div.append(row);
+                        div.append(separatorTwo);
+                        div.append(goToPageBtn);
+                        div.append(showCardBtn);
+
+                        $("#UserResults_Box").append(div);
+                        $("#UserResults_Box").addClass("horizontal-scrolled-container");
+                        $("#UserResults_Box").removeClass("box-container");
+                    });
+                }
+                else {
+                    let div = $("<div class='text-center'></div>");
+                    let title = $("<h2 class='h2 safe-font'>No User Found</h3>'");
+                    let text = $("<small class='text-muted'>There's no user found with similar name, email, description or country in his badge</small>");
+                    div.append(title);
+                    div.append(text);
+                    $("#UserResults_Box").append(div);
+                    $("#UserResults_Box").removeClass("horizontal-scrolled-container");
+                    $("#UserResults_Box").addClass("box-container");
+                }
+                $("#SearchResults_Box").fadeIn(0);
+            }, 750);
+        }
+        else {
+            animatedOpen(false, "Preload_Container", true, true);
+            openModal("An error occured while trying to search. Please, check your internet connection and then try again", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
 $("#GetNotifications_Btn").on("click", function (event) {
     event.preventDefault();
     let url = $("#GetNotifications_Form").attr("action");
@@ -1284,13 +1503,16 @@ $("#AddOptionSbmt_Btn").on("click", function () {
     let type = $("#AddOption_Type_Val").val();
     let value1 = $("#AddOption_Val1").val();
     let value2 = $("#AddOption_Val2").val();
+    let value3 = $("#AddOption_Val3").val();
     let whereAndFrom = $("#AddOption_WhereAndFrom_Val").val();
 
     if (type != 0) {
         animatedOpen(false, "EditDescription_Container", true, false);
-        addOptionToText(whereAndFrom, type, value1, value2);
-        $("#AddOption_Val1").val("");
-        $("#AddOption_Val2").val("");
+        if (value3 == null) addOptionToText(whereAndFrom, type, value1, value2);
+        else addOptionToText(whereAndFrom, type, value1, value3);
+        $("#AddOption_Val1").val(null);
+        $("#AddOption_Val2").val(null);
+        $("#AddOption_Val3").val(null);
         $("#AddOptionSbmt_Btn").attr("disabled", true);
     }
     else openModal("Can't add this type of text. Please, try other type", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 2.75);
@@ -1883,6 +2105,19 @@ $(document).on("click", ".select-to-reply", function (event) {
     }
 });
 
+$(document).on("click", ".category-select-container", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#CategoryId").val(trueId);
+        $(".category-select-container").css("border", "1px solid rgb(240, 240, 240");
+        $("#CategoryValue-" + trueId).css("border", "1px solid #0d6efd");
+    }
+    else {
+        $("#CategoryId").val(0);
+        $(".category-select-container").css("border", "1px solid rgb(240, 240, 240");
+    }
+});
+
 $(document).on("click", ".select-to-mark", function (event) {
     let trueId = getTrueId(event.target.id);
     let userId = $("#PageInfo_UserId").val();
@@ -2044,6 +2279,7 @@ $(document).on("click", ".add-option", function (event) {
     animatedOpen(false, "AddOption_Container", false, false);
     $("#AddOption_Type_Val").val(type);
     $("#AddOption_WhereAndFrom_Val").val(whereAndFrom);
+    $("#ColorOption_Box").addClass("d-none");
     switch (type) {
         case 1:
             $("#AddOption_Badge").html("Bold Text");
@@ -2059,6 +2295,15 @@ $(document).on("click", ".add-option", function (event) {
             break;
         case 4:
             $("#AddOption_Badge").html("Italic Styled Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
+        case 5:
+            $("#AddOption_Badge").html("Colored Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            $("#ColorOption_Box").removeClass("d-none");
+            break;
+        case 6:
+            $("#AddOption_Badge").html("Included Text");
             $("#AddOption_Val2").attr("disabled", true);
             break;
         default:
@@ -2078,6 +2323,7 @@ $(document).on("click", ".text-full-delete", function (event) {
 
 function textDecoder(element, isFromText, needsTheReplacement) {
     let value;
+
     if (isFromText) value = $("#" + element).text();
     else value = $("#" + element).val();
 
@@ -2087,6 +2333,9 @@ function textDecoder(element, isFromText, needsTheReplacement) {
     value = value.replaceAll("}]", "</a>");
     value = value.replaceAll("{[", "<span class='text-decoration-underline'>");
     value = value.replaceAll("[^", "<span class='fst-italic'>");
+    value = value.replaceAll('[&', '<span style="');
+    value = value.replaceAll("[=", "<div class='bordered-container p-2 mt-2'><p class='card-text'>");
+    value = value.replaceAll("=]", "</p></div>");
 
     if (needsTheReplacement) {
         if (isFromText) $("#" + element).html(value);
@@ -2189,12 +2438,22 @@ function addOptionToText(element, type, value1, value2) {
         case 4:
             textBefore = textBefore + "[^" + value1 + "]]";
             break;
+        case 5:
+            textBefore = textBefore + '[& color:' + value2 + ';">' + value1 + ']]';
+            break;
+        case 6:
+            textBefore = textBefore + "\n[=" + value1 + "=]";
+            break;
         default:
             textBefore = textBefore + " [[" + value1 + "]]";
             break;
     }
 
     $("#" + element).val(textBefore + textAfter);
+    smallBarAnimatedOpenAndClose(false);
+    if (fullWidth < 717) {
+        animatedOpen(false, "Preload_Container", true, true);
+    }
 }
 
 function convertDateAndTime(value, asShort, showTimeInfo) {

@@ -19,5 +19,7 @@ namespace ApplicationY.Interfaces
         public Task<bool> HasProjectBeenAlreadyLiked(int ProjectId, int UserId);
         public Task<int> ProjectLikesCount(int ProjectId);
         public IQueryable<GetProjects_ViewModel>? GetRandomProjects(int Count);
+        public Task<int> GetProjectsCount();
+        public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId);
     }
 }

@@ -108,6 +108,18 @@ namespace ApplicationY.Repositories
             return false;
         }
 
+        public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword)
+        {
+            if (Keyword != null) return _context.Users.Where(u => u.SearchName!.ToLower().Contains(Keyword) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword) || u.Description != null && u.Description.ToLower().Contains(Keyword) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword)).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, Email = u.Email, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count });
+            else return null;
+        }
+
+        public IQueryable<GetUserInfo_ViewModel> GetRandomUsers(int MaxCount)
+        {
+            if (MaxCount != 0) return _context.Users.AsNoTracking().Where(u=> u.Projects != null && u.Projects.Count != 0).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(MaxCount);
+            else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
+        }
+
         public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo)
         {
             if(Id != 0)

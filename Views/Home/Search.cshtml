@@ -10,10 +10,185 @@
 
 </div>
 
+<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Waiter_Container">
+    <div>
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Waiter_Container-Close"></button>
+        <h5 class="h5 text-truncate">Just Wait</h5>
+    </div>
+    <div class="mt-5">
+        <div class="box-container text-center">
+            <h2 class="h2 text-primary"> <i class="fas fa-spinner fa-spin"></i> </h2>
+            <h4 class="h4 safe-font">Please Wait</h4>
+            <p class="card-text text-muted">We're searching right now and it may take few seconds</p>
+            <small class="card-text text-muted">You can play our game that has been created for situation like this!</small>
+        </div>
+    </div>
+</div>
+
 <div class="main-container p-3 shadow-standard scrollbar-hidden" id="Preload_Container">
     <div>
         <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
-        <h6 class="h5 text-truncate">Search & Preview</h6>
+        <h5 class="h6 text-truncate">Search & Preview</h5>
+    </div>
+    <div class="mt-4">
+        <div class="box-container">
+            <div>
+                <form method="get" asp-controller="Home" asp-action="SearchEverywhere" id="SearchEverywhere_Form">
+                    <div class="row">
+                        <div class="col col-10">
+                            <input type="text" name="Keyword" id="SearchEverywhere_Keyword" class="form-control w-100" max="100" placeholder="What did you want to search?" />
+                        </div>
+                        <div class="col col-2">
+                            <button type="button" class="btn btn-light mt-1 btn-sm me-2 w-100 btn-standard-not-animated" data-bs-toggle="collapse" data-bs-target="#FiltersCollapse_Box" aria-expanded="false" aria-controls="FiltersCollapse_Box"> <i class="fas fa-sliders-h"></i> </button>
+                        </div>
+                    </div>
+                    <div class="collapse mt-2" id="FiltersCollapse_Box">
+                        <div class="bordered-container p-2">
+                            <div class="row">
+                                <div class="col">
+                                    <label class="form-label fw-500" for="MinTargetPrice">Min. Target Price</label>
+                                    <input type="number" name="MinTargetPrice" id="MinTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
+                                </div>
+                                <div class="col">
+                                    <label class="form-label fw-500" for="MaxTargetPrice">Max. Target Price</label>
+                                    <input type="number" name="MaxTargetPrice" id="MaxTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
+                                </div>
+                            </div>
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="SearchOnlyProjects" value="false" id="SearchOnlyProjects" />
+                                <label class="form-check-label fw-500" for="SearchOnlyProjects">Search Only Projects</label>
+                            </div>
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" name="SearchOnlyUsers" value="false" id="SearchOnlyUsers" />
+                                <label class="form-check-label fw-500" for="SearchOnlyUsers">Search Only Users</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="mt-3 bordered-container p-2" style="display: none;" id="SearchResults_Box">
+            <h6 class="h6">That's All We Found</h6>
+            <small class="card-text text-muted">by your criteries</small>
+            <div class="horizontal-scrolled-container mt-3" id="ProjectResults_Box">
+
+            </div>
+            <div class="horizontal-scrolled-container mt-2" id="UserResults_Box">
+
+            </div>
+        </div>
+        <div class="bordered-container p-2 mt-2" id="Projects_Box">
+            <h6 class="h6">Random Projects ∙ @ProjectsCount <i class="fas fa-chevron-right"></i> </h6>
+            <div class="horizontal-scrolled-container mt-2">
+                @if(ProjectsCount != 0)
+                {
+                    <div class="mt-1">
+                        @foreach(GetProjects_ViewModel Item in ViewBag.Projects)
+                        {
+                            <div class="box-container bg-light p-2 me-2 d-inline-block mw-responsive">
+                                <h3 class="h3 text-primary safe-font">@Item.Name</h3>
+                                @if (Item.TargetPrice != 0)
+                                {
+                                    <p class="card-text text-primary fw-500">$@Item.TargetPrice.ToString("N0")</p>
+                                }
+                                else
+                                {
+                                    <p class="card-text text-muted">No Target Price</p>
+                                }
+                                @if(Item.PastTargetPrice != 0)
+                                {
+                                    <div></div>
+                                    <p class="card-text text-muted text-decoration-line-through">$@Item.PastTargetPrice.ToString("N0")</p>
+                                }
+                                <div class="mt-1"></div>
+                                <small class="card-text">@Item.UserName</small>
+                                <div class="mt-2">
+                                    <div class="row">
+                                        <div class="col">
+                                            <div class="box-container bg-white p-2 text-center">
+                                                <p class="card-text fw-500">Created</p>
+                                                <small class="card-text text-muted safe-font">@Item.CreatedAt.ToShortDateString(), @Item.CreatedAt.ToShortTimeString()</small>
+                                            </div>
+                                        </div>
+                                        <div class="col">
+                                            <div class="box-container bg-white p-2 text-center">
+                                                <p class="card-text fw-500">Modified</p>
+                                                <small class="card-text text-muted safe-font">@Item.LastUpdatedAt.ToShortDateString(), @Item.CreatedAt.ToShortTimeString()</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="row mt-2">
+                                        <div class="col">
+                                            <div class="box-container bg-white p-2 text-center">
+                                                <p class="card-text fw-500">Views</p>
+                                                <small class="card-text text-muted safe-font">@Item.Views.ToString("N0")</small>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+        <div class="bordered-container mt-3 p-2">
+            <h6 class="h6">Random Users ∙ @ViewBag.UsersCount <i class="fas fa-chevron-right"></i> </h6>
+            <div class="horizontal-scrolled-container mt-2">
+                @if (ViewBag.UsersCount != 0)
+                {
+                    <div class="mt-1">
+                        @foreach(GetUserInfo_ViewModel User in ViewBag.Users)
+                        {
+                            <div class="box-container bg-light p-2 me-2 d-inline-block mw-responsive">
+                                <h4 class="h4 safe-font text-primary">@User.PseudoName <small class="ms-5"><span class="badge bg-white text-dark warning-badge fw-normal ms-1"> <i class="fas fa-globe-americas text-primary"></i> @User.CountryFullName</span></small></h4>
+                                <small class="card-text text-muted fw-500"> <i class="fas fa-at"></i> @User.SearchName</small>
+                                <div class="mt-2"></div>
+                                <div class="row">
+                                    <div class="col">
+                                        <div class="box-container bg-white p-2 text-center">
+                                            <p class="card-text fw-500">Projects</p>
+                                            @if(User.ProjectsCount != 0)
+                                            {
+                                                <small class="card-text text-muted safe-font">@User.ProjectsCount</small>
+                                                <div></div>
+                                                <small class="card-text">created</small>
+                                            }
+                                            else
+                                            {
+                                                <small class="card-text text-muted safe-font">No Created Projects</small>
+                                                <div></div>
+                                                <small class="card-text">or they may be closed</small>
+                                            }
+                                        </div>
+                                    </div>
+                                    <div class="col">
+                                        <div class="box-container bg-white p-2 text-center">
+                                            <p class="card-text fw-500">Status</p>
+                                            @if (User.IsCompany)
+                                            {
+                                                <small class="card-text text-muted">This's a company</small>
+                                                <div></div>
+                                                <small class="card-text">business account</small>
+                                            }
+                                            else
+                                            {
+                                                <small class="card-text text-muted">He/She's an user</small>
+                                                <div></div>
+                                                <small class="card-text">individual account</small>
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="mt-3"></div>
+                                <a asp-controller="User" asp-action="Info" asp-route-Id="@User.SearchName" class="btn btn-text btn-sm me-2"> <i class="fas fa-info"></i> Go To Page</a>
+                                <button type="button" class="btn btn-text btn-sm"> <i class="far fa-address-card"></i> Show Card</button>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
     </div>
 </div>
 

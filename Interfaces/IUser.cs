@@ -18,6 +18,8 @@ namespace ApplicationY.Interfaces
         public Task<string?> SubmitAccountByReserveCodeAsync(string? Username, string? Email, string ReserveCode);
         public Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email, string Code);
         public IQueryable<User>? GetUserBySearchName(string SearchName);
+        public IQueryable<GetUserInfo_ViewModel> GetRandomUsers(int MaxCount);
+        public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword);
         public string? LinkIconModifier(string? LinkTag);
     }
 }

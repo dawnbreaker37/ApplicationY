@@ -395,6 +395,14 @@ html {
     transition: all ease 0.5s;
 }
 
+.horizontal-scrolled-container {
+    white-space: nowrap;
+    overflow-x: scroll;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    transition: all ease 0.3s;
+}
+
 .accordion-body {
     border-radius: 8px;
     transition: all ease 0.3s;
@@ -513,6 +521,18 @@ body {
     filter: drop-shadow(45px);
 }
 
+.mh-280 {
+    max-height: 280px;
+}
+.mw-responsive {
+    max-width: 500px;
+}
+.mw-1of3 {
+    max-width: 33.33%;
+}
+.mw-60 {
+    max-width: 60%;
+}
 .mh-perc-65 {
     max-height: 65%;
 }
@@ -532,6 +552,20 @@ body {
 
 @keyframes yt-animation {
 
+}
+
+@media screen and (max-width: 1024px) {
+    .mw-60 {
+        max-width: 100%;
+    }
+    .mw-responsive {
+        max-width: 100%;
+    }
+}
+@media screen and (max-width: 1280px) {
+    .mw-responsive {
+        max-width: 550px;
+    }
 }
 
 @media screen and (max-height: 650px) {

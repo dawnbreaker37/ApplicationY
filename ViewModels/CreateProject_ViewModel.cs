@@ -14,12 +14,14 @@ namespace ApplicationY.ViewModels
         [MaxLength(1600, ErrorMessage = "Title description of project can't be larger that 1600 digits")]
         public string? Description { get; set; }
         [Required(ErrorMessage = "At least a small description of your project is required")]
-        [MinLength(200, ErrorMessage = "Describe your project in at least 200 digits")]
+        [MinLength(120, ErrorMessage = "Describe your project in at least 120 digits")]
         [MaxLength(6000, ErrorMessage = "Full description of your project can't contain more than 6000 digits")]
         public string? TextPart { get; set; }
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
+        [Required(ErrorMessage = "Select the category of your project")]
+        public int CategoryId { get; set; }
         [DataType(DataType.Currency)]
         public int ProjectPrice { get; set; }
         [MaxLength(400, ErrorMessage = "Please, try to describe your price change annotation shorter")]

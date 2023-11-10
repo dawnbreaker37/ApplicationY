@@ -24,9 +24,12 @@ namespace ApplicationY.Models
         public DateTime LastUpdatedAt { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsClosed { get; set; }
+        [ForeignKey("Category")]
+        public int? CategoryId { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }
         public User? User { get; set; }
+        public Category? Category { get; set; }
         public List<Comment>? Comments { get; set; }   
     }
 }

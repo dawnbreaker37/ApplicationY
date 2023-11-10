@@ -6,7 +6,6 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Text;
-using static System.Net.WebRequestMethods;
 
 namespace ApplicationY.Controllers
 {
@@ -15,22 +14,39 @@ namespace ApplicationY.Controllers
         private readonly UserManager<User> _userManager;
         private readonly IProject _projectRepository;
         private readonly IMessage _messageRepository;
+        private readonly ICategory _categoryRepository;
         private readonly Context _context;
 
-        public ProjectController(UserManager<User> userManager, IProject projectRepository, IMessage messageRepository, Context context)
+        public ProjectController(UserManager<User> userManager, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _context = context;
             _messageRepository = messageRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<IActionResult> Create()
         {
             if (User.Identity.IsAuthenticated)
             {
+                int LastCategoryId = 0;
+                int Count = 0;
+
+                List<Category>? Categories = null;
+                IQueryable<Category>? Categories_Preview = _categoryRepository.GetAll();
                 User? UserInfo = await _userManager.GetUserAsync(User);
+                if(Categories_Preview != null)
+                {
+                    Categories = await Categories_Preview.ToListAsync();
+                    LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
+                    Count = Categories.Count;
+                }
+
                 ViewBag.UserInfo = UserInfo;
+                ViewBag.Categories = Categories;
+                ViewBag.LastCategoryId = LastCategoryId;
+                ViewBag.Count = Count;  
 
                 return View();
             }
@@ -115,7 +131,12 @@ namespace ApplicationY.Controllers
             {
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
-                { 
+                {
+                    int Count = 0;
+                    int LastCategoryId = 0;
+                    List<Category>? Categories = null;
+                    IQueryable<Category>? Categories_Preview = null;
+
                     Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
@@ -127,11 +148,22 @@ namespace ApplicationY.Controllers
                         double PercentageOfTargetPrice = Math.Round((double)(ProjectInfo.TargetPrice / 10000000 * 100), 1);
                         if (FullText != null) MainFullText = FullText?.ToString();
 
+                        Categories_Preview = _categoryRepository.GetAll();
+                        if (Categories_Preview != null)
+                        {
+                            Categories = await Categories_Preview.ToListAsync();
+                            LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
+                            Count = Categories.Count;
+                        }
+
                         ViewBag.UserInfo = UserInfo;
                         ViewBag.ProjectInfo = ProjectInfo;
                         ViewBag.FullText = MainFullText;
                         ViewBag.FullTextLength = MainFullText?.Length;
                         ViewBag.PercentageOfTargetPrice = PercentageOfTargetPrice;
+                        ViewBag.Categories = Categories;
+                        ViewBag.LastCategoryId = LastCategoryId;
+                        ViewBag.Count = Count;
 
                         return View();
                     }
@@ -218,6 +250,9 @@ namespace ApplicationY.Controllers
                     double PreviousPricePercentage = 0;
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                     int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
+                    int FullProjectsCount = await _projectRepository.GetProjectsCount();
+                    double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
+                    double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount  * 100, 1);
                     if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
 
                     StringBuilder sb = new StringBuilder();
@@ -257,6 +292,8 @@ namespace ApplicationY.Controllers
                     ViewBag.LastSentCommentInfo = LastSentComment;
                     ViewBag.IsLiked = HasAlreadyBeenLiked;
                     ViewBag.YTLink = YoutubeVideoLink;
+                    ViewBag.ProjectsByThisCategory = CategoryStatistics;
+                    ViewBag.CategoryPercentage = CategoryPercentage;
                     ViewBag.AdditionalYTLink = AdditionalYoutubeLink;
 
                     return View();

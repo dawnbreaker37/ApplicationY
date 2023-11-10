@@ -17,5 +17,6 @@ namespace ApplicationY.Data
         public DbSet<Reply> Replies { get; set; }
         public DbSet<Like> Likes { get; set; }  
         public DbSet<Comment> Comments { get; set; }
+        public DbSet<Category> Categories { get; set; }
     }
 }
