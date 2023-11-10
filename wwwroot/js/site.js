@@ -2228,15 +2228,22 @@ $(document).on("click", ".btn-static-bar-open", function (event) {
     let currentBarHeight = $("#" + trueId).innerHeight();
 
     currentBtnBottom = parseInt(currentBtnBottom) + currentBarHeight + 2;
-    $("#" + trueId).fadeIn(0);
-    $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
-    $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 18 + "px");
-    $("#" + trueId + "-Open").attr("disabled", true);
-    $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
+
     setTimeout(function () {
-        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
-        $("#" + trueId + "-Open").html(" <i class='fas fa-times'></i> ");
-    }, 250);
+        $("#" + trueId).fadeIn(0);
+        $("#" + trueId).css("z-index", -1000);
+        $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
+    }, 150);
+    setTimeout(function () {
+        $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
+        $("#" + trueId + "-Open").html(" <i class='fas fa-chevron-down'></i> ");
+        $("#" + trueId + "-Open").attr("disabled", true);
+        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 56 + "px");
+    }, 300);
+    setTimeout(function () {
+        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 2 + "px");
+        $("#" + trueId).css("z-index", 0);
+    }, 550);
 });
 $(document).on("click", ".btn-status-bar-close", function (event) {
     let trueId = getTrueName(event.target.id);
@@ -2247,15 +2254,18 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
     $("#" + trueId).css("bottom", "-1200px");
     setTimeout(function () {
         $("#" + trueId).css("z-index", "0");
-        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + "px");
+        $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 28 + "px");
         $("#" + trueId + "-Open").css("transform", "rotate(-360deg)");
     }, 50);
     setTimeout(function () {
         $("#" + trueId).fadeOut(500);
-        $("#" + trueId + "-Open").css("bottom", botNavbarH + 9 + "px");
+        $("#" + trueId + "-Open").css("bottom", botNavbarH - 32 + "px");
         $("#" + trueId + "-Open").attr("disabled", false);
         $("#" + trueId + "-Open").html(" <i class='fas fa-bars btn-static-bar-open' id='StatusBar_Container-OpenX'></i> ");
-    }, 275);
+    }, 350);
+    setTimeout(function () {
+        $("#" + trueId + "-Open").css("bottom", botNavbarH + 9 + "px");
+    }, 700);
 });
 $(document).on("click", ".btn-static-backdrop-open", function (event) {
     openStaticBackdrop(event.target.id, true);
