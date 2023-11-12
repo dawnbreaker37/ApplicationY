@@ -30,6 +30,12 @@ namespace ApplicationY.Models
         public int UserId { get; set; }
         public User? User { get; set; }
         public Category? Category { get; set; }
-        public List<Comment>? Comments { get; set; }   
+        public List<Comment>? Comments { get; set; }
+        [NotMapped]
+        public string? CategoryName { get; set; }
+        [NotMapped]
+        public string? CategoryDescription { get; set; }
+        [NotMapped]
+        public string? UserName { get; set; }
     }
 }

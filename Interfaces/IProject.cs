@@ -8,7 +8,7 @@ namespace ApplicationY.Interfaces
         public Task<string?> CreateAsync(CreateProject_ViewModel Model);
         public Task<string?> EditAsync(CreateProject_ViewModel Model);
         public Task<int> RemoveAsync(int Id, int UserId);
-        public Task<Project?> GetProjectAsync(int Id, bool GetAdditionalInfo);
+        public Task<Project?> GetProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo);
         public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo);
         public IQueryable<Project?>? GetUserAllProjectsByFilters(ProjectFilters_ViewModel Model);
         public Task<int> GetUsersLastProjectIdAsync(int UserId);

@@ -144,13 +144,14 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
-        public async Task<Project?> GetProjectAsync(int Id, bool GetAdditionalInfo)
+        public async Task<Project?> GetProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo)
         {
             Project? ProjectInfo = null;
             if (GetAdditionalInfo)
             {
-                ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Category = p.Category, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
-                if(ProjectInfo != null)
+                if(GetUsername) ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+                else ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+                if (ProjectInfo != null)
                 {
                     ProjectInfo.Views++;
                     _context.Update(ProjectInfo);
@@ -277,7 +278,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId)
         {
-            return _context.Projects.AsNoTracking().Where(p => (!p.IsRemoved && !p.IsClosed) && (Keyword == null || p.Name!.ToLower().Contains(Keyword) || p.Description!.ToLower().Contains(Keyword) || p.TextPart1 != null && p.TextPart1.ToLower().Contains(Keyword) || p.TextPart2 != null && p.TextPart2.ToLower().Contains(Keyword) || p.TextPart3 != null && p.TextPart3.ToLower().Contains(Keyword)) || (MinPrice == 0 && MaxPrice == 0 || p.TargetPrice >= MinPrice && p.TargetPrice <= MaxPrice) || (MinPrice == 0 && MaxPrice == 0 || p.PastTargetPrice >= MinPrice && p.PastTargetPrice <= MaxPrice)).Select(p => new GetProjects_ViewModel { Id = p.Id, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, Name = p.Name, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, UserName = p.User!.PseudoName, Views = p.Views, UserId = p.UserId }).OrderByDescending(p => p.LastUpdatedAt).ThenByDescending(p => p.Views);
+            return _context.Projects.AsNoTracking().Where(p => (!p.IsRemoved && !p.IsClosed) && (Keyword == null || (p.Name!.ToLower().Contains(Keyword.ToLower())) || (p.Description!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart1!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart2 != null && p.TextPart2.ToLower().Contains(Keyword.ToLower())) || (p.TextPart3 != null && p.TextPart3.ToLower().Contains(Keyword.ToLower()))) && (MinPrice == 0 && MaxPrice == 0 || p.TargetPrice >= MinPrice && p.TargetPrice <= MaxPrice)).Select(p => new GetProjects_ViewModel { Id = p.Id, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, Name = p.Name, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, UserName = p.User!.PseudoName, Views = p.Views, UserId = p.UserId, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved }).OrderByDescending(p => p.Views).ThenByDescending(p => p.LastUpdatedAt);
         }
 
         public async Task<int> GetProjectsCount()

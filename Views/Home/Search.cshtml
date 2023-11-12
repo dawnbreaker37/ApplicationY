@@ -7,7 +7,55 @@
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
+            <input type="hidden" name="Id" id="GSU_Id_Val" value="@UserInfo?.Id" />
+        </form>
+        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+            <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
+            <input type="hidden" name="GetAdditionalInfo" value="True" />
+            <input type="hidden" name="GetUsername" value="True" />
+        </form>
+    </div>
 
+    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+        <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+        <div class="mt-4">
+            <div class="box-container">
+                <div class="box-container p-2 bg-light">
+                    <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
+                    <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
+                    <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
+                    <div class="mt-1 border-top"></div>
+                    <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                </div>
+                <div class="card-group mt-2">
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Contact Info</p>
+                        <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
+                        <div class="mt-2"></div>
+                        <small class="card-text" id="USI_Date_Lbl"></small>
+                    </div>
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Links</p>
+                        <small class="card-text" id="USI_Link1_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
+                        <div class="border-top pt-1 mt-2"></div>
+                        <small class="card-text" id="USI_Link2_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
+                    </div>
+                </div>
+                <div class="mt-1 ms-1">
+                    <small class="card-text white-space-on mt-2" id="USI_Description_Lbl">Description</small>
+                    <div></div>
+                    <a href="#" class="btn btn-text mt-3 btn-sm" id="USI_Userpage_Link"> <i class="fas fa-chevron-right"></i> Page Link</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div class="main-container p-3 shadow-standard scrollbar-hidden" id="Waiter_Container">
@@ -47,11 +95,11 @@
                             <div class="row">
                                 <div class="col">
                                     <label class="form-label fw-500" for="MinTargetPrice">Min. Target Price</label>
-                                    <input type="number" name="MinTargetPrice" id="MinTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
+                                    <input type="number" name="MinPrice" id="MinTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
                                 </div>
                                 <div class="col">
                                     <label class="form-label fw-500" for="MaxTargetPrice">Max. Target Price</label>
-                                    <input type="number" name="MaxTargetPrice" id="MaxTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
+                                    <input type="number" name="MaxPrice" id="MaxTargetPrice" class="form-control number-form-control" min="0" max="10000000" value="0" placeholder="0-10,000,000" />
                                 </div>
                             </div>
                             <div class="form-check form-switch mt-3">
@@ -73,7 +121,7 @@
             <div class="horizontal-scrolled-container mt-3" id="ProjectResults_Box">
 
             </div>
-            <div class="horizontal-scrolled-container mt-2" id="UserResults_Box">
+            <div class="horizontal-scrolled-container mt-3" id="UserResults_Box">
 
             </div>
         </div>
@@ -86,7 +134,7 @@
                         @foreach(GetProjects_ViewModel Item in ViewBag.Projects)
                         {
                             <div class="box-container bg-light p-2 me-2 d-inline-block mw-responsive">
-                                <h3 class="h3 text-primary safe-font">@Item.Name</h3>
+                                <h3 class="h3 text-primary safe-font get-project-short-info" id="GPSI-@Item.Id">@Item.Name</h3>
                                 @if (Item.TargetPrice != 0)
                                 {
                                     <p class="card-text text-primary fw-500">$@Item.TargetPrice.ToString("N0")</p>
@@ -141,7 +189,7 @@
                         @foreach(GetUserInfo_ViewModel User in ViewBag.Users)
                         {
                             <div class="box-container bg-light p-2 me-2 d-inline-block mw-responsive">
-                                <h4 class="h4 safe-font text-primary">@User.PseudoName <small class="ms-5"><span class="badge bg-white text-dark warning-badge fw-normal ms-1"> <i class="fas fa-globe-americas text-primary"></i> @User.CountryFullName</span></small></h4>
+                                <h4 class="h4 safe-font text-primary get-user-short-info" id="GSUVal-@User.Id">@User.PseudoName <small class="ms-5"><span class="badge bg-white text-dark warning-badge fw-normal ms-1"> <i class="fas fa-globe-americas text-primary"></i> @User.CountryFullName</span></small></h4>
                                 <small class="card-text text-muted fw-500"> <i class="fas fa-at"></i> @User.SearchName</small>
                                 <div class="mt-2"></div>
                                 <div class="row">
@@ -192,3 +240,124 @@
     </div>
 </div>
 
+<div class="main-container p-3 shadow-standard" id="ProjectView_Container">
+    <div>
+        <button type="button" class="btn btn-back float-end ms-1 btn-sm">&larr; Back</button>
+        <h6 class="h5 text-truncate">Project Preview</h6>
+    </div>
+    <div class="mt-4">
+        <div class="box-container">
+            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                <a href="#" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1" id="Preview_ProjectPageLink2"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                <button type="button" class="btn btn-text btn-lg safe-font" id="GCF_UserPseudoName_Lbl"></button>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                </div>
+                <div class="col">
+                    <div>
+                        <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
+                            <input type="hidden" name="ProjectId" id="GCF_ProjectId_Val" value="0" />
+                            <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="collapse mt-2" id="MoreInfo_Collapse">
+            <div class="card box-container shadow-sm p-3 pb-2">
+                <h5 class="h5">Additional Info</h5>
+                <div class="row mt-2 border-top pt-2 ms-1 me-1 text-center">
+                    <div class="col">
+                        <h6 class="h6">Views</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_ViewsCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Likes</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LikesCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Category</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_Category">Unknown</small>
+                    </div>
+                </div>
+                <div class="row mt-4 text-center">
+                    <div class="col">
+                        <h6 class="h6">Published</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_PublishedDate"></small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Last Update</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LastUpdatedDate"></small>
+                    </div>
+                </div>
+                <div class="mt-2 border-top pt-2">
+                    <a href="#" class="btn btn-text btn-sm" id="Preview_ProjectPageLink"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                    <div></div>
+                    <small class="card-text text-muted">It's only the preview widget of this project. If you need full access to this project (like sending messages, commentaries, subscribing or to like it) go to the project page by link</small>
+                </div>
+            </div>
+        </div>
+        <div class="box-container p-1 pt-2 pb-2 mt-2">
+            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
+        </div>
+        <div class="card-group mt-2">
+            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+                <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$0.00</h3>
+                <small class="card-text safe-font d-none" id="Preview_PrevTagPrice">$0.00, 0%</small>
+                <div></div>
+                <small class="card-text text-muted d-none" id="Preview_TagPriceAnnotation"></small>
+                <div class="border-top pt-1 mt-2 d-none" id="Preview_TagPriceAnnotationSeparator"></div>
+                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
+                <div class="mt-3" id="InverToProject_Box">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                    <div></div>
+                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                    <div></div>
+                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3" id="Preview_LinksBox">
+                <h6 class="h6">Main Links</h6>
+                <div class="border-top mt-1 pt-1"></div>
+                <div>
+                    <a href="#" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText1">First Link Href</small>
+                </div>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
+                </div>
+            </div>
+        </div>
+        <div class="box-container mt-2 d-none" id="YT_VideoPlayer_MainBox">
+            <div class="card-group">
+                <div class="card me-1 p-3 pb-1 shadow-sm">
+                    <h6 class="h6"> <i class="fab fa-youtube text-danger"></i> Youtube Video</h6>
+                    <div class="box-container mt-2" id="YT_VideoPlayer_Box">
+                        <iframe class="yt-container w-100 ratio-16x9" id="YT_VideoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="card shadow-sm p-3 pb-2">
+                    <h6 class="h6"> <i class="fas fa-info-circle"></i> Additional Info</h6>
+                    <small class="card-text text-muted mt-2" id="YT_VideoLink_Lbl"> <i class="fas fa-external-link"></i> Link: </small>
+                    <div class="mt-1"></div>
+                    <a href="#" class="btn btn-text btn-sm text-start text-decoration-none mt-1" id="YT_VideoLink_Btn"> <i class="fab fa-youtube text-danger"></i> Watch On Youtube</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

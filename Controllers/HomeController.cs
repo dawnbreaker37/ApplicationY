@@ -89,10 +89,15 @@ namespace ApplicationY.Controllers
                 UsersResult = await UsersResult_Preview.ToListAsync();
                 UsersCount = UsersResult.Count;
             }
-            if(ProjectsResult_Preview != null)
+            if (ProjectsResult_Preview != null)
             {
-                ProjectsResult = await ProjectsResult_Preview.ToListAsync();  
+                ProjectsResult = await ProjectsResult_Preview.ToListAsync();
                 ProjectsCount = ProjectsResult.Count;
+            }
+            else
+            {
+                ProjectsResult = null;
+                ProjectsCount = 0;
             }
 
             return Json(new { success = true, userResult = UsersResult, projectResult = ProjectsResult, usersCount = UsersCount, projectsCount = ProjectsCount });           

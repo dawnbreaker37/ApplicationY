@@ -409,7 +409,6 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
     let data = $(this).serialize();
-
     $.get(url, data, function (response) {
         if (response.success) {
             $("#USI_UsernameTitle_Span").html(response.result.pseudoName);
@@ -444,6 +443,7 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
             $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
 
+            smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "UserShortInfo_Container", false, false);
         }
         else {
@@ -555,7 +555,8 @@ $("#GetFullProject_Form").on("submit", function (event) {
             $("#Preview_ViewsCnt").text(response.result.views);
             $("#Preview_ProjectPageLink").attr("href", "/Project/Info/" + response.result.id);
             $("#Preview_ProjectPageLink2").attr("href", "/Project/Info/" + response.result.id);
-            if (response.result.category != null) $("#Preview_Category").text(response.result.category.name);
+            if (response.getUsername) $("#GCF_UserPseudoName_Lbl").text(response.result.userName);
+            if (response.result.categoryName != null) $("#Preview_Category").text(response.result.categoryName);
             else $("#Preview_Category").text("Unknown");
             if (response.result.textPart1 != null) fullText = response.result.textPart1;
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
@@ -957,7 +958,7 @@ $("#SearchEverywhere_Keyword").on("change", function (event) {
                 if (response.projectsCount > 0) {
                     $.each(response.projectResult, function (index) {
                         let div = $("<div class='box-container bg-light p-2 me-2 d-inline-block mw-responsive'></div>");
-                        let name = $("<h3 class='h3 safe-font text-primary'></h3>");
+                        let name = $("<h3 class='h3 safe-font text-primary get-project-short-info'></h3>");
                         let targetPrice = $("<small class='card-text text-primary safe-font fs-6'></small>");
                         let userName = $("<small class='card-text'></small>");
                         let prevTargetPrice = $("<small class='card-text text-muted text-decoration-line-through'></small>");
@@ -983,6 +984,7 @@ $("#SearchEverywhere_Keyword").on("change", function (event) {
 
                         name.html(response.projectResult[index].name);
                         userName.text(response.projectResult[index].userName);
+                        name.attr("id", "SGPFI-" + response.projectResult[index].id);
 
                         if (response.projectResult[index].targetPrice != 0) {
                             targetPrice.html(response.projectResult[index].targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
@@ -990,7 +992,8 @@ $("#SearchEverywhere_Keyword").on("change", function (event) {
                                 prevTargetPrice.html(response.projectResult[index].pastTargetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
                             }
                             else {
-                                prevTargetPrice.addClass("d-none");
+                                prevTargetPrice.text("No Prev. Price");
+                                prevTargetPrice.removeClass("text-decoration-line-through");
                             }
                         }
                         else {
@@ -1048,7 +1051,7 @@ $("#SearchEverywhere_Keyword").on("change", function (event) {
                 if (response.usersCount > 0) {
                     $.each(response.userResult, function (index) {
                         let div = $("<div class='box-container bg-light p-2 me-2 d-inline-block mw-responsive'></div>");
-                        let name = $("<h4 class='h4 safe-font text-primary'></h4>");
+                        let name = $("<h4 class='h4 safe-font text-primary get-user-short-info'></h4>");
                         let searchName = $("<small class='card-text text-muted fw-500'></small>");
                         let separatorOne = $("<div class='mt-3'></div>");
                         let separatorTwo = $("<div class='mt-3'></div>");
@@ -1075,6 +1078,7 @@ $("#SearchEverywhere_Keyword").on("change", function (event) {
                         if (response.userResult[index].countryFullName != null) name.html(response.userResult[index].pseudoName + "<small><span class='badge bg-white text-dark warning-badge fw-normal ms-5'> <i class='fas fa-globe-americas text-primary'></i> " + response.userResult[index].countryFullName + "</span></small>");
                         else name.html(response.userResult[index].pseudoName + "<small><span class='badge bg-white text-dark warning-badge fw-normal ms-5'> <i class='fas fa-globe-americas text-primary'></i> Country Unknown</span></small>");
 
+                        name.attr("id", "SUSI_Val-" + response.userResult[index].id);
                         searchName.text("@" + response.userResult[index].searchName);
                         if (response.userResult[index].projectsCount != 0) {
                             col1Small1.text(response.userResult[index].projectsCount);
@@ -1609,6 +1613,15 @@ $("#Link2").on("keyup change", function () {
     $("#SecondLinkTest_Btn").attr("href", $(this).val());
 });
 
+$(document).on("click", ".get-project-short-info", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#GFP_Id_Val").val(trueId);
+        $("#GetFullProject_Form").submit();
+    }
+    else openModal("Unable to get information about selected project. Please, try again later", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+});
+
 $(document).on("click", ".remove-notification", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 || trueId != null || trueId != undefined) {
@@ -2043,6 +2056,15 @@ $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
 });
 
+$(document).on("click", ".get-user-short-info", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#GSU_Id_Val").val(trueId);
+        $("#GetShortUserInfo_Form").submit();
+    }
+    else openModal("Unable to get some information about this project. Please, try again later", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+});
+
 $(document).on("click", ".select-to-reply", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 || trueId != "") {
@@ -2452,7 +2474,8 @@ function addOptionToText(element, type, value1, value2) {
             textBefore = textBefore + '[& color:' + value2 + ';">' + value1 + ']]';
             break;
         case 6:
-            textBefore = textBefore + "\n[=" + value1 + "=]";
+            if (cursorPosition != 0) textBefore = textBefore + "\n[=" + value1 + "=]";
+            else textBefore = textBefore + "[=" + value1 + "=]";
             break;
         default:
             textBefore = textBefore + " [[" + value1 + "]]";

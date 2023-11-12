@@ -137,7 +137,7 @@ namespace ApplicationY.Controllers
                     List<Category>? Categories = null;
                     IQueryable<Category>? Categories_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -226,12 +226,12 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFullProject(int Id, bool GetAdditionalInfo)
+        public async Task<IActionResult> GetFullProject(int Id, bool GetUsername, bool GetAdditionalInfo)
         {
-            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetAdditionalInfo);
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo);
             if (ProjectInfo != null)
             {
-                return Json(new { success = true, result = ProjectInfo });
+                return Json(new { success = true, getUsername = GetUsername, result = ProjectInfo });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
         }
@@ -240,7 +240,7 @@ namespace ApplicationY.Controllers
         {
             if(Id != 0)
             {
-                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true);
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
                 if(ProjectInfo != null)
                 {
                     GetCommentaries_ViewModel? LastSentComment = null;

@@ -172,11 +172,11 @@
     <div class="bordered-container mt-2 p-3" id="CategoryInfo_Container">
         <h6 class="h6 safe-font">Category Information</h6>
         <div class="mt-2">
-            @if (ProjectInfo.Category != null)
+            @if (ProjectInfo.CategoryId != 0)
             {
                 <div></div>
-                <h1 class="h1 d-none" id="CategoryMainIcon_Lbl"> @ProjectInfo.Category.Description </h1>
-                <h5 class="h5 safe-font smallside-btn-open-container" id="AboutCategories_Container-Open">@ProjectInfo.Category.Name</h5>
+                <h1 class="h1 d-none" id="CategoryMainIcon_Lbl"> @ProjectInfo.CategoryDescription </h1>
+                <h5 class="h5 safe-font smallside-btn-open-container" id="AboutCategories_Container-Open">@ProjectInfo.CategoryName</h5>
                 <small class="card-text text-muted">@ProjectsByThisCategory.ToString("N0") project(s) created in this category</small>
                 <div></div>
                 <small class="card-text text-muted">@CategoryPercentage% of all categories</small>
