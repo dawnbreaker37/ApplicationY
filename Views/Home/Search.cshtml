@@ -16,12 +16,17 @@
             <input type="hidden" name="GetAdditionalInfo" value="True" />
             <input type="hidden" name="GetUsername" value="True" />
         </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
+            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
+        </form>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
-        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
-        <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+        <div class="header-container p-3 pb-2" id="UserShortInfo_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div class="box-container">
                 <div class="box-container p-2 bg-light">
                     <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
@@ -56,14 +61,69 @@
             </div>
         </div>
     </div>
+
+    @if (UserInfo != null)
+    {
+        <div class="mt-3 box-container card-box-container shadow-standard position-absolute p-2" id="ReplyToComment_Container-CardBox">
+            <form method="post" asp-controller="Messages" asp-action="SendReply" id="SendReply_Form">
+                <input type="hidden" name="CommentId" id="RTC_CommentId_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <div class="row">
+                    <div class="col col-10">
+                        <textarea class="form-control w-100 form-control-sm send-msg-form-control" rows="1" name="Text" id="RTCC_TextValue" placeholder="Enter your answer here" maxlength="2500"></textarea>
+                    </div>
+                    <div class="col col-2">
+                        <button type="submit" class="btn btn-primary rounded-message-btn btn-standard-with-no-colour btn-sm w-100 mt-1" id="RTCSbmt_Btn"> <i class="fas fa-arrow-up"></i> </button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    }
+
+    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="ReplyToComment_Container">
+        <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
+        <h5 class="h5 text-truncate">Reply to <span class="text-primary" id="RTC_User"></span></h5>
+        <div class="mt-4">
+            <div class="box-container bg-light p-3">
+                <input type="hidden" id="RTC_Count" value="0" />
+                <h6 class="h6" id="RTC_Username">Username</h6>
+                <small class="card-text text-muted white-space-on" id="RTC_TextValue">Replying message text</small>
+            </div>
+            <div class="mt-2 mb-5" id="RepliesList_Box">
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Comments_Container">
+        <div class="header-container p-3 pb-2" id="Comments_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">No Comments</span></h5>
+        </div>
+        <div class="d-none">
+            <input type="hidden" id="CommentsCount_Val" value="0" />
+        </div>
+        <div class="mt-2 p-3 pt-0 mb-5" id="CommentsMain_Box">
+        </div>
+    </div>
+
+    <div class="box-container card-box-container shadow-standard position-absolute p-2" id="Comments_Container-CardBox">
+        <div class="row">
+            <div class="col col-10">
+                <textarea class="form-control w-100 form-control-sm send-msg-form-control" rows="1" id="SendComment_Text" placeholder="Go to full info page to send comments" disabled></textarea>
+            </div>
+            <div class="col col-2">
+                <button type="button" class="btn btn-text mt-1 btn-sm w-100" disabled> <i class="fas fa-chevron-right"></i> </button>
+            </div>
+        </div>
+    </div>
 </div>
 
-<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Waiter_Container">
-    <div>
+<div class="main-container shadow-standard scrollbar-hidden" id="Waiter_Container">
+    <div class="header-container p-3 pb-2">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Waiter_Container-Close"></button>
         <h5 class="h5 text-truncate">Just Wait</h5>
     </div>
-    <div class="mt-5">
+    <div class="mt-5 p-3 pt-0">
         <div class="box-container text-center">
             <h2 class="h2 text-primary"> <i class="fas fa-spinner fa-spin"></i> </h2>
             <h4 class="h4 safe-font">Please Wait</h4>
@@ -73,12 +133,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
-        <h5 class="h6 text-truncate">Search & Preview</h5>
+        <h5 class="h5 text-truncate">Search & Preview</h5>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container">
             <div>
                 <form method="get" asp-controller="Home" asp-action="SearchEverywhere" id="SearchEverywhere_Form">
@@ -106,9 +166,29 @@
                                 <input class="form-check-input" type="checkbox" name="SearchOnlyProjects" value="false" id="SearchOnlyProjects" />
                                 <label class="form-check-label fw-500" for="SearchOnlyProjects">Search Only Projects</label>
                             </div>
+                            <div>
+                                <small class="card-text text-muted">The search will be produced only by projects</small>
+                            </div>
                             <div class="form-check form-switch mt-3">
                                 <input class="form-check-input" type="checkbox" name="SearchOnlyUsers" value="false" id="SearchOnlyUsers" />
                                 <label class="form-check-label fw-500" for="SearchOnlyUsers">Search Only Users</label>
+                            </div>
+                            <div>
+                                <small class="card-text text-muted">The search will be produced only for users. There'll be no projects</small>
+                            </div>
+                            <div class="mt-3">
+                                <label class="form-label fw-500">Categories</label>
+                                <div class="overflow-auto mh-280 scrollbar-hidden">
+                                    <input type="hidden" id="CategoryId" name="CategoryId" value="0" />
+                                    <input type="hidden" id="LastCategoryId_Val" value="@ViewBag.LastCategoryId" />
+                                    @foreach(Category category in ViewBag.Categories)
+                                    {
+                                        <div class="bordered-container category-select-container p-2 mt-1 mb-1" id="CategoryValue-@category.Id">
+                                            <span class="category-icon category-select-container border-0" id="CategoryIcon-@category.Id">@category.Description</span>
+                                            <small class="card-text text-muted fw-500 border-0 category-select-container" id="CategoryName-@category.Id">@category.Name</small>
+                                        </div>
+                                    }
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -240,12 +320,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="ProjectView_Container">
-    <div>
+<div class="main-container shadow-standard" id="ProjectView_Container">
+    <div class="header-container p-3 pb-2" id="ProjectView_Container-Header">
         <button type="button" class="btn btn-back float-end ms-1 btn-sm">&larr; Back</button>
         <h6 class="h5 text-truncate">Project Preview</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container">
             <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
         </div>

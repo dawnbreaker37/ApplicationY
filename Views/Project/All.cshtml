@@ -40,13 +40,24 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="Comments_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">No Comments</span></h5>
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Comments_Container">
+        <div class="header-container p-3 pb-2" id="Comments_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">No Comments</span></h5>
+        </div>
         <div class="d-none">
             <input type="hidden" id="CommentsCount_Val" value="0" />
         </div>
-        <div class="mt-3 mb-5" id="CommentsMain_Box">
+        <div class="mt-2 p-3 pt-0 mb-5" id="CommentsMain_Box">
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="ReleaseNotes_Container">
+        <div class="header-container p-3 pb-2" id="ReleaseNotes_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="ReleaseNotes_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Release Notes, <span id="ReleaseNotes_Count_Lbl">0</span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0" id="ReleaseNotes_Box">
         </div>
     </div>
 
@@ -82,10 +93,12 @@
         </div>
     }
 
-    <div class="smallside-box-container p-3 shadow-standard" id="Filters_Container">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Filters_Container-Close"></button>
-        <h5 class="h5 text-truncate">Filters</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="Filters_Container">
+        <div class="header-container p-3 pb-2" id="Filters_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Filters_Container-Close"></button>
+            <h5 class="h5 text-truncate">Filters</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div>
                 <form method="get" asp-controller="Project" asp-action="GetAllProjects" id="GetAllProjects_Form">
                     <div class="row">
@@ -119,10 +132,12 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
-        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
-        <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+        <div class="header-container p-3 pb-2" id="UserShortInfo_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div class="box-container">
                 <div class="box-container p-2 bg-light">
                     <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country, CN</small>
@@ -158,10 +173,12 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="SettingsOfProject_Container">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="SettingsOfProject_Container-Close"></button>
-        <h5 class="h5 text-truncate">Settings Of Project</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="SettingsOfProject_Container">
+        <div class="header-container p-3 pb-2" id="SettingsOfProject_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="SettingsOfProject_Container-Close"></button>
+            <h5 class="h5 text-truncate">Settings Of Project</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div class="bordered-container p-2 pb-1">
                 <small class="card-text text-muted">Selected Project</small>
                 <div class="border-top pt-2 mt-2"></div>
@@ -272,14 +289,14 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="ProjectView_Container">
-    <div>
+<div class="main-container shadow-standard" id="ProjectView_Container">
+    <div class="header-container p-3 pb-2" id="ProjectView_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="ProjectView_Container-Close"></button>
         <h6 class="h5 text-truncate">Project Preview</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container">
-            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
+            <h1 class="h1 text-primary main-title-font-style" id="Preview_Title">Project Title</h1>
         </div>
         <div class="box-container shadow-sm mt-2 p-2">
             <div class="p-2">
@@ -333,6 +350,18 @@
                     <div class="col">
                         <h6 class="h6">Last Update</h6>
                         <small class="card-text text-muted safe-font" id="Preview_LastUpdatedDate"></small>
+                    </div>
+                </div>
+                <div class="row mt-4 text-center">
+                    <div class="col">
+                        <h6 class="h6">Release Notes</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_ReleaseNotesCount_Lbl">0</small>
+                        <div class="mt-2">
+                            <form method="get" asp-controller="Project" asp-action="GetUpdates" id="GetUpdates_Form">
+                                <input type="hidden" name="Id" id="GUF_ProjectId_Val" value="0" />
+                                <button type="submit" class="btn btn-text btn-sm">Show Release Notes</button>
+                            </form>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-2 border-top pt-2">
@@ -399,13 +428,13 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <button type="button" class="btn btn-standard-not-animated smallside-btn-open-container float-end ms-1 me-1 btn-sm" id="Filters_Container-Open"> <i class="fas fa-filter"></i> Filters</button>
-        <h6 class="h5 text-truncate">Project List</h6>
+        <h5 class="h5 text-truncate">Project List</h5>
     </div>
-    <div class="mt-4">
+    <div class="p-3 pt-0">
         @if(Count > 0)
         {
             <small class="card-text text-muted" id="ProjectsCount_Lbl">You have <span id="ProjectsCount_Span">@Count</span> actual project(s)</small>

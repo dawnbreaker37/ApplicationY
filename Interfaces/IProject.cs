@@ -15,9 +15,13 @@ namespace ApplicationY.Interfaces
         public Task<int> CloseProjectAsync(int Id, int UserId);
         public Task<int> UnlockProjectAsync(int Id, int UserId);
         public Task<int> LikeTheProjectAsync(int ProjectId, int UserId);
-        public Task<int> RemoveFromLikesAsync(int ProjectId, int UserId);
+        public Task<int> RemoveFromLikesAsync(int ProjectId, int UserId, bool RemoveAll);
+        public Task<int> ReleaseNotesCountAsync(int ProjectId);
         public Task<bool> HasProjectBeenAlreadyLiked(int ProjectId, int UserId);
         public Task<int> ProjectLikesCount(int ProjectId);
+        public Task<bool> AddReleaseNoteAsync(int ProjectId, string Title, string Description);
+        public IQueryable<GetLikedProjects_ViewModel>? GetLikedProjects(int UserId);
+        public IQueryable<GetReleaseNotes_ViewModel>? GetReleaseNotes(int ProjectId); 
         public IQueryable<GetProjects_ViewModel>? GetRandomProjects(int Count);
         public Task<int> GetProjectsCount();
         public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId);

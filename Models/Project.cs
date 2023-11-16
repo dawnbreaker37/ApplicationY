@@ -31,6 +31,7 @@ namespace ApplicationY.Models
         public User? User { get; set; }
         public Category? Category { get; set; }
         public List<Comment>? Comments { get; set; }
+        public List<Update>? Updates { get; set; }
         [NotMapped]
         public string? CategoryName { get; set; }
         [NotMapped]

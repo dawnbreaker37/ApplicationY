@@ -10,11 +10,13 @@
         <h4 class="h4 safe-font">Let us tell you about us!</h4>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="PasswordRecovering_Container">
+    <div class="smallside-box-container shadow-standard" id="PasswordRecovering_Container">
         <div>
-            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecovering_Container-Close"></button>
-            <h5 class="h5 text-truncate">Password Recovering</h5>
-            <div class="mt-4">
+            <div class="header-container p-3 pb-2" id="PasswordRecovering_Container-Header">
+                <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecovering_Container-Close"></button>
+                <h5 class="h5 text-truncate">Password Recovering</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <form method="post" asp-controller="Account" asp-action="PasswordRecovering" id="PasswordRecovering_Form">
                     <div>
                         <input type="hidden" id="PR_CurrentTypeVal" value="0" />
@@ -47,11 +49,13 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="PasswordRecoveringViaEmail_Container">
+    <div class="smallside-box-container shadow-standard" id="PasswordRecoveringViaEmail_Container">
         <div>
-            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecoveringViaEmail_Container-Close"></button>
-            <h5 class="h5 text-truncate">Password Recovering Via Email</h5>
-            <div class="mt-4">
+            <div class="header-container p-3 pb-2" id="PasswordRecoveringViaEmail_Container-Header">
+                <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordRecoveringViaEmail_Container-Close"></button>
+                <h5 class="h5 text-truncate">Password Recovering Via Email</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <form method="post" asp-controller="Account" asp-action="SendCode" id="SendCode_Form">
                     <div>
                         <label class="form-label fw-500 ms-1" for="SC_Email">Email</label>
@@ -68,11 +72,13 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="CreateNewPassword_Container">
+    <div class="smallside-box-container shadow-standard" id="CreateNewPassword_Container">
         <div>
-            <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="CreateNewPassword_Container-Close"></button>
-            <h5 class="h5 text-truncate">Create New Password</h5>
-            <div class="mt-4">
+            <div class="header-container p-3 pb-2" id="CreateNewPassword_Container-Header">
+                <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="CreateNewPassword_Container-Close"></button>
+                <h5 class="h5 text-truncate">Create New Password</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <form method="post" asp-controller="Account" asp-action="UpdatePassword" id="UpdatePassword_Form">
                     <div>
                         <input type="hidden" name="SearchByUsername" id="SearchByUsername_Val" value="true" />
@@ -149,14 +155,14 @@
 
 @if (IsForSigningIn)
 {
-    <div class="main-container p-3 shadow-standard" id="Second_Container">
-        <div>
+    <div class="main-container shadow-standard" id="Second_Container">
+        <div class="header-container p-3 pb-2" id="Second_Container-Header">
 @*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
             <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Second_Container-Close"></button>
             <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Preload_Container-Open">Sign In</button>
             <h5 class="h5 text-truncate">Log In</h5>
         </div>
-        <div class="mt-4">
+        <div class="p-3 pt-2">
             <form method="post" asp-controller="Account" asp-action="LogIn" id="LogIn_Form">
                 <div>
                     <label asp-for="UserName" for="LogIn_UserName" class="form-label fw-500 ms-1">Username or email</label>
@@ -180,15 +186,15 @@
             </form>
         </div>
     </div>
-    <div class="main-container p-3 shadow-standard" id="Preload_Container">
-        <div>
+    <div class="main-container shadow-standard" id="Preload_Container">
+        <div class="header-container p-3 pb-2" id="Preload_Container-Header">
 @*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
             <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Preload_Container-Close"></button>
             <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Second_Container-Open">Log In</button>
             @*        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>*@
             <h5 class="h5 text-truncate">Sign In</h5>
         </div>
-        <div class="mt-4">
+        <div class="p-3 pt-2">
             <div class="d-none">
                 <form method="get" asp-controller="Account" asp-action="IsUserNameUnique" id="IsUserNameUnique_Form">
                     <input type="hidden" name="UserName" id="IUNU_Val" />
@@ -241,14 +247,14 @@
 }
 else
 {
-    <div class="main-container p-3 shadow-standard" id="Preload_Container">
-        <div>
+    <div class="main-container shadow-standard" id="Preload_Container">
+        <div class="header-container p-3 pb-2" id="Preload_Container-Header">
 @*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
             <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Preload_Container-Close"></button>
             <button type="button" class="btn btn-standard-not-animated btn-sm float-end mt-1 btn-open-container" id="Second_Container-Open">Sign In</button>
             <h5 class="h5 text-truncate">Log In</h5>
         </div>
-        <div class="mt-4">
+        <div class="p-3 pt-2">
             <form method="post" asp-controller="Account" asp-action="LogIn" id="LogIn_Form">
                 <div>
                     <label asp-for="UserName" for="LogIn_UserName" class="form-label fw-500 ms-1">Username or email</label>
@@ -272,15 +278,15 @@ else
             </form>
         </div>
     </div>
-    <div class="main-container p-3 shadow-standard" id="Second_Container">
-        <div>
+    <div class="main-container shadow-standard" id="Second_Container">
+        <div class="header-container p-3 pb-2" id="Second_Container-Header">
 @*            <button type="button" class="btn btn-back btn-sm float-end mt-1 ms-1">&larr; Back</button>*@
             <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="Second_Container-Close"></button>
             <button type="button" class="btn btn-standard-not-animated btn-sm float-end btn-open-container mt-1" id="Preload_Container-Open">Log In</button>
             @*        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>*@
             <h5 class="h5 text-truncate">Sign In</h5>
         </div>
-        <div class="mt-4">
+        <div class="p-3 pt-2">
             <div class="d-none">
                 <form method="get" asp-controller="Account" asp-action="IsUserNameUnique" id="IsUserNameUnique_Form">
                     <input type="hidden" name="UserName" id="IUNU_Val" />

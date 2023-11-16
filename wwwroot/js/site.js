@@ -39,6 +39,12 @@ window.onload = function () {
             textDecoder("CategoryIcon-" + i, true, true);
         }
     }
+    else if (currentUrl.toLowerCase().includes("/search")) {
+        let lastId = $("#LastCategoryId_Val").val();
+        for (let i = 1; i <= lastId; i++) {
+            textDecoder("CategoryIcon-" + i, true, true);
+        }
+    }
 }
 window.onresize = function () {
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
@@ -538,6 +544,73 @@ $("#RemoveProject_Form").on("submit", function (event) {
     });
 });
 
+$("#AddUpdate_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        animatedClose(false, "AddUpdate_Container");
+        openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.75);
+    });
+});
+
+$(document).on("click", ".get-release-notes", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#GUF_ProjectId_Val").val(trueId);
+        $("#GetUpdates_Form").submit();
+    }
+    else {
+        $("#GUF_ProjectId_Val").val(trueId);
+    }
+});
+$("#GetUpdates_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            if (response.count > 0) {
+                $("#ReleaseNotes_Count_Lbl").text(response.count.toLocaleString());
+                $("#ReleaseNotes_Box").empty();
+                $.each(response.result, function (index) {
+                    let div = $("<div class='release-note-container mt-2 p-2 pt-0 pb-0'></div>");
+                    let title = $("<h6 class='h6 mt-1'></h6>");
+                    let text = $("<small class='card-text white-space-on'></small>");
+                    let sentAt = $("<small class='card-text safe-font text-primary'></small>");
+                    let separatorOne = $("<div class='mt-2'></div>");
+
+                    title.text(response.result[index].title);
+                    text.html(response.result[index].description);
+                    sentAt.html(" <i class='far fa-clock'></i> " + convertDateAndTime(response.result[index].releaseDate, false, true));
+
+                    div.append(sentAt);
+                    div.append(title);
+                    div.append(text);
+                    $("#ReleaseNotes_Box").append(div);
+                });
+            }
+            else {
+                let div = $("<div class='box-container mt-3 p-2 text-center'></div>");
+                let icon = $("<h2 class='h2'> <i class='fas fa-sync-alt'></i> </h2>");
+                let title = $("<h6 class='h6 safe-font'>No Release Notes</h6>");
+                let text = $("<small class='card-text text-muted'>There's no any release notes for this project yet</small>");
+
+                div.append(icon);
+                div.append(title);
+                div.append(text);
+                $("#ReleaseNotes_Box").append(div);
+            }
+            animatedOpen(false, "ReleaseNotes_Container", false, false);
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-close text-danger'></i> Close", null, 2, null, null, null, 3.5);
+        }
+    });
+});
+
 $("#GetFullProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -550,6 +623,7 @@ $("#GetFullProject_Form").on("submit", function (event) {
             $("#GSU_Id_Val").val(response.result.userId);
             $("#GCF_ProjectId_Val").val(response.result.id);
             $("#SCF_ProjectId_Val").val(response.result.id);
+            $("#GUF_ProjectId_Val").val(response.result.id);
             $("#Preview_Title").text(response.result.name);
             $("#Preview_ShortDescription").text(response.result.description);
             $("#Preview_ViewsCnt").text(response.result.views);
@@ -680,18 +754,73 @@ $("#RemoveFromLiked_Form").on("submit", function (event) {
 
     $.post(url, data, function (response) {
         if (response.success) {
-            $("#AlreadyLiked_Box").addClass("d-none");
-            $("#NotLiked_Box").removeClass("d-none");
+            let curUrl = document.location.href;
+            if (curUrl.toLowerCase().includes("/liked")) {
+                let currentCount = $("#LikedProjectsCount_Span").text();
+                currentCount = parseInt(currentCount);
+                currentCount--;
+
+                $("#LikedProjectsCount_Span").text(currentCount);
+                if (currentCount > 0) slideToLeftAnimation("LikedProject_Box-" + response.projectId);
+                else {
+                    $("#HaveLikedProjects_Container").fadeOut(300);
+                    setTimeout(function () {
+                        $("#NoLikedProjects_Container").fadeIn(150);
+                    }, 400);
+                }
+                openModal("Selected project has been successfully removed from your liked list", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            }
+            else {
+                $("#AlreadyLiked_Box").addClass("d-none");
+                $("#NotLiked_Box").removeClass("d-none");
+                setTimeout(function () {
+                    $("#LikeSbmt_Btn").html(' <i class="fas fa-heart-broken text-danger"></i><br/>Like');
+                    $("#LikeSbmt_Btn").css("transform", "scale(1.25)");
+                }, 75);
+                setTimeout(function () {
+                    $("#LikeSbmt_Btn").css("transform", "scale(1)");
+                }, 575);
+                setTimeout(function () {
+                    $("#LikeSbmt_Btn").html(' <i class="far fa-heart"></i><br/>Like');
+                }, 4000);
+            }
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
+        }
+    });
+});
+$("#RemoveAllLiked_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let div = $("<div class='box-container mt-4 p-2 text-center' id='LikedProjectsRemove_Box'></div>");
+            let icon = $("<h1 class='display-4 text-primary'> <i class='fas fa-check'></i> </h1>");
+            let title = $("<h3 class='h3 safe-font'>Projects Removed</h3>");
+            let text = $("<p class='card-text text-muted'>All liked projects have been successfully removed</h3>");
+
+            div.append(icon);
+            div.append(title);
+            div.append(text);
+            $("#HaveLikedProjects_Container").fadeOut(300);
+            $("#LikedProjectsCount_Span").text("0");
             setTimeout(function () {
-                $("#LikeSbmt_Btn").html(' <i class="fas fa-heart-broken text-danger"></i><br/>Like');
-                $("#LikeSbmt_Btn").css("transform", "scale(1.25)");
-            }, 75);
+                $("#HaveLikedProjects_Container").empty();
+                $("#HaveLikedProjects_Container").append(div);
+                $("#HaveLikedProjects_Container").fadeIn(150);
+            }, 400);
             setTimeout(function () {
-                $("#LikeSbmt_Btn").css("transform", "scale(1)");
-            }, 575);
+                slideToLeftAnimation("LikedProjectsRemove_Box");
+            }, 2000);
             setTimeout(function () {
-                $("#LikeSbmt_Btn").html(' <i class="far fa-heart"></i><br/>Like');
-            }, 4000);
+                $("#LikedProjectsRemove_Box").fadeOut(350);
+            }, 2400);
+            setTimeout(function () {
+                $("#NoLikedProjects_Container").fadeIn(0);
+            }, 2700);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
@@ -1854,6 +1983,14 @@ $(document).on("click", ".select-for-info", function (event) {
     }
 });
 
+$(document).on("click", ".remove-from-liked", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#RFL_ProjectId_Val").val(trueId);
+        $("#RemoveFromLiked_Form").submit();
+    }
+});
+
 $("#Name").on("keyup", function () {
     let value = $(this).val();
     if (value.length > 0) $("#PreviewTheProject_Btn").attr("disabled", false);
@@ -2350,6 +2487,49 @@ $(document).on("click", ".text-full-delete", function (event) {
     if (trueId != "") {
         $("#" + trueId).val("");
         openModal("Content from textbox has been deleted", "Got It", null, 2, null, null, null, 2.5);
+    }
+});
+
+$(".main-container").on("scroll", function (event) {
+    let trueId = event.target.id;
+    if (trueId != "") {
+        let mainContainerWidth = $("#" + trueId).innerWidth();
+        let scrollHeight = parseInt($("#" + trueId).scrollTop());
+        if (scrollHeight >= 28) {
+            $("#" + trueId + "-Header").css("position", "fixed");
+            $("#" + trueId + "-Header").css("z-index", "1000");
+            $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
+            $("#" + trueId + "-Header").css("background-color", "transparent");
+            $("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
+            $("#" + trueId + "-Header").addClass("shadow-sm");
+        }
+        else {
+            $("#" + trueId + "-Header").css("position", "relative");
+            $("#" + trueId + "-Header").css("z-index", "0");
+            $("#" + trueId + "-Header").removeClass("shadow-sm");
+            $("#" + trueId + "-Header").css("backdrop-filter", "none");
+        }
+    }
+});
+$(".smallside-box-container").on("scroll", function (event) {
+    let trueId = event.target.id;
+    if (trueId != "") {
+        let mainContainerWidth = $("#" + trueId).innerWidth();
+        let scrollHeight = parseInt($("#" + trueId).scrollTop());
+        if (scrollHeight >= 28) {
+            $("#" + trueId + "-Header").css("position", "fixed");
+            $("#" + trueId + "-Header").css("z-index", "1000");
+            $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
+            $("#" + trueId + "-Header").css("background-color", "transparent");
+            $("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
+            $("#" + trueId + "-Header").addClass("shadow-sm");
+        }
+        else {
+            $("#" + trueId + "-Header").css("position", "relative");
+            $("#" + trueId + "-Header").css("z-index", "0");
+            $("#" + trueId + "-Header").removeClass("shadow-sm");
+            $("#" + trueId + "-Header").css("backdrop-filter", "none");
+        }
     }
 });
 

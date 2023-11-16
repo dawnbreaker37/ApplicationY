@@ -32,10 +32,12 @@
             </form>
         </div>
 
-        <div class="smallside-box-container p-3 shadow-standard" id="AboutCategories_Container">
-            <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
-            <h5 class="h5 text-truncate">About Categories</h5>
-            <div class="mt-4">
+        <div class="smallside-box-container shadow-standard" id="AboutCategories_Container">
+            <div class="header-container p-3 pb-2" id="AboutCategories_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">About Categories</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <h6 class="h6">Categories For Projects</h6>
                 <small class="card-text">Owners of projects must choose one category from the prepared list which describes their project. Below in the list we'll show to you all categories to inform you</small>
                 <div class="mt-3">
@@ -83,10 +85,12 @@
             </div>
         </div>
 
-        <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
-            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
-            <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
-            <div class="mt-4">
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+            <div class="header-container p-3 pb-2" id="UserShortInfo_Container-Header">
+                <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+                <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <div class="box-container">
                     <div class="box-container p-2 bg-light">
                         <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
@@ -122,10 +126,12 @@
             </div>
         </div>
 
-        <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="ReplyToComment_Container">
-            <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
-            <h5 class="h5 text-truncate">Reply to <span class="text-primary" id="RTC_User"></span></h5>
-            <div class="mt-4">
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="ReplyToComment_Container">
+            <div class="header-container p-3 pb-2" id="ReplyToComment_Container-Header">
+                <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
+                <h5 class="h5 text-truncate">Reply to <span class="text-primary" id="RTC_User"></span></h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <div class="box-container bg-light p-3">
                     <input type="hidden" id="RTC_Count" value="0" />
                     <h6 class="h6" id="RTC_Username">Username</h6>
@@ -189,24 +195,62 @@
             }
         </div>
     </div>
+    <div class="bordered-container p-3 mt-2" id="ReleaseNotesPreview_Container">
+        <h6 class="h6 safe-font">Release Notes</h6>
+        <div class="mt-2">
+            <h1 class="h1"> <i class="fas fa-sync-alt"></i> </h1>
+            @if(ViewBag.ReleaseNotesCount > 1)
+            {
+                <h5 class="h5 safe-font">There're @ViewBag.ReleaseNotesCount release notes for this project</h5>
+                <small class="card-text text-muted">Click the button below to show them</small>
+                <div></div>
+                <button type="button" class="btn btn-text mt-2 get-release-notes" id="GRNProject-@ProjectInfo.Id"> <i class="fas fa-download"></i> Get Release Notes</button>
+            }
+            else if(ViewBag.ReleaseNotesCount == 1)
+            {
+                <h5 class="h5 safe-font">There's a single release note for this project</h5>
+                <small class="card-text text-muted">Click the button below to show them</small>
+                <div></div>
+                <button type="button" class="btn btn-text mt-2 get-release-notes" id="GRNProject-@ProjectInfo.Id"> <i class="fas fa-download"></i> Get Release Notes</button>
+            }
+            else
+            {
+                <h5 class="h5 safe-font">There's no release notes for this project</h5>
+                <small class="card-text text-muted">May be the owner of the project will add some release notes later</small>
+            }
+        </div>
+    </div>
 
-    <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="Comments_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">@CommentsCount.ToString("N0")</span></h5>
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="ReleaseNotes_Container">
+        <div class="header-container p-3 pb-2" id="ReleaseNotes_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="ReleaseNotes_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Release Notes, <span id="ReleaseNotes_Count_Lbl">0</span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0" id="ReleaseNotes_Box">
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Comments_Container">
+        <div class="header-container p-3 pb-2" id="Comments_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Comments_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Comments, <span id="CommentsCount_Span">@CommentsCount.ToString("N0")</span></h5>
+        </div>
         <div class="d-none">
             <input type="hidden" id="CommentsCount_Val" value="@CommentsCount" />
         </div>
-        <div class="mt-3 mb-5" id="CommentsMain_Box">
+        <div class="mt-2 p-3 pt-0 mb-5" id="CommentsMain_Box">
 
         </div>
     </div>
 
     @if (UserInfo != null)
     {
-        <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="SendMessage_Container">
-            <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
-            <h5 class="h5 text-truncate">Send Message</h5>
-            <div class="mt-4">
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
+            <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">Send Message</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessage_Form">
                     <div class="d-none">
                         <input type="hidden" name="SenderId" value="@UserInfo.Id" />
@@ -281,16 +325,16 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end" aria-label="close" id="Preload_Container-Close"></button>
         <a asp-controller="Project" asp-action="Report" asp-route-Id="@ProjectInfo.Id" class="btn btn-standard-not-animated btn-sm float-end me-2"> <i class="far fa-flag text-danger"></i> Report</a>
         <a asp-controller="User" asp-action="Purge" asp-route-Id="@ProjectInfo.UserId" class="btn btn-standard-not-animated btn-sm float-end me-2"> <i class="fas fa-bolt text-info"></i> Purge</a>
-        <h6 class="h5 text-truncate">Project</h6>
+        <h6 class="h5 text-truncate">@ProjectInfo.Name</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container">
-            <h1 class="h1 text-primary safe-font" id="Preview_Title">@ProjectInfo.Name</h1>
+            <h1 class="h1 text-primary main-title-font-style" id="Preview_Title">@ProjectInfo.Name</h1>
         </div>
         <div class="box-container shadow-sm mt-2 p-2">
             <div class="p-2">
@@ -382,9 +426,9 @@
                     </div>
                     <div class="col">
                         <h6 class="h6">Category</h6>
-                        @if(ProjectInfo.Category != null)
+                        @if(ProjectInfo.CategoryName != null)
                         {
-                            <small class="card-text text-muted safe-font" id="Preview_Category">@ProjectInfo.Category?.Name</small>
+                            <small class="card-text text-muted safe-font" id="Preview_Category">@ProjectInfo.CategoryName</small>
                         }
                         else
                         {
@@ -400,6 +444,25 @@
                     <div class="col">
                         <h6 class="h6">Last Update</h6>
                         <small class="card-text text-muted safe-font" id="Preview_LastUpdatedDate">@ProjectInfo.LastUpdatedAt.ToShortDateString(), at @ProjectInfo.LastUpdatedAt.ToShortTimeString()</small>
+                    </div>
+                </div>
+                <div class="row mt-4 text-center">
+                    <div class="col">
+                        <h6 class="h6">Release Notes</h6>
+                        @if(ViewBag.ReleaseNotesCount != 0)
+                        {
+                            <small class="card-text text-muted safe-font" id="Preview_ReleaseNotesCount_Lbl">@ViewBag.ReleaseNotesCount</small>
+                            <div>
+                                <form method="get" asp-controller="Project" asp-action="GetUpdates" id="GetUpdates_Form">
+                                    <input type="hidden" name="Id" id="GUF_ProjectId_Val" value="@ProjectInfo.Id" />
+                                    <button type="submit" class="btn btn-text btn-sm mt-2">Show Release Notes</button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <small class="card-text text-muted safe-font" id="Preview_ReleaseNotesCount_Lbl">No Release Notes</small>
+                        }
                     </div>
                 </div>
             </div>

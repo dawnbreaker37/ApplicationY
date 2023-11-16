@@ -41,25 +41,27 @@
     </div>
 </div>
 
-<div class="smallside-box-container p-3 shadow-standard" id="EditPersonalInfo_Container">
-    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditPersonalInfo_Container-Close"></button>
-    @if (UserInfo.CountryId == null)
-    {
-        <span class="badge bg-light text-dark fw-normal float-end mt-2" id="CurrentCountry_Badge"> <i class="fas fa-globe-americas"></i> Current: not selected</span>
-    }
-    else
-    {
-        <span class="badge bg-primary fw-normal float-end mt-2" id="CurrentCountry_Badge"> <i class="fas fa-globe-americas"></i> Current: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span>
-    }
-    <h5 class="h5 text-truncate">Edit Personal</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="EditPersonalInfo_Container">
+    <div class="header-container p-3 pb-2" id="EditPersonaInfo_Conainer-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditPersonalInfo_Container-Close"></button>
+        @if (UserInfo?.CountryId == null)
+        {
+            <span class="badge bg-light text-dark fw-normal float-end mt-2" id="CurrentCountry_Badge"> <i class="fas fa-globe-americas"></i> Current: not selected</span>
+        }
+        else
+        {
+            <span class="badge bg-primary fw-normal float-end mt-2" id="CurrentCountry_Badge"> <i class="fas fa-globe-americas"></i> Current: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span>
+        }
+        <h5 class="h5 text-truncate">Edit Personal</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Account" asp-action="EditPersonalInfo" id="EditPersonalInfo_Form">
             <div class="d-none">
-                <input type="hidden" name="Id" value="@UserInfo.Id" />
-                <input type="hidden" name="CreatedAt" id="EPI_CreatedAt" value="@UserInfo.CreatedAt" />
+                <input type="hidden" name="Id" value="@UserInfo?.Id" />
+                <input type="hidden" name="CreatedAt" id="EPI_CreatedAt" value="@UserInfo?.CreatedAt" />
             </div>
             <div>
-                @if (UserInfo.CreatedAt != null)
+                @if (UserInfo?.CreatedAt != null)
                 {
                     <div class="row">
                     <label class="form-label fw-500">Set date of birth/creation ∙ <span class="card-text text-muted fw-normal" id="EPI_DateInfo">@UserInfo.CreatedAt?.Day/@UserInfo.CreatedAt?.Month/@UserInfo.CreatedAt?.Year</span></label>
@@ -101,7 +103,7 @@
                     </datalist>
                 </div>
                 <div class="mt-3">
-                    @if (UserInfo.IsCompany)
+                    @if (UserInfo!.IsCompany)
                     {
                         <div class="form-check form-switch">
                             <input class="form-check-input" type="checkbox" id="EPI_IsCompany" name="IsCompany" checked value="true" />
@@ -173,10 +175,12 @@
     </div>
 </div>
 
-<div class="smallside-box-container p-3 shadow-standard" id="PasswordChangeSubmit_Container">
-    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChangeSubmit_Container-Close"></button>
-    <h5 class="h5 text-truncate">Change Password, Step 2/2</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="PasswordChangeSubmit_Container">
+    <div class="header-container p-3 pb-2" id="PasswordChangeSubmit_Containr-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChangeSubmit_Container-Close"></button>
+        <h5 class="h5 text-truncate">Change Password, Step 2/2</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Account" asp-action="ChangePassword_Final" id="ChangePassword_Final_Form">
             <div class="d-none">
                 <input type="hidden" name="UserId" id="PCS_UserId" />
@@ -207,10 +211,12 @@
         </form>
     </div>
 </div>
-<div class="smallside-box-container p-3 shadow-standard" id="PasswordChange_Container">
-    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChange_Container-Close"></button>
-    <h5 class="h5 text-truncate">Change Password, Step 1/2</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="PasswordChange_Container">
+    <div class="header-container p-3 pb-2" id="PasswordChange_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChange_Container-Close"></button>
+        <h5 class="h5 text-truncate">Change Password, Step 1/2</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container p-2 bg-light">
             <p class="card-text fw-500"> <i class="fas fa-exclamation-triangle text-warning"></i> Warning</p>
             <small class="card-text">Pay attention that after this change you won't able to change your password again for 28 days</small>
@@ -236,10 +242,12 @@
     </div>
 </div>
 
-<div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
-    <button type="button" class="btn btn-back btn-sm float-end ms-1">Back</button>
-    <h5 class="h5 text-truncate">Add Option To Text</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="AddOption_Container">
+    <div class="header-container p-3 pb-2" id="AddOption_Container-Header">
+        <button type="button" class="btn btn-back btn-sm float-end ms-1">Back</button>
+        <h5 class="h5 text-truncate">Add Option To Text</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <div class="bordered-container p-2">
             <small class="card-text text-muted">Type:</small>
             <small class="card-text" id="AddOption_Badge">No Item</small>
@@ -263,10 +271,12 @@
     </div>
 </div>
 
-<div class="smallside-box-container p-3 shadow-standard" id="DescriptionInfo_Container">
-    <button type="button" class="btn btn-back float-end btn-sm ms-1">Got It!</button>
-    <h5 class="h5 text-truncate">Description Textbox Info</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="DescriptionInfo_Container">
+    <div class="header-container p-3 pb-2" id="DescriptionInfo_Container-Header">
+        <button type="button" class="btn btn-back float-end btn-sm ms-1">Got It!</button>
+        <h5 class="h5 text-truncate">Description Textbox Info</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <p class="card-text">In this widget we're going to let you know about description textbox options. All instruction is showed below:</p>
         <div class="bordered-container p-2 mt-1 text-center">
             <div>
@@ -326,10 +336,12 @@
     </div>
 </div>
 
-<div class="smallside-box-container p-3 shadow-standard" id="EditDescription_Container">
-    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditDescription_Container-Close"></button>
-    <h5 class="h5 text-truncate">Edit Description</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="EditDescription_Container">
+    <div class="header-container p-3 pb-2" id="EditDescription_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="EditDescription_Container-Close"></button>
+        <h5 class="h5 text-truncate">Edit Description</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Account" asp-action="EditDescription" id="EditDescription_Form">
             <div>
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
@@ -356,11 +368,13 @@
 
 @if (!UserInfo.IsEmailChanged)
 {
-    <div class="smallside-box-container p-3 shadow-standard" id="EmailChange_Container">
-        <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="EmailChange_Container-Close"></button>
-        <button type="button" class="btn btn-outline-light text-dark btn-standard-with-no-colour border-0 btn-sm float-end mt-1 info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Click <span class='badge bg-light shadow-sm text-dark warning-badge'>Send Reserve Code</span> to send your reserve code to your current account. Click <span class='badge bg-light text-dark warning-badge'>Change Via One-Time Code</span> to receive a one-time code to your email and change email by that code" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
-        <h5 class="h5 text-truncate">Change Email Via Reserve Code</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="EmailChange_Container">
+        <div class="header-container p-3 pb-2" id="EmailChange_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="EmailChange_Container-Close"></button>
+            <button type="button" class="btn btn-outline-light text-dark btn-standard-with-no-colour border-0 btn-sm float-end mt-1 info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Click <span class='badge bg-light shadow-sm text-dark warning-badge'>Send Reserve Code</span> to send your reserve code to your current account. Click <span class='badge bg-light text-dark warning-badge'>Change Via One-Time Code</span> to receive a one-time code to your email and change email by that code" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
+            <h5 class="h5 text-truncate">Change Email Via Reserve Code</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <form method="post" asp-controller="Account" asp-action="ChangeEmailViaReserveCode" id="ChangeEmailViaReserveCode_Form">
                 <div>
                     <input type="hidden" name="Id" value="@UserInfo.Id" />
@@ -398,10 +412,12 @@
     </div>
 }
 
-<div class="smallside-box-container p-3 shadow-standard" id="LinkEdit_Container">
-    <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="LinkEdit_Container-Close"></button>
-    <h5 class="h5 text-truncate">Edit Links</h5>
-    <div class="mt-4">
+<div class="smallside-box-container shadow-standard" id="LinkEdit_Container">
+    <div class="header-container p-3 pb-2" id="LinkEdit_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="LinkEdit_Container-Close"></button>
+        <h5 class="h5 text-truncate">Edit Links</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Account" asp-action="EditLinks" id="EditLinks_Form">
             <div>
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
@@ -466,12 +482,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="EditSecuritySettings_Container">
-    <div>
+<div class="main-container shadow-standard" id="EditSecuritySettings_Container">
+    <div class="header-container p-3 pb-2" id="EditSecuritySettings_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="EditSecuritySettings_Container-Close"></button>
-        <h6 class="h5 text-truncate">Security</h6>
+        <h5 class="h5 text-truncate">Security</h5>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-3">
             @if (UserInfo.PseudoName != null)
             {
@@ -531,8 +547,8 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="EditAccount_Container-OpenY">Edit</button>
         @if (!UserInfo.EmailConfirmed)
@@ -541,16 +557,16 @@
         }
         <h5 class="h5 text-truncate">About You</h5>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-3">
             @if (UserInfo.PseudoName == null)
             {
-                <h1 class="h1 safe-font" id="AY_Username">@UserInfo.UserName</h1>
+                <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.UserName</h1>
                 <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i> <span class="text-dark">Searchname:</span> @UserInfo.SearchName</small>
             }
             else
             {
-                <h1 class="h1 safe-font" id="AY_Username">@UserInfo.PseudoName</h1>
+                <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.PseudoName</h1>
                 <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i>, <i class="fas fa-hashtag text-dark"></i> <span class="text-dark">Searchname, Username:</span> @UserInfo.SearchName, @UserInfo.UserName</small>
             }
             <div class="mt-2"></div>

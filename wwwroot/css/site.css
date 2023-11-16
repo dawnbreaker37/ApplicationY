@@ -311,6 +311,11 @@ html {
     display: none;
 }
 
+.header-container {
+    border-radius: 8px 8px 1px 1px;
+    transition: all ease 0.3s;
+}
+
 .bubble-container {
     border-radius: 12px;
     background-color: transparent;
@@ -454,6 +459,19 @@ html {
 body {
   margin-bottom: 60px;
   background-color: #fdfdfd;
+}
+
+.release-note-container {
+    border-radius: 0 8px 8px 0;
+    border: 0;
+    border-left: 2px solid #007bff;
+    transition: all ease 0.3s;
+}
+
+.main-title-font-style {
+    /*Similar to Andika*/
+    font-family: 'Lucida Sans Unicode';
+    font-stretch: expanded;
 }
 
 .send-msg-form-control {

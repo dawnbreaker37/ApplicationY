@@ -46,10 +46,12 @@
 
     @if(ProjectsCount != 0)
     {
-        <div class="smallside-box-container p-3 shadow-standard scrollbar-hidden" id="ProjectsList_Container">
-            <button type="button" class="btn btn-close float-end ms-1" id="ProjectsList_Container-Close" aria-label="close"></button>
-            <h5 class="h5 text-truncate">Projects, <span id="ProjectsCount_Span">@ProjectsCount.ToString("N0")</span></h5>
-            <div class="mt-4">
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="ProjectsList_Container">
+            <div class="header-container p-3 pb-2" id="ProjectsList_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="ProjectsList_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">Projects, <span id="ProjectsCount_Span">@ProjectsCount.ToString("N0")</span></h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
                 @foreach(Project Item in ViewBag.UserProjects)
                 {
                     <div class="bordered-container p-2 mt-1 mb-1">
@@ -87,16 +89,16 @@
     }
 </div>
 
-<div class="main-container p-3 shadow-standard scrollbar-hidden" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
-        <h6 class="h5 text-truncate">@CurrentUserInfo.PseudoName</h6>
+        <h5 class="h5 text-truncate">@CurrentUserInfo.PseudoName</h5>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-2">
             <span class="badge bg-white text-dark warning-badge float-end ms-1 safe-font fw-normal"> <i class="fas fa-globe-americas"></i> @CurrentUserInfo.CountryFullName</span>
-            <h2 class="h2 safe-font">@CurrentUserInfo.PseudoName</h2>
-            <div class="mt-3"></div>
+            <h1 class="h1 main-title-font-style">@CurrentUserInfo.PseudoName</h1>
+            <div class="mt-2"></div>
             <small class="card-text text-muted"> <i class="fas fa-at text-primary"></i> @CurrentUserInfo.SearchName</small>
             <div class="mt-1"></div>
             <small class="card-text text-muted"> <i class="fas fa-inbox text-primary"></i> @CurrentUserInfo.Email</small>

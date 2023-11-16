@@ -14,13 +14,15 @@ namespace ApplicationY.Controllers
         private readonly IUser _user;
         private readonly ILogger<HomeController> _logger;
         private readonly IProject _projectRepository;
+        private readonly ICategory _categoryRepository;
 
-        public HomeController(ILogger<HomeController> logger, IUser user, IProject projectRepository, UserManager<User> userManager)
+        public HomeController(ILogger<HomeController> logger, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
         {
             _user = user;
             _logger = logger;
             _userManager = userManager;
             _projectRepository = projectRepository;
+            _categoryRepository = categoryRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -38,13 +40,17 @@ namespace ApplicationY.Controllers
         {
             int Count = 0;
             int UsersCount = 0;
+            int CategoriesCount = 0;
+            int LastCategoryId = 0;
+            User? UserInfo = null;
             List<GetProjects_ViewModel>? RandomProjects = null;
             List<GetUserInfo_ViewModel>? RandomUsers = null;
+            List<Category>? Categories = null;
             if (User.Identity.IsAuthenticated)
             {
-                User? UserInfo = await _userManager.GetUserAsync(User);
-                if (UserInfo != null) ViewBag.UserInfo = UserInfo;
+                UserInfo = await _userManager.GetUserAsync(User);
 
+                IQueryable<Category>? Categories_Preview = _categoryRepository.GetAll();
                 IQueryable<GetUserInfo_ViewModel>? RandomUsers_Preview = _user.GetRandomUsers(12);
                 IQueryable<GetProjects_ViewModel>? RandomProjects_Preivew = _projectRepository.GetRandomProjects(6);
                 if(RandomProjects_Preivew != null)
@@ -57,18 +63,29 @@ namespace ApplicationY.Controllers
                     RandomUsers = await RandomUsers_Preview.ToListAsync();
                     UsersCount = RandomUsers.Count;
                 }
+
+                if(Categories_Preview != null)
+                {
+                    Categories = await Categories_Preview.ToListAsync();
+                    LastCategoryId = Categories[Categories.Count - 1].Id;
+                    CategoriesCount = Categories.Count;
+                }
             }
-            ViewBag.UserInfo = null;
+
+            ViewBag.UserInfo = UserInfo;
             ViewBag.Projects = RandomProjects;
             ViewBag.ProjectsCount = Count;
             ViewBag.UsersCount = UsersCount;   
             ViewBag.Users = RandomUsers;
+            ViewBag.Categories = Categories;
+            ViewBag.CategoriesCount = CategoriesCount;
+            ViewBag.LastCategoryId = LastCategoryId;
 
             return View();
         }
 
         [HttpGet]
-        public async Task<IActionResult> SearchEverywhere(string Keyword, int MinPrice, int MaxPrice, bool SearchOnlyProjects, bool SearchOnlyUsers)
+        public async Task<IActionResult> SearchEverywhere(string Keyword, int MinPrice, int MaxPrice, bool SearchOnlyProjects, bool SearchOnlyUsers, int CategoryId)
         {
             int ProjectsCount = 0;
             int UsersCount = 0;
@@ -76,12 +93,12 @@ namespace ApplicationY.Controllers
             IQueryable<GetUserInfo_ViewModel>? UsersResult_Preview = null;
             List<GetUserInfo_ViewModel>? UsersResult = null;
             List<GetProjects_ViewModel>? ProjectsResult = null;
-            if (SearchOnlyProjects && !SearchOnlyUsers) ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, 0);
+            if (SearchOnlyProjects && !SearchOnlyUsers) ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
             else if(!SearchOnlyProjects && SearchOnlyUsers) UsersResult_Preview = _user.FindUsers(Keyword);
             else
             {
                 UsersResult_Preview = _user.FindUsers(Keyword);
-                ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, 0);
+                ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
             }
 
             if(UsersResult_Preview != null)

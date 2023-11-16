@@ -182,7 +182,54 @@ namespace ApplicationY.Controllers
                 if (Result != null) return Json(new { success = true, alert = "The " + Result + " project has successfully updated. Go by link below to check the updated project", link = Model.Id });
                 else return Json(new { success = false, alert = "An error occured while trying to update project information. Please, check all entered datas and then try again" });
             }
-            return Json(new { success = false, alert = "Something from entered datas is wrong. Please, check them all and then try again" });
+            return Json(new { success = false, alert = "Something from the entered datas are wrong. Please, check them all and then try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddUpdate(int Id, string Title, string Description)
+        {
+            bool Result = await _projectRepository.AddReleaseNoteAsync(Id, Title, Description);
+            if (Result) return Json(new { success = true, alert = "Release note has been successfully created. It'll appear at your project main page" });
+            else return Json(new { success = false, alert = "Unable to create release note. Please, check all entered datas and then try again" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUpdates(int Id)
+        {
+            IQueryable<GetReleaseNotes_ViewModel>? ReleaseNotes_Preview = _projectRepository.GetReleaseNotes(Id);
+            if (ReleaseNotes_Preview != null)
+            {
+                List<GetReleaseNotes_ViewModel>? ReleaseNotes = await ReleaseNotes_Preview.ToListAsync();
+                return Json(new { success = true, result = ReleaseNotes, count = ReleaseNotes.Count });
+            }
+            else return Json(new { success = false, alert = "There's no actual release notes for this project" });
+        }
+
+        public async Task<IActionResult> Liked()
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                User? UserInfo = await _userManager.GetUserAsync(User);
+                if (UserInfo != null)
+                {
+                    int Count = 0;
+                    List<GetLikedProjects_ViewModel>? LikedProjectsResult = null;
+                    IQueryable<GetLikedProjects_ViewModel>? LikedProjectsResult_Preview = _projectRepository.GetLikedProjects(UserInfo.Id);
+                    if(LikedProjectsResult_Preview != null)
+                    {
+                        LikedProjectsResult = await LikedProjectsResult_Preview.ToListAsync();
+                        Count = LikedProjectsResult.Count;
+                    }
+
+                    ViewBag.UserInfo = UserInfo;
+                    ViewBag.LikedProjects = LikedProjectsResult;
+                    ViewBag.Count = Count;
+
+                    return View();
+                }
+                else return RedirectToAction("Index", "Home");
+            }
+            return RedirectToAction("Create", "Account");
         }
 
         [HttpPost]
@@ -220,9 +267,17 @@ namespace ApplicationY.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveFromLiked(int ProjectId, int UserId)
         {
-            int Result = await _projectRepository.RemoveFromLikesAsync(ProjectId, UserId);
+            int Result = await _projectRepository.RemoveFromLikesAsync(ProjectId, UserId, false);
             if (Result != 0) return Json(new { success = true, projectId = ProjectId });
             else return Json(new { success = false, alert = "An error occured while trying to remove the project from your liked projects list. May be, you've already removed it from your liked list" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveAllLiked(int UserId)
+        {
+            int Result = await _projectRepository.RemoveFromLikesAsync(0, UserId, true);
+            if (Result != 0) return Json(new { success = true, projectId = Result });
+            else return Json(new { success = false, alert = "An error occured while trying to remove your all liked projects" });
         }
 
         [HttpGet]
@@ -248,6 +303,7 @@ namespace ApplicationY.Controllers
                     string? AdditionalYoutubeLink = null;
                     bool HasAlreadyBeenLiked = false;
                     double PreviousPricePercentage = 0;
+                    int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                     int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
                     int FullProjectsCount = await _projectRepository.GetProjectsCount();
@@ -285,6 +341,7 @@ namespace ApplicationY.Controllers
                         else ViewBag.UserInfo = null;
                     }
                     ViewBag.ProjectInfo = ProjectInfo;
+                    ViewBag.ReleaseNotesCount = ReleaseNotesCount;
                     ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
                     ViewBag.FullText = sb;
                     ViewBag.LikesCount = LikesCount;

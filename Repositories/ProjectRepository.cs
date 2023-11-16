@@ -234,12 +234,22 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
-        public async Task<int> RemoveFromLikesAsync(int ProjectId, int UserId)
+        public async Task<int> RemoveFromLikesAsync(int ProjectId, int UserId, bool RemoveAll)
         {
-            if(ProjectId != 0 && UserId != 0)
+            if (!RemoveAll) {
+                if (ProjectId != 0 && UserId != 0)
+                {
+                    int Result = await _context.Likes.Where(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
+                    if (Result != 0) return ProjectId;
+                }
+            }
+            else
             {
-                int Result = await _context.Likes.Where(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
-                if (Result != 0) return ProjectId;
+                if(UserId != 0)
+                {
+                    int Result = await _context.Likes.Where(p => p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                    if (Result != 0) return -256;
+                }
             }
             return 0;
         }
@@ -278,12 +288,53 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId)
         {
-            return _context.Projects.AsNoTracking().Where(p => (!p.IsRemoved && !p.IsClosed) && (Keyword == null || (p.Name!.ToLower().Contains(Keyword.ToLower())) || (p.Description!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart1!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart2 != null && p.TextPart2.ToLower().Contains(Keyword.ToLower())) || (p.TextPart3 != null && p.TextPart3.ToLower().Contains(Keyword.ToLower()))) && (MinPrice == 0 && MaxPrice == 0 || p.TargetPrice >= MinPrice && p.TargetPrice <= MaxPrice)).Select(p => new GetProjects_ViewModel { Id = p.Id, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, Name = p.Name, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, UserName = p.User!.PseudoName, Views = p.Views, UserId = p.UserId, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved }).OrderByDescending(p => p.Views).ThenByDescending(p => p.LastUpdatedAt);
+            return _context.Projects.AsNoTracking().Where(p => (!p.IsRemoved && !p.IsClosed) && (CategoryId == 0 || p.CategoryId == CategoryId) && (Keyword == null || (p.Name!.ToLower().Contains(Keyword.ToLower())) || (p.Description!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart1!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart2 != null && p.TextPart2.ToLower().Contains(Keyword.ToLower())) || (p.TextPart3 != null && p.TextPart3.ToLower().Contains(Keyword.ToLower()))) && (MinPrice == 0 && MaxPrice == 0 || p.TargetPrice >= MinPrice && p.TargetPrice <= MaxPrice)).Select(p => new GetProjects_ViewModel { Id = p.Id, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, Name = p.Name, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, UserName = p.User!.PseudoName, Views = p.Views, UserId = p.UserId, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved }).OrderByDescending(p => p.Views).ThenByDescending(p => p.LastUpdatedAt);
         }
 
         public async Task<int> GetProjectsCount()
         {
             return await _context.Projects.AsNoTracking().CountAsync(p => !p.IsRemoved);
+        }
+
+        public async Task<bool> AddReleaseNoteAsync(int ProjectId, string Title, string Description)
+        {
+            if(ProjectId != 0 && !String.IsNullOrEmpty(Title) && !String.IsNullOrEmpty(Description))
+            {
+                bool IsProjectReadyForReleaseNote = await _context.Projects.AnyAsync(p => !p.IsRemoved && p.Id == ProjectId);
+                if (IsProjectReadyForReleaseNote)
+                {
+                    Update update = new Update
+                    {
+                        Title = Title,
+                        Description = Description,
+                        UpdatedAt = DateTime.Now,
+                        IsRemoved = false,
+                        ProjectId = ProjectId
+                    };
+                    await _context.Updates.AddAsync(update);
+                    await _context.SaveChangesAsync();
+
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public async Task<int> ReleaseNotesCountAsync(int ProjectId)
+        {
+            return await _context.Updates.CountAsync(p => !p.IsRemoved && p.ProjectId == ProjectId);
+        }
+
+        public IQueryable<GetReleaseNotes_ViewModel>? GetReleaseNotes(int ProjectId)
+        {
+            if (ProjectId != 0) return _context.Updates.AsNoTracking().Where(p => !p.IsRemoved && p.ProjectId == ProjectId).Select(p => new GetReleaseNotes_ViewModel { Id = p.Id, Description = p.Description, Title = p.Title, ReleaseDate = p.UpdatedAt }).OrderByDescending(p => p.ReleaseDate);
+            else return null;
+        }
+
+        public IQueryable<GetLikedProjects_ViewModel>? GetLikedProjects(int UserId)
+        {
+            if (UserId != 0) return _context.Likes.AsNoTracking().Where(l => l.UserId == UserId && !l.IsRemoved).Select(l => new GetLikedProjects_ViewModel { Id = l.Id, CreatorName = l.Project!.User!.PseudoName, Name = l.Project.Name, Views = l.Project.Views, CreatorSearchName = l.Project.User.SearchName, CreateAtDate = l.Project.CreatedAt, ProjectId = l.ProjectId });
+            else return null;
         }
     }
 }

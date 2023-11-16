@@ -24,10 +24,12 @@
         </div>
     }
 
-    <div class="smallside-box-container p-3 shadow-standard" id="YTPreview_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="YTPreview_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate"> <i class="fab fa-youtube text-danger"></i> YouTube Video Preview</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="YTPreview_Container">
+        <div class="header-container p-3 pb-2" id="YTPreview_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="YTPreview_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate"> <i class="fab fa-youtube text-danger"></i> YouTube Video Preview</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div>
                 <small class="card-text text-muted">Entered video preview</small>
                 <div class="mt-2"></div>
@@ -47,10 +49,12 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="AboutCategories_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate">About Categories</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="AboutCategories_Container">
+        <div class="header-container p-3 pb-2" id="AboutCategories_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">About Categories</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <h6 class="h6">Categories For Projects</h6>
             <small class="card-text">Owners of projects must choose one category from the prepared list which describes their project. Below in the list we'll show to you all categories to inform you</small>
             <div class="mt-3">
@@ -98,10 +102,41 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
-        <h5 class="h5 text-truncate">Add Option To Text</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="AddUpdate_Container">
+        <div class="header-container p-3 pb-2" id="AddUpdate_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddUpdate_Container-Close"></button>
+            <h5 class="h5 text-truncate">Add Release Note</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="box-container bg-light p-2">
+                <h6 class="h6"> <i class="fas fa-sync-alt"></i> What's a <span class="text-primary">Release Note</span>?</h6>
+                <small class="card-text text-muted"><span class="text-primary">Release Note</span> is a special way to notify your followers and subscribers about the latest updates of your project(s) and make the updates more visible for you and everyone else too</small>
+            </div>
+            <div class="mt-2">
+                <form method="post" asp-controller="Project" asp-action="AddUpdate" id="AddUpdate_Form">
+                    <div>
+                        <input type="hidden" name="Id" value="@ProjectInfo.Id" />
+                        <label class="form-label fw-500 ms-1">Title</label>
+                        <input type="text" class="form-control" name="Title" maxlength="75" placeholder="Enter the title for your release note" />
+                    </div>
+                    <div class="mt-3">
+                        <label class="form-label fw-500 ms-1">Description</label>
+                        <textarea rows="4" class="form-control" id="AddUpdate_Description_Val" name="Description" maxlength="750" placeholder="Enter the description for your release note"></textarea>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour"> <i class="fas fa-plus"></i> Add Release Note</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard" id="AddOption_Container">
+        <div class="header-container p-3 pb-2" id="AddOption_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
+            <h5 class="h5 text-truncate">Add Option To Text</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div class="bordered-container p-2">
                 <small class="card-text text-muted">Type:</small>
                 <small class="card-text" id="AddOption_Badge">No Item</small>
@@ -115,6 +150,11 @@
             <div class="ms-1">
                 <small class="card-text text-muted">This part will show in special, selected by you form</small>
             </div>
+            <div class="mt-3 d-none" id="ColorOption_Box">
+                <label class="form-label fw-500 ms-1">Enter Color</label>
+                <input type="text" class="form-control" autocomplete="off" id="AddOption_Val3" placeholder="Enter color name or code here" />
+                <small class="card-text text-muted">For example: <span class="text-primary">#0d6efd</span> or just enter <span class="text-danger">red</span></small>
+            </div>
             <div class="mt-3">
                 <label class="form-label fw-500 ms-1">Enter Link</label>
                 <input type="text" class="form-control" autocomplete="off" id="AddOption_Val2" disabled placeholder="Enter the link here" />
@@ -126,12 +166,13 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container" id="AddUpdate_Container-Open"> <i class="fas fa-sync-alt"></i> Add Release Note</button>
         <h6 class="h5 text-truncate">Edit Project</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Project" asp-action="EditProject" id="EditProject_Form">
             <div class="d-none">
                 <input type="hidden" asp-for="Id" value="@ProjectInfo.Id" />
@@ -154,9 +195,16 @@
                 <span class="badge warning-badge" asp-validation-for="TextPart"></span>
                 <div class="box-container bg-light p-2">
                     <span class="badge warning-badge float-end fw-normal ms-1 mt-1 text-len-badge" id="TextPart-LengthSpan">@ViewBag.FullTextLength/6000</span>
+@*                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option fw-bold me-2" data-html="TextPart" id="AddOpt-1">B</button>
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option text-decoration-underline me-2" data-html="TextPart" id="AddOpt-3">U</button>
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option fst-italic me-2" data-html="TextPart" id="AddOpt-4">I</button>
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-2"> <i class="fas fa-link"></i> Link</button> *@
+
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option fw-bold me-2" data-html="TextPart" id="AddOpt-1">B</button>
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option text-decoration-underline me-2" data-html="TextPart" id="AddOpt-3">U</button>
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option fst-italic me-2" data-html="TextPart" id="AddOpt-4">I</button>
+                    <button type="button" class="btn btn-text btn-sm text-primary btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-5"> <i class="fas fa-palette add-option" data-html="TextPart" id="AddOptIcon-5"></i> </button>
+                    <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-6"> <i class="far fa-square add-option" data-html="TextPart" id="AddOptIcon-6"></i> </button>
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-2"> <i class="fas fa-link"></i> Link</button>
                 </div>
                 <textarea name="TextPart" id="TextPart" class="form-control mt-1" rows="6" placeholder="Enter main information about your project">@FullText</textarea>
@@ -304,32 +352,33 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Completed_Container">
-    <div>
+<div class="main-container shadow-standard" id="Completed_Container">
+    <div class="header-container p-3 pb-2" id="Completed_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Completed_Container-Close"></button>
-        <h6 class="h5 text-truncate">Project Edited</h6>
+        <h5 class="h5 text-truncate">Project Edited</h5>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="text-center p-3">
             <h2 class="h2 display-4"> <i class="fas fa-check-circle"></i> </h2>
             <h4 class="h4 display-5 safe-font">Project Edited Successfully</h4>
             <small class="card-text text-muted">Go by link below to have a look on it and edit it again if something is not well enough!</small>
             <div class="mt-2">
                 <a href="#" class="btn btn-text" id="LookAtProject_Btn"> <i class="fas fa-eye"></i> Have A Look At Project</a>
+                <button type="button" class="btn btn-text smallside-btn-open-container" id="AddUpdate_Container-OpenY"> <i class="fas fa-redo-alt"></i> Add Release Note</button>
             </div>
         </div>
     </div>
 </div>
 
-    <div class="main-container p-3 shadow-standard" id="Preview_Container">
-        <div>
+<div class="main-container shadow-standard" id="Preview_Container">
+    <div class="header-container p-3 pb-2" id="Preview_Container-Header">
             <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
             <h6 class="h5 text-truncate">Preview The Project</h6>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container">
+            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
         </div>
-        <div class="mt-4">
-            <div class="box-container">
-                <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
-            </div>
             <div class="box-container shadow-sm mt-2 p-2">
                 <div class="p-2">
                     <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="far fa-bell"></i> Subscribe</button>
@@ -381,7 +430,7 @@
                         <div></div>
                         <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
                     </div>
-                </div>
             </div>
         </div>
     </div>
+</div>

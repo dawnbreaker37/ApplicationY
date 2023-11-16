@@ -1,0 +1,133 @@
+﻿@model Like
+@{
+    ViewData["Title"] = "Liked Projects";
+
+    User UserInfo = ViewBag.UserInfo;
+    int Count = ViewBag.Count;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    @if(User.Identity.IsAuthenticated)
+    {
+        <div class="d-none">
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="post" asp-controller="Project" asp-action="RemoveFromLiked" id="RemoveFromLiked_Form">
+                <input type="hidden" name="ProjectId" id="RFL_ProjectId_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
+        </div>
+    }
+    <div class="box-container shadow-sm p-3 text-center">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-heart text-primary"></i> <br />Liked</button>
+            </div>
+            <div class="col">
+                <div>
+                    <form method="post" asp-controller="Project" asp-action="RemoveAllLiked" id="RemoveAllLiked_Form">
+                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <button type="submit" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-trash-alt text-danger"></i> <br />Remove All</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="box-container bg-light mt-2 p-3">
+        <h6 class="h6 safe-font">Click on name</h6>
+        <h1 class="h1"> <i class="far fa-window-maximize"></i> </h1>
+        <small class="card-text text-muted">to get the preview of the project. Or go straight to the project's full version page to get more information about it</small>
+    </div>
+    <div class="box-container bg-light mt-2 p-3">
+        <h6 class="h6 safe-font">Click on project owner's name</h6>
+        <h1 class="h1"> <i class="far fa-user-circle"></i> </h1>
+        <small class="card-text text-muted">to get owner's information card. Or go straight to the user's full info page to get more information about him/her/it</small>
+    </div>
+</div>
+
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <h6 class="h5 text-truncate">Liked Projects, <span id="LikedProjectsCount_Span">@Count</span></h6>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container">
+            @if(Count > 0)
+            {
+                <div class="mt-2" id="HaveLikedProjects_Container">
+                    @foreach(GetLikedProjects_ViewModel Item in ViewBag.LikedProjects)
+                    {
+                        <div class="box-container p-2 mt-1 mb-1 bordered-container" id="LikedProject_Box-@Item.ProjectId">
+                            <h2 class="h2 text-primary safe-font">@Item.Name</h2>
+                            <h6 class="h6">@Item.CreatorName</h6>
+                            <div class="card-group">
+                                <div class="card mt-2 p-2 bg-light me-1">
+                                    <div>
+                                        <p class="card-text safe-font"> <i class="fas fa-ellipsis-h"></i> Additional</p>
+                                        <small class="card-text">Created <span class="safe-font">@Item.CreateAtDate.ToShortDateString(), at @Item.CreateAtDate.ToShortTimeString()</span></small>
+                                        <div class="mt-1"></div>
+                                        <small class="card-text"><span class="safe-font">@Item.Views.ToString("N0")</span> views</small>
+                                        <div class="mt-1"></div>
+                                        <small class="card-text">Created by <span class="safe-font">@Item.CreatorName</span></small>
+                                        <div class="border-top mt-2 pt-1"></div>
+                                        <small class="card-text text-muted">For more information go to the project page</small>
+                                    </div>
+                                </div>
+                                <div class="card mt-2 p-2 bg-light">
+                                    <div>
+                                        <p class="card-text safe-font"> <i class="fas fa-paperclip"></i> Options and Links</p>
+                                        <div class="box-container bg-light">
+                                            <button type="button" class="btn btn-text btn-sm remove-from-liked" id="RemoveFromLiked-@Item.ProjectId"> <i class="fas fa-heart text-primary"></i> Liked</button>
+                                            <div></div>
+                                            <small class="card-text text-muted">Remove project from your liked list</small>
+                                        </div>
+                                        <div class="box-container bg-light mt-2">
+                                            <a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.ProjectId" class="btn btn-text btn-sm"> <i class="far fa-folder-open"></i> Project</a>
+                                            <div></div>
+                                            <small class="card-text text-muted">Relocate to the project's full version page</small>
+                                        </div>
+                                        <div class="box-container bg-light mt-2">
+                                            <a asp-controller="User" asp-action="Info" asp-route-Id="@Item.CreatorSearchName" class="btn btn-text btn-sm"> <i class="far fa-user-circle"></i> User's Page</a>
+                                            <div></div>
+                                            <small class="card-text text-muted">Relocate to the project owner's page</small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+                <div class="box-container p-3 mt-4" style="display: none;" id="NoLikedProjects_Container">
+                    <div class="text-center">
+                        <h2 class="display-4"> <i class="fas fa-heart-broken text-danger"></i> </h2>
+                        <h3 class="h3 safe-font">No Liked Projects</h3>
+                        <small class="card-text text-muted">You haven't liked any project yet. Every liked by you project will be shown on this page</small>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="box-container p-3 mt-4">
+                    <div class="text-center">
+                        <h2 class="display-4"> <i class="fas fa-heart-broken text-danger"></i> </h2>
+                        <h3 class="h3 safe-font">No Liked Projects</h3>
+                        <small class="card-text text-muted">You haven't liked any project yet. Every liked by you project will be shown on this page</small>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+

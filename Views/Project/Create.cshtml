@@ -22,10 +22,12 @@
     </div>
     }
 
-    <div class="smallside-box-container p-3 shadow-standard" id="AboutCategories_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate">About Categories</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="AboutCategories_Container">
+        <div class="header-container p-3 pb-2" id="AboutCategories_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="AboutCategories_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">About Categories</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <h6 class="h6">Categories For Projects</h6>
             <small class="card-text">Owners of projects must choose one category from the prepared list which describes their project. Below in the list we'll show to you all categories to inform you</small>
             <div class="mt-3">
@@ -73,10 +75,12 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="YTPreview_Container">
-        <button type="button" class="btn btn-close float-end ms-1" id="YTPreview_Container-Close" aria-label="close"></button>
-        <h5 class="h5 text-truncate"> <i class="fab fa-youtube text-danger"></i> YouTube Video Preview</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="YTPreview_Container">
+        <div class="header-container p-3 pb-2" id="YTPreview_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="YTPreview_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate"> <i class="fab fa-youtube text-danger"></i> YouTube Video Preview</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div>
                 <small class="card-text text-muted">Entered video preview</small>
                 <div class="mt-2"></div>
@@ -96,10 +100,12 @@
         </div>
     </div>
 
-    <div class="smallside-box-container p-3 shadow-standard" id="AddOption_Container">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
-        <h5 class="h5 text-truncate">Add Option To Text</h5>
-        <div class="mt-4">
+    <div class="smallside-box-container shadow-standard" id="AddOption_Container">
+        <div class="header-container p-3 pb-2" id="AddOptions_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddOption_Container-Close"></button>
+            <h5 class="h5 text-truncate">Add Option To Text</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
             <div class="bordered-container p-2">
                 <small class="card-text text-muted">Type:</small>
                 <small class="card-text" id="AddOption_Badge">No Item</small>
@@ -143,12 +149,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Completed_Container">
-    <div>
+<div class="main-container shadow-standard" id="Completed_Container">
+    <div class="header-container p-3 pb-2" id="Completed_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Completed_Container-Close"></button>
         <h6 class="h5 text-truncate">Project Created</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="text-center p-3">
             <h2 class="h2 display-4"> <i class="fas fa-check-circle"></i> </h2>
             <h4 class="h4 display-5 safe-font">Project Created Successfully</h4>
@@ -160,12 +166,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Preview_Container">
-    <div>
+<div class="main-container shadow-standard" id="Preview_Container">
+    <div class="header-container p-3 pb-2" id="Preview_Container-Header">
         <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
         <h6 class="h5 text-truncate">Preview The Project</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <div class="box-container">
             <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
         </div>
@@ -223,12 +229,12 @@
     </div>
 </div>
 
-<div class="main-container p-3 shadow-standard" id="Preload_Container">
-    <div>
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <h6 class="h5 text-truncate">Create Project</h6>
     </div>
-    <div class="mt-4">
+    <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Project" asp-action="CreateProject" id="CreateProject_Form">
             <div class="d-none">
                 <input type="hidden" asp-for="UserId" value="@UserInfo!.Id" />
