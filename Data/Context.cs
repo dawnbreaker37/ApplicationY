@@ -19,5 +19,6 @@ namespace ApplicationY.Data
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Category> Categories { get; set; }
         public DbSet<Update> Updates { get; set; }
+        public DbSet<Subscribtion> Subscribtions { get; set; }
     }
 }

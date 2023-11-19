@@ -483,6 +483,14 @@ body {
     border-radius: 8px;
 }
 
+.game-hole {
+    background-color: #f8f9fa;
+    height: 75px;
+    width: 25%;
+    border-radius: 2px;
+    transition: all ease 0.2s;
+}
+
 .rounded-message-btn {
     color: white;
     font-weight: 500;
@@ -520,6 +528,17 @@ body {
 .yt-icon:active {
     animation-delay: 0.05s;
     animation: yt-animation 1s linear infinite;
+}
+
+.bell-icon {
+    animation-play-state: running;
+    animation-delay: 0.15s;
+    animation: bell-ring-animation 0.85s linear;
+}
+.circular-icons {
+    animation-play-state: running;
+    animation-delay: 0.15s;
+    animation: roll-icon-animation 0.85s linear;
 }
 
 .fast-transition {
@@ -568,11 +587,49 @@ body {
     }
 }
 
-@keyframes yt-animation {
+@keyframes roll-icon-animation {
+    0% {
+        transform: rotate(0);
+    }
+    25% {
+        transform: rotate(90deg);
+    }
+    50% {
+        transform: rotate(-45deg);
+    }
+    75% {
+        transform: rotate(45deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
 
+@keyframes bell-ring-animation {
+    0% {
+        transform: rotate(0);
+    }
+    20% {
+        transform: rotate(40deg);
+    }
+    40% {
+        transform: rotate(-40deg);
+    }
+    60% {
+        transform: rotate(18deg);
+    }
+    80% {
+        transform: rotate(-18deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
 }
 
 @media screen and (max-width: 1024px) {
+    .game-hole {
+        height: 45px;
+    }
     .mw-60 {
         max-width: 100%;
     }

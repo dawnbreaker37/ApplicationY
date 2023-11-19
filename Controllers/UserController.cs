@@ -16,8 +16,9 @@ namespace ApplicationY.Controllers
         private readonly IUser _userRepository;
         private readonly IAccount _accountRepository;
         private readonly IProject _projectRepository;
+        private readonly ISubscribe _subscribeRepository;
 
-        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IAccount accountRepository, IUser userRepository, IProject projectRepository)
+        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, ISubscribe subscribeRepository, IAccount accountRepository, IUser userRepository, IProject projectRepository)
         {
             _context = context;
             _userManager = userManager;
@@ -25,6 +26,7 @@ namespace ApplicationY.Controllers
             _userRepository = userRepository;
             _accountRepository = accountRepository;
             _projectRepository = projectRepository;
+            _subscribeRepository = subscribeRepository;
         }
 
         public async Task<IActionResult> Profile()
@@ -95,6 +97,7 @@ namespace ApplicationY.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
+                bool IsSubscribed = false;
                 IQueryable<Project?>? UserProjects;
                 List<Project?>? UserProjectsResult = null;
 
@@ -102,9 +105,12 @@ namespace ApplicationY.Controllers
                 GetUserInfo_ViewModel? CurrentUserInfo = await _userRepository.GetUserBySearchnameAsync(Id);
                 if (CurrentUserInfo != null)
                 {
+                    int SubscribersCount = await _subscribeRepository.GetSubscribersCount(CurrentUserInfo.Id);
                     if (UserInfo != null)
                     {
                         UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, UserInfo.Id, false);
+                        IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
+
                         ViewBag.UserInfo = UserInfo;
                     }
                     else UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, 0, false);
@@ -114,6 +120,8 @@ namespace ApplicationY.Controllers
                     if(CurrentUserInfo?.Link2 != null) CurrentUserInfo.Link2 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link2);
 
                     ViewBag.CurrentUserInfo = CurrentUserInfo;
+                    ViewBag.IsSubscribed = IsSubscribed;
+                    ViewBag.SubscribersCount = SubscribersCount;
                     ViewBag.UserProjects = UserProjectsResult;
                     ViewBag.ProjectsCount = UserProjectsResult?.Count;
 

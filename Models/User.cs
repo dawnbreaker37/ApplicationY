@@ -32,6 +32,7 @@ namespace ApplicationY.Models
         public Country? Country { get; set; }
         public List<TemporaryCode>? TemporaryCodes { get; set; }
         public List<Notification>? Notifications { get; set; }
+        public List<Subscribtion>? Subscribtions { get; set; }
         public List<Project>? Projects { get; set; }
     }
 }

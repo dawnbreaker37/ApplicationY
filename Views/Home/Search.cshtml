@@ -8,13 +8,29 @@
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
     <div class="d-none">
-        <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
-            <input type="hidden" name="Id" id="GSU_Id_Val" value="@UserInfo?.Id" />
-        </form>
+        @if(UserInfo != null)
+        {
+            <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
+                <input type="hidden" name="Id" id="GSU_Id_Val" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+            </form>
+        }
         <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
             <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
             <input type="hidden" name="GetAdditionalInfo" value="True" />
             <input type="hidden" name="GetUsername" value="True" />
+        </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
+            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
         </form>
         <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
             <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
@@ -32,8 +48,13 @@
                     <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
                     <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
                     <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
-                    <div class="mt-1 border-top"></div>
-                    <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                    <div class="mt-2 pt-1 border-top"></div>
+                    <div class="mb-1">
+                        <input type="hidden" id="USI_Id_Val" value="0" />
+                        <input type="hidden" id="USI_SubscribersCount_Val" value="0" />
+                        <button type="button" class="btn bg-white btn-standard-with-no-colour float-end ms-1 btn-sm" id="USI_SubscribersInfo_Btn"></button>
+                        <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                    </div>
                 </div>
                 <div class="card-group mt-2">
                     <div class="card p-2 bg-light">
@@ -129,6 +150,118 @@
             <h4 class="h4 safe-font">Please Wait</h4>
             <p class="card-text text-muted">We're searching right now and it may take few seconds</p>
             <small class="card-text text-muted">You can play our game that has been created for situation like this!</small>
+        </div>
+        <div class="box-container bordered-container p-2 mt-3" id="GameBox_Container">
+            <div class="box-container">
+                <div class="box-container bordered-container p-2 text-center">
+                    <div class="row">
+                        <div class="col">
+                            <button type="button" class="btn btn-lg btn-standard-not-animated w-100" id="StartTheGame_Btn"> <i class="fas fa-play"></i> <br/>Play</button>
+                        </div>
+                        <div class="col">
+                            <h3 class="h3 safe-font">Score</h3>
+                            <h6 class="h6" id="ScoreTable_Lbl">000</h6>
+                            <input type="hidden" id="Score_Val" value="0" />
+                            <small class="card-text text-muted"> <span id="SpeedIcon_Span"><i class="fas fa-circle text-primary"></i></span> Multiplier: <span id="Speed_Span">0.10</span>x</small>
+                        </div>
+                        <div class="col">
+                            <input type="hidden" id="GameSpeedType_Val" value="0" />
+                            <button type="button" class="btn btn-lg btn-light btn-standard-not-animated w-100" id="GameSpeedIncrease_Btn"> <i class="fas fa-forward"></i> <br />Speed Up</button>
+                        </div>
+                    </div>
+                </div>
+                    <div class="row mt-2">
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-1"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-2"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-3"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-4"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-5"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-6"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-7"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-8"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-9"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-10"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-11"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-12"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-13"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-14"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-15"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-16"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-17"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-18"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-19"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-20"></div>
+                        </div>
+                    </div>
+                    <div class="row mt-1">
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-21"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-22"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-23"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-24"></div>
+                        </div>
+                        <div class="col">
+                            <div class="card game-hole w-100 me-1" id="GameCell-25"></div>
+                        </div>
+                    </div>
+                    <div class="mt-2 bordered-container p-2">
+                        <h6 class="h6 safe-font">Information</h6>
+                        <div class="mt-2 pt-2 border-top"></div>
+                        <p class="card-text fw-500">Duration: <span id="GameDuration_Span">0.0 sec.</span></p>
+                        <p class="card-text fw-500">Interval: <span id="GameInterval_Span">2.4</span> sec.</p>
+                    </div>
+            </div>
         </div>
     </div>
 </div>
@@ -269,7 +402,14 @@
                         @foreach(GetUserInfo_ViewModel User in ViewBag.Users)
                         {
                             <div class="box-container bg-light p-2 me-2 d-inline-block mw-responsive">
-                                <h4 class="h4 safe-font text-primary get-user-short-info" id="GSUVal-@User.Id">@User.PseudoName <small class="ms-5"><span class="badge bg-white text-dark warning-badge fw-normal ms-1"> <i class="fas fa-globe-americas text-primary"></i> @User.CountryFullName</span></small></h4>
+                                @if(User.CountryFullName != null)
+                                {
+                                    <h4 class="h4 safe-font text-primary get-user-short-info" id="GSUVal-@User.Id">@User.PseudoName <small class="ms-5"><span class="badge bg-white text-dark warning-badge fw-normal ms-1"> <i class="fas fa-globe-americas text-primary"></i> @User.CountryFullName</span></small></h4>
+                                }
+                                else
+                                {
+                                    <h4 class="h4 safe-font text-primary get-user-short-info" id="GSUVal-@User.Id">@User.PseudoName</h4>
+                                }
                                 <small class="card-text text-muted fw-500"> <i class="fas fa-at"></i> @User.SearchName</small>
                                 <div class="mt-2"></div>
                                 <div class="row">

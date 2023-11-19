@@ -6,6 +6,7 @@
     User? UserInfo = ViewBag.UserInfo;
     List<Project?>? Projects = ViewBag.UserProjects;
     int ProjectsCount = ViewBag.ProjectsCount;
+    bool IsSubscribed = ViewBag.IsSubscribed;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -89,37 +90,75 @@
     }
 </div>
 
+
 <div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
-        <h5 class="h5 text-truncate">@CurrentUserInfo.PseudoName</h5>
+        <h5 class="h5 text-truncate"> <i class="fas fa-at"></i>@CurrentUserInfo.SearchName</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-2">
-            <span class="badge bg-white text-dark warning-badge float-end ms-1 safe-font fw-normal"> <i class="fas fa-globe-americas"></i> @CurrentUserInfo.CountryFullName</span>
-            <h1 class="h1 main-title-font-style">@CurrentUserInfo.PseudoName</h1>
-            <div class="mt-2"></div>
-            <small class="card-text text-muted"> <i class="fas fa-at text-primary"></i> @CurrentUserInfo.SearchName</small>
-            <div class="mt-1"></div>
-            <small class="card-text text-muted"> <i class="fas fa-inbox text-primary"></i> @CurrentUserInfo.Email</small>
+            @if (CurrentUserInfo.CountryFullName != null)
+            {
+                <span class="badge bg-white text-dark warning-badge float-end ms-1 safe-font fw-normal"> <i class="fas fa-globe-americas"></i> @CurrentUserInfo.CountryFullName</span>
+            }
+            else
+            {
+                <span class="badge bg-white text-dark warning-badge float-end ms-1 safe-font fw-normal"> <i class="fas fa-globe-americas"></i> No Country Info</span>
+            }
+            <h1 class="display-3 main-title-font-style">@CurrentUserInfo.PseudoName</h1>
+            @if(ViewBag.SubscribersCount != 0)
+            {
+                <p class="card-text ms-1"><span id="SubscribersCount_Lbl">@ViewBag.SubscribersCount</span> subscribers</p>
+            }
+            else
+            {
+                <p class="card-text ms-1"><span id="SubscribersCount_Lbl" >No subscribers</span></p>
+            }
         </div>
         <div class="box-container bordered-container mt-2 p-2">
             <div class="row text-center">
                 <div class="col">
-                    <div>
-                        <form method="post" asp-controller="Subscribes" asp-action="Subscribe" id="SubscribeTo_Form">
-                            <button type="submit" class="btn btn-navbar"> <i class="far fa-bell"></i> <br/>Subscribe</button>
-                        </form>
-                    </div>
+                    @if(UserInfo != null)
+                    {
+                        @if(IsSubscribed)
+                        {
+                            <div>
+                                <form method="post" asp-controller="Subscribes" asp-action="SubscribtionOption" id="SubscribtionOption_Form">
+                                    <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                    <input type="hidden" name="SubscriberId" value="@CurrentUserInfo.Id" />
+                                    <input type="hidden" name="IsSubscribed" id="IsSubscribed_Val" value="True" />
+                                    <button type="submit" class="btn btn-navbar w-100" id="SubscribtionForm_Btn"> <i class="fas fa-check-double text-primary"></i> <br/>Subscribed</button>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <div>
+                                <form method="post" asp-controller="Subscribes" asp-action="SubscribtionOption" id="SubscribtionOption_Form">
+                                    <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                    <input type="hidden" name="SubscriberId" value="@CurrentUserInfo.Id" />
+                                    <input type="hidden" name="IsSubscribed" id="IsSubscribed_Val" value="False" />
+                                    <button type="submit" class="btn btn-navbar w-100" id="SubscribtionForm_Btn"> <i class="far fa-bell"></i> <br />Subscribe</button>
+                                </form>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <div>
+                            <button type="button" class="btn btn-navbar w-100" disabled> <i class="far fa-bell-slash"></i> <br />Log In To Subscribe</button>
+                        </div>
+                    }
                 </div>
                 <div class="col">
-                    <button type="button" class="btn btn-navbar"> <i class="far fa-comment-dots"></i> <br/>Send Message</button>
+                    <button type="button" class="btn btn-navbar w-100"> <i class="far fa-comment-dots"></i> <br/>Message</button>
                 </div>
                 <div class="col">
                     <div class="dropdown">
-                        <button class="btn btn-navbar" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br/>More</button>
+                        <button class="btn btn-navbar w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br/>More</button>
                         <ul class="dropdown-menu shadow-sm p-1">
-                            <li><button type="button" class="dropdown-item copy-the-link mb-1"> <i class="far fa-copy"></i> Copy Link</button></li>
+                            <li><button type="button" class="dropdown-item copy-the-main-link mb-1"> <i class="far fa-copy"></i> Copy The Link</button></li>
                             <li><button type="button" class="dropdown-item mb-1"> <i class="far fa-paper-plane"></i> Write Via Inbox</button></li>
                             <li><button type="button" class="dropdown-item"> <i class="far fa-flag text-danger"></i> Report</button></li>
                         </ul>
@@ -229,9 +268,28 @@
                         {
                             <small class="card-text"> <i class="far fa-minus-circle"></i> There's no active projects</small>
                         }
+                        <div class="mt-1"></div>
+                        <small class="card-text"> <i class="fas fa-inbox text-primary"></i> @CurrentUserInfo.Email</small>
                     </div>
                 </div>
             </div>
+        </div>
+        <div class="mt-2 box-container bg-light p-2">
+            @if (ProjectsCount == 1)
+            {
+                <h5 class="h5 safe-font">There's 1 project by this user</h5>
+                <button type="button" class="btn btn-text smallside-btn-open-container" id="ProjectsList_Container-Open"> <i class="fas fa-folder-open"></i> Show It</button>
+            }
+            else if(ProjectsCount > 1)
+            {
+                <h5 class="h5 safe-font">There're @ProjectsCount.ToString("N0") projects by this user</h5>
+                <button type="button" class="btn btn-text smallside-btn-open-container" id="ProjectsList_Container-Open"> <i class="fas fa-folder-open"></i> Show Them</button>
+            }
+            else
+            {
+                <h5 class="h5 safe-font">There're no projects by this user. May be he'll create them later</h5>
+                <button type="button" class="btn btn-text smallside-btn-open-container" id="ProjectsList_Container-Open"> <i class="fas fa-check"></i> Got It</button>
+            }
         </div>
     </div>
 </div>

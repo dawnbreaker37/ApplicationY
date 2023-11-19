@@ -30,6 +30,10 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
                 <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
             </form>
+            <form method="post" asp-controller="Subscribes" asp-action="SubscribtionOptionWithoutKnowing" id="SubscribtionOptionWithoutKnowing_Form">
+                <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
+                <input type="hidden" name="SubscriberId" id="SubOption_SubscriberId_Val" value="@UserInfo.Id" />
+            </form>
         </div>
 
         <div class="smallside-box-container shadow-standard" id="AboutCategories_Container">
@@ -96,8 +100,13 @@
                         <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
                         <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
                         <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
-                        <div class="mt-1 border-top"></div>
-                        <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                        <div class="mt-2 pt-1 border-top"></div>
+                        <div class="mb-1">
+                            <input type="hidden" id="USI_Id_Val" value="0" />
+                            <input type="hidden" id="USI_SubscribersCount_Val" value="0" />
+                            <button type="button" class="btn bg-white subscribe-for-user btn-standard-with-no-colour float-end ms-1 btn-sm" id="USI_SubscribersInfo_Btn"></button>
+                            <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                        </div>
                     </div>
                     <div class="card-group mt-2">
                         <div class="card p-2 bg-light">
@@ -145,13 +154,10 @@
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="fas fa-file-invoice-dollar"></i> <br />About</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="fas fa-file-invoice-dollar"></i> <br />Project</button>
             </div>
             <div class="col">
-                <form method="get" asp-controller="User" asp-action="GetUserInfo" id="GetUserInfo_Form">
-                    <input type="hidden" name="Id" value="@ProjectInfo.UserId" />
-                    <button type="submit" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-user-circle"></i> <br/>About @ProjectInfo.User?.PseudoName</button>
-                </form>
+                <a asp-controller="User" asp-action="Info" asp-route-Id="@UserInfo?.SearchName" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-user-circle"></i> <br/>@ProjectInfo.User?.PseudoName's Page</a>
             </div>
             <div class="col d-lg-none d-md-none d-xl-none d-sm-block">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenY"> <i class="fas fa-times text-danger"></i> <br/>Close </button>
@@ -215,7 +221,7 @@
             }
             else
             {
-                <h5 class="h5 safe-font">There's no release notes for this project</h5>
+                <h5 class="h5 safe-font">There're no release notes for this project</h5>
                 <small class="card-text text-muted">May be the owner of the project will add some release notes later</small>
             }
         </div>

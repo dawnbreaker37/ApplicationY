@@ -4,6 +4,7 @@ using ApplicationY.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationY.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20231117091056_17112023")]
+    partial class _17112023
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -307,9 +310,6 @@ namespace ApplicationY.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsRemoved")
-                        .HasColumnType("bit");
 
                     b.Property<int>("SubscriberId")
                         .HasColumnType("int");
@@ -723,7 +723,7 @@ namespace ApplicationY.Migrations
             modelBuilder.Entity("ApplicationY.Models.Subscribtion", b =>
                 {
                     b.HasOne("ApplicationY.Models.User", "User")
-                        .WithMany("Subscribtions")
+                        .WithMany()
                         .HasForeignKey("UserId");
 
                     b.Navigation("User");
@@ -836,8 +836,6 @@ namespace ApplicationY.Migrations
                     b.Navigation("Notifications");
 
                     b.Navigation("Projects");
-
-                    b.Navigation("Subscribtions");
 
                     b.Navigation("TemporaryCodes");
                 });

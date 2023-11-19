@@ -141,10 +141,15 @@
             <div class="box-container">
                 <div class="box-container p-2 bg-light">
                     <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country, CN</small>
-                    <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
+                    <h1 class="h1 main-title-font-style" id="USI_Username_Lbl">Pseudoname</h1>
                     <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
-                    <div class="mt-1 border-top"></div>
-                    <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                    <div class="mt-2 pt-1 border-top"></div>
+                    <div class="mb-1">
+                        <input type="hidden" id="USI_Id_Val" value="0" />
+                        <input type="hidden" id="USI_SubscribersCount_Val" value="0" />
+                        <button type="button" class="btn bg-white btn-standard-with-no-colour float-end ms-1 btn-sm" id="USI_SubscribersInfo_Btn"></button>
+                        <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                    </div>
                 </div>
                 <div class="card-group mt-2">
                     <div class="card p-2 bg-light">
@@ -310,7 +315,28 @@
             </div>
             <div class="row mt-1">
                 <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                    @if(UserInfo != null)
+                    {
+                        <div id="NotLiked_Box">
+                            <form method="post" asp-controller="Project" asp-action="Like" id="LikeTheProject_Form">
+                                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                <input type="hidden" name="ProjectId" id="LTP_ProjectId_Val" value="0" />
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="LikeSbmt_Btn"> <i class="far fa-heart"></i> <br />Like</button>
+                            </form>
+                        </div>
+                        <div class="d-none" id="AlreadyLiked_Box">
+                            <form method="post" asp-controller="Project" asp-action="RemoveFromLiked" id="RemoveFromLiked_Form">
+                                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                <input type="hidden" name="ProjectId" id="RFL_ProjectId_Val" value="0" />
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="RemoveLikeSbmt_Btn"> <i class="far fa-grin-hearts text-primary"></i> <br />Liked</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" id="UnableToLike_Btn"> <i class="fas fa-heart text-muted"></i> <br/>Unable To Like </button>
+                    }
+                    @*                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button> *@
                 </div>
                 <div class="col">
                     <div>

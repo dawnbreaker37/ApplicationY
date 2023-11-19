@@ -81,9 +81,18 @@
     </div>
 
     <div class="smallside-modal-container p-3 text-start shadow-sm backdrop-filter-blur" id="MainModal_Container">
-        <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>
-        <button type="button" class="btn btn-standard me-2 btn-sm" style="display: none;" id="MMC_FirstBtn">Button 1</button>
-        <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
+        <div class="row">
+            <div class="col col-1">
+                <h4 class="h4" id="MMC_Icon"></h4>
+            </div>
+            <div class="col col-11">
+                <p class="card-text fs-6" id="MMC_Text">Main modal container text label.</p>
+            </div>
+        </div>
+        <div class="mt-1">
+            <button type="button" class="btn btn-standard me-2 btn-sm" style="display: none;" id="MMC_FirstBtn">Button 1</button>
+            <button type="button" class="btn btn-standard btn-sm" style="display: none;" id="MMC_SecondBtn">Button 2</button>
+        </div>
     </div>
     <div class="container">
         @if (User.Identity.IsAuthenticated)

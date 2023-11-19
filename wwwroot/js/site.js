@@ -420,6 +420,9 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
             $("#USI_UsernameTitle_Span").html(response.result.pseudoName);
             $("#USI_Username_Lbl").html(response.result.pseudoName);
             $("#USI_Searchname_Lbl").html("@" + response.result.searchName);
+            $("#USI_Id_Val").val(response.result.id);
+            $("#USI_SubscribersCount_Val").val(response.result.subscribersCount);
+            $("#USI_SubscribersInfo_Btn").html(" <i class='fas fa-bell'></i> " + response.result.subscribersCount + " subscriber(s)");
             if (response.result.description != null) $("#USI_Description_Lbl").text(response.result.description);
             else $("#USI_Description_Lbl").text("No user description");
             $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
@@ -443,8 +446,8 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
                 $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external second link");
             }
 
-            if (response.result.country != null) {
-                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.country.iso + ", " + response.result.country.name);
+            if (response.result.countryFullName != null) {
+                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
             }
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
             $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
@@ -825,6 +828,60 @@ $("#RemoveAllLiked_Form").on("submit", function (event) {
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
         }
+    });
+});
+
+$(document).on("click", ".subscribe-for-user", function (event) {
+    let subscriberId = $("#USI_Id_Val").val();
+    if (subscriberId) {
+        $("#SubOption_UserId_Val").val(subscriberId);
+        let url = $("#SubscribtionOptionWithoutKnowing_Form").attr("action");
+        let data = $("#SubscribtionOptionWithoutKnowing_Form").serialize();
+        $.post(url, data, function (response) {
+            if (response.success) {
+                let subsCount = $("#USI_SubscribersCount_Val").val();
+                if (response.result) {
+                    subsCount++;
+                    openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-bell text-primary bell-icon'></i> ");
+                }
+                else {
+                    subsCount--;
+                    openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-times-circle circular-icons text-danger'></i> ");
+                }
+                $("#USI_SubscribersCount_Val").val(subsCount);
+                $("#USI_SubscribersInfo_Btn").html(" <i class='fas fa-bell'></i> " + subsCount + " subscriber(s)");
+            }
+            else {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5);
+            }
+        });
+    }
+});
+$("#SubscribtionOption_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        let currentCount = $("#SubscribersCount_Lbl").text();
+        if (parseInt(currentCount)) currentCount = parseInt(currentCount);
+        else currentCount = 0;
+
+        if (response.success) {
+            $("#IsSubscribed_Val").val(response.result);
+            if (response.result) {
+                currentCount++;
+                $("#SubscribtionForm_Btn").html(' <i class="fas fa-check-double text-primary"></i> <br/>Subscribed');
+                openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-bell text-primary bell-icon'></i> ");
+            }
+            else {
+                currentCount--;
+                $("#SubscribtionForm_Btn").html(' <i class="far fa-bell"></i> <br />Subscribe');
+                openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-times-circle circular-icons text-danger'></i> ");
+            }
+            $("#SubscribersCount_Lbl").text(currentCount);
+        }
+        else openModal(response.alert, "Done", null, 2, null, null, null, 3.5);
     });
 });
 
@@ -1983,6 +2040,10 @@ $(document).on("click", ".select-for-info", function (event) {
     }
 });
 
+$(document).on("click", ".copy-the-main-link", function () {
+    copyToClipboard(null, false, true);
+});
+
 $(document).on("click", ".remove-from-liked", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != "") {
@@ -2191,6 +2252,23 @@ $("#DecreaseStep_Btn").on("click", function () {
 
 $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
+});
+
+$("#StartTheGame_Btn").on("click", function () {
+    let type = $("#GameSpeedType_Val").val();
+    gameOne(type);
+});
+$("#GameSpeedIncrease_Btn").on("click", function () {
+    let type = $("#GameSpeedType_Val").val();
+    if (type < 4) {
+        type++;
+        openModal("Game speed has been increased", "Done", null, 2, null, null, null, 2.5, " <i class='fas fa-tachometer-alt text-primary'></i> ");
+    }
+    else {
+        type = 0;
+        openModal("Game speed has been decreased to base speed (1.5 sec. interval)", "Done", null, 2, null, null, null, 2.5, " <i class='fas fa-backward text-danger'></i> ");
+    }
+    $("#GameSpeedType_Val").val(type);
 });
 
 $(document).on("click", ".get-user-short-info", function (event) {
@@ -2490,6 +2568,10 @@ $(document).on("click", ".text-full-delete", function (event) {
     }
 });
 
+$(".game-hole").on("click", function () {
+    gameScoreIncrease();
+});
+
 $(".main-container").on("scroll", function (event) {
     let trueId = event.target.id;
     if (trueId != "") {
@@ -2555,6 +2637,28 @@ function textDecoder(element, isFromText, needsTheReplacement) {
     }
 
     return value;
+}
+
+function copyToClipboard(element, isFromText, copyTheMainLink) {
+    let value;
+    if (!copyTheMainLink) {
+        if (isFromText) {
+            value = $("#" + element).text();
+        }
+        else value = $("#" + element).val();
+        navigator.clipboard.writeText(value);
+
+        openModal("The link has been successfully copied to clipboard", "Done", null, 2, null, null, null, 4, "<i class='fas fa-clone text-primary'></i>");
+
+        return value;
+    }
+    else {
+        value = document.location.href;
+        navigator.clipboard.writeText(value);
+        openModal("The link has been successfully copied to clipboard", "Done", null, 2, null, null, null, 4, "<i class='fas fa-clone text-primary'></i>");
+
+        return value;
+    }
 }
 
 function previewCombinizer(previewingProject) {
@@ -2782,7 +2886,7 @@ function openLastContainer(element, isSmallSideContainer) {
     }
 }
 
-function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToDo, btn2Action, fadeOutTimer) {
+function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToDo, btn2Action, fadeOutTimer, icon) {
     setTimeout(function () {
         let currentContainerB = $("#" + currentContainerName).css("bottom");
         let currentContainerType = $("#" + currentContainerName).hasClass("smallside-box-container");
@@ -2793,6 +2897,9 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
         $("#MMC_Text").html(text);
         $("#MainModal_Container").fadeIn(0);
         $("#MainModal_Container").css("z-index", "1000");
+
+        if (icon == null) $("#MMC_Icon").html(" <i class='fas fa-info-circle'></i> ");
+        else $("#MMC_Icon").html(" " + icon + " ");
 
         let modalH = $("#MainModal_Container").innerHeight();
         windowFullHeight -= modalH + 8;
@@ -3128,6 +3235,91 @@ function openStaticBackdrop(id, truncate) {
         if (truncate) id = getTrueName(id);
         $("#" + id).modal("toggle");
     }
+}
+
+function gameScoreIncrease() {
+    let score = $("#Score_Val").val();
+    let speed = $("#Speed_Span").text();
+    speed = parseFloat(speed);
+    score = parseInt(score);
+    score = (score + 1) * speed;
+
+    if (score < 10) {
+        speed += 0.05;
+        $("#ScoreTable_Lbl").text("00" + score.toLocaleString());
+    }
+    else if (score >= 10 && score < 100) {
+        speed += 0.15;
+        $("#ScoreTable_Lbl").text("0" + score.toLocaleString());
+    }
+    else if (score >= 100 && score < 250) {
+        speed += 0.25;
+        $("#ScoreTable_Lbl").text(score.toLocaleString());
+    }
+    else {
+        speed += 0.3;
+        $("#ScoreTable_Lbl").text(score.toLocaleString());
+    }
+    $("#Score_Val").val(score);
+    $("#Speed_Span").text(speed.toFixed(2));
+    $("#SpeedIcon_Span").html("<i class='fas fa-chevron-up text-success'></i>");
+
+    $("#StartTheGame_Btn").attr("disabled", true);
+    $("#GameSpeedIncrease_Btn").attr("disabled", true);
+}
+function gameOne(type) {
+    let cellNumber = 0;
+    let speed = 0.1;
+    let duration = 0;
+    let interval = 0;
+    let score = 0;
+
+    if (type == 0) interval = 2400;
+    else if (type == 1) interval = 1700;
+    else if (type == 2) interval = 1200;
+    else if (type == 3) interval = 900;
+    else interval = 650;
+
+    setInterval(function () {
+        duration += 0.1;
+        score = parseInt($("#Score_Val").val());
+        $("#GameDuration_Span").text(duration.toFixed(1) + " sec.");
+    }, 100); 
+
+    setInterval(function () {
+        let speed = $("#Speed_Span").text();
+        speed = parseFloat(speed);
+        if (speed > 0.1 && speed < 2) {
+            speed -= 0.05;
+        }
+        else if (speed >= 2 && speed < 9) {
+            speed -= 0.15;
+        }
+        else if (speed >= 9 && speed < 16) {
+            speed -= 0.25;
+        }
+        else if (speed >= 16 && speed < 25) {
+            speed -= 0.3;
+        }
+        else if (speed >= 25) {
+            speed -= 0.45;
+        }
+
+        $("#Speed_Span").text(speed.toFixed(2));
+        $("#SpeedIcon_Span").html("<i class='fas fa-chevron-down text-danger'></i>");
+    }, 1250);
+
+    $("#GameInterval_Span").text((interval / 1000).toFixed(2));
+
+    setInterval(function () {
+        $(".game-hole").css("pointer-events", "none");
+        $(".game-hole").css("background-color", "#f8f9fa");
+        cellNumber = 1 + parseInt(Math.random() * 24);
+        $("#GameCell-" + cellNumber).css("pointer-events", "auto");
+        $("#GameCell-" + cellNumber).css("background-color", "#0d6efd");
+    }, interval);
+
+    return score;
 }
 
 function animatedClose(forAll, elemet) {

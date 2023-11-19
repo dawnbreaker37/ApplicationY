@@ -124,7 +124,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
+                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name, ISO = u.Country.ISO } }).FirstOrDefaultAsync(u => u.Id == Id);
                 else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
@@ -138,7 +138,7 @@ namespace ApplicationY.Repositories
 
         public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
         {
-            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
             else return null;
         }
 
