@@ -122,8 +122,8 @@
                     <div class="form-check form-switch mt-3">
                         <input class="form-check-input" type="checkbox" name="IsLocked" id="IsLocked" />
                         <label class="form-check-label fw-500" for="IsLocked">Only Locked Projects</label>
-                        <small class="card-text">Search results will include only locked projects</small>
                     </div>
+                    <small class="card-text text-muted">Search results will include only locked projects</small>
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary btn-sm w-100 btn-standard-with-no-colour"> <i class="fas fa-search"></i> Search</button>
                     </div>
@@ -190,20 +190,62 @@
                 <h6 class="h6 text-primary safe-font" id="SelectedProjectName_Lbl">Project</h6>
             </div>
             <div class="mt-1">
-                <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
-                    <input type="hidden" name="Id" id="GPI_Id" value="0" />
-                    <input type="hidden" name="GetAdditionalInfo" id="GPI_GetAdditionalInfo" value="True" />
-                    <input type="hidden" name="GetUsername" value="False" />
-                    <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Preview</button>
-                </form>
+                @if(UserInfo != null)
+                {
+                 <div>
+                        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                            <input type="hidden" name="Id" id="GPI_Id" value="0" />
+                            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                            <input type="hidden" name="GetAdditionalInfo" id="GPI_GetAdditionalInfo" value="True" />
+                            <input type="hidden" name="GetUsername" value="False" />
+                            <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Preview</button>
+                        </form>
+                    </div>
+                }
+                else
+                {
+                    <div>
+                        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                            <input type="hidden" name="Id" id="GPI_Id" value="0" />
+                            <input type="hidden" name="SenderId" value="0" />
+                            <input type="hidden" name="GetAdditionalInfo" id="GPI_GetAdditionalInfo" value="True" />
+                            <input type="hidden" name="GetUsername" value="False" />
+                            <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-align-left text-primary"></i> Preview</button>
+                        </form>
+                    </div>
+                }
                 <div class="mt-1 ms-1">
                     <small class="card-text text-muted">Have a sidelook on your own project</small>
                 </div>
             </div>
             <div class="mt-3">
-                <a href="#" class="btn btn-group-member text-start have-an-edit w-100"> <i class="fas fa-pen-square text-primary"></i> Edit</a>
+                <a href="#" class="btn btn-group-member text-start have-an-edit w-100"> <i class="fas fa-pencil-alt text-primary"></i> Edit</a>
                 <div class="mt-1 ms-1">
                     <small class="card-text text-muted mt-2">Edit any info of your project</small>
+                </div>
+            </div>
+            <div class="mt-3" id="PinTheProject_Box">
+                <div>
+                    <form method="post" asp-controller="Project" asp-action="Pin" id="PinTheProject_Form">
+                        <input type="hidden" name="Id" id="PTP_ProjectId_Val" value="0" />
+                        <input type="hidden" name="UserId" value="@UserInfo?.Id" />
+                        <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-thumbtack text-primary"></i> Pin</button>
+                    </form>
+                </div>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted mt-2">Pins at the top of every project list of you</small>
+                </div>
+            </div>
+            <div class="mt-3 d-none" id="UnpinTheProject_Box">
+                <div>
+                    <form method="post" asp-controller="Project" asp-action="Unpin" id="UnpinTheProject_Form">
+                        <input type="hidden" name="Id" id="UTP_ProjectId_Val" value="0" />
+                        <input type="hidden" name="UserId" value="@UserInfo?.Id" />
+                        <button type="submit" class="btn btn-group-member text-start w-100"> <i class="fas fa-unlink text-danger"></i> Unpin</button>
+                    </form>
+                </div>
+                <div class="mt-1 ms-1">
+                    <small class="card-text text-muted mt-2">Unpins the project from the top of every list</small>
                 </div>
             </div>
             <div class="mt-3">
@@ -328,7 +370,7 @@
                             <form method="post" asp-controller="Project" asp-action="RemoveFromLiked" id="RemoveFromLiked_Form">
                                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
                                 <input type="hidden" name="ProjectId" id="RFL_ProjectId_Val" value="0" />
-                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="RemoveLikeSbmt_Btn"> <i class="far fa-grin-hearts text-primary"></i> <br />Liked</button>
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="RemoveLikeSbmt_Btn"> <i class="fas fa-heart text-primary"></i> <br />Liked</button>
                             </form>
                         </div>
                     }
@@ -381,7 +423,6 @@
                 <div class="row mt-4 text-center">
                     <div class="col">
                         <h6 class="h6">Release Notes</h6>
-                        <small class="card-text text-muted safe-font" id="Preview_ReleaseNotesCount_Lbl">0</small>
                         <div class="mt-2">
                             <form method="get" asp-controller="Project" asp-action="GetUpdates" id="GetUpdates_Form">
                                 <input type="hidden" name="Id" id="GUF_ProjectId_Val" value="0" />
@@ -407,17 +448,16 @@
                 <small class="card-text safe-font d-none" id="Preview_PrevTagPrice">$0.00, 0%</small>
                 <div></div>
                 <small class="card-text text-muted d-none" id="Preview_TagPriceAnnotation"></small>
-                <div class="border-top pt-1 mt-2 d-none" id="Preview_TagPriceAnnotationSeparator"></div>
-                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
-                <div class="mt-3" id="InverToProject_Box">
-                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                <div class="border-top pt-1 mt-2" id="Preview_TagPriceAnnotationSeparator"></div>
+                <div class="mb-2" id="InvestToProject_Box">
+                    <a href="#" id="Preview_DonationLink_Btn" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Donate/Invest</a>
                     <div></div>
-                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                    <small class="card-text text-muted">There's no donation need for this project</small>
                 </div>
-                <div class="mt-2">
+                <div>
                     <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
                     <div></div>
-                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                    <small class="card-text text-muted">Learn more about project budgets and prices from the QA page</small>
                 </div>
             </div>
             <div class="card shadow-sm p-3" id="Preview_LinksBox">
@@ -478,7 +518,18 @@
                                 <input type="hidden" id="ProjectIsLocked-@Item.Id" value="false" />
                             }
                         </div>
-                        <h3 class="h3 safe-font w-auto project-box" id="ProjectName-@Item.Id">@Item.Name</h3>
+                        @if (Item.IsPinned)
+                        {
+                            <input type="hidden" id="ProjectIsPinned-@Item.Id" value="true" />
+                            <small class="card-text text-muted" id="IsPinnedIcon-@Item.Id"> <i class="fas fa-thumbtack text-primary"></i> Pinned</small>
+                            <h2 class="h2 safe-font w-auto project-box" id="ProjectName-@Item.Id">@Item.Name</h2>
+                        }
+                        else
+                        {
+                            <input type="hidden" id="ProjectIsPinned-@Item.Id" value="false" />
+                            <small class="card-text text-muted" style="display: none;" id="IsPinnedIcon-@Item.Id"> <i class="fas fa-thumbtack text-primary"></i> Pinned</small>
+                            <h2 class="h2 safe-font w-auto project-box" id="ProjectName-@Item.Id">@Item.Name</h2>
+                        }
                         @if (Item.TargetPrice != 0)
                         {
                             <small class="card-text text-muted w-auto project-box" id="ProjectPrice-@Item.Id"> <i class="fas fa-coins text-primary"></i> Target: $@Item.TargetPrice.ToString("N0")</small>

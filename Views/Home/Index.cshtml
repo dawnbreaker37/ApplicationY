@@ -3,6 +3,7 @@
     ViewData["Title"] = "Home Page";
 
     User? UserInfo = ViewBag.UserInfo;
+    int SubsCount = ViewBag.SubsCount;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -21,24 +22,59 @@
             </form>
     </div>
     }
-    <div class="container text-center p-2 shadow-sm">
-        <button type="button" class="btn btn-standard-not-animated btn-open-container me-2" id="UniversalFirst_Container-Open"> <i class="fas fa-stream"></i> <br /> Newsline</button>
-        <div class="dropdown d-inline me-2">
-            <button class="btn btn-standard-not-animated" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br/> Change account</button>
-            <ul class="dropdown-menu p-1 shadow-sm">
-                <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="false" class="dropdown-item"> <i class="fas fa-sign-in-alt"></i> Log into another acc</a></li>
-                <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="true" class="dropdown-item mt-1"> <i class="fas fa-plus-circle"></i> Sign into another acc</a></li>
-            </ul>
+    <div class="box-container text-center p-2 shadow-sm">
+        <div class="row text-center">
+            <div class="col">
+                <button type="button" class="btn btn-standard-not-animated btn-open-container w-100" id="Preload_Container-Open"> <i class="fas fa-stream"></i> <br /> Newsline</button>
+            </div>
+            <div class="col">
+                <div class="dropdown d-inline me-2">
+                    <button class="btn btn-standard-not-animated w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br /> Change Account</button>
+                    <ul class="dropdown-menu p-1 mt-4 shadow-sm">
+                        <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="false" class="dropdown-item"> <i class="fas fa-sign-in-alt"></i> Log into another acc</a></li>
+                        <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="true" class="dropdown-item mt-1"> <i class="fas fa-plus-circle"></i> Sign into another acc</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="col d-sm-block d-xs-block d-md-none d-lg-none d-xl-none">
+                <button type="button" class="btn btn-standard-not-animated w-100 smallside-btn-close"> <i class="fas fa-times"></i> <br />Close</button>
+            </div>
         </div>
-        <button type="button" class="btn btn-standard-not-animated smallside-btn-close me-2 d-sm-block d-xs-block d-md-none d-lg-none d-xl-none"> <i class="fas fa-times"></i> <br/>Close</button>
+    </div>
+    <div class="bordered-container p-2 mt-3">
+        <p class="card-text safe-font"> <i class="far fa-bell"></i> Subscribtions ∙ @SubsCount</p>
+        @if(SubsCount > 0)
+        {
+            @foreach(GetSubscribtions_ViewModel Item in ViewBag.Subscribtions)
+            {
+                <div class="box-container bg-light p-2 mt-1">
+                    <button type="button" class="btn btn-sm btn-standard-not-animated border-0"> <i class="fas fa-check-double text-primary"></i> Subscribed</button>
+                    <h6 class="h6">@Item.UserName</h6>
+                </div>
+            }
+        }
+    </div>
+    <div class="bordered-container p-2 mt-2">
+        <p class="card-text safe-font"> <i class="far fa-bell"></i> Liked Projects ∙ @ViewBag.LikedProjectsCount</p>
+        @if (ViewBag.LikedProjectsCount > 0)
+        {
+            @foreach (GetLikedProjects_ViewModel Item in ViewBag.LikedProjects)
+            {
+                <div class="box-container bg-light p-2 mt-1">
+                    <button type="button" class="btn btn-standard-not-animated border-0 float-end ms-1"> <i class="fas fa-heart text-primary"></i> </button>
+                    <h6 class="h6">@Item.Name</h6>
+                    <small class="card-text text-muted">@Item.CreatorName</small>
+                </div>
+            }
+            <div class="mt-1">
+                <a asp-controller="Project" asp-action="Liked" class="btn btn-text btn-sm fw-normal text-muted"> <i class="fas fa-ellipsis-h"></i> More about your liked projects</a>
+            </div>
+        }
     </div>
 </div>
 <div class="main-container shadow-standard" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>
-        <h5 class="h5 text-truncate">Container name</h5>
-    </div>
-    <div class="mt-2 p-3 pt-0">
-
+        <h5 class="h5 text-truncate">Newsline</h5>
     </div>
 </div>

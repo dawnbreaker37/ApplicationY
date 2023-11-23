@@ -23,18 +23,25 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
+                <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
+            </form>
+            <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
+                <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                <input type="hidden" name="GetAdditionalInfo" value="True" />
+                <input type="hidden" name="GetUsername" value="True" />
+            </form>
         }
-        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
-            <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
-            <input type="hidden" name="GetAdditionalInfo" value="True" />
-            <input type="hidden" name="GetUsername" value="True" />
-        </form>
-        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
-            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
-        </form>
-        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
-            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
-        </form>
+        else
+        {
+            <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
+                <input type="hidden" name="SenderId" value="0" />
+                <input type="hidden" name="GetAdditionalInfo" value="True" />
+                <input type="hidden" name="GetUsername" value="True" />
+            </form>
+        }
     </div>
 
     <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
@@ -476,7 +483,27 @@
             </div>
             <div class="row mt-1">
                 <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                    @if (UserInfo != null)
+                    {
+                        <div id="NotLiked_Box">
+                            <form method="post" asp-controller="Project" asp-action="Like" id="LikeTheProject_Form">
+                                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                <input type="hidden" name="ProjectId" id="LTP_ProjectId_Val" value="0" />
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="LikeSbmt_Btn"> <i class="far fa-heart"></i> <br />Like</button>
+                            </form>
+                        </div>
+                        <div class="d-none" id="AlreadyLiked_Box">
+                            <form method="post" asp-controller="Project" asp-action="RemoveFromLiked" id="RemoveFromLiked_Form">
+                                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                                <input type="hidden" name="ProjectId" id="RFL_ProjectId_Val" value="0" />
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100" id="RemoveLikeSbmt_Btn"> <i class="fas fa-heart text-primary"></i> <br />Liked</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" id="UnableToLike_Btn"> <i class="fas fa-heart text-muted"></i> <br />Unable To Like </button>
+                    }
                 </div>
                 <div class="col">
                     <div>
@@ -535,17 +562,16 @@
                 <small class="card-text safe-font d-none" id="Preview_PrevTagPrice">$0.00, 0%</small>
                 <div></div>
                 <small class="card-text text-muted d-none" id="Preview_TagPriceAnnotation"></small>
-                <div class="border-top pt-1 mt-2 d-none" id="Preview_TagPriceAnnotationSeparator"></div>
-                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
-                <div class="mt-3" id="InverToProject_Box">
-                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                <div class="border-top pt-1 mt-2" id="Preview_TagPriceAnnotationSeparator"></div>
+                <div class="mb-2" id="InvestToProject_Box">
+                    <a href="#" id="Preview_DonationLink_Btn" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Donate/Invest</a>
                     <div></div>
-                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                    <small class="card-text text-muted">There's no donation need for this project</small>
                 </div>
-                <div class="mt-2">
+                <div>
                     <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
                     <div></div>
-                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                    <small class="card-text text-muted">Learn more about project budgets and prices from the QA page</small>
                 </div>
             </div>
             <div class="card shadow-sm p-3" id="Preview_LinksBox">

@@ -98,6 +98,9 @@ namespace ApplicationY.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 bool IsSubscribed = false;
+                string? TrueLink1 = null;
+                string? TrueLink2 = null;
+
                 IQueryable<Project?>? UserProjects;
                 List<Project?>? UserProjectsResult = null;
 
@@ -116,14 +119,24 @@ namespace ApplicationY.Controllers
                     else UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, 0, false);
                     if(UserProjects != null) UserProjectsResult = await UserProjects.ToListAsync();
 
-                    if(CurrentUserInfo.Link1 != null) CurrentUserInfo.Link1 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link1);
-                    if(CurrentUserInfo?.Link2 != null) CurrentUserInfo.Link2 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link2);
+                    if (CurrentUserInfo.Link1 != null)
+                    {
+                        TrueLink1 = CurrentUserInfo.Link1;
+                        CurrentUserInfo.Link1 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link1);
+                    }
+                    if (CurrentUserInfo?.Link2 != null)
+                    {
+                        TrueLink2 = CurrentUserInfo.Link2;
+                        CurrentUserInfo.Link2 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link2);
+                    }
 
                     ViewBag.CurrentUserInfo = CurrentUserInfo;
                     ViewBag.IsSubscribed = IsSubscribed;
                     ViewBag.SubscribersCount = SubscribersCount;
                     ViewBag.UserProjects = UserProjectsResult;
                     ViewBag.ProjectsCount = UserProjectsResult?.Count;
+                    ViewBag.TrueLink1 = TrueLink1;
+                    ViewBag.TrueLink2 = TrueLink2;
 
                     return View();
                 }

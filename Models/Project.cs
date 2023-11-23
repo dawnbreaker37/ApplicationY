@@ -15,7 +15,9 @@ namespace ApplicationY.Models
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
+        public string? DonationLink { get; set; }
         public int TargetPrice { get; set; }
+        public bool IsPinned { get; set; }
         [MaxLength(400)]
         public string? PriceChangeAnnotation { get; set; }
         public int PastTargetPrice { get; set; }

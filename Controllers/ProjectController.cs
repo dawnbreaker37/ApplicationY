@@ -244,7 +244,7 @@ namespace ApplicationY.Controllers
         public async Task<IActionResult> LockTheProject(int Id, int UserId)
         {
             int Result = await _projectRepository.CloseProjectAsync(Id, UserId);
-            if (Result != 0) return Json(new { success = true, alert = " <i class='fas fa-lock text-danger'></i> Selected project has been successfully locked. Now, it's invisible for all users for up to 7 days", id = Id });
+            if (Result != 0) return Json(new { success = true, alert = "Selected project has been successfully locked. Now, it's invisible for all users for up to 7 days", id = Id });
             else return Json(new { success = false, alert = "An error occured while trying to lock selected project" });
         }
 
@@ -252,7 +252,7 @@ namespace ApplicationY.Controllers
         public async Task<IActionResult> UnlockTheProject(int Id, int UserId)
         {
             int Result = await _projectRepository.UnlockProjectAsync(Id, UserId);
-            if (Result != 0) return Json(new { success = true, alert = " <i class='fas fa-lock-open text-primary'></i> The selected project is now visible again for everyone.", id = Id });
+            if (Result != 0) return Json(new { success = true, alert = "The selected project is now visible again for everyone.", id = Id });
             else return Json(new { success = false, alert = "An error occured while trying to unlock the selected project" });
         }
 
@@ -280,13 +280,32 @@ namespace ApplicationY.Controllers
             else return Json(new { success = false, alert = "An error occured while trying to remove your all liked projects" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> Pin(int Id, int UserId)
+        {
+            int Result = await _projectRepository.PinAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Project has been successfully pinned" });
+            else return Json(new { success = false, alert = "Project has recently been pinned" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unpin(int Id, int UserId)
+        {
+            int Result = await _projectRepository.UnpinAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Project has been successfully unpinned" });
+            else return Json(new { success = false, alert = "Project has recently been unpinned" });
+        }
+
         [HttpGet]
-        public async Task<IActionResult> GetFullProject(int Id, bool GetUsername, bool GetAdditionalInfo)
+        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo)
         {
             Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo);
             if (ProjectInfo != null)
             {
-                return Json(new { success = true, getUsername = GetUsername, result = ProjectInfo });
+                bool IsLiked = false;
+                int LikesCount = await _projectRepository.ProjectLikesCount(Id);
+                if (SenderId != 0) IsLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, SenderId);
+                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, result = ProjectInfo, isLiked = IsLiked });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
         }

@@ -15,14 +15,16 @@ namespace ApplicationY.Controllers
         private readonly ILogger<HomeController> _logger;
         private readonly IProject _projectRepository;
         private readonly ICategory _categoryRepository;
+        private readonly ISubscribe _subscribeRepository;
 
-        public HomeController(ILogger<HomeController> logger, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
+        public HomeController(ILogger<HomeController> logger, ISubscribe subscribeRepository, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
         {
             _user = user;
             _logger = logger;
             _userManager = userManager;
             _projectRepository = projectRepository;
             _categoryRepository = categoryRepository;
+            _subscribeRepository = subscribeRepository;
         }
 
         public async Task<IActionResult> Index()
@@ -30,7 +32,29 @@ namespace ApplicationY.Controllers
             User? UserInfo = await _userManager.GetUserAsync(User);
             if (UserInfo != null)
             {
+                int LikedProjectsCount = 0;
+                int SubscribtionsCount = 0;
+                List<GetSubscribtions_ViewModel>? Subscribtions = null;
+                List<GetLikedProjects_ViewModel>? LikedProjects = null;
+
+                IQueryable<GetSubscribtions_ViewModel>? UserSubscribtions_Preview = _subscribeRepository.GetSubscribtions(UserInfo.Id);
+                IQueryable<GetLikedProjects_ViewModel>? LikedProjects_Preview = _projectRepository.GetLikedProjectsSimplified(UserInfo.Id);
+                if(UserSubscribtions_Preview != null)
+                {
+                    Subscribtions = await UserSubscribtions_Preview.ToListAsync();
+                    SubscribtionsCount = Subscribtions.Count;
+                }
+                if(LikedProjects_Preview != null)
+                {
+                    LikedProjects = await LikedProjects_Preview.ToListAsync();
+                    LikedProjectsCount = LikedProjects.Count;
+                }
+
                 ViewBag.UserInfo = UserInfo;
+                ViewBag.Subscribtions = Subscribtions;
+                ViewBag.SubsCount = SubscribtionsCount;
+                ViewBag.LikedProjectsCount = LikedProjectsCount;
+                ViewBag.LikedProjects = LikedProjects;
             }
 
             return View();

@@ -32,7 +32,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetSubscribtions_ViewModel>? GetSubscribtions(int UserId)
         {
-            if (UserId != 0) return _context.Subscribtions.AsNoTracking().Where(s => !s.IsRemoved && s.UserId == UserId).Select(s => new GetSubscribtions_ViewModel { Id = s.Id, SubscriberId = s.SubscriberId, UserId = s.UserId, UserName = s.User!.PseudoName, UserSearchName = s.User.SearchName });
+            if (UserId != 0) return _context.Subscribtions.AsNoTracking().Where(s => !s.IsRemoved && s.SubscriberId == UserId).Select(s => new GetSubscribtions_ViewModel { Id = s.Id, SubscriberId = s.SubscriberId, UserId = s.UserId, UserName = s.User!.PseudoName, UserSearchName = s.User.SearchName });
             else return null;
         }
 

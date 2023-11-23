@@ -26,6 +26,7 @@ window.onload = function () {
     else if (currentUrl.toLowerCase().includes("/user/info")) {
         textDecoder("UserInfo_LinkTag1_Lbl", true, true);
         textDecoder("UserInfo_LinkTag2_Lbl", true, true);
+        textDecoder("ProfileDescription_Lbl", true, true);
     }
     else if (currentUrl.toLowerCase().includes("/project/create")) {
         let lastId = $("#LastCategoryId_Val").val();
@@ -446,8 +447,8 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
                 $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external second link");
             }
 
-            if (response.result.countryFullName != null) {
-                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
+            if (response.result.country.name != null) {
+                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.country.name);
             }
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
             $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
@@ -606,6 +607,7 @@ $("#GetUpdates_Form").on("submit", function (event) {
                 div.append(text);
                 $("#ReleaseNotes_Box").append(div);
             }
+            smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "ReleaseNotes_Container", false, false);
         }
         else {
@@ -627,6 +629,10 @@ $("#GetFullProject_Form").on("submit", function (event) {
             $("#GCF_ProjectId_Val").val(response.result.id);
             $("#SCF_ProjectId_Val").val(response.result.id);
             $("#GUF_ProjectId_Val").val(response.result.id);
+
+            $("#RFL_ProjectId_Val").val(response.result.id);
+            $("#LTP_ProjectId_Val").val(response.result.id);
+
             $("#Preview_Title").text(response.result.name);
             $("#Preview_ShortDescription").text(response.result.description);
             $("#Preview_ViewsCnt").text(response.result.views);
@@ -639,8 +645,18 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
-            $("#Preview_PublishedDate").text(convertDateAndTime(response.result.createdAt, false, true));
-            $("#Preview_LastUpdatedDate").text(convertDateAndTime(response.result.lastUpdatedAt, false, true));
+            if (response.isLiked) {
+                $("#AlreadyLiked_Box").removeClass("d-none");
+                $("#NotLiked_Box").addClass("d-none");
+            }
+            else {
+                $("#AlreadyLiked_Box").addClass("d-none");
+                $("#NotLiked_Box").removeClass("d-none");
+            }
+
+            $("#Preview_PublishedDate").text(convertDateAndTime(response.result.createdAt, true, true));
+            $("#Preview_LastUpdatedDate").text(convertDateAndTime(response.result.lastUpdatedAt, true, true));
+            $("#Preview_LikesCnt").text(response.likesCount.toLocaleString());
 
             if (response.result.youtubeLink != null) {
                 $("#YT_VideoPlayer_MainBox").removeClass("d-none");
@@ -655,13 +671,21 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 $("#YT_VideoLink_Btn").attr("href", "#");
             }
 
+            if (response.result.donationLink != null) {
+                $("#InvestToProject_Box").removeClass("d-none");
+                $("#Preview_DonationLink_Btn").attr("href", response.result.donationLink);
+            }
+            else {
+                $("#InvestToProject_Box").addClass("d-none");
+            }
+
+            if (response.result.priceChangeAnnotation != null) {
+                $("#Preview_TagPriceAnnotation").removeClass("d-none");
+                $("#Preview_TagPriceAnnotation").html(" <i class='fas fa-quote-right text-primary'></i> " + response.result.priceChangeAnnotation);
+            }
             if (response.result.pastTargetPrice != 0) {
                 $("#Preview_PrevTagPrice").removeClass("d-none");
                 $("#Preview_TagPriceAnnotationSeparator").removeClass("d-none");
-                if (response.result.priceChangeAnnotation != null) {
-                    $("#Preview_TagPriceAnnotation").removeClass("d-none");
-                    $("#Preview_TagPriceAnnotation").html(response.result.priceChangeAnnotation);
-                }
                 let percentageChange = parseInt(response.result.targetPrice) / parseInt(response.result.pastTargetPrice) * 100;
                 if (percentageChange < 100) {
                     percentageChange = (100 - percentageChange) * -1;
@@ -675,9 +699,7 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 }
             }
             else {
-                $("#Preview_TagPriceAnnotation").addClass("d-none");
                 $("#Preview_PrevTagPrice").addClass("d-none");
-                $("#Preview_TagPriceAnnotationSeparator").addClass("d-none");
             }
 
             $("#Preview_LongDescription").text(fullText);
@@ -687,12 +709,10 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.targetPrice != 0) {
                 $("#InverToProject_Box").fadeIn(300);
                 $("#Preview_TagPrice").text(parseInt(response.result.targetPrice).toLocaleString("en-US", { style: "currency", currency: "USD" }));
-                $("#Preview_TagPriceDescription").text("needs this project for his start");
             }
             else {
                 $("#InverToProject_Box").fadeOut(300);
                 $("#Preview_TagPrice").text("No target price");
-                $("#Preview_TagPriceDescription").text("this project isn't a startup");
             }
 
             if (response.result.link1 != null) {
@@ -868,15 +888,18 @@ $("#SubscribtionOption_Form").on("submit", function (event) {
         else currentCount = 0;
 
         if (response.success) {
+            let curUrl = document.location.href;
             $("#IsSubscribed_Val").val(response.result);
             if (response.result) {
                 currentCount++;
-                $("#SubscribtionForm_Btn").html(' <i class="fas fa-check-double text-primary"></i> <br/>Subscribed');
+                if (!curUrl.toLowerCase().includes("/user/info")) $("#SubscribtionForm_Btn").html(' <i class="fas fa-check-double text-primary"></i> <br/>Subscribed');
+                else $("#SubscribtionForm_Btn").html(' <i class="fas fa-bell bell-icon text-primary"></i> ');
                 openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-bell text-primary bell-icon'></i> ");
             }
             else {
                 currentCount--;
-                $("#SubscribtionForm_Btn").html(' <i class="far fa-bell"></i> <br />Subscribe');
+                if (!curUrl.toLowerCase().includes("/user/info")) $("#SubscribtionForm_Btn").html(' <i class="far fa-bell"></i> <br />Subscribe');
+                else $("#SubscribtionForm_Btn").html(' <i class="far fa-bell"></i> ');
                 openModal(response.alert, "Done", null, 2, null, null, null, 4, " <i class='fas fa-times-circle circular-icons text-danger'></i> ");
             }
             $("#SubscribersCount_Lbl").text(currentCount);
@@ -893,7 +916,7 @@ $("#LockTheProject_Form").on("submit", function (event) {
     $.post(url, data, function (response) {
         if (response.success) {
             animatedClose(false, "SettingsOfProject_Container");
-            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.5);
+            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.75, "<i class='fas fa-lock text-danger'></i>");
             setTimeout(function () {
                 $("#LockProject_Box").addClass("d-none");
                 $("#UnlockProject_Box").removeClass("d-none");
@@ -914,7 +937,7 @@ $("#UnlockTheProject_Form").on("submit", function (event) {
     $.post(url, data, function (response) {
         if (response.success) {
             animatedClose(false, "SettingsOfProject_Container");
-            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.5);
+            openModal(response.alert, "Got It!", null, 2, null, null, null, 3.75, "<i class='fas fa-lock-open text-primary'></i>");
             setTimeout(function () {
                 $("#UnlockProject_Box").addClass("d-none");
                 $("#LockProject_Box").removeClass("d-none");
@@ -925,6 +948,50 @@ $("#UnlockTheProject_Form").on("submit", function (event) {
         else {
             openModal(response.alert, "<i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
         }
+    });
+});
+
+$("#PinTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPinnedIcon-" + response.result).fadeIn(350);
+            $("#ProjectIsPinned-" + response.result).val(true);
+            $("#UTP_ProjectId_Val").val(response.result);
+            animatedClose(false, "SettingsOfProject_Container");
+            $("#PinTheProject_Box").addClass("d-none");
+            $("#UnpinTheProject_Box").removeClass("d-none");
+            animatedOpen(false, "SettingsOfProject_Container", false, false);
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-thumbtack thumbtack-icon fa-rotate-90 text-primary'></i> ");
+            }, 450);
+        }
+        else openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+    });
+});
+$("#UnpinTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPinnedIcon-" + response.result).fadeOut(350);
+            $("#ProjectIsPinned-" + response.result).val(false);
+            $("#PTP_ProjectId_Val").val(response.result);
+            animatedClose(false, "SettingsOfProject_Container");
+            $("#PinTheProject_Box").removeClass("d-none");
+            $("#UnpinTheProject_Box").addClass("d-none");
+            animatedOpen(false, "SettingsOfProject_Container", false, false);
+
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-unlink text-danger'></i>");
+            }, 450);
+        }
+        else openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
     });
 });
 
@@ -1553,7 +1620,7 @@ $("#GetSentMessages_Btn").on("click", function (event) {
                         }
                         else isChecked.html(" <i class='fas fa-check text-muted'></i> ");
                         senderName.text("Sent By You");
-
+                        
                         div.attr("id", "AllSentMessages-" + response.result[index].id);
                         senderName.attr("id", "SentFrom-" + response.result[index].id);
                         text.attr("id", "AllMessagesText-" + response.result[index].id);
@@ -2401,14 +2468,27 @@ $(document).on("click", ".project-box", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 && trueId != "") {
         let selectedProjectName = $("#ProjectName-" + trueId).text();
+        let isPinned = $("#ProjectIsPinned-" + trueId).val();
         let isLocked = $("#ProjectIsLocked-" + trueId).val();
         isLocked = isLocked == "false" ? false : true;
+        isPinned = isPinned == "false" ? false : true;
 
         $("#SelectedProjectName_Lbl").text(selectedProjectName);
         $("#GPI_Id").val(trueId);
         $(".have-an-edit").attr("href", "/Project/Edit/" + trueId);
         $(".have-a-lock").attr("id", "HaveALock-" + trueId);
         $(".select-to-remove").attr("id", "HaveARemove-" + trueId);
+
+        if (isPinned) {
+            $("#UTP_ProjectId_Val").val(trueId);
+            $("#PinTheProject_Box").addClass("d-none");
+            $("#UnpinTheProject_Box").removeClass("d-none");
+        }
+        else {
+            $("#PTP_ProjectId_Val").val(trueId);
+            $("#PinTheProject_Box").removeClass("d-none");
+            $("#UnpinTheProject_Box").addClass("d-none");
+        }
 
         if (isLocked) {
             $("#LockProject_Box").addClass("d-none");
@@ -2553,6 +2633,14 @@ $(document).on("click", ".add-option", function (event) {
             $("#AddOption_Badge").html("Included Text");
             $("#AddOption_Val2").attr("disabled", true);
             break;
+        case 7:
+            $("#AddOption_Badge").html("Heading Text");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
+        case 8:
+            $("#AddOption_Badge").html("Alternative Font Family");
+            $("#AddOption_Val2").attr("disabled", true);
+            break;
         default:
             $("#AddOption_Badge").html("Bold Text");
             $("#AddOption_Val2").attr("disabled", true);
@@ -2622,6 +2710,8 @@ function textDecoder(element, isFromText, needsTheReplacement) {
     else value = $("#" + element).val();
 
     value = value.replaceAll("[[", "<span class='fw-500'>");
+    value = value.replaceAll("[!", "<span class='fs-3'>");
+    value = value.replaceAll("[-", "<span class='safe-font'>");
     value = value.replaceAll("]]", "</span>");
     value = value.replaceAll("[{", "<a class='text-decoration-none text-primary'");
     value = value.replaceAll("}]", "</a>");
@@ -2761,6 +2851,12 @@ function addOptionToText(element, type, value1, value2) {
             if (cursorPosition != 0) textBefore = textBefore + "\n[=" + value1 + "=]";
             else textBefore = textBefore + "[=" + value1 + "=]";
             break;
+        case 7:
+            textBefore = textBefore + "[!" + value1 + "]]";
+            break;
+        case 8:
+            textBefore = textBefore + "[-" + value1 + "]]";
+            break;
         default:
             textBefore = textBefore + " [[" + value1 + "]]";
             break;
@@ -2780,6 +2876,9 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
     let month = 0;
     let hr = 0;
     let min = 0;
+    let daysFrom = 0;
+    let monthsFrom = 0;
+    let yearsFrom = 0;
     let fullAlert;
     let year = 0;
 
@@ -2788,22 +2887,62 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
     if (dT.getMinutes() < 10) min = "0" + dT.getMinutes();
     else min = dT.getMinutes();
 
-    if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
-    else {
-        if (asShort) year = "/" + dT.getFullYear();
-        else year = " " + dT.getFullYear();
-    }
+    //if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
+    //else {
+    //    if (asShort) year = "/" + dT.getFullYear();
+    //    else year = " " + dT.getFullYear();
+    //}
 
     if (dT.getDate() < 10) day = "0" + dT.getDate();
     else day = dT.getDate();
 
     if (asShort) {
-        month = parseInt(dT.getMonth()) + 1;
-        if (dT.getMonth() < 9) month = "0" + month;
-        else month = month;
+        if (dTCurrent.getFullYear() == dT.getFullYear()) {
+            yearsFrom = 0;
+        }
+        else {
+            yearsFrom = dTCurrent.getFullYear() - dT.getFullYear();
+        }
+        if (dTCurrent.getMonth() == dT.getMonth()) {
+            monthsFrom = 0;
+            daysFrom = dTCurrent.getDate() - dT.getDate();
+        }
+        else {
+            daysFrom = dTCurrent.getDate() - dT.getDate();
+            monthsFrom = dTCurrent.getMonth() - dT.getMonth();
+        }
+        if (daysFrom < 0) daysFrom *= -1;
+        if (monthsFrom < 0) monthsFrom *= -1;
 
-        if (showTimeInfo) fullAlert = day + "/" + month + year + ", at " + hr + ":" + min;
-        else fullAlert = day + "/" + month + year;
+        if (yearsFrom > 0) {
+            if (monthsFrom > 0) {
+                fullAlert = yearsFrom + "yr, " + monthsFrom + "m ago";
+            }
+            else {
+                if (daysFrom > 0) {
+                    fullAlert = yearsFrom + "yr, " + daysFrom + "d ago";
+                }
+                else {
+                    fullAlert = yearsFrom + "yr ago";
+                }
+            }
+        }
+        else {
+            if (monthsFrom > 0) {
+                fullAlert = monthsFrom + "m, " + daysFrom + "d ago";
+            }
+            else {
+                if (daysFrom == 1) fullAlert = daysFrom + " day ago, at " + hr + ":" + min;
+                else fullAlert = daysFrom + " days ago, at " + hr + ":" + min;
+            }
+        }
+
+        //month = parseInt(dT.getMonth()) + 1;
+        //if (dT.getMonth() < 9) month = "0" + month;
+        //else month = month;
+
+        //if (showTimeInfo) fullAlert = day + "/" + month + year + ", at " + hr + ":" + min;
+        //else fullAlert = day + "/" + month + year;
     }
     else {
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];

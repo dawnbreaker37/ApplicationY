@@ -22,6 +22,8 @@ namespace ApplicationY.ViewModels
         public string? YoutubeLink { get; set; }
         [Required(ErrorMessage = "Select the category of your project")]
         public int CategoryId { get; set; }
+        [DataType(DataType.Url)]
+        public string? DonationLink { get; set; }
         [DataType(DataType.Currency)]
         public int ProjectPrice { get; set; }
         [MaxLength(400, ErrorMessage = "Please, try to describe your price change annotation shorter")]

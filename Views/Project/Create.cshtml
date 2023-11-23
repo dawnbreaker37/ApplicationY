@@ -287,44 +287,6 @@
                 <input asp-for="YoutubeLink" class="form-control" autocomplete="off" placeholder="Enter full link here" />
             </div>
             <div class="mt-4">
-                <div>
-                    <label class="form-label fw-500">Is this project a startup?</label>
-                    <div></div>
-                    <small class="card-text text-muted">If your project needs some investments to have a good start you can add needed investments price. Some people may like your project and invest in it</small>
-                    <div class="mt-2"></div>
-                    <button class="btn btn-light btn-sm btn-standard-with-no-colour" type="button" data-bs-toggle="collapse" data-bs-target="#Investments_Box" aria-expanded="false" aria-controls="Investments_Box"> <i class="fas fa-search-dollar"></i> Add Target Price</button>
-                    <div>
-                        <div class="collapse w-100" id="Investments_Box">
-                            <div class="card bordered-container p-3 mt-2">
-                                <div>
-                                    <span class="badge bg-primary fw-normal float-end ms-1 text-light" id="StepOfRange_Span">Step: $100.00</span>
-                                    <label class="form-label fw-500" asp-for="ProjectPrice">Set Target Price</label>
-                                    <input type="range" class="form-range w-100" value="0" step="100" min="0" max="10000000" asp-for="ProjectPrice" />
-                                </div>
-                                <div>
-                                    <div class="row">
-                                        <div class="col col-8">
-                                            <span class="badge bg-light text-primary mt-2 p-2 safe-font text-start w-100" id="ProjectPrice_Badge">$0</span>
-                                        </div>
-                                        <div class="col col-4">
-                                            <span class="badge bg-light text-primary mt-2 p-2 safe-font text-start w-100" id="ProjectPricePercentage_Badge">0%</span>
-                                        </div>
-                                    </div>
-                                    <div class="row">
-                                        <div class="col col-6">
-                                            <button type="button" class="btn btn-light text-primary btn-sm mt-2 d-inline btn-standard-with-no-colour w-100" id="IncreaseStep_Btn"> <i class="fas fa-plus"></i> Increase Step</button>
-                                        </div>
-                                        <div class="col col-6">
-                                            <button type="button" class="btn btn-light text-primary btn-sm mt-2 btn-standard-with-no-colour w-100" id="DecreaseStep_Btn"> <i class="fas fa-minus"></i> Decrease Step</button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="mt-4">
                 <label class="form-label fw-500">Select Category (@ViewBag.Count)</label>
                 <div></div>
                 <small class="card-text text-muted smallside-btn-open-container" id="AboutCategories_Container-Open">Click to know more about categories</small>
@@ -339,6 +301,70 @@
                             <small class="card-text text-muted fw-500 border-0 category-select-container" id="CategoryName-@Item.Id">@Item.Name</small>
                         </div>
                     }
+                </div>
+            </div>
+            <div class="box-container mt-3 p-2 shadow-sm">
+                <div>
+                    <label class="form-label fw-500">Budget/Target Price</label>
+                    <div></div>
+                    <small class="card-text text-muted">Introduce your project's budget</small>
+                    <div class="mt-2"></div>
+                    <button class="btn btn-light btn-sm btn-standard-with-no-colour" type="button" data-bs-toggle="collapse" data-bs-target="#Investments_Box" aria-expanded="false" aria-controls="Investments_Box"> <i class="fas fa-search-dollar"></i> Add Budget/Target Price</button>
+                    <div>
+                        <div class="collapse w-100" id="Investments_Box">
+                            <div class="card bordered-container p-2 mt-2">
+                                <div>
+                                    <span class="badge bg-primary fw-normal float-end ms-1 text-light" id="StepOfRange_Span">Step: $100.00</span>
+                                    <label class="form-label fw-500" asp-for="ProjectPrice">Set Value</label>
+                                    <input type="range" class="form-range w-100" step="100" min="0" value="0" max="750000000" asp-for="ProjectPrice" />
+                                </div>
+                                <div>
+                                    <div class="row">
+                                        <div class="col col-8">
+                                            <span class="badge bg-primary text-light mt-2 p-2 safe-font text-start w-100" id="CurrentPrice_Badge">Current: $0.00</span>
+                                        </div>
+                                        <div class="col col-4">
+                                            <span class="badge bg-success text-light mt-2 p-2 safe-font text-start w-100" id="UpdatedPrice_Badge">Same Target</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col col-8">
+                                            <span class="badge bg-light text-primary mt-2 p-2 safe-font text-start w-100" id="ProjectPrice_Badge">$0.00</span>
+                                        </div>
+                                        <div class="col col-4">
+                                            <span class="badge bg-light text-primary mt-2 p-2 safe-font text-start w-100" id="ProjectPricePercentage_Badge">0.00%</span>
+                                        </div>
+                                    </div>
+                                    <div class="row">
+                                        <div class="col">
+                                            <button type="button" class="btn btn-light text-primary btn-sm mt-2 d-inline btn-standard-with-no-colour w-100" id="IncreaseStep_Btn"> <i class="fas fa-plus"></i> Increase Step</button>
+                                        </div>
+                                        <div class="col">
+                                            <button type="button" class="btn btn-light text-primary btn-sm mt-2 btn-standard-with-no-colour w-100" id="DecreaseStep_Btn"> <i class="fas fa-minus"></i> Decrease Step</button>
+                                        </div>
+                                        <div class="col d-none" id="TPCAnnotation_Box">
+                                            <button type="button" class="btn btn-light text-primary btn-sm mt-2 btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#TargetPriceAnnotation_Collapse" aria-expanded="false" aria-controls="TargetPriceAnnotation_Collapse"> <i class="fas fa-align-left"></i> Add Annotation</button>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="collapse mt-2" id="TargetPriceAnnotation_Collapse">
+                                    <label class="form-label fw-500 ms-1" asp-for="TargetPriceChangeAnnotation">Annotation</label>
+                                    <span class="badge warning-badge" asp-validation-for="TargetPriceChangeAnnotation"></span>
+                                    <textarea name="TargetPriceChangeAnnotation" id="TargetPriceChangeAnnotation" maxlength="400" class="form-control" rows="4" placeholder="Enter your annotation here"></textarea>
+                                    <div class="ms-1"><small class="card-text text-muted">You may add the annotation about your target price change to let know your followers what have changed</small></div>
+                                </div>
+                                <div class="mt-2 pt-2 border-top">
+                                    <div>
+                                        <label class="form-label fw-500 ms-1" asp-for="DonationLink">Donation Link</label>
+                                        <input type="text" class="form-control" autocomplete="off" asp-for="DonationLink" placeholder="https://www.gofundme.com/..." />
+                                    </div>
+                                    <div class="ms-1 mt-1">
+                                        <small class="card-text text-muted">Enter the link if you're needed in some donations. Ignore this if your entered value is just the budget of your project which has already been finished</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="mt-3">
