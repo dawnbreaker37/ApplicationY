@@ -19,6 +19,8 @@ namespace ApplicationY.ViewModels
         public string? TextPart { get; set; }
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
+        public int Duration { get; set; }
+        public DateTime? Deadline { get; set; }
         public string? YoutubeLink { get; set; }
         [Required(ErrorMessage = "Select the category of your project")]
         public int CategoryId { get; set; }

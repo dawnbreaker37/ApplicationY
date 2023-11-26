@@ -491,6 +491,21 @@ body {
     transition: all ease 0.2s;
 }
 
+.upload-file-btn {
+    padding: 8px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
+    border: 1px dashed #040404;
+    font-weight: 500;
+    background-color: rgb(240, 240, 240);
+    cursor: pointer;
+    transition: all ease 0.325s;
+}
+.upload-file-btn:hover,
+.upload-file-btn:active {
+    background-color: #f8f9fa;
+}
+
 .rounded-message-btn {
     color: white;
     font-weight: 500;

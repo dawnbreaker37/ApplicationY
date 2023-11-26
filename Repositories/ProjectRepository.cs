@@ -48,7 +48,14 @@ namespace ApplicationY.Repositories
                     }
                 }
 
-                if(Model.YoutubeLink != null)
+                if (Model.Duration > 0 && Model.Duration <= 1200)
+                {
+                    DateTime? PredictedDate = DateTime.Now.AddDays(Model.Duration);
+                    Model.Deadline = PredictedDate;
+                }
+                else Model.Deadline = null;
+
+                if (Model.YoutubeLink != null)
                 {
                     if (Model.YoutubeLink.Contains("?"))
                     {
@@ -70,6 +77,7 @@ namespace ApplicationY.Repositories
                     TextPart1 = Part1,
                     TextPart2 = Part2,
                     TextPart3 = Part3,
+                    Deadline = Model.Deadline,
                     UserId = Model.UserId,
                     TargetPrice = Model.ProjectPrice,
                     CategoryId = Model.CategoryId,
@@ -117,6 +125,13 @@ namespace ApplicationY.Repositories
                 }
                 if (Model.CurrentPrice != Model.ProjectPrice) PreviousPrice = Model.CurrentPrice;
 
+                if (Model.Duration > 0 && Model.Duration <= 1200)
+                {
+                    DateTime? PredictedDate = DateTime.Now.AddDays(Model.Duration);
+                    Model.Deadline = PredictedDate;
+                }
+                else Model.Deadline = null;
+
                 if (Model.YoutubeLink != null)
                 {
                     if (Model.YoutubeLink.Contains("?"))
@@ -129,7 +144,7 @@ namespace ApplicationY.Repositories
                     }
                 }
 
-                int Result = await _context.Projects.Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.DonationLink, Model.DonationLink).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
+                int Result = await _context.Projects.Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.Deadline, Model.Deadline).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.DonationLink, Model.DonationLink).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
                 if (Result != 0) return Model.Name;
             }
             return null;
@@ -150,8 +165,8 @@ namespace ApplicationY.Repositories
             Project? ProjectInfo = null;
             if (GetAdditionalInfo)
             {
-                if(GetUsername) ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
-                else ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+                if(GetUsername) ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+                else ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, Deadline = p.Deadline, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
                 if (ProjectInfo != null)
                 {
                     ProjectInfo.Views++;

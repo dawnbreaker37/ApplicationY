@@ -134,6 +134,7 @@ namespace ApplicationY.Controllers
                 {
                     int Count = 0;
                     int LastCategoryId = 0;
+                    double TotalDays = 0;
                     List<Category>? Categories = null;
                     IQueryable<Category>? Categories_Preview = null;
 
@@ -156,6 +157,12 @@ namespace ApplicationY.Controllers
                             Count = Categories.Count;
                         }
 
+                        if (ProjectInfo.Deadline != null)
+                        {
+                            TimeSpan StartDay = DateTime.Now.Subtract((DateTime)ProjectInfo.Deadline);
+                            TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
+                        }
+
                         ViewBag.UserInfo = UserInfo;
                         ViewBag.ProjectInfo = ProjectInfo;
                         ViewBag.FullText = MainFullText;
@@ -164,6 +171,7 @@ namespace ApplicationY.Controllers
                         ViewBag.Categories = Categories;
                         ViewBag.LastCategoryId = LastCategoryId;
                         ViewBag.Count = Count;
+                        ViewBag.TotalDays = TotalDays;
 
                         return View();
                     }
@@ -322,6 +330,8 @@ namespace ApplicationY.Controllers
                     string? AdditionalYoutubeLink = null;
                     bool HasAlreadyBeenLiked = false;
                     double PreviousPricePercentage = 0;
+                    double TotalDays = 0;
+
                     int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                     int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
@@ -334,6 +344,12 @@ namespace ApplicationY.Controllers
                     sb.Append(ProjectInfo.TextPart1);
                     if (ProjectInfo.TextPart2 != null) sb.Append(ProjectInfo.TextPart2);
                     if(ProjectInfo.TextPart3 != null) sb.Append(ProjectInfo.TextPart3);
+
+                    if(ProjectInfo.Deadline != null)
+                    {
+                        TimeSpan StartDay = DateTime.Now.Subtract((DateTime)ProjectInfo.Deadline);
+                        TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
+                    }
 
                     if (ProjectInfo.PastTargetPrice != 0)
                     {
@@ -359,7 +375,9 @@ namespace ApplicationY.Controllers
                         }
                         else ViewBag.UserInfo = null;
                     }
+
                     ViewBag.ProjectInfo = ProjectInfo;
+                    ViewBag.TotalDays = TotalDays;
                     ViewBag.ReleaseNotesCount = ReleaseNotesCount;
                     ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
                     ViewBag.FullText = sb;

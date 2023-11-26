@@ -56,7 +56,12 @@ namespace ApplicationY.Controllers
                 ViewBag.LikedProjectsCount = LikedProjectsCount;
                 ViewBag.LikedProjects = LikedProjects;
             }
-
+            else
+            {
+                ViewBag.UserInfo = null; ;
+                ViewBag.SubsCount = 0;
+                ViewBag.LikedProjectsCount = 0;
+            }
             return View();
         }
 

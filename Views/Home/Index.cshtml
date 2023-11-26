@@ -53,6 +53,13 @@
                 </div>
             }
         }
+        else
+        {
+            <div class="box-container bg-light p-2 text-center">
+                <h2 class="h2"> <i class="far fa-bell-slash"></i> </h2>
+                <h6 class="h6">No Subscribtions</h6>
+            </div>
+        }
     </div>
     <div class="bordered-container p-2 mt-2">
         <p class="card-text safe-font"> <i class="far fa-bell"></i> Liked Projects ∙ @ViewBag.LikedProjectsCount</p>
@@ -68,6 +75,13 @@
             }
             <div class="mt-1">
                 <a asp-controller="Project" asp-action="Liked" class="btn btn-text btn-sm fw-normal text-muted"> <i class="fas fa-ellipsis-h"></i> More about your liked projects</a>
+            </div>
+        }
+        else
+        {
+            <div class="box-container bg-light p-2 text-center">
+                <h2 class="h2"> <i class="fas fa-heart-broken"></i> </h2>
+                <h6 class="h6">No Liked Projects</h6>
             </div>
         }
     </div>

@@ -34,7 +34,40 @@
     </header>
 
     <div class="static-bar shadow-standard p-2" id="StatusBar_Container">
-        <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-light float-end btn-status-bar-close btn-standard-not-animated fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="fas fa-plus"></i> <br />Project</a>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-light btn-standard-not-animated float-end w-100 btn-sm ms-1 me-1"> <i class="fas fa-pen-fancy"></i> <br />Post</button>
+            </div>
+            <div class="col">
+                <a asp-controller="Project" asp-action="Liked" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="far fa-heart"></i> <br/>Liked</a> 
+            </div>
+        </div>
+        <div class="row mt-2">
+            <div class="col">
+                <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> <br />Projects</a>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> <br />Notifications</button>
+            </div>
+            <div class="col">
+                <div class="dropdown">
+                    <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 w-100 me-1" data-bs-toggle="dropdown" aria-expanded="false"> <i class="far fa-comments"></i> <br />Messages</button>
+                    <ul class="dropdown-menu p-1 shadow-sm">
+                        <li><button type="button" class="dropdown-item mb-1" id="GetMessages_Btn"> <i class="fas fa-reply-all"></i> Received</button></li>
+                        <li><button type="button" class="dropdown-item" id="GetSentMessages_Btn"> <i class="fas fa-comment-dots"></i> Sent</button></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+@*         <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
         <div class="dropdown">
             <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" data-bs-toggle="dropdown" aria-expanded="false"> <i class="far fa-comments"></i> Messages</button>
             <ul class="dropdown-menu p-1 shadow-sm">
@@ -43,10 +76,10 @@
             </ul>
         </div>
 @*         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" id="GetMessages_Btn"> <i class="far fa-comments"></i> Messages</button> *@
-        <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> Notifications</button>
+@*         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> Notifications</button>
         <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> Create</a>
         <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> Projects</a>
-        <a asp-controller="Project" asp-action="Liked" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-heart"></i> Liked</a>
+        <a asp-controller="Project" asp-action="Liked" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-heart"></i> Liked</a>  *@
     </div>
 
     <div class="bubble-container mx-auto shadow-sm p-3" id="NotificationsLiquid_Container">

@@ -135,9 +135,6 @@
             <input type="hidden" id="RealUserName" value="@UserInfo.UserName" />
         </div>
         <div class="d-none">
-            <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
-                <input type="hidden" name="Id" value="@UserInfo.Id" />
-            </form>
             <form method="get" asp-controller="Account" asp-action="IsSearchNameUnique" id="IsSearchnameUnique_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
                 <input type="hidden" name="SearchName" value="@UserInfo.SearchName" id="ISNU_Searchname" />
@@ -461,6 +458,38 @@
     </div>
 }
 
+<div class="smallside-box-container shadow-standard" id="AddPhoto_Container">
+    <div class="header-container p-3 pb-2" id="AddPhoto_Container-Header">
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddPhoto_Container-Close"></button>
+        <h5 class="h5 text-truncate">Profile Photo</h5>
+    </div>
+    <div>
+        <div class="p-2 pe-3 ps-3 pb-2">
+            <form method="post" asp-controller="Account" asp-action="EditProfilePhoto" enctype="multipart/form-data" id="EditProfilePhoto_Form">
+                <div class="ms-1">
+                    <input type="hidden" name="Id" id="EPP_Id_Val"  value="@UserInfo.Id" />
+                    <label class="form-label fw-500" asp-for="ProfilePhoto">Choose Your Photo</label>
+                </div>
+@*                 <div>
+                    <div id="ProfilePhoto-Get" class="upload-file-btn">Click To Upload</div>
+                    <div class="d-none">
+                        <input type="file" asp-for="ProfilePhoto" accept="image/*" onchange="sub(this);" />
+                    </div>
+                </div> *@
+                <div class="input-group mb-1">
+                    <input type="file" class="form-control" accept=".jpg, .png, .jpeg" id="ProfilePhoto" name="ProfilePhoto" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted" id="ChosenFileName_Lbl">You may upload one profile image. Acceptable file types: .png, .jpg, .jpeg</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour">Save Photo</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="smallside-box-container shadow-standard" id="LinkEdit_Container">
     <div class="header-container p-3 pb-2" id="LinkEdit_Container-Header">
         <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="LinkEdit_Container-Close"></button>
@@ -599,7 +628,8 @@
 <div class="main-container shadow-standard" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
-        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="EditAccount_Container-OpenY">Edit</button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="EditAccount_Container-OpenY"> <i class="fas fa-pencil-alt"></i> Edit</button>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="AddPhoto_Container-Open"> <i class="fas fa-camera"></i> Profile Photo</button>
         @if (!UserInfo.EmailConfirmed)
         {
             <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your account isn't verified. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to verify your account. It'll take 2-3 mins, but after you'll have more secured account with some improved features. <a class='text-decoration-none' href='/User/Verify/@UserInfo.Id'>More about it at verification page</a>. <div class='bordered-container bg-gradient-three text-light p-2 mt-3'><h6 class='h6 safe-font'>Features of verified account</h6> <div class='mt-2 border-top pt-2'><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 1.5x</span> <small class='card-text'>more projects per 1 account - 32 projects before/80 projects after</small></p></div><div class='mt-2'></div><small class='card-text'>Better positions and recommendations for other users when they search something like one of your projects</small><div class='mt-2'></div><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 28%</span><small class='card-text'> more digits for description or text per every project - 11700 digits before/14000 digits after</small></p><div class='mt-2'><small class='card-text'>Additional statistic features about your projects</small></div></div>"> <i class="fas fa-check"></i> Verify Now</button>

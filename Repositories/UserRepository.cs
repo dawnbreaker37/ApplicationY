@@ -12,12 +12,14 @@ namespace ApplicationY.Repositories
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public UserRepository(Context context, UserManager<User> userManager, SignInManager<User> signInManager) : base(context)
+        public UserRepository(Context context, UserManager<User> userManager, IWebHostEnvironment webHostEnvironment, SignInManager<User> signInManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<string?> CreateUserAsync(SignIn_ViewModel Model)
@@ -91,6 +93,25 @@ namespace ApplicationY.Repositories
                 if (Result != 0 && Model.CountryId != 0) return await _context.Countries.AsNoTracking().Where(c => c.Id == Model.CountryId).Select(c => c.ISO + ", " + c.Name).FirstOrDefaultAsync();
                 else return "No country";
             }
+            return null;
+        }
+
+        public async Task<string?> EditProfilePhotoAsync(int Id, IFormFileCollection File)
+        {
+            //if(Id != 0 && File.Count > 0)
+            //{
+            //    string? Extension = Path.GetExtension(File[0].FileName);
+            //    string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 12);
+            //    string? FullFileName = string.Concat(NewFileName, Extension);
+
+            //    using (FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProfilePhotos/" + FullFileName, FileMode.Create))
+            //    {
+            //        await File[0].CopyToAsync(fs);
+
+            //        int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.ProfilePhoto, FullFileName));
+            //        if (Result != 0) return FullFileName;                 
+            //    }
+            //}
             return null;
         }
 

@@ -25,6 +25,7 @@ namespace ApplicationY.Models
         public string? Link2Tag { get; set; }
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
+        public string? ProfilePhoto { get; set; }
         public DateTime? CreatedAt { get; set; }
         public bool IsCompany { get; set; }
         [ForeignKey("Country")]

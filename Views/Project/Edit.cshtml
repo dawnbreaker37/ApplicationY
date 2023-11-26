@@ -359,6 +359,14 @@
                 </div>
             </div>
             <div class="mt-3">
+                <label class="form-label fw-500 ms-1">Duration (in days)</label>
+                <div></div>
+                <input asp-for="Duration" class="number-form-control w-50" min="0" max="1200" placeholder="Up to 1,200d" value="@ViewBag.TotalDays" />
+            </div>
+            <div class="ms-1">
+                <small class="card-text text-muted">If your project is has no deadline enter 0 (or leave the field empty)</small>
+            </div>
+            <div class="mt-3">
                 <div class="row">
                     <div class="col col-7">
                         <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour"> <i class="fas fa-check"></i> Submit Changes</button>

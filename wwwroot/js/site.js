@@ -412,6 +412,34 @@ $("#SendEmailConfirmationCode_Form").on("submit", function (event) {
     });
 });
 
+$("#EditProfilePhoto_Form").on("submit", function (event) {
+    event.preventDefault();
+
+
+    //let files = $("#ProfilePhoto")[0].files[0];
+    //let formData = new FormData();
+    //formData.append("id", $("#EPP_Id_Val").val());
+    //formData.append("profilePhoto", files);
+    //let url = $(this).attr("action");
+
+    //$.ajax({
+    //    type: "POST",
+    //    url: url,
+    //    contentType: false,
+    //    processData: false,
+    //    data: formData,
+    //    success: function (response) {
+    //        if (response.success) {
+    //            animatedClose(false, "AddPhoto_Container");
+    //            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='far fa-image text-primary'></i>");
+    //        }
+    //        else {
+    //            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+    //        }
+    //    }
+    //});
+});
+
 $("#GetShortUserInfo_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -645,6 +673,28 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
+            if (response.result.deadline != null) {
+                let todaysDate = new Date();
+                let deadlineDay = new Date(response.result.deadline);
+                let daysLeft = 0;
+
+                if (todaysDate.getFullYear() < deadlineDay.getFullYear()) {
+                    let yearsPast = deadlineDay.getFullYear() - todaysDate.getFullYear();
+                    if (yearsPast > 1) {
+                        daysLeft += ((yearsPast - 1) * 365) + (deadlineDay.getMonth()) * 30 + deadlineDay.getDate() + todaysDate.getDate() + ((11 - todaysDate.getMonth()) * 30);
+                    }
+                    else {
+                        daysLeft = ((deadlineDay.getMonth()) * 30) + deadlineDay.getDate() + todaysDate.getDate() + ((11 - todaysDate.getMonth()) * 30);
+                    }
+                }
+                else {
+                    daysLeft += 365 - (((deadlineDay.getMonth()) + 1) * 30) + deadlineDay.getDate();
+                }
+
+                $("#DeadlineDate_Lbl").text(convertDateAndTime(deadlineDay, false, false));
+                $("#DeadlineDaysLeft_Lbl").text(daysLeft);
+            }
+
             if (response.isLiked) {
                 $("#AlreadyLiked_Box").removeClass("d-none");
                 $("#NotLiked_Box").addClass("d-none");
@@ -739,6 +789,8 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> No Link');
                 $("#Preview_LinkText2").text("No external second link");
             }
+            smallBarAnimatedOpenAndClose(false);
+            animatedClose(false, "SettingsOfProject_Container");
             animatedOpen(false, "ProjectView_Container", true, true);
         }
         else {
@@ -2703,6 +2755,24 @@ $(".smallside-box-container").on("scroll", function (event) {
     }
 });
 
+$(".upload-file-btn").on("click", function (event) {
+    let trueName = getTrueName(event.target.id);
+    if (trueName != "") {
+        getFile(trueName);
+    }
+});
+
+function getFile(element) {
+    $("#" + element).click();
+}
+function sub(event) {
+    let file = event.value;
+    let fileName = file.split("\\");
+    console.log(fileName[2]);
+    $("#ChosenFileName_Lbl").text(fileName[2]);
+    $("#" + event.id + "-Get").html(fileName[2]);
+}
+
 function textDecoder(element, isFromText, needsTheReplacement) {
     let value;
 
@@ -2881,12 +2951,15 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
     let yearsFrom = 0;
     let fullAlert;
     let year = 0;
+    let monthName;
 
     if (dT.getHours() < 10) hr = "0" + dT.getHours();
     else hr = dT.getHours();
     if (dT.getMinutes() < 10) min = "0" + dT.getMinutes();
     else min = dT.getMinutes();
 
+    if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
+    else year = " " + dT.getFullYear();
     //if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
     //else {
     //    if (asShort) year = "/" + dT.getFullYear();
@@ -2936,20 +3009,13 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
                 else fullAlert = daysFrom + " days ago, at " + hr + ":" + min;
             }
         }
-
-        //month = parseInt(dT.getMonth()) + 1;
-        //if (dT.getMonth() < 9) month = "0" + month;
-        //else month = month;
-
-        //if (showTimeInfo) fullAlert = day + "/" + month + year + ", at " + hr + ":" + min;
-        //else fullAlert = day + "/" + month + year;
     }
     else {
         let months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-        month = months[dT.getMonth()];
+        monthName = months[dT.getMonth()];
 
-        if (showTimeInfo) fullAlert = day + " " + month + year + ", at " + hr + ":" + min;
-        else fullAlert = day + " " + month + year;
+        if (showTimeInfo) fullAlert = day + " " + monthName + year + ", at " + hr + ":" + min;
+        else fullAlert = day + " " + monthName + year;
     }
 
     return fullAlert;

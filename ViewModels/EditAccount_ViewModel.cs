@@ -7,6 +7,8 @@ namespace ApplicationY.ViewModels
         public int Id { get; set; }
         public string? UserName { get; set; }
         public string? Email { get; set; }
+        [DataType(DataType.ImageUrl)]
+        public string? ProfilePhoto { get; set; }
         [Required(ErrorMessage = "Pseudoname is required")]
         [MaxLength(24, ErrorMessage = "Entered pseudoname is too long")]
         [MinLength(4, ErrorMessage = "Entered pseudoname is too short")]

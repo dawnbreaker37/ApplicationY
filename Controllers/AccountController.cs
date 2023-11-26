@@ -217,6 +217,18 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditProfilePhoto(int Id, IFormFileCollection ProfilePhoto)
+        {
+            if (ModelState.IsValid)
+            {
+                string? Result = await _userRepository.EditProfilePhotoAsync(Id, ProfilePhoto);
+                if (Result != null) return Json(new { success = true, alert = "Profile photo has been successfully updated", url = Result });
+                else return Json(new { success = false, alert = "An error occured while trying to update your profile photo. Please, try again later" });
+            }
+            else return Json(new { success = false, alert = "Unable to load selected photo. May be it's too heavy. Anyway, please, try with another photo again" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> EditPersonalInfo(EditPersonalInfo_ViewModel Model)
         {
             //if(Model.CreatedAt.Year == 1) Model.CreatedAt = DateTime.Now;

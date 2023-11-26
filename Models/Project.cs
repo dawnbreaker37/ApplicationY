@@ -16,6 +16,7 @@ namespace ApplicationY.Models
         public string? Link2 { get; set; }
         public string? YoutubeLink { get; set; }
         public string? DonationLink { get; set; }
+        public DateTime? Deadline { get; set; }
         public int TargetPrice { get; set; }
         public bool IsPinned { get; set; }
         [MaxLength(400)]
@@ -40,5 +41,7 @@ namespace ApplicationY.Models
         public string? CategoryDescription { get; set; }
         [NotMapped]
         public string? UserName { get; set; }
+        [NotMapped]
+        public int Duration { get; set; }
     }
 }

@@ -494,11 +494,11 @@
             <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
                 @if (ProjectInfo.TargetPrice != 0)
                 {
-                    <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$@ProjectInfo.TargetPrice.ToString("N0")</h3>
+                    <h2 class="h2 text-primary safe-font" id="Preview_TagPrice">$@ProjectInfo.TargetPrice.ToString("N0")</h2>
                 }
                 else
                 {
-                    <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">No Target Price</h3>
+                    <h2 class="h2 text-primary safe-font" id="Preview_TagPrice">No Target Price</h2>
                 }
                 @if (ProjectInfo.PastTargetPrice != 0)
                 {
@@ -515,12 +515,22 @@
                         <small class="card-text text-muted white-space-on"> <i class="fas fa-quote-right text-primary"></i> @ProjectInfo.PriceChangeAnnotation</small>
                         <div class="border-top mt-2 pt-1"></div>
                     }
+                    else
+                    {
+                        <small class="card-text text-muted white-space-on">No annotations for this project</small>
+                        <div class="border-top mt-2 pt-1"></div>
+                    }
                 }
                 else
                 {
                     @if (ProjectInfo.PriceChangeAnnotation != null)
                     {
                         <small class="card-text white-space-on"> <i class="fas fa-quote-right text-primary"></i> @ProjectInfo.PriceChangeAnnotation</small>
+                        <div class="border-top mt-2 pt-1"></div>
+                    }
+                    else
+                    {
+                        <small class="card-text text-muted white-space-on">No annotations for this project</small>
                         <div class="border-top mt-2 pt-1"></div>
                     }
                 }
@@ -532,10 +542,26 @@
                         <small class="card-text text-muted">Go by this link to donate/invest for this project</small>
                     </div>
                 }
-                <div class="mt-2">
+                <div>
                     <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
                     <div></div>
                     <small class="card-text text-muted">Learn more about project budgets and prices from the QA page</small>
+                </div>
+                <div class="box-container p-2 mt-2 bg-light" id="Deadline_Box">
+                    @if(ProjectInfo.Deadline == null)
+                    {
+                        <small class="card-text fw-500"> <i class="far fa-dot-circle"></i> Deadline</small>
+                        <div class="mt-1"></div>
+                        <p class="card-text text-muted" id="DeadlineDate_Lbl">No deadline for this project</p>
+                    }
+                    else
+                    {
+                        <small class="card-text fw-500"> <i class="far fa-dot-circle text-danger"></i> Deadline</small>
+                        <div class="mt-1"></div>
+                        <small class="card-text" id="DeadlineDate_Lbl">Approximately at <span class="safe-font">@ProjectInfo.Deadline?.ToString("dd/MM/yyyy")</span></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="DeadlineDaysLeft_Lbl"><span class="safe-font">@ViewBag.TotalDays</span> days left till end</small>
+                    }
                 </div>
             </div>
             <div class="card shadow-sm p-3" id="Preview_LinksBox">
