@@ -19,7 +19,7 @@ namespace ApplicationY.ViewModels
         public string? TextPart { get; set; }
         public string? Link1 { get; set; }
         public string? Link2 { get; set; }
-        public int Duration { get; set; }
+        public int Duration { get; set; } = 0;
         public DateTime? Deadline { get; set; }
         public string? YoutubeLink { get; set; }
         [Required(ErrorMessage = "Select the category of your project")]
@@ -33,5 +33,9 @@ namespace ApplicationY.ViewModels
         public int CurrentPrice { get; set; }
         [Required]
         public int UserId { get; set; }
+        public IFormFileCollection? ImagesFiles { get; set; }
+        [DataType(DataType.ImageUrl)]
+        public string? Images { get; set; }
+        public string? Audios { get; set; }
     }
 }

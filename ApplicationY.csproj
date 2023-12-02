@@ -22,6 +22,9 @@
 
   <ItemGroup>
     <Folder Include="wwwroot\ProfilePhotos\" />
+    <Folder Include="wwwroot\ProfilePhotos\" />
+    <Folder Include="wwwroot\ProjectPhotos\" />
+    <Folder Include="wwwroot\ProjectAudios\" />
   </ItemGroup>
 
 </Project>

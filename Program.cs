@@ -15,8 +15,10 @@ builder.Services.AddTransient<IMessage, MessageRepository>();
 builder.Services.AddTransient<IUser, UserRepository>();
 builder.Services.AddTransient<INotifications, NotificationsRepository>();
 builder.Services.AddTransient<IAccount, AccountRepository>();
+builder.Services.AddTransient<IImages, ImagesRepository>();
 builder.Services.AddTransient<IMailService, SendEmailRepository>();
 builder.Services.AddTransient<ICategory, CategoryRepository>();
+builder.Services.AddTransient<IAudios, AudiosRepository>();
 builder.Services.AddTransient<ISubscribe, SubscribersRepository>();
 builder.Services.AddIdentity<User, IdentityRole<int>>(Opt =>
 {

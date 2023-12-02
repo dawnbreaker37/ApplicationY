@@ -8,6 +8,7 @@
     double PrevPricePercentageChange = ViewBag.TargetPriceChangePerc;
     bool IsLiked = ViewBag.IsLiked;
     int CommentsCount = ViewBag.CommentsCount;
+    int ImagesCount = ViewBag.ImagesCount;
     double ProjectsByThisCategory = ViewBag.ProjectsByThisCategory;
     double CategoryPercentage = ViewBag.CategoryPercentage;
 }
@@ -338,6 +339,11 @@
         <a asp-controller="User" asp-action="Purge" asp-route-Id="@ProjectInfo.UserId" class="btn btn-standard-not-animated btn-sm float-end me-2"> <i class="fas fa-bolt text-info"></i> Purge</a>
         <h6 class="h5 text-truncate">@ProjectInfo.Name</h6>
     </div>
+    <div class="hanging-container shadow-sm p-2 d-none" id="Preload_Container-Hanging">
+        <button type="button" class="btn btn-close btn-sm btn-standard-not-animated float-end ms-1" onclick="hide('Preload_Container-Hanging');"></button>
+        <small class="card-text fw-500 me-2 pt-3" id="AudioFileName_Lbl">No File Name</small>
+        <small class="card-text text-muted pt-3" id="AudioFileNameDuration_Lbl">00:00</small>
+    </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container">
             <h1 class="h1 text-primary main-title-font-style" id="Preview_Title">@ProjectInfo.Name</h1>
@@ -601,6 +607,72 @@
                 }
             </div>
         </div>
+
+        @if(ImagesCount > 0)
+        {
+            <div class="box-container mt-2">
+                <div class="card-group">
+                    <div class="card p-2 shadow-sm">
+                        <h6 class="h6">Photos & Images</h6>
+                        <small class="card-text text-muted">This project has got <strong>@ImagesCount</strong> photo(s)</small>
+                        <div class="horizontal-scrolled-container scrollbar-hidden mt-3">
+                            @foreach (GetProjectImages_ViewModel Item in ViewBag.Images)
+                            {
+                                <div class="box-container bg-transparent d-inline-block me-2">
+                                    <img src="~/ProjectPhotos/@Item.Name" class="image-main-box" alt="Cannot display this image" />
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if(ViewBag.AudiosCount > 0)
+        {
+            <div class="box-container mt-2">
+                <div class="card-group">
+                    <div class="card p-2 shadow-sm">
+                        <h6 class="h6">Audios</h6>
+                        <small class="card-text text-muted">This project has got <strong>@ViewBag.AudiosCount</strong> audio(s)</small>
+                        <div class="mt-3">
+                            @foreach (Audio Item in ViewBag.Audios)
+                            {
+                                <div class="mt-1 mb-1">
+                                    <input type="hidden" id="AudioSrc-@Item.Id" value="/ProjectAudios/@Item.Name" />
+                                    <div class="box-container bg-light p-2">
+                                        <h6 class="h6 safe-font ms-1" id="AudioFileName-@Item.Id">@Item.Name</h6>
+                                        <div class="d-inline-block mt-1">
+                                            <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-audio-backward me-1" id="AudioBackwardBtn-@Item.Id"> <i class="fas fa-backward btn-audio-backward" id="AudioBackwardIcon-@Item.Id"></i> </button>
+                                            <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-play-audio me-1" id="PlayAudioBtn-@Item.Id"> <i class="fas fa-play btn-play-audio" id="PlayAudioIcon-@Item.Id"></i> </button>
+                                            <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-pause-audio me-1 d-none" id="PauseAudioBtn-@Item.Id"> <i class="fas fa-pause btn-pause-audio" id="PauseAudioIcon-@Item.Id"></i> </button>
+                                            <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-mute-audio me-1" id="MuteAudioBtn-@Item.Id"> <i class="fas fa-volume-up btn-mute-audio" id="MuteAudioIcon-@Item.Id"></i> </button>
+                                            <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-unmute-audio me-1 d-none" id="UnmuteAudioBtn-@Item.Id"> <i class="fas fa-volume-mute btn-unmute-audio" id="UnmuteAudioIcon-@Item.Id"></i> </button>
+                                            <small class="card-text pt-4 fw-500" id="AudioDuration-@Item.Id">00:00/00:00</small>
+                                            <div class="box-container bg-secondary rounded-pill mt-1 ms-1 standard-transition">
+                                                <div class="box-container bg-dark audio-progress rounded-pill" id="AudioDurationProgress-@Item.Id" style="width: 0; height: 5px;"></div>
+                                            </div>
+                                        </div>
+                                        <audio preload="metadata" id="AudioControl-@Item.Id">
+                                            <source src="/ProjectAudios/@Item.Name" type="audio/mp3" />
+                                            <source src="/ProjectAudios/@Item.Name" type="audio/ogg" />
+                                        </audio>
+                                    </div>
+                                </div>
+@*                                 <div class="box-container bg-light p-2 mt-1 mb-1">
+                                    <h6 class="card-text safe-font ms-2">@Item.Name</h6>
+                                    <audio controls>
+                                        <source src="/ProjectAudios/@Item.Name" type="audio/mp3" />
+                                        <source src="/ProjectAudios/@Item.Name" type="audio/ogg" />
+                                    </audio>
+                                </div> *@
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+
         @if (ProjectInfo.YoutubeLink != null)
         {
             <div class="box-container mt-2">
@@ -620,5 +692,6 @@
                 </div>
             </div>
         }
+            </div>
     </div>
 </div>

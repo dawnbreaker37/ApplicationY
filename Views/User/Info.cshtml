@@ -151,6 +151,13 @@
                     <button type="button" class="btn bg-white btn-sm w-100 btn-standard-not-animated smallside-btn-open-container" id="ProjectsList_Container-OpenY">Projects ∙ @ProjectsCount</button>
                 </div>
             </div>
+            @if (CurrentUserInfo.ProfilePhoto != null)
+            {
+                <div class="box-container bg-light">
+                    <img src="/ProfilePhotos/@CurrentUserInfo.ProfilePhoto" id="AY_ProfilePhoto_Img" class="image-smaller-box" alt="Cannot display this image" />
+                </div>
+                <div class="mt-1"></div>
+            }
             <h3 class="display-5 main-title-font-style">@CurrentUserInfo.PseudoName</h3>
             <div class="mt-2 ms-1">
                 @if (CurrentUserInfo.Description != null)

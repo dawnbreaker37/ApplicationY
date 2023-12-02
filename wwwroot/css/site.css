@@ -312,6 +312,7 @@ html {
 }
 
 .header-container {
+    background-color: white;
     border-radius: 8px 8px 1px 1px;
     transition: all ease 0.3s;
 }
@@ -468,10 +469,72 @@ body {
     transition: all ease 0.3s;
 }
 
+.background-with-image-blurred {
+    opacity: 0.4;
+    background-color: transparent;
+    border-radius: 10px;
+    backdrop-filter: blur(4px);
+}
+
+.image-small-box {
+    cursor: pointer;
+    height: 100px;
+    width: 100px;
+    object-fit: fill;
+    border-radius: 34px;
+    transition: all ease 0.4s;
+}
+.image-small-box:hover,
+.image-small-box:active {
+    border-radius: 17px;
+    height: 145px;
+    width: 145px;
+}
+
+.image-smaller-box {
+    cursor: pointer;
+    height: 75px;
+    width: 75px;
+    object-fit: fill;
+    border-radius: 24px;
+    transition: all ease 0.4s;
+}
+.image-smaller-box:hover,
+.image-smaller-box:active {
+    border-radius: 12px;
+    height: 115px;
+    width: 115px;
+}
+
+.image-preview-box {
+    cursor: pointer;
+    height: 155px;
+    width: 175px;
+    object-fit: fill;
+    border-radius: 8px;
+    display: inline-block;
+    transition: all ease 0.375s;
+}
+
+.image-main-box {
+    cursor: pointer;
+    height: 290px;
+    width: 370px;
+    object-fit: fill;
+    border-radius: 8px;
+    display: inline-block;
+    transition: all ease 0.375s;
+}
+
 .main-title-font-style {
     /*Similar to Andika*/
     font-family: 'Lucida Sans Unicode';
     font-stretch: expanded;
+}
+
+.audio-progress {
+    height: 5px;
+    transition: all ease 0.3s;
 }
 
 .send-msg-form-control {
@@ -560,6 +623,15 @@ body {
     animation-play-state: running;
     animation-delay: 0.15s;
     animation: roll-icon-animation 0.85s linear;
+}
+.hanging-container {
+    border-radius: 1px;
+    background-color: white;
+    position: fixed;
+    z-index: 750;
+    top: -1200px;
+    display: none;
+    transition: all ease 0.25s;
 }
 
 .fast-transition {

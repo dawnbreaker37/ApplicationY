@@ -467,18 +467,18 @@
         <div class="p-2 pe-3 ps-3 pb-2">
             <form method="post" asp-controller="Account" asp-action="EditProfilePhoto" enctype="multipart/form-data" id="EditProfilePhoto_Form">
                 <div class="ms-1">
-                    <input type="hidden" name="Id" id="EPP_Id_Val"  value="@UserInfo.Id" />
+                    <input type="hidden" name="Id" id="EPP_Id_Val" value="@UserInfo.Id" />
                     <label class="form-label fw-500" asp-for="ProfilePhoto">Choose Your Photo</label>
                 </div>
-@*                 <div>
+                <div>
                     <div id="ProfilePhoto-Get" class="upload-file-btn">Click To Upload</div>
                     <div class="d-none">
                         <input type="file" asp-for="ProfilePhoto" accept="image/*" onchange="sub(this);" />
                     </div>
-                </div> *@
-                <div class="input-group mb-1">
-                    <input type="file" class="form-control" accept=".jpg, .png, .jpeg" id="ProfilePhoto" name="ProfilePhoto" />
                 </div>
+@*                 <div class="input-group mb-1">
+                    <input type="file" class="form-control" accept=".jpg, .png, .jpeg" id="ProfilePhoto" name="ProfilePhoto" />
+                </div> *@
                 <div class="ms-1">
                     <small class="card-text text-muted" id="ChosenFileName_Lbl">You may upload one profile image. Acceptable file types: .png, .jpg, .jpeg</small>
                 </div>
@@ -638,6 +638,19 @@
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-3">
+            @if(UserInfo.ProfilePhoto != null)
+            {
+                <div class="box-container bg-light">
+                    <img src="/ProfilePhotos/@UserInfo.ProfilePhoto" id="AY_ProfilePhoto_Img" class="image-small-box" alt="Cannot display this image" />
+                </div>
+                <div class="mt-1"></div>
+            }
+            else
+            {
+                <div class="box-container bg-light p-1">
+                    <img src="" id="AY_ProfilePhoto_Img" class="image-small-box d-none" alt="Cannot display this image" />
+                </div>
+            }
             @if (UserInfo.PseudoName == null)
             {
                 <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.UserName</h1>

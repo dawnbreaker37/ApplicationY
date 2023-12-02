@@ -20,5 +20,7 @@ namespace ApplicationY.Data
         public DbSet<Category> Categories { get; set; }
         public DbSet<Update> Updates { get; set; }
         public DbSet<Subscribtion> Subscribtions { get; set; }
+        public DbSet<Image> Images { get; set; }
+        public DbSet<Audio> Audios { get; set; }
     }
 }

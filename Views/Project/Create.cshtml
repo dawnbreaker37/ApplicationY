@@ -134,20 +134,60 @@
         </div>
     </div>
 
+@*     <div class="smallside-box-container shadow-standard" id="AddImages_Container">
+        <div class="header-container p-3 pb-2" id="AddImages_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="AddImages_Container-Close"></button>
+            <h5 class="h5 text-truncate">Images</h5>
+        </div>
+        <div class="p-2">
+            <div class="mt-2 bordered-container p-2">
+                <h6 class="h6">Current Images</h6>
+                <div class="text-center mt-4" id="NoImages_Box">
+                    <h1 class="h1"> <i class="far fa-images"></i> </h1>
+                    <h5 class="h5 safe-font">Upload Some Images</h5>
+                    <small class="card-text text-muted">Try to upload some new images now</small>
+                </div>
+                <div class="mt-3 horizontal-scrolled-container scrollbar-hidden" style="display: none;" id="HaveImages_Box">
+                </div>
+        </div>
+        <div>
+            <div class="p-2">
+                <form method="post" asp-controller="Project" asp-action="EditProjectImages" enctype="multipart/form-data" id="EditProjectImages_Form">
+                    <div class="ms-1">
+                        <input type="hidden" name="Id" id="EPI_Val_Id" value="0" />
+                        <label class="form-label fw-500" for="Images">Choose Images</label>
+                    </div>
+                    <div>
+                        <div id="Images-Get" class="upload-file-btn">Click to Upload</div>
+                        <div class="d-none">
+                            <input type="file" name="Images" id="Images" multiple accept=".png, .jpg, .jpeg" onchange="sub(this);" />
+                        </div>
+                    </div>
+                    <div class="ms-1">
+                        <small class="card-text text-muted" id="ChosenFileName_Lbl">You can upload up to 6 images per project</small>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div> *@
+
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-plus"></i> <br />Create</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="AboutProjects_Container-Open"> <i class="fas fa-info-circle"></i> <br />Info</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="AddImages_Container-OpenY"> <i class="far fa-images"></i> <br />Images</button>
             </div>
             <div class="col">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
             </div>
         </div>
     </div>
-</div>
 
 <div class="main-container shadow-standard" id="Completed_Container">
     <div class="header-container p-3 pb-2" id="Completed_Container-Header">
@@ -232,7 +272,7 @@
 <div class="main-container shadow-standard" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
-        <h6 class="h5 text-truncate">Create Project</h6>
+        <h5 class="h5 text-truncate">Create Project</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
         <form method="post" asp-controller="Project" asp-action="CreateProject" id="CreateProject_Form">
@@ -375,6 +415,20 @@
             <div class="ms-1">
                 <small class="card-text text-muted">If your project is has no deadline enter 0 (or leave the field empty)</small>
             </div>
+                <div class="mt-3">
+                        <div class="ms-1">
+                            <label class="form-label fw-500" asp-for="ImagesFiles">Choose Images</label>
+                        </div>
+                        <div>
+                            <div id="ImagesFiles-Get" class="upload-file-btn">Click to Upload</div>
+                            <div class="d-none">
+                                <input type="file" asp-for="ImagesFiles" multiple accept=".png, .jpg, .jpeg" onchange="sub(this);" />
+                            </div>
+                        </div>
+                        <div class="ms-1">
+                            <small class="card-text text-muted" id="ChosenFileName_Lbl">You can upload up to 6 images per project</small>
+                        </div>
+                </div>
             <div class="mt-3">
                 <div class="row">
                     <div class="col col-7">

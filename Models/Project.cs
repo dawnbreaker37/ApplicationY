@@ -35,6 +35,8 @@ namespace ApplicationY.Models
         public Category? Category { get; set; }
         public List<Comment>? Comments { get; set; }
         public List<Update>? Updates { get; set; }
+        public List<Image>? Images { get; set; }
+        public List<Audio>? Audios { get; set; }
         [NotMapped]
         public string? CategoryName { get; set; }
         [NotMapped]

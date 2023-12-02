@@ -15,15 +15,19 @@ namespace ApplicationY.Controllers
         private readonly IProject _projectRepository;
         private readonly IMessage _messageRepository;
         private readonly ICategory _categoryRepository;
+        private readonly IImages _imagesRepository;
+        private readonly IAudios _audiosRepository;
         private readonly Context _context;
 
-        public ProjectController(UserManager<User> userManager, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
+        public ProjectController(UserManager<User> userManager, IImages imagesRepository, IAudios audiosRepository, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
             _context = context;
             _messageRepository = messageRepository;
             _categoryRepository = categoryRepository;
+            _imagesRepository = imagesRepository;
+            _audiosRepository = audiosRepository;
         }
 
         public async Task<IActionResult> Create()
@@ -133,10 +137,16 @@ namespace ApplicationY.Controllers
                 if (UserInfo != null)
                 {
                     int Count = 0;
+                    int ImgsCount = 0;
+                    int AudiosCount = 0;
                     int LastCategoryId = 0;
                     double TotalDays = 0;
                     List<Category>? Categories = null;
+                    List<GetProjectImages_ViewModel>? Images = null;
+                    List<Audio>? Audios = null;
                     IQueryable<Category>? Categories_Preview = null;
+                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
+                    IQueryable<Audio>? Audios_Preview = null;
 
                     Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
@@ -149,12 +159,19 @@ namespace ApplicationY.Controllers
                         double PercentageOfTargetPrice = Math.Round((double)(ProjectInfo.TargetPrice / 10000000 * 100), 1);
                         if (FullText != null) MainFullText = FullText?.ToString();
 
+                        Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+                        Audios_Preview = _audiosRepository.GetProjectAudios(Id);
                         Categories_Preview = _categoryRepository.GetAll();
                         if (Categories_Preview != null)
                         {
                             Categories = await Categories_Preview.ToListAsync();
                             LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
                             Count = Categories.Count;
+                        }
+                        if(Audios_Preview != null)
+                        {
+                            Audios = await Audios_Preview.ToListAsync();
+                            AudiosCount = Audios.Count;
                         }
 
                         if (ProjectInfo.Deadline != null)
@@ -163,7 +180,15 @@ namespace ApplicationY.Controllers
                             TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
                         }
 
+                        if (Images_Preview != null)
+                        {
+                            Images = await Images_Preview.ToListAsync();
+                            ImgsCount = Images.Count;
+                        }
+
                         ViewBag.UserInfo = UserInfo;
+                        ViewBag.Audios = Audios;
+                        ViewBag.AudiosCount = AudiosCount;
                         ViewBag.ProjectInfo = ProjectInfo;
                         ViewBag.FullText = MainFullText;
                         ViewBag.FullTextLength = MainFullText?.Length;
@@ -171,6 +196,8 @@ namespace ApplicationY.Controllers
                         ViewBag.Categories = Categories;
                         ViewBag.LastCategoryId = LastCategoryId;
                         ViewBag.Count = Count;
+                        ViewBag.Images = Images;
+                        ViewBag.ImgsCount = ImgsCount;
                         ViewBag.TotalDays = TotalDays;
 
                         return View();
@@ -179,6 +206,29 @@ namespace ApplicationY.Controllers
                 }
             }
             return RedirectToAction("Create", "Account");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProjectImages(int Id, IFormFileCollection Images)
+        {
+            if (ModelState.IsValid)
+            {
+                List<string?>? Result = await _projectRepository.EditImagesAsync(Id, Images);
+                if (Result != null) return Json(new { success = true, alert = "Selected images has been successfully uploaded", result = Result });
+            }
+            return Json(new { success = false, alert = "An error occured while trying to upload images. Please, try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditProjectAudios(int Id, IFormFileCollection Audios)
+        {
+            if (ModelState.IsValid)
+            {
+                List<string>? Result = await _audiosRepository.CreateAudioAsync(Id, Audios, null);
+                if (Result != null) return Json(new { success = true, alert = "Audio files has been successfully added", result = Result });
+                else return Json(new { success = false, alert = "An error occured while trying to edit your project audio files. Please, try again later" });
+            }
+            else return Json(new { success = false, alert = "Something went wrong so we can't add these audios" });
         }
 
         [HttpPost]
@@ -211,6 +261,14 @@ namespace ApplicationY.Controllers
                 return Json(new { success = true, result = ReleaseNotes, count = ReleaseNotes.Count });
             }
             else return Json(new { success = false, alert = "There's no actual release notes for this project" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveImage(int Id, int ProjectId)
+        {
+            int Result = await _imagesRepository.RemoveImageAsync(Id, ProjectId);
+            if (Result != 0) return Json(new { success = true, alert = "Image has been successfully removed", result = Result });
+            else return Json(new { success = false, alert = "Unable to delete selected image" });
         }
 
         public async Task<IActionResult> Liked()
@@ -305,15 +363,26 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo)
+        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles)
         {
             Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo);
             if (ProjectInfo != null)
             {
+                List<Audio>? Audios = null;
+                List<GetProjectImages_ViewModel>? Images = null;
+                if (GetFiles)
+                {
+                    IQueryable<Audio>? Audios_Preview = _audiosRepository.GetProjectAudios(Id);
+                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+
+                    if (Audios_Preview != null) Audios = await Audios_Preview.ToListAsync();
+                    if (Images_Preview != null) Images = await Images_Preview.ToListAsync();
+                }
+
                 bool IsLiked = false;
                 int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                 if (SenderId != 0) IsLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, SenderId);
-                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, result = ProjectInfo, isLiked = IsLiked });
+                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, Images = Images });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
         }
@@ -325,12 +394,17 @@ namespace ApplicationY.Controllers
                 Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
                 if(ProjectInfo != null)
                 {
+                    List<GetProjectImages_ViewModel>? Images = null;
+                    List<Audio>? Audios = null;
+
                     GetCommentaries_ViewModel? LastSentComment = null;
                     string? YoutubeVideoLink = null;
                     string? AdditionalYoutubeLink = null;
                     bool HasAlreadyBeenLiked = false;
                     double PreviousPricePercentage = 0;
                     double TotalDays = 0;
+                    int ImagesCount = 0;
+                    int AudiosCount = 0;
 
                     int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
@@ -338,6 +412,9 @@ namespace ApplicationY.Controllers
                     int FullProjectsCount = await _projectRepository.GetProjectsCount();
                     double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
                     double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount  * 100, 1);
+                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+                    IQueryable<Audio>? AudiosPreview = _audiosRepository.GetProjectAudios(Id);
+
                     if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
 
                     StringBuilder sb = new StringBuilder();
@@ -364,6 +441,17 @@ namespace ApplicationY.Controllers
                         AdditionalYoutubeLink= "https://www.youtube.com/watch?v=" + @ProjectInfo.YoutubeLink;
                     }
 
+                    if(Images_Preview != null)
+                    {
+                        Images = await Images_Preview.ToListAsync();
+                        ImagesCount = Images.Count;
+                    }
+                    if(AudiosPreview != null)
+                    {
+                        Audios = await AudiosPreview.ToListAsync();
+                        AudiosCount = Audios.Count;
+                    }
+
                     if (User.Identity.IsAuthenticated)
                     {
                         User? UserInfo = await _userManager.GetUserAsync(User);
@@ -378,6 +466,10 @@ namespace ApplicationY.Controllers
 
                     ViewBag.ProjectInfo = ProjectInfo;
                     ViewBag.TotalDays = TotalDays;
+                    ViewBag.Images = Images;
+                    ViewBag.Audios = Audios;
+                    ViewBag.ImagesCount = ImagesCount;
+                    ViewBag.AudiosCount = AudiosCount;
                     ViewBag.ReleaseNotesCount = ReleaseNotesCount;
                     ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
                     ViewBag.FullText = sb;

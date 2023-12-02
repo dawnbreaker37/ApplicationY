@@ -414,30 +414,30 @@ $("#SendEmailConfirmationCode_Form").on("submit", function (event) {
 
 $("#EditProfilePhoto_Form").on("submit", function (event) {
     event.preventDefault();
+    let file = $("#ProfilePhoto").get(0).files[0];
+    let url = $(this).attr("action");
+    let formData = new FormData();
 
-
-    //let files = $("#ProfilePhoto")[0].files[0];
-    //let formData = new FormData();
-    //formData.append("id", $("#EPP_Id_Val").val());
-    //formData.append("profilePhoto", files);
-    //let url = $(this).attr("action");
-
-    //$.ajax({
-    //    type: "POST",
-    //    url: url,
-    //    contentType: false,
-    //    processData: false,
-    //    data: formData,
-    //    success: function (response) {
-    //        if (response.success) {
-    //            animatedClose(false, "AddPhoto_Container");
-    //            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='far fa-image text-primary'></i>");
-    //        }
-    //        else {
-    //            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
-    //        }
-    //    }
-    //});
+    formData.append("id", $("#EPP_Id_Val").val());
+    formData.append("profilePhoto", file);
+    $.ajax({
+        type: "Post",
+        url: url,
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function (response) {
+            if (response.success) {
+                $("#AY_ProfilePhoto_Img").attr("src", "/ProfilePhotos/" + response.url);
+                $("#AY_ProfilePhoto_Img").removeClass("d-none");
+                animatedClose(false, "AddPhoto_Container");
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='far fa-image text-primary'></i>");
+            }
+            else {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+            }
+        }
+    });
 });
 
 $("#GetShortUserInfo_Form").on("submit", function (event) {
@@ -481,6 +481,7 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
             $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
 
+            textDecoder("USI_Description_Lbl", true, true);
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "UserShortInfo_Container", false, false);
         }
@@ -513,16 +514,42 @@ $(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
 $("#CreateProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
-    let data = $(this).serialize();
+    let formData = new FormData();
+    let files = $("#ImagesFiles").get(0).files;
+    let count = files.length;
 
-    $.post(url, data, function (response) {
-        if (response.success) {
-            $("#LookAtProject_Btn").attr("href", "/Project/Info/" + response.link);
-            animatedOpen(false, "Completed_Container", true, true);
-            openModal(response.alert, "Go To Project", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/Info/" + response.link, 2, null, 3.75);
-        }
-        else {
-            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+    formData.append("name", $("#Name").val());
+    formData.append("userId", $("#UserId").val());
+    formData.append("description", $("#Project_Description").val());
+    formData.append("textPart", $("#TextPart").val());
+    formData.append("link1", $("#ProjectLink1").val());
+    formData.append("link2", $("#ProjectLink2").val());
+    formData.append("youtubeLink", $("#YoutubeLink").val());
+    formData.append("categoryId", $("#CategoryId").val());
+    formData.append("projectPrice", $("#ProjectPrice").val());
+    formData.append("targetPriceChangeAnnotation", $("#TargetPriceChangeAnnotation").val());
+    formData.append("donationLink", $("#DonationLink").val());
+    if ($("#Duration").val() != 0) formData.append("duration", $("#Duration").val());
+    else formData.append("duration", 0);
+    for (let i = 0; i < count; i++) {
+        formData.append("imagesFiles", files[i]);
+    }
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            if (response.success) {
+                $("#LookAtProject_Btn").attr("href", "/Project/Info/" + response.link);
+                animatedOpen(false, "Completed_Container", true, true);
+                openModal(response.alert, "Go To Project", " <i class='fas fa-times text-danger'></i> Close", 0, "/Project/Info/" + response.link, 2, null, 3.75);
+            }
+            else {
+                openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            }
         }
     });
 });
@@ -543,6 +570,126 @@ $("#EditProject_Form").on("submit", function (event) {
         }
     });
 });
+
+$("#EditProjectImages_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let files = $("#Images").get(0).files[0];
+    let url = $(this).attr("action");
+    let formData = new FormData();
+
+    formData.append("id", $("#EPI_Val_Id").val());
+    formData.append("images", files);
+    for (let i = 1; i <= 6; i++) {
+        if ($("#Images").get(0).files[i] != undefined) {
+            formData.append("images", $("#Images").get(0).files[i]);
+        }
+    }
+
+    $.ajax({
+        type: "POST",
+        data: formData,
+        url: url,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            if (response.success) {
+/*                animatedClose(false, "AddImages_Container");*/
+                $("#HaveImages_Box").empty();
+
+                let result = response.result;
+                let count = result.length;
+                for (let i = 0; i < count; i++) {
+                    let div = $("<div class='box-container bg-transparent me-2 d-inline-block'></div>");
+                    let imgTag = $("<img class='image-preview-box' />");
+                    imgTag.attr("src", "/ProjectPhotos/" + result[i]);
+
+                    div.append(imgTag);
+                    $("#HaveImages_Box").append(div);
+                }
+                setTimeout(function () {
+                    $("#HaveImages_Box").fadeIn(0);
+                    $("#NoImages_Box").fadeOut(0);
+                    animatedOpen(false, "AddImages_Container", false, false);
+                }, 250);
+                setTimeout(function () {
+                    openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='far fa-images text-primary'></i>");
+                }, 750);
+            }
+            else {
+                $("#Images").val(null);
+                $("#Images-Get").text("Click to Upload");
+                $("#ChosenFileName_Lbl").text("You can upload up to 6 images per project");
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='far fa-times-circle text-danger'></i>");
+            }
+        }
+    });
+});
+
+$("#EditProjectAudios_Form").on("submit", function (event) {
+    event.preventDefault();
+
+    let url = $(this).attr("action");
+    let formData = new FormData();
+    let files = $("#Audios").get(0).files;
+
+    formData.append("id", $("#EPA_Val_Id").val());
+    for (let i = 0; i < 4; i++) {
+        if (files[i] != undefined) {
+            formData.append("audios", files[i]);
+        }
+    }
+
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: formData,
+        processData: false,
+        contentType: false,
+        success: function (response) {
+            if (response.success) {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-music text-primary'></i>");
+            }
+            else {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+            }
+        }
+    });
+});
+
+$(document).on("click", ".btn-remove-img", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#RI_ImageId_Val").val(trueId);
+        let url = $("#RemoveImage_Form").attr("action");
+        let data = $("#RemoveImage_Form").serialize();
+
+        $.post(url, data, function (response) {
+            if (response.success) {
+                let count = $("#CurrentImgs_Count").val();
+                count = parseInt(count) - 1;
+                if (count == 0) {
+                    animatedClose(false, "AddImages_Container");
+                    $("#NoImages_Box").fadeIn(100);
+                    $("#HaveImages_Box").fadeOut(100);
+                    setTimeout(function () {
+                        animatedOpen(false, "AddImages_Container", false, false);
+                    }, 300);
+                }
+                else {
+                    $("#ProjectImg-" + response.result).fadeOut(300);
+                    setTimeout(function () {
+                        $("#ProjectImg-" + response.result).addClass("d-none");
+                    }, 225);
+                }
+            }
+            else {
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+            }
+        });
+    }
+});
+
 $("#RemoveProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -673,6 +820,67 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
+            if (response.audios != null) {
+                $("#AudiosExample_Box").empty();
+                let count = response.audios.length;
+                $("#AudiosCount_Lbl").text(count);
+                $.each(response.audios, function (index) {
+                    let mainDiv = $("<div class='mt-1 mb-1'></div>");
+                    let secondDiv = $("<div class='box-container bg-light p-2'></div>");
+                    let thirdDiv = $("<div class='d-inline-block mt-1'></div>");
+                    let durationDiv = $("<div class='box-container bg-secondary rounded-pill mt-1 ms-1 standard-transition'></div>");
+                    let durationProgress = $("<div class='box-container bg-dark audio-progress rounded-pill'></div>");
+                    let audioTag = $("<audio preload='metadata'></audio>");
+                    let sourceOne = $("<source type='audio/mp3' />");
+                    let sourceTwo = $("<source type='audio/ogg' />");
+                    let audioSrcInput = $("<input type='hidden' />");
+                    let audioFileName = $("<h6 class='h6 safe-font ms-1'></h6>");
+                    let audioDuration_Lbl = $("<small class='card-text pt-4 fw-500'></small>");
+
+                    let backwardBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-audio-backward me-1' id='AudioBackwardBtn-" + response.audios[index].id + "'> <i class='fas fa-backward btn-audio-backward' id='AudioBackwardIcon-" + response.audios[index].id + "'></i> </button>");
+                    let playBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-play-audio me-1' id='PlayAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-play btn-play-audio' id='PlayAudioIcon-" + response.audios[index].id + "'></i> </button>");
+                    let pauseBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-pause-audio me-1 d-none' id='PauseAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-pause btn-pause-audio' id='PauseAudioIcon-" + response.audios[index].id + "'></i> </button>");
+                    let muteBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-mute-audio me-1' id='MuteAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-volume-up btn-mute-audio' id='MuteAudioIcon-" + response.audios[index].id + "'></i> </button>");
+                    let unMuteBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-unmute-audio me-1 d-none' id='UnmuteAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-volume-mute btn-mute-audio' id='UnmuteAudioIcon-" + response.audios[index].id + "'></i> </button>");
+
+                    audioTag.attr("src", "/ProjectAudios/" + response.audios[index].name);
+                    audioSrcInput.val("/ProjectAudios/" + response.audios[index].name);
+                    audioFileName.text(response.audios[index].name);
+                    audioDuration_Lbl.text("00:00/00:00");
+                    sourceOne.attr("src", "/ProjectAudios/" + response.audios[index].name);
+                    sourceTwo.attr("src", "/ProjectAudios/" + response.audios[index].name);
+
+                    audioTag.attr("id", "AudioControl-" + response.audios[index].id);
+                    audioDuration_Lbl.attr("id", "AudioDuration-" + response.audios[index].id);
+                    audioFileName.attr("id", "AudioFileName-" + response.audios[index].id);
+                    durationProgress.attr("id", "AudioDurationProgress-" + response.audios[index].id);
+                    audioSrcInput.attr("id", "AudioSrc-" + response.audios[index].id);
+
+                    audioTag.append(sourceOne);
+                    audioTag.append(sourceTwo);
+
+                    durationDiv.append(durationProgress);
+                    secondDiv.append(audioFileName);
+                    secondDiv.append(audioSrcInput);
+                    thirdDiv.append(backwardBtn);
+                    thirdDiv.append(pauseBtn);
+                    thirdDiv.append(playBtn);
+                    thirdDiv.append(muteBtn);
+                    thirdDiv.append(unMuteBtn);
+                    thirdDiv.append(audioDuration_Lbl);
+                    thirdDiv.append(durationDiv);
+                    secondDiv.append(thirdDiv);
+                    mainDiv.append(secondDiv);
+
+                    $("#AudiosExample_Box").append(mainDiv);
+                });
+                $("#PreviewAudios_Box").fadeIn(350);
+            }
+            else {
+                $("#PreviewAudios_Box").fadeOut(300);
+                $("#AudiosExample_Box").empty();
+            }
+
             if (response.result.deadline != null) {
                 let todaysDate = new Date();
                 let deadlineDay = new Date(response.result.deadline);
@@ -789,9 +997,15 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> No Link');
                 $("#Preview_LinkText2").text("No external second link");
             }
-            smallBarAnimatedOpenAndClose(false);
             animatedClose(false, "SettingsOfProject_Container");
-            animatedOpen(false, "ProjectView_Container", true, true);
+            if (fullWidth < 717) {
+                smallBarAnimatedOpenAndClose(true);
+                animatedOpen(false, "ProjectView_Container", true, false);
+            }
+            else {
+                smallBarAnimatedOpenAndClose(false);
+                animatedOpen(false, "ProjectView_Container", true, true);
+            }
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
@@ -2171,6 +2385,171 @@ $(document).on("click", ".remove-from-liked", function (event) {
     }
 });
 
+$(document).on("click", ".btn-audio-backward", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let curUrl = document.location.href;
+    if (trueId != null) {
+        let audio;
+        if (curUrl.toLowerCase().includes("/project/info")) {
+            audio = document.getElementById("AudioControl-" + trueId);
+        }
+        else {
+            audio = new Audio();
+            let audioSrc = $("#AudioSrc-" + trueId).val();
+            audio.src = audioSrc;
+        }
+
+        if (audio != null) {
+            audio.currentTime = 0;
+            $("#AudioBackwardBtn-" + trueId).css("transform", "rotate(180deg)");
+            setTimeout(function () {
+                $("#AudioBackwardBtn-" + trueId).css("transform", "rotate(0)");
+            }, 2500);
+        }
+    }
+});
+$(document).on("click", ".btn-mute-audio", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let curUrl = document.location.href;
+    if (trueId != "") {
+        let audio;
+        if (curUrl.toLowerCase().includes("/project/info")) {
+            audio = document.getElementById("AudioControl-" + trueId);
+        }
+        else {
+            audio = new Audio();
+            let audioSrc = $("#AudioSrc-" + trueId).val();
+            audio.src = audioSrc;
+        }
+
+        if (audio != null) {
+            audio.muted = true;
+            $("#MuteAudioBtn-" + trueId).addClass("d-none");
+            $("#UnmuteAudioBtn-" + trueId).removeClass("d-none");
+        }
+    }
+});
+$(document).on("click", ".btn-unmute-audio", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let curUrl = document.location.href;
+    if (trueId != null) {
+        let audio;
+        if (curUrl.toLowerCase().includes("/project/info")) {
+            audio = document.getElementById("AudioControl-" + trueId);
+        }
+        else {
+            audio = new Audio();
+            let audioSrc = $("#AudioSrc-" + trueId).val();
+            audio.src = audioSrc;
+        }
+
+        if (audio != null) {
+            audio.muted = false;
+            $("#MuteAudioBtn-" + trueId).removeClass("d-none");
+            $("#UnmuteAudioBtn-" + trueId).addClass("d-none");
+        }
+    }
+});
+$(document).on("click", ".btn-play-audio", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let curUrl = document.location.href;
+    if (trueId != null) {
+        let audio;
+        if (curUrl.toLowerCase().includes("/project/info")) {
+            audio = document.getElementById("AudioControl-" + trueId);
+        }
+        else {
+            audio = new Audio();
+            let audioSrc = $("#AudioSrc-" + trueId).val();
+            audio.src = audioSrc;
+        }
+        
+        if (audio != null) {
+            let duration = 0;
+            let durationMin = 0;
+            let durationSec = 0;
+            let currentTime = 0;
+            let currentTimeMin = 0;
+            let currentTimeSec = 0;
+            let currentDurationPerc = 0;
+            let audioName = $("#AudioFileName-" + trueId).text();
+            setTimeout(function () {
+                duration = parseInt(audio.duration);
+                if (duration < 60) {
+                    durationMin = 0;
+                    durationSec = duration;
+                }
+                else {
+                    durationMin = parseInt(duration / 60);
+                    durationSec = duration - (durationMin * 60);
+                }
+
+                if (durationSec < 10) durationSec = "0" + durationSec;
+                if (durationMin < 10) durationMin = "0" + durationMin;
+                $("#AudioDuration-" + trueId).text("00:00/" + durationMin + ":" + durationSec);
+            }, 100);
+            setInterval(function () {
+                currentTime = parseInt(audio.currentTime);
+                if (currentTime < 60) {
+                    currentTimeMin = 0;
+                    currentTimeSec = currentTime;
+                }
+                else {
+                    currentTimeMin = parseInt(currentTime / 60);
+                    currentTimeSec = currentTime - (currentTimeMin * 60);
+                }
+
+                if (currentTimeSec < 10) currentTimeSec = "0" + currentTimeSec;
+                if (currentTimeMin < 10) currentTimeMin = "0" + currentTimeMin;
+                currentDurationPerc = currentTime / duration * 100;
+
+                $("#AudioDurationProgress-" + trueId).css("width", currentDurationPerc + "%");
+                $("#AudioFileNameDuration_Lbl").text(currentTimeMin + ":" + currentTimeSec);
+                $("#AudioDuration-" + trueId).text(currentTimeMin + ":" + currentTimeSec + "/" + durationMin + ":" + durationSec);
+            }, 1000);
+
+            audio.play();
+            $("#PlayAudioBtn-" + trueId).css("transform", "rotate(360deg)");
+            setTimeout(function () {
+                $("#AudioFileName_Lbl").text(audioName);
+
+                $("#PlayAudioBtn-" + trueId).addClass("d-none");
+                $("#PauseAudioBtn-" + trueId).removeClass("d-none");
+                $("#PlayAudioBtn-" + trueId).css("transform", "rotate(0)");
+                $("#Preload_Container-Hanging").removeClass("d-none");
+            }, 350);
+            $("#AudioDuration-" + trueId).text(duration);
+        }
+    }
+});
+$(document).on("click", ".btn-pause-audio", function (event) {
+    let trueId = getTrueId(event.target.id);
+    let curUrl = document.location.href;
+    if (trueId != null) {
+        let audio;
+        if (curUrl.toLowerCase().includes("/project/info")) {
+            audio = document.getElementById("AudioControl-" + trueId);
+            console.log(audio);
+        }
+        else {
+            audio = new Audio();
+            let audioSrc = $("#AudioSrc-" + trueId).val();
+            audio.src = audioSrc;
+            audio.preload = "metadata";
+        }
+
+        if (audio != null) {
+            audio.pause();
+            $("#PauseAudioBtn-" + trueId).css("transform", "rotate(360deg)");
+            setTimeout(function () {
+                $("#PlayAudioBtn-" + trueId).removeClass("d-none");
+                $("#PauseAudioBtn-" + trueId).addClass("d-none");
+                $("#PauseAudioBtn-" + trueId).css("transform", "rotate(0)");
+            }, 350);
+        }
+    }
+});
+
 $("#Name").on("keyup", function () {
     let value = $(this).val();
     if (value.length > 0) $("#PreviewTheProject_Btn").attr("disabled", false);
@@ -2708,6 +3087,18 @@ $(document).on("click", ".text-full-delete", function (event) {
     }
 });
 
+$(document).on("click", ".boolean-change", function (event) {
+    let trueName = getTrueName(event.target.id);
+    if (trueName != "") {
+        let value = $("#" + trueName).val();
+        value = value.toLowerCase();
+        value = value == "false" ? true : false;
+        $("#" + trueName).val(value);
+        if (value) $("#" + event.target.id).html(" <i class='fas fa-check text-primary'></i> With Files");
+        else $("#" + event.target.id).html(" <i class='fas fa-times-circle text-danger'></i> Without Files");
+    }
+});
+
 $(".game-hole").on("click", function () {
     gameScoreIncrease();
 });
@@ -2717,19 +3108,27 @@ $(".main-container").on("scroll", function (event) {
     if (trueId != "") {
         let mainContainerWidth = $("#" + trueId).innerWidth();
         let scrollHeight = parseInt($("#" + trueId).scrollTop());
+        let containerH = $("#" + trueId + "-Header").innerHeight();
+        let containerTop = $("#" + trueId + "-Header").css("top");
+        containerTop = parseInt(containerTop) + containerH;
+
         if (scrollHeight >= 28) {
             $("#" + trueId + "-Header").css("position", "fixed");
             $("#" + trueId + "-Header").css("z-index", "1000");
             $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
-            $("#" + trueId + "-Header").css("background-color", "transparent");
-            $("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
+            //$("#" + trueId + "-Header").css("background-color", "transparent");
+            //$("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
             $("#" + trueId + "-Header").addClass("shadow-sm");
+            $("#" + trueId + "-Hanging").fadeIn(50);
+            $("#" + trueId + "-Hanging").css("top", containerTop + "px");
         }
         else {
             $("#" + trueId + "-Header").css("position", "relative");
             $("#" + trueId + "-Header").css("z-index", "0");
             $("#" + trueId + "-Header").removeClass("shadow-sm");
             $("#" + trueId + "-Header").css("backdrop-filter", "none");
+            $("#" + trueId + "-Hanging").css("top", "-1200px");
+            $("#" + trueId + "-Hanging").fadeOut(250);
         }
     }
 });
@@ -2767,10 +3166,30 @@ function getFile(element) {
 }
 function sub(event) {
     let file = event.value;
-    let fileName = file.split("\\");
-    console.log(fileName[2]);
-    $("#ChosenFileName_Lbl").text(fileName[2]);
-    $("#" + event.id + "-Get").html(fileName[2]);
+    let allFiles = $("#" + event.id).get(0).files;
+    let filesFullName = "";
+    let count = allFiles.length;
+
+    if (count > 6) {
+        openModal("We're sorry, but at this moment max count of uploaded images is 6. You're not allowed to upload more than 6 images per project due to server load capacity", "Got It", null, 2, null, null, null, 4, '<i class="fas fa-exclamation bell-icon text-warning"></i>');
+    }
+    else {
+        for (let i = 0; i < count; i++) {
+            let val = allFiles[i];
+            if (val != undefined) filesFullName += val.name + ", ";
+        }
+        filesFullName = filesFullName.substring(0, filesFullName.lastIndexOf(","));
+
+        $("#" + event.id + "-Get").text(filesFullName);
+        if (count == 1) {
+            $("#ChosenAudioName_Lbl").html(count + " audio selected: " + filesFullName);
+            $("#ChosenFileName_Lbl").html(count + " image selected: " + filesFullName);
+        }
+        else {
+            $("#ChosenFileName_Lbl").html(count + " images selected: " + filesFullName);
+            $("#ChosenAudioName_Lbl").html(count + " audios selected: " + filesFullName);
+        }
+    }
 }
 
 function textDecoder(element, isFromText, needsTheReplacement) {
@@ -3248,6 +3667,8 @@ function displayCorrect(width) {
     if (width < 717) {
         $(".main-container").css("width", "100%");
         $(".main-container").css("left", 0);
+        $(".hanging-container").css("left", 0);
+        $(".hanging-container").css("width", "100%");
         $(".static-bar").css("width", "100%");
         $(".static-bar").css("left", 0);
         $(".smallside-box-container").css("width", "99%");
@@ -3274,6 +3695,8 @@ function displayCorrect(width) {
         $("#Main_SideBar").css("left", 0);
         $(".main-container").css("width", leftW + "px");
         $(".main-container").css("left", leftBarW + "px");
+        $(".hanging-container").css("width", leftW + "px");
+        $(".hanging-container").css("left", leftBarW + "px");
         $(".static-bar").css("width", leftW + "px");
         $(".static-bar").css("left", leftBarW + "px");
         $(".smallside-box-container").css("width", smallSideContainerW + "px");
@@ -3287,6 +3710,11 @@ function displayCorrect(width) {
         $("#MainBotOffNavbar_Box").css("width", leftW + "px");
         $("#MainBotOffNavbar").css("left", leftBarW + "px");
     }
+}
+
+function hide(element) {
+    $("#" + element).css("top", "-1200px");
+    $("#" + element).fadeOut(350);
 }
 
 function smallBarAnimatedOpenAndClose(open) {

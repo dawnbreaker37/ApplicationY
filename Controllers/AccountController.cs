@@ -217,7 +217,7 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> EditProfilePhoto(int Id, IFormFileCollection ProfilePhoto)
+        public async Task<IActionResult> EditProfilePhoto(int Id, IFormFile ProfilePhoto)
         {
             if (ModelState.IsValid)
             {

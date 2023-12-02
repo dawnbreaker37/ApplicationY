@@ -11,11 +11,15 @@ namespace ApplicationY.Repositories
     {
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
+        private readonly IWebHostEnvironment _webHostEnvironment;
+        private readonly IImages _imagesRepository;
 
-        public ProjectRepository(Context context, UserManager<User> userManager) : base(context)
+        public ProjectRepository(Context context, UserManager<User> userManager, IImages imagesRepository, IWebHostEnvironment webHostEnvironment) : base(context)
         {
             _context = context;
             _userManager = userManager;
+            _imagesRepository = imagesRepository;
+            _webHostEnvironment = webHostEnvironment;
         }
 
         public async Task<string?> CreateAsync(CreateProject_ViewModel Model)
@@ -91,6 +95,8 @@ namespace ApplicationY.Repositories
                 await _context.AddAsync(project);
                 await _context.SaveChangesAsync();
 
+                if(Model.ImagesFiles != null) await EditImagesAsync(project.Id, Model.ImagesFiles);
+
                 return Model.Name;
             }
             return null;
@@ -165,8 +171,9 @@ namespace ApplicationY.Repositories
             Project? ProjectInfo = null;
             if (GetAdditionalInfo)
             {
-                if(GetUsername) ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+                if(GetUsername)ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
                 else ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, CategoryName = p.Category == null ? null : p.Category.Name, Deadline = p.Deadline, DonationLink = p.DonationLink, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && !p.IsClosed);
+
                 if (ProjectInfo != null)
                 {
                     ProjectInfo.Views++;
@@ -175,8 +182,9 @@ namespace ApplicationY.Repositories
 
                     return ProjectInfo;
                 }
+                else return null;
             }
-            return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
+            else return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
         }
 
         public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo)
@@ -377,6 +385,44 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0) return _context.Likes.AsNoTracking().Where(l => l.UserId == UserId && !l.IsRemoved).Select(l => new GetLikedProjects_ViewModel { Id = l.Id, Name = l.Project!.Name, CreatorName = l.Project.User!.PseudoName, ProjectId = l.ProjectId });
             else return null;
+        }
+
+        public async Task<List<string?>?> EditImagesAsync(int Id, IFormFileCollection Images)
+        {
+            if(Id != 0 && Images != null)
+            {
+                int CurrentImgsCount = await _imagesRepository.GetProjectImagesCountAsync(Id);
+                if(CurrentImgsCount < 6)
+                {
+                    int Count = Images.Count;
+                    if(CurrentImgsCount != 0) Count = 6 - CurrentImgsCount;
+
+                    if (Count > 0 && Count <= 6)
+                    {
+                        List<string?> FileNames = new List<string?>();
+                        for(int i = 0; i < Count; i++)
+                        {
+                            string? Extension = Path.GetExtension(Images[i].FileName);
+                            string? FullName = Guid.NewGuid().ToString("D").Substring(0, 12);
+                            FullName = string.Concat(FullName, Extension);
+                            using (FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProjectPhotos/" + FullName, FileMode.Create))
+                            {
+                                await Images[i].CopyToAsync(fs);
+                                Image Image = new Image
+                                {
+                                    Name = FullName,
+                                    ProjectId = Id
+                                };
+                                await _context.AddAsync(Image);
+                            }
+                            FileNames = FileNames.Append(FullName).ToList();
+                        }
+                        await _context.SaveChangesAsync();
+                        return FileNames;
+                    }
+                }
+            }
+            return null;
         }
     }
 }

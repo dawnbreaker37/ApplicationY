@@ -96,22 +96,21 @@ namespace ApplicationY.Repositories
             return null;
         }
 
-        public async Task<string?> EditProfilePhotoAsync(int Id, IFormFileCollection File)
+        public async Task<string?> EditProfilePhotoAsync(int Id, IFormFile File)
         {
-            //if(Id != 0 && File.Count > 0)
-            //{
-            //    string? Extension = Path.GetExtension(File[0].FileName);
-            //    string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 12);
-            //    string? FullFileName = string.Concat(NewFileName, Extension);
-
-            //    using (FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProfilePhotos/" + FullFileName, FileMode.Create))
-            //    {
-            //        await File[0].CopyToAsync(fs);
-
-            //        int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.ProfilePhoto, FullFileName));
-            //        if (Result != 0) return FullFileName;                 
-            //    }
-            //}
+            if(Id != 0 && File != null)
+            {
+                string? Extension = Path.GetExtension(File.FileName);
+                string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 12);
+                string? FileFullName = string.Concat(NewFileName, Extension);
+                
+                using(FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProfilePhotos/" + FileFullName, FileMode.Create))
+                {
+                    await File.CopyToAsync(fs);
+                    int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.ProfilePhoto, FileFullName));
+                    if (Result != 0) return FileFullName;
+                }
+            }
             return null;
         }
 
@@ -141,11 +140,15 @@ namespace ApplicationY.Repositories
             else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
         }
 
-        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo)
+        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo, bool NeedPhoto)
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                if (NeedLargerInfo)
+                {
+                    if(NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                    else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                }
                 else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
@@ -159,7 +162,7 @@ namespace ApplicationY.Repositories
 
         public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
         {
-            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
             else return null;
         }
 

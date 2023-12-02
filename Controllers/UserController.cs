@@ -76,7 +76,7 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> GetShortUserInfo(int Id)
         {
-            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true);
+            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true, false);
             if (Result != null) return Json(new { success = true, result = Result });
             else return Json(new { success = false });
         }
@@ -85,7 +85,7 @@ namespace ApplicationY.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true);
+                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true, false);
                 ViewBag.UserInfo = UserInfo;
 
                 return View();
