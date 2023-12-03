@@ -820,7 +820,25 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
-            if (response.audios != null) {
+            if (response.images.length > 0) {
+                $("#PreviewImages_Box").fadeIn(350);
+                $("#ImagesCount_Lbl").text(response.images.length);
+                $("#Images_Box").empty();
+                $.each(response.images, function (index) {
+                    let div = $("<div class='box-container bg-transparent d-inline-block me-2'></div>");
+                    let img = $("<img class='image-main-box' alt='Cannot display this image' />");
+                    img.attr("src", "/ProjectPhotos/" + response.images[index].name);
+                    div.append(img);
+                    div.attr("id", "ImgBox-" + response.images[index].id);
+                    $("#Images_Box").append(div);
+                });
+            }
+            else {
+                $("#Images_Box").empty();
+                $("#PreviewImages_Box").fadeOut(350);
+            }
+
+            if (response.audios.length > 0) {
                 $("#AudiosExample_Box").empty();
                 let count = response.audios.length;
                 $("#AudiosCount_Lbl").text(count);
@@ -843,7 +861,6 @@ $("#GetFullProject_Form").on("submit", function (event) {
                     let muteBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-mute-audio me-1' id='MuteAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-volume-up btn-mute-audio' id='MuteAudioIcon-" + response.audios[index].id + "'></i> </button>");
                     let unMuteBtn = $("<button type='button' class='btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-unmute-audio me-1 d-none' id='UnmuteAudioBtn-" + response.audios[index].id + "'> <i class='fas fa-volume-mute btn-mute-audio' id='UnmuteAudioIcon-" + response.audios[index].id + "'></i> </button>");
 
-                    audioTag.attr("src", "/ProjectAudios/" + response.audios[index].name);
                     audioSrcInput.val("/ProjectAudios/" + response.audios[index].name);
                     audioFileName.text(response.audios[index].name);
                     audioDuration_Lbl.text("00:00/00:00");
@@ -862,6 +879,7 @@ $("#GetFullProject_Form").on("submit", function (event) {
                     durationDiv.append(durationProgress);
                     secondDiv.append(audioFileName);
                     secondDiv.append(audioSrcInput);
+                    secondDiv.append(audioTag);
                     thirdDiv.append(backwardBtn);
                     thirdDiv.append(pauseBtn);
                     thirdDiv.append(playBtn);
@@ -2389,15 +2407,7 @@ $(document).on("click", ".btn-audio-backward", function (event) {
     let trueId = getTrueId(event.target.id);
     let curUrl = document.location.href;
     if (trueId != null) {
-        let audio;
-        if (curUrl.toLowerCase().includes("/project/info")) {
-            audio = document.getElementById("AudioControl-" + trueId);
-        }
-        else {
-            audio = new Audio();
-            let audioSrc = $("#AudioSrc-" + trueId).val();
-            audio.src = audioSrc;
-        }
+        let audio = document.getElementById("AudioControl-" + trueId);
 
         if (audio != null) {
             audio.currentTime = 0;
@@ -2412,15 +2422,7 @@ $(document).on("click", ".btn-mute-audio", function (event) {
     let trueId = getTrueId(event.target.id);
     let curUrl = document.location.href;
     if (trueId != "") {
-        let audio;
-        if (curUrl.toLowerCase().includes("/project/info")) {
-            audio = document.getElementById("AudioControl-" + trueId);
-        }
-        else {
-            audio = new Audio();
-            let audioSrc = $("#AudioSrc-" + trueId).val();
-            audio.src = audioSrc;
-        }
+        let audio = document.getElementById("AudioControl-" + trueId);
 
         if (audio != null) {
             audio.muted = true;
@@ -2433,15 +2435,7 @@ $(document).on("click", ".btn-unmute-audio", function (event) {
     let trueId = getTrueId(event.target.id);
     let curUrl = document.location.href;
     if (trueId != null) {
-        let audio;
-        if (curUrl.toLowerCase().includes("/project/info")) {
-            audio = document.getElementById("AudioControl-" + trueId);
-        }
-        else {
-            audio = new Audio();
-            let audioSrc = $("#AudioSrc-" + trueId).val();
-            audio.src = audioSrc;
-        }
+        let audio = document.getElementById("AudioControl-" + trueId);
 
         if (audio != null) {
             audio.muted = false;
@@ -2454,15 +2448,7 @@ $(document).on("click", ".btn-play-audio", function (event) {
     let trueId = getTrueId(event.target.id);
     let curUrl = document.location.href;
     if (trueId != null) {
-        let audio;
-        if (curUrl.toLowerCase().includes("/project/info")) {
-            audio = document.getElementById("AudioControl-" + trueId);
-        }
-        else {
-            audio = new Audio();
-            let audioSrc = $("#AudioSrc-" + trueId).val();
-            audio.src = audioSrc;
-        }
+        let audio = document.getElementById("AudioControl-" + trueId);
         
         if (audio != null) {
             let duration = 0;
@@ -2526,18 +2512,7 @@ $(document).on("click", ".btn-pause-audio", function (event) {
     let trueId = getTrueId(event.target.id);
     let curUrl = document.location.href;
     if (trueId != null) {
-        let audio;
-        if (curUrl.toLowerCase().includes("/project/info")) {
-            audio = document.getElementById("AudioControl-" + trueId);
-            console.log(audio);
-        }
-        else {
-            audio = new Audio();
-            let audioSrc = $("#AudioSrc-" + trueId).val();
-            audio.src = audioSrc;
-            audio.preload = "metadata";
-        }
-
+        let audio = document.getElementById("AudioControl-" + trueId);
         if (audio != null) {
             audio.pause();
             $("#PauseAudioBtn-" + trueId).css("transform", "rotate(360deg)");

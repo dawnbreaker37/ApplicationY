@@ -1,0 +1,17 @@
+﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ApplicationY.Models
+{
+    public class Post
+    {
+        public int Id { get; set; }
+        [MaxLength(2500)]
+        public string? Text { get; set; }
+        [ForeignKey("Project")]
+        public int? LinkedProjectId { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public bool IsRemoved { get; set; }
+        public Project? Project { get; set; }
+    }
+}

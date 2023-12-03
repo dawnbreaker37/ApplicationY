@@ -243,6 +243,34 @@ namespace ApplicationY.Migrations
                     b.ToTable("Notifications");
                 });
 
+            modelBuilder.Entity("ApplicationY.Models.Post", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("LinkedProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(2500)
+                        .HasColumnType("nvarchar(2500)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LinkedProjectId");
+
+                    b.ToTable("Posts");
+                });
+
             modelBuilder.Entity("ApplicationY.Models.Project", b =>
                 {
                     b.Property<int>("Id")
@@ -773,6 +801,15 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ApplicationY.Models.Post", b =>
+                {
+                    b.HasOne("ApplicationY.Models.Project", "Project")
+                        .WithMany("Posts")
+                        .HasForeignKey("LinkedProjectId");
+
+                    b.Navigation("Project");
+                });
+
             modelBuilder.Entity("ApplicationY.Models.Project", b =>
                 {
                     b.HasOne("ApplicationY.Models.Category", "Category")
@@ -916,6 +953,8 @@ namespace ApplicationY.Migrations
                     b.Navigation("Comments");
 
                     b.Navigation("Images");
+
+                    b.Navigation("Posts");
 
                     b.Navigation("Updates");
                 });

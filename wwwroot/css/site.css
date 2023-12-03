@@ -506,6 +506,15 @@ body {
     width: 115px;
 }
 
+.image-ultra-small-box {
+    cursor: pointer;
+    height: 40px;
+    width: 40px;
+    object-fit: fill;
+    border-radius: 24px;
+    transition: all ease 0.4s;
+}
+
 .image-preview-box {
     cursor: pointer;
     height: 155px;

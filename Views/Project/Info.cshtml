@@ -614,8 +614,8 @@
                 <div class="card-group">
                     <div class="card p-2 shadow-sm">
                         <h6 class="h6">Photos & Images</h6>
-                        <small class="card-text text-muted">This project has got <strong>@ImagesCount</strong> photo(s)</small>
-                        <div class="horizontal-scrolled-container scrollbar-hidden mt-3">
+                        <small class="card-text text-muted mt-2">This project has got <strong>@ImagesCount</strong> photo(s)</small>
+                        <div class="horizontal-scrolled-container scrollbar-hidden mt-1">
                             @foreach (GetProjectImages_ViewModel Item in ViewBag.Images)
                             {
                                 <div class="box-container bg-transparent d-inline-block me-2">
@@ -659,13 +659,6 @@
                                         </audio>
                                     </div>
                                 </div>
-@*                                 <div class="box-container bg-light p-2 mt-1 mb-1">
-                                    <h6 class="card-text safe-font ms-2">@Item.Name</h6>
-                                    <audio controls>
-                                        <source src="/ProjectAudios/@Item.Name" type="audio/mp3" />
-                                        <source src="/ProjectAudios/@Item.Name" type="audio/ogg" />
-                                    </audio>
-                                </div> *@
                             }
                         </div>
                     </div>

@@ -486,6 +486,17 @@
             </div>
         </div>
 
+        <div class="box-container mt-2" style="display: none;" id="PreviewImages_Box">
+            <div class="card-group">
+                <div class="card p-2 shadow-sm">
+                    <h6 class="h6">Photos & Images</h6>
+                    <small class="card-text text-muted mt-2">This project has got <strong id="ImagesCount_Lbl">0</strong> photo(s)</small>
+                    <div class="horizontal-scrolled-container scrollbar-hidden mt-1" id="Images_Box">
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="box-container mt-2" style="display: none;" id="PreviewAudios_Box">
             <div class="card-group">
                 <div class="card p-2 shadow-sm">
@@ -518,7 +529,7 @@
 
 <div class="main-container shadow-standard" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
-@*         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button> *@
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <button type="button" class="btn btn-standard-not-animated smallside-btn-open-container float-end ms-1 me-1 btn-sm" id="Filters_Container-Open"> <i class="fas fa-filter"></i> Filters</button>
         <h5 class="h5 text-truncate">Project List</h5>
     </div>
