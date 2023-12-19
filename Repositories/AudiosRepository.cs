@@ -21,7 +21,7 @@ namespace ApplicationY.Repositories
             {
                 List<string>? FileNames = new List<string>();
                 int AudiosCount = Audios.Count;
-                int CurrentAudiosCount = await _context.Audios.CountAsync(a => a.ProjectId == ProjectId);
+                int CurrentAudiosCount = await _context.Audios.AsNoTracking().CountAsync(a => a.ProjectId == ProjectId);
                 if(CurrentAudiosCount < 4)
                 {
                     AudiosCount = 4 - CurrentAudiosCount;
@@ -57,7 +57,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> GetAudiosCountAsync(int ProjectId)
         {
-            return await _context.Audios.CountAsync(a => a.ProjectId == ProjectId && !a.IsRemoved);
+            return await _context.Audios.AsNoTracking().CountAsync(a => a.ProjectId == ProjectId && !a.IsRemoved);
         }
 
         public IQueryable<Audio>? GetProjectAudios(int ProjectId)
@@ -70,7 +70,7 @@ namespace ApplicationY.Repositories
         {
             if (Id != 0 && ProjectId != 0)
             {
-                int Result = await _context.Audios.Where(a => a.ProjectId == ProjectId && a.Id == Id && !a.IsRemoved).ExecuteUpdateAsync(a => a.SetProperty(a => a.IsRemoved, true));
+                int Result = await _context.Audios.AsNoTracking().Where(a => a.ProjectId == ProjectId && a.Id == Id && !a.IsRemoved).ExecuteUpdateAsync(a => a.SetProperty(a => a.IsRemoved, true));
                 if (Result != 0) return Id;
             }
             return 0;

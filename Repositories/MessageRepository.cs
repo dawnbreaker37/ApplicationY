@@ -85,7 +85,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> GetProjectCommentsCountAsync(int ProjectId)
         {
-            if (ProjectId != 0) return await _context.Comments.CountAsync(c => c.ProjectId == ProjectId && !c.IsRemoved);
+            if (ProjectId != 0) return await _context.Comments.AsNoTracking().CountAsync(c => c.ProjectId == ProjectId && !c.IsRemoved);
             else return 0;
         }
 

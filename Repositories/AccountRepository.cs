@@ -103,17 +103,6 @@ namespace ApplicationY.Repositories
         public async Task<int> SendVerificationEmailAsync(string Id)
         {
             throw new NotImplementedException();
-            //if(Id != null)
-            //{
-            //    User? UserInfo = await _userManager.FindByIdAsync(Id);
-            //    if(UserInfo != null)
-            //    {
-            //        SendEmail_ViewModel Model = new SendEmail_ViewModel
-            //        {
-
-            //        }
-            //    }
-            //}
         }
 
         public async Task<int> VerifyUserAsync(int Id)

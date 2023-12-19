@@ -149,7 +149,7 @@ namespace ApplicationY.Repositories
                     }
                 }
 
-                int Result = await _context.Projects.Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.Deadline, Model.Deadline).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.DonationLink, Model.DonationLink).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.Deadline, Model.Deadline).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.DonationLink, Model.DonationLink).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
                 if (Result != 0) return Model.Name;
             }
             return null;
@@ -159,7 +159,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -226,7 +226,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id && !p.IsRemoved && !p.IsClosed).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsClosed, true));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && !p.IsClosed).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsClosed, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -236,7 +236,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && p.IsClosed).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsClosed, false));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && p.IsClosed).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsClosed, false));
                 if(Result != 0) return Id;
             }
             return 0;
@@ -270,7 +270,7 @@ namespace ApplicationY.Repositories
             if (!RemoveAll) {
                 if (ProjectId != 0 && UserId != 0)
                 {
-                    int Result = await _context.Likes.Where(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
+                    int Result = await _context.Likes.AsNoTracking().Where(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
                     if (Result != 0) return ProjectId;
                 }
             }
@@ -278,7 +278,7 @@ namespace ApplicationY.Repositories
             {
                 if(UserId != 0)
                 {
-                    int Result = await _context.Likes.Where(p => p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                    int Result = await _context.Likes.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
                     if (Result != 0) return -256;
                 }
             }
@@ -297,7 +297,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> ProjectLikesCount(int ProjectId)
         {
-            if (ProjectId != 0) return await _context.Likes.CountAsync(l => l.ProjectId == ProjectId && !l.IsRemoved);
+            if (ProjectId != 0) return await _context.Likes.AsNoTracking().CountAsync(l => l.ProjectId == ProjectId && !l.IsRemoved);
             else return 0;
         }
 
@@ -353,7 +353,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> ReleaseNotesCountAsync(int ProjectId)
         {
-            return await _context.Updates.CountAsync(p => !p.IsRemoved && p.ProjectId == ProjectId);
+            return await _context.Updates.AsNoTracking().CountAsync(p => !p.IsRemoved && p.ProjectId == ProjectId);
         }
 
         public IQueryable<GetReleaseNotes_ViewModel>? GetReleaseNotes(int ProjectId)
@@ -372,7 +372,7 @@ namespace ApplicationY.Repositories
         {
             if (Id != 0 || UserId != 0) 
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && !p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, true));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && !p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -382,7 +382,7 @@ namespace ApplicationY.Repositories
         {
             if (Id != 0 || UserId != 0)
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, false));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, false));
                 if (Result != 0) return Id;
             }
             return 0;

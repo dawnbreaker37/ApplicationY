@@ -28,7 +28,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> GetProjectImagesCountAsync(int ProjectId)
         {
-            return await _context.Images.CountAsync(p => p.ProjectId == ProjectId && !p.IsRemoved);
+            return await _context.Images.AsNoTracking().CountAsync(p => p.ProjectId == ProjectId && !p.IsRemoved);
         }
 
         public async Task<GetProjectImages_ViewModel?> GetSingleImgAsync(int Id, int ProjectId)
@@ -51,7 +51,7 @@ namespace ApplicationY.Repositories
                     int OtherImgId = await _context.Images.AsNoTracking().Where(i => i.ProjectId == ProjectId && !i.IsRemoved && i.Id != Id).Select(i => i.Id).FirstOrDefaultAsync();
                     await _context.Projects.Where(p => p.Id == ProjectId).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, OtherImgId));
                 }
-                int Result = await _context.Images.Where(i => i.Id == Id && i.ProjectId == ProjectId && !i.IsRemoved).ExecuteUpdateAsync(i => i.SetProperty(i => i.IsRemoved, true));
+                int Result = await _context.Images.AsNoTracking().Where(i => i.Id == Id && i.ProjectId == ProjectId && !i.IsRemoved).ExecuteUpdateAsync(i => i.SetProperty(i => i.IsRemoved, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -61,10 +61,10 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && ProjectId != 0)
             {
-                int SelectedImgId = await _context.Images.Where(i => i.Id == Id && !i.IsRemoved && i.ProjectId == ProjectId).Select(i => i.Id).FirstOrDefaultAsync();
+                int SelectedImgId = await _context.Images.AsNoTracking().Where(i => i.Id == Id && !i.IsRemoved && i.ProjectId == ProjectId).Select(i => i.Id).FirstOrDefaultAsync();
                 if(SelectedImgId != 0)
                 {
-                    int Result = await _context.Projects.Where(p => p.Id == ProjectId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, SelectedImgId));
+                    int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == ProjectId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, SelectedImgId));
                     if (Result != 0) return SelectedImgId;
                 }
             }

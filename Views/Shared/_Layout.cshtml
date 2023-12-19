@@ -11,8 +11,8 @@
 <body>
     <header>
         <nav class="navbar navbar-expand-sm fixed-bottom text-center bot-navbar shadow-sm p-2 ps-3 pe-3" id="MainBotOffNavbar">
-            <div class="container text-center mx-auto mt-1">
-                <div class="row text-center" id="MainBotOffNavbar_Box">
+            <div class="text-center mx-auto mt-1">
+                <div class="row" id="MainBotOffNavbar_Box">
                     <div class="col" style="display: none;" id="ReserveColumn_Container">
                         <button type="button" class="btn btn-navbar w-100" style="display: none;" id="FourthReserve_Btn"></button>
                     </div>
@@ -67,25 +67,11 @@
                 </div>
             </div>
         </div>
-@*         <button type="button" class="btn btn-light btn-status-bar-close btn-sm btn-standard-with-no-colour fw-500" id="StatusBar_Container-Close"> <i class="fas fa-times btn-status-bar-close" id="StatusBar_Container-CloseY"></i> </button>
-        <div class="dropdown">
-            <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" data-bs-toggle="dropdown" aria-expanded="false"> <i class="far fa-comments"></i> Messages</button>
-            <ul class="dropdown-menu p-1 shadow-sm">
-                <li><button type="button" class="dropdown-item mb-1" id="GetMessages_Btn"> <i class="fas fa-reply-all"></i> Received</button></li>
-                <li><button type="button" class="dropdown-item" id="GetSentMessages_Btn"> <i class="fas fa-comment-dots"></i> Sent</button></li>
-            </ul>
-        </div>
-@*         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1" id="GetMessages_Btn"> <i class="far fa-comments"></i> Messages</button> *@
-@*         <button type="button" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1" id="GetNotifications_Btn"> <i class="far fa-bell"></i> Notifications</button>
-        <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> Create</a>
-        <a asp-controller="Project" asp-action="All" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-folder-open"></i> Projects</a>
-        <a asp-controller="Project" asp-action="Liked" class="btn btn-light btn-standard-not-animated float-end btn-sm ms-1 me-1"> <i class="far fa-heart"></i> Liked</a>  *@
     </div>
 
     <div class="bubble-container mx-auto shadow-sm p-3" id="NotificationsLiquid_Container">
         <button type="button" class="btn btn-standard-not-animated rounded-pill btn-close-liquid-container me-1" id="SB_C-Title"></button>
         <div class="overflow-auto" id="NotificationsLiquid_Container_Box">
-@*            <h6 class="h6" id="SB_C-Title"></h6>*@
             <div class="bg-transparent overflow-auto mh-450" id="SB_C-Body">
 
             </div>

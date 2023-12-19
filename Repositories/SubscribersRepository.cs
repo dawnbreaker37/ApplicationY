@@ -18,7 +18,7 @@ namespace ApplicationY.Repositories
         {
             if(UserId != 0 || SubscriberId != 0)
             {
-                int Result = await _context.Subscribtions.Where(s => !s.IsRemoved && s.UserId == UserId && s.SubscriberId == SubscriberId).ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRemoved, true));
+                int Result = await _context.Subscribtions.AsNoTracking().Where(s => !s.IsRemoved && s.UserId == UserId && s.SubscriberId == SubscriberId).ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRemoved, true));
                 if (Result != 0) return true;
             }
             return false;
@@ -26,7 +26,7 @@ namespace ApplicationY.Repositories
 
         public async Task<int> GetSubscribersCount(int UserId)
         {
-            if (UserId != 0) return await _context.Subscribtions.CountAsync(s => s.UserId == UserId && !s.IsRemoved);
+            if (UserId != 0) return await _context.Subscribtions.AsNoTracking().CountAsync(s => s.UserId == UserId && !s.IsRemoved);
             else return 0;
         }
 
@@ -53,7 +53,7 @@ namespace ApplicationY.Repositories
                 bool HasBeenSubscribedAlready = await _context.Subscribtions.AnyAsync(s => s.IsRemoved && s.SubscriberId == SubscriberId && s.UserId == UserId);
                 if (HasBeenSubscribedAlready)
                 {
-                    int Result = await _context.Subscribtions.Where(s => s.UserId == UserId && s.SubscriberId == SubscriberId && s.IsRemoved).ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRemoved, false));
+                    int Result = await _context.Subscribtions.AsNoTracking().Where(s => s.UserId == UserId && s.SubscriberId == SubscriberId && s.IsRemoved).ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRemoved, false));
                     if (Result != 0) return true;
                 }
                 else

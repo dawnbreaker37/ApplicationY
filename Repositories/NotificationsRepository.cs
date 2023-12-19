@@ -16,7 +16,6 @@ namespace ApplicationY.Repositories
 
         public IQueryable<Notification> GetAll(int Id)
         {
-            //&& ((n.SentAt.Year == DateTime.Now.Year && DateTime.Now.DayOfYear - 14 >= n.SentAt.DayOfYear) || (n.SentAt.DayOfYear >= 349))
             return _context.Notifications.AsNoTracking().Where(n => (n.UserId == Id) && (!n.IsRemoved)).Select(n => new Notification { Id = n.Id, Title = n.Title, Description = n.Description, SentAt = n.SentAt, UserId = n.UserId }).OrderByDescending(n => n.SentAt);
         }
 

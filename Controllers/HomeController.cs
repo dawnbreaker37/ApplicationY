@@ -149,6 +149,11 @@ namespace ApplicationY.Controllers
             return Json(new { success = true, userResult = UsersResult, projectResult = ProjectsResult, usersCount = UsersCount, projectsCount = ProjectsCount });           
         }
 
+        public async Task<IActionResult> About()
+        {
+            return View();
+        }
+
         public IActionResult Privacy()
         {
             return View();

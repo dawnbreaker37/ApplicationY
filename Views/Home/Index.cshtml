@@ -37,16 +37,28 @@
                 <button type="button" class="btn btn-standard-not-animated btn-open-container w-100" id="Preload_Container-Open"> <i class="fas fa-stream"></i> <br /> Newsline</button>
             </div>
             <div class="col">
-                <div class="dropdown d-inline me-2">
+                <button class="btn btn-standard-not-animated w-100" type="button" data-bs-toggle="collapse" data-bs-target="#AccountInfo_Collapse" aria-expanded="false" aria-controls="AccountInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> Change Account </button>
+@*                 <div class="dropdown d-inline me-2">
                     <button class="btn btn-standard-not-animated w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br /> Change Account</button>
                     <ul class="dropdown-menu p-1 mt-4 shadow-sm">
                         <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="false" class="dropdown-item"> <i class="fas fa-sign-in-alt"></i> Log into another acc</a></li>
                         <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="true" class="dropdown-item mt-1"> <i class="fas fa-plus-circle"></i> Sign into another acc</a></li>
                     </ul>
-                </div>
+                </div> *@
             </div>
             <div class="col d-sm-block d-xs-block d-md-none d-lg-none d-xl-none">
                 <button type="button" class="btn btn-standard-not-animated w-100 smallside-btn-close"> <i class="fas fa-times"></i> <br />Close</button>
+            </div>
+        </div>
+        <div class="collapse" id="AccountInfo_Collapse">
+            <div class="bordered-container p-2 mt-2">
+                <div class="text-start">
+                    <a asp-controller="Account" asp-action="Create" asp-route-SigningIn="false" class="btn btn-light btn-standard-with-no-colour w-100 text-start"> <i class="fas fa-sign-in-alt text-primary"></i> Log In</a>
+                    <div></div>
+                    <a asp-controller="Account" asp-action="Create" asp-route-SigningIn="true" class="btn btn-light btn-standard-with-no-colour mt-2 w-100 text-start"> <i class="fas fa-plus-circle text-primary"></i> Sign Up</a>
+                    <div></div>
+                    <a asp-controller="Home" asp-action="About" class="btn btn-light btn-standard-with-no-colour mt-2 w-100 text-start"> <i class="far fa-question-circle text-danger"></i> About Us</a>
+                </div>
             </div>
         </div>
     </div>

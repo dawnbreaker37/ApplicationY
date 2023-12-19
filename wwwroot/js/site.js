@@ -4118,6 +4118,7 @@ function navBarBtnSelector(href) {
 function displayCorrect(width) {
     let botOffNavbarH = $("#MainBotOffNavbar").innerHeight();
     let neededH = fullHeigth - 24 - botOffNavbarH;
+    let sideBarStatus = $("#Main_SideBar").css("margin-left");
 
     $(".main-container").css("height", neededH + "px");
     $(".main-container").css("max-height", neededH + "px");
@@ -4125,51 +4126,62 @@ function displayCorrect(width) {
     $(".smallside-box-container").css("max-height", neededH + "px");
     $(".btn-right-bottom-fixed").css("bottom", botNavbarH + 10 + "px");
 
-    if (width < 717) {
+    if (sideBarStatus < 0 || sideBarStatus == undefined) {
+        $("#MainBotOffNavbar").css("width", "100%");
         $(".main-container").css("width", "100%");
         $(".main-container").css("left", 0);
-        $(".hanging-container").css("left", 0);
-        $(".hanging-container").css("width", "100%");
-        $(".static-bar").css("width", "100%");
-        $(".static-bar").css("left", 0);
-        $(".smallside-box-container").css("width", "99%");
-        $(".smallside-box-container").css("left", "2px");
-        $(".smallside-modal-container").css("left", "2.4%");
-        $(".smallside-modal-container").css("width", "95%");
+        $(".static-bar").fadeOut(0);
+        $("#StatusBar_Container-Open").fadeOut(0);
         $(".card-box-container").css("width", "100%");
         $(".card-box-container").css("left", "1px");
-
-        $("#MainBotOffNavbar").css("width", "100%");
-        $("#MainBotOffNavbar").css("left", 0);
-        $("#Main_SideBar").css("left", "-1200px");
-        $("#Main_SideBar").css("width", "100%");
-        $("#MainBotOffNavbar_Box").css("width", "100%");
-        $("#Main_SideBar").fadeOut(0);
     }
     else {
-        $("#Main_SideBar").css("width", "35%");
-        let leftBarW = $("#Main_SideBar").innerWidth() + 3;
-        let leftW = fullWidth - leftBarW - 3;
-        let smallSideContainerW = leftBarW - 5;
+        if (width < 717) {
+            $(".main-container").css("width", "100%");
+            $(".main-container").css("left", 0);
+            $(".hanging-container").css("left", 0);
+            $(".hanging-container").css("width", "100%");
+            $(".static-bar").css("width", "100%");
+            $(".static-bar").css("left", 0);
+            $(".smallside-box-container").css("width", "99%");
+            $(".smallside-box-container").css("left", "2px");
+            $(".smallside-modal-container").css("left", "2.4%");
+            $(".smallside-modal-container").css("width", "95%");
+            $(".card-box-container").css("width", "100%");
+            $(".card-box-container").css("left", "1px");
 
-        $("#Main_SideBar").fadeIn(0);
-        $("#Main_SideBar").css("left", 0);
-        $(".main-container").css("width", leftW + "px");
-        $(".main-container").css("left", leftBarW + "px");
-        $(".hanging-container").css("width", leftW + "px");
-        $(".hanging-container").css("left", leftBarW + "px");
-        $(".static-bar").css("width", leftW + "px");
-        $(".static-bar").css("left", leftBarW + "px");
-        $(".smallside-box-container").css("width", smallSideContainerW + "px");
-        $(".smallside-box-container").css("left", "2px");
-        $(".smallside-modal-container").css("left", "10px");
-        $(".smallside-modal-container").css("width", smallSideContainerW - 19 + "px");
-        $(".card-box-container").css("width", smallSideContainerW + "px");
-        $(".card-box-container").css("left", "1px");
+            $("#MainBotOffNavbar").css("width", "100%");
+            $("#MainBotOffNavbar").css("left", 0);
+            $("#Main_SideBar").css("left", "-1200px");
+            $("#Main_SideBar").css("width", "100%");
+            $("#MainBotOffNavbar_Box").css("width", "100%");
+            $("#Main_SideBar").fadeOut(0);
+        }
+        else {
+            $("#Main_SideBar").css("width", "35%");
+            let leftBarW = $("#Main_SideBar").innerWidth() + 3;
+            let leftW = fullWidth - leftBarW - 3;
+            let smallSideContainerW = leftBarW - 5;
 
-        $("#MainBotOffNavbar").css("width", leftW + "px");
-        $("#MainBotOffNavbar_Box").css("width", leftW + "px");
-        $("#MainBotOffNavbar").css("left", leftBarW + "px");
+            $("#Main_SideBar").fadeIn(0);
+            $("#Main_SideBar").css("left", 0);
+            $(".main-container").css("width", leftW + "px");
+            $(".main-container").css("left", leftBarW + "px");
+            $(".hanging-container").css("width", leftW + "px");
+            $(".hanging-container").css("left", leftBarW + "px");
+            $(".static-bar").css("width", leftW + "px");
+            $(".static-bar").css("left", leftBarW + "px");
+            $(".smallside-box-container").css("width", smallSideContainerW + "px");
+            $(".smallside-box-container").css("left", "2px");
+            $(".smallside-modal-container").css("left", "10px");
+            $(".smallside-modal-container").css("width", smallSideContainerW - 19 + "px");
+            $(".card-box-container").css("width", smallSideContainerW + "px");
+            $(".card-box-container").css("left", "1px");
+
+            $("#MainBotOffNavbar").css("width", leftW + "px");
+            $("#MainBotOffNavbar_Box").css("width", leftW + "px");
+            $("#MainBotOffNavbar").css("left", leftBarW + "px");
+        }
     }
 }
 

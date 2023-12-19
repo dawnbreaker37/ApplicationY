@@ -42,7 +42,7 @@ namespace ApplicationY.Repositories
                 bool HasBeenLikedYet = await _context.LikedPosts.AnyAsync(l => l.PostId == Id && l.UserId == UserId);
                 if (HasBeenLikedYet)
                 {
-                    int Result = await _context.LikedPosts.Where(l => l.UserId == UserId && l.PostId == Id && l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, false));
+                    int Result = await _context.LikedPosts.AsNoTracking().Where(l => l.UserId == UserId && l.PostId == Id && l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, false));
                     if (Result != 0) return Result;
                 }
                 else
@@ -66,7 +66,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.LikedPosts.Where(l => l.PostId == Id && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
+                int Result = await _context.LikedPosts.AsNoTracking().Where(l => l.PostId == Id && l.UserId == UserId && !l.IsRemoved).ExecuteUpdateAsync(l => l.SetProperty(l => l.IsRemoved, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -81,7 +81,7 @@ namespace ApplicationY.Repositories
         {
             if (Id != 0 || UserId != 0)
             {
-                int Result = await _context.Posts.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                int Result = await _context.Posts.AsNoTracking().Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
                 if (Result != 0) return Result;
             }
             return 0;
@@ -89,7 +89,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<LikedPost>? GetUsersLikedPosts(int UserId)
         {
-            if (UserId != 0) return _context.LikedPosts.Where(l => l.UserId == UserId && !l.IsRemoved).Select(l => new LikedPost { PostId = l.PostId, UserId = l.UserId });
+            if (UserId != 0) return _context.LikedPosts.AsNoTracking().Where(l => l.UserId == UserId && !l.IsRemoved).Select(l => new LikedPost { PostId = l.PostId, UserId = l.UserId });
             else return null;
         }
     }

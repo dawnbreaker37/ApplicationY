@@ -59,7 +59,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && CountryId != 0)
             {
-                int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.CountryId, CountryId));
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.CountryId, CountryId));
                 if (Result != 0) return await _context.Countries.AsNoTracking().Where(c => c.Id == CountryId).Select(c => c.ISO + ", " + c.Name).FirstOrDefaultAsync();
             }
             return null;
@@ -69,7 +69,7 @@ namespace ApplicationY.Repositories
         {
             if(Model.Id != 0 && !String.IsNullOrEmpty(Model.Description))
             {
-                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Description, Model.Description));
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Description, Model.Description));
                 if (Result != 0) return true;
             }
             return false;
@@ -79,7 +79,7 @@ namespace ApplicationY.Repositories
         {
             if(Model.Id != 0)
             {
-                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Link1, Model.Link1).SetProperty(u => u.Link1Tag, Model.Link1Tag).SetProperty(u => u.Link2, Model.Link2).SetProperty(u => u.Link2Tag, Model.Link2Tag));
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.Link1, Model.Link1).SetProperty(u => u.Link1Tag, Model.Link1Tag).SetProperty(u => u.Link2, Model.Link2).SetProperty(u => u.Link2Tag, Model.Link2Tag));
                 if (Result != 0) return true;
             }
             return false;
@@ -89,7 +89,7 @@ namespace ApplicationY.Repositories
         {
             if(Model.Id != 0 && Model.CountryId != 0)
             {
-                int Result = await _context.Users.Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u=>u.CountryId, Model.CountryId).SetProperty(u => u.IsCompany, Model.IsCompany).SetProperty(u => u.CreatedAt, Model.CreatedAt));
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u=>u.CountryId, Model.CountryId).SetProperty(u => u.IsCompany, Model.IsCompany).SetProperty(u => u.CreatedAt, Model.CreatedAt));
                 if (Result != 0 && Model.CountryId != 0) return await _context.Countries.AsNoTracking().Where(c => c.Id == Model.CountryId).Select(c => c.ISO + ", " + c.Name).FirstOrDefaultAsync();
                 else return "No country";
             }
@@ -107,7 +107,7 @@ namespace ApplicationY.Repositories
                 using(FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProfilePhotos/" + FileFullName, FileMode.Create))
                 {
                     await File.CopyToAsync(fs);
-                    int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.ProfilePhoto, FileFullName));
+                    int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.ProfilePhoto, FileFullName));
                     if (Result != 0) return FileFullName;
                 }
             }
@@ -121,7 +121,7 @@ namespace ApplicationY.Repositories
                 bool IsSearchNameFree = await _context.Users.AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
                 if (!IsSearchNameFree)
                 {
-                    int Result = await _context.Users.Where(u => u.SearchName != null && Model.RealSearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
+                    int Result = await _context.Users.AsNoTracking().Where(u => u.SearchName != null && Model.RealSearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
                     if (Result != 0) return true;
                 }
             }
@@ -130,7 +130,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword)
         {
-            if (Keyword != null) return _context.Users.Where(u => u.SearchName!.ToLower().Contains(Keyword) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword) || u.Description != null && u.Description.ToLower().Contains(Keyword) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword)).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, Email = u.Email, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count });
+            if (Keyword != null) return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword) || u.Description != null && u.Description.ToLower().Contains(Keyword) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword)).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, Email = u.Email, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count });
             else return null;
         }
 
@@ -162,7 +162,7 @@ namespace ApplicationY.Repositories
 
         public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
         {
-            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
             else return null;
         }
 
