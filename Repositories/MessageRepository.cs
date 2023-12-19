@@ -110,8 +110,9 @@ namespace ApplicationY.Repositories
 
         public async Task<bool> SendAsync(SendMessage_ViewModel Model)
         {
-            if(Model.UserId != 0 && Model.ProjectId != 0 && !String.IsNullOrEmpty(Model.Text))
+            if(Model.UserId != 0 && Model.SenderId != 0 && !String.IsNullOrEmpty(Model.Text))
             {
+                Model.ProjectId = Model.ProjectId == 0 ? null : Model.ProjectId;
                 Message message = new()
                 {
                     IsChecked = false,

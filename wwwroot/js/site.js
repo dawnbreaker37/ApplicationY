@@ -1,4 +1,9 @@
-﻿let botNavbarH = 0;
+﻿let keywordIndex = 0;
+let finishIndex = 0;
+let additionalArray = [];
+let isScrolled = false;
+
+let botNavbarH = 0;
 let fullWidth = 0;
 let fullHeigth = 0;
 let lastContainerName = undefined;
@@ -10,6 +15,7 @@ window.onload = function () {
     fullWidth = window.innerWidth;
     fullHeigth = window.innerHeight;
     displayCorrect(fullWidth);
+
     animatedOpen(false, "Preload_Container", true);
     navBarBtnSelector(document.location.href);
 
@@ -511,6 +517,23 @@ $(document).on("submit", "#RemoveAllNotifications_Form", function (event) {
     });
 });
 
+$("#QueueForVerification_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-certificate text-official'></i>");
+            $("#VerificationSentAt_Lbl").text(convertDateAndTime(response.time, false, true));
+            $("#VerificationNotSent_Box").fadeOut(0);
+            $("#VerificationWaiting_Box").fadeIn(0);
+        }
+        else {
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
 $("#CreateProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -569,6 +592,31 @@ $("#EditProject_Form").on("submit", function (event) {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
         }
     });
+});
+
+$(document).on("click", ".set-as-main", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $(".img-box").css("border", "none");
+        $(".img-box").removeClass("p-1");
+        $("#ProjectImg-" + trueId).css("border", "1px solid #0d6efd");
+        $("#ProjectImg-" + trueId).addClass("p-1");
+        $("#SMI_Id_Val").val(trueId);
+
+        let data = $("#SetAsMainImg_Form").serialize();
+        let url = $("#SetAsMainImg_Form").attr("action");
+        $.post(url, data, function (response) {
+            if (response.success) {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='far fa-check-square text-primary'></i>");
+            }
+            else {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.25, "<i class='far fa-times-circle text-danger'></i>");
+            }
+        });
+    }
+    else {
+        $("#SMI_Id_Val").val(trueId);
+    }
 });
 
 $("#EditProjectImages_Form").on("submit", function (event) {
@@ -791,6 +839,23 @@ $("#GetUpdates_Form").on("submit", function (event) {
     });
 });
 
+$("#CreatePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let searchName = $("#PageInfo_UserSearchname").val();
+            $("#LookAtThePost_Btn").attr("url", "/User/Info/" + searchName);
+            animatedOpen(false, "Completed_Container", true, true);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-check-double text-primary'></i>");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-double-check text-primary'></i>");
+        }
+    });
+});
+
 $("#GetFullProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -820,25 +885,76 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
-            if (response.images.length > 0) {
+            if (response.images != null) {
                 $("#PreviewImages_Box").fadeIn(350);
-                $("#ImagesCount_Lbl").text(response.images.length);
+                $("#FullImgsCount_Span").text(response.imgsCount);
+                $("#ImgsCount").val(response.imgsCount);
+                $("#ImgIndex").val(0);
+                $("#CurrentImgIndex_Span").text(1);
                 $("#Images_Box").empty();
-                $.each(response.images, function (index) {
-                    let div = $("<div class='box-container bg-transparent d-inline-block me-2'></div>");
-                    let img = $("<img class='image-main-box' alt='Cannot display this image' />");
-                    img.attr("src", "/ProjectPhotos/" + response.images[index].name);
+
+                if (response.mainImg == null) {
+                    for (let i = 0; i < response.images.length; i++) {
+                        if (i == 0) {
+                            let hiddenUrl = $("<input type='hidden' />");
+                            let div = $("<div class='carousel-item active'></div>");
+                            let img = $("<img class='d-block image-main-box' alt='Cannot display this image' />");
+                            img.attr("src", "/ProjectPhotos/" + response.images[i].name);
+                            div.append(img);
+                            div.attr("id", "ImgBox-" + i);
+                            img.attr("id", "ImgLbl-" + i);
+                            hiddenUrl.attr("id", "ImageUrl-" + i);
+                            hiddenUrl.val(response.images[i].name);
+
+                            $("#Images_Box").append(div);
+                            $("#ImgsHiddenUrls_Box").append(hiddenUrl);
+                            $("#CurrentFileName_Lbl").text(response.images[i].name);
+                        }
+                        else {
+                            let hiddenUrl = $("<input type='hidden' />");
+                            hiddenUrl.attr("id", "ImageUrl-" + i);
+                            hiddenUrl.val(response.images[i].name);
+                            $("#ImgsHiddenUrls_Box").append(hiddenUrl);
+                        }
+                    }
+                }
+                else {
+                    let hiddenUrl = $("<input type='hidden' />");
+                    let div = $("<div class='carousel-item active'></div>");
+                    let img = $("<img class='d-block image-main-box' alt='Cannot display this image' />");
+                    img.attr("src", "/ProjectPhotos/" + response.mainImg.name);
                     div.append(img);
-                    div.attr("id", "ImgBox-" + response.images[index].id);
+                    div.attr("id", "ImgBox-0");
+                    img.attr("id", "ImgLbl-0");
+                    hiddenUrl.attr("id", "ImageUrl-0");
+                    hiddenUrl.val(response.mainImg.name);
+
                     $("#Images_Box").append(div);
-                });
+                    $("#ImgsHiddenUrls_Box").append(hiddenUrl);
+                    for (let i = 0; i < response.images.length; i++) {
+                        let index = i;
+                        index++;
+                        let hiddenUrl = $("<input type='hidden' />");
+                        hiddenUrl.attr("id", "ImageUrl-" + index);
+                        hiddenUrl.val(response.images[i].name);
+                        $("#ImgsHiddenUrls_Box").append(hiddenUrl);
+                    }
+                }
+                //$.each(response.images, function (index) {
+                //    let div = $("<div class='box-container bg-transparent d-inline-block me-2'></div>");
+                //    let img = $("<img class='image-main-box' alt='Cannot display this image' />");
+                //    img.attr("src", "/ProjectPhotos/" + response.images[index].name);
+                //    div.append(img);
+                //    div.attr("id", "ImgBox-" + response.images[index].id);
+                //    $("#ImgCarouseInner_Box").append(div);
+                //});
             }
             else {
                 $("#Images_Box").empty();
                 $("#PreviewImages_Box").fadeOut(350);
             }
 
-            if (response.audios.length > 0) {
+            if (response.audios != null) {
                 $("#AudiosExample_Box").empty();
                 let count = response.audios.length;
                 $("#AudiosCount_Lbl").text(count);
@@ -1017,11 +1133,10 @@ $("#GetFullProject_Form").on("submit", function (event) {
             }
             animatedClose(false, "SettingsOfProject_Container");
             if (fullWidth < 717) {
-                smallBarAnimatedOpenAndClose(true);
+                smallBarAnimatedOpenAndClose(false);
                 animatedOpen(false, "ProjectView_Container", true, false);
             }
             else {
-                smallBarAnimatedOpenAndClose(false);
                 animatedOpen(false, "ProjectView_Container", true, true);
             }
         }
@@ -1054,6 +1169,16 @@ $("#LikeTheProject_Form").on("submit", function (event) {
         }
     });
 });
+$(document).on("click", ".dislike-the-project", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#DTP_ProjectId_Val").val(trueId);
+        $("#RemoveFromLiked_Form").submit();
+    }
+    else {
+        openModal("Unable to remove this project from your liked list. Please, try again later", "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-heart-broken text-danger'></i>");
+    }
+});
 $("#RemoveFromLiked_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -1076,6 +1201,25 @@ $("#RemoveFromLiked_Form").on("submit", function (event) {
                     }, 400);
                 }
                 openModal("Selected project has been successfully removed from your liked list", " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
+            }
+            else if (curUrl[curUrl.length - 1] == "/") {
+                let currentCount = $("#LikedProjectsCount_Lbl").text();
+                currentCount = parseInt(currentCount);
+                if (currentCount <= 1) {
+                    currentCount = 0;
+                    slideToLeftAnimation("LikedProjectBox-" + response.projectId);
+                    $("#LikedProjectBox").fadeOut(300);
+                    setTimeout(function () {
+                        $("#HaveLikedProjects_Box").fadeOut(0);
+                        $("#NoLikedProjects_Box").fadeIn(0);
+                    }, 500);
+                }
+                else {
+                    currentCount--;
+                    slideToLeftAnimation("LikedProjectBox-" + response.projectId);
+                    $("#LikedProjectBox").fadeOut(300);
+                }
+                $("#LikedProjectsCount_Lbl").text(currentCount.toLocaleString());
             }
             else {
                 $("#AlreadyLiked_Box").addClass("d-none");
@@ -1277,6 +1421,133 @@ $("#UnpinTheProject_Form").on("submit", function (event) {
         }
         else openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
     });
+});
+
+$("#RemoveThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = $("#PostsCount_Lbl").text();
+            currentCount = parseInt(currentCount);
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='far fa-trash-alt text-danger'></i>");
+            if (currentCount > 1) {
+                slideToLeftAnimation("PostBox-" + response.result);
+                setTimeout(function () {
+                    $("#PostBox-" + response.result).fadeOut(0);
+                }, 450);
+            }
+            else {
+                slideToLeftAnimation("PostBox-" + response.result);
+                setTimeout(function () {
+                    $("#PostBox-" + response.result).fadeOut(0);
+                }, 450);
+                setTimeout(function () {
+                    $("#HavePosts_Box").fadeOut(0);
+                    $("#NoPosts_Box").fadeIn(0);
+                }, 475);
+            }
+        }
+        else {
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='far fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
+$("#PurgeTheProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#Purge_Container-Open").attr("disabled", true);
+            animatedOpen(false, "Preload_Container", true, true);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-bolt text-danger'></i>");
+        }
+        else {
+            animatedOpen(false, "Preload_Container", true, true);
+            openModal(response.alert, "Okay", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
+$("#LikeThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#LikeOrDislikeThePost_Btn-" + response.id).removeClass("like-the-post");
+            $("#LikeOrDislikeThePost_Btn-" + response.id).addClass("dislike-the-post");
+            $("#LikeOrDislikeThePost_Btn-" + response.id).html(" <i class='fas fa-heart text-primary'></i> Liked");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-heart-broken text-danger'></i>");
+        }
+    });
+});
+$("#DislikeThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#LikeOrDislikeThePost_Btn-" + response.id).addClass("like-the-post");
+            $("#LikeOrDislikeThePost_Btn-" + response.id).removeClass("dislike-the-post");
+            $("#LikeOrDislikeThePost_Btn-" + response.id).html(" <i class='far fa-heart'></i> Like");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-heart-broken text-danger'></i>");
+        }
+    });
+});
+
+$(document).on("click", ".like-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#LTP_PostId_Val").val(trueId);
+        $("#LikeThePost_Form").submit();
+    }
+});
+$(document).on("click", ".dislike-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#DLTP_PostId_Val").val(trueId);
+        $("#DislikeThePost_Form").submit();
+    }
+});
+
+$(document).on("click", ".copy-the-text-of-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        let text = $("#PostsTextLbl-" + trueId).text();
+        if (text != null) {
+            navigator.clipboard.writeText(text);
+            openModal("The text of the post has been successfully copied to the clipboard", "Got It", null, 2, null, null, null, 3.5, "<i class='far fa-copy text-primary'></i> ");
+        }
+    }
+    else {
+        openModal("Unable to copy the text of the post. Please, try again later", "Got It", null, 2, null, null, null, 3, "<i class='far fa-times-circle text-danger'></i> ");
+    }
+});
+
+$(document).on("click", ".like-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#LTP_PostId_Val").val(trueId);
+    }
+});
+$(document).on("click", ".remove-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#RTP_PostId_Val").val(trueId);
+        $("#RemoveThePost_Form").submit();
+    }
 });
 
 $("#SendMessage_Form").on("submit", function (event) {
@@ -2359,7 +2630,12 @@ $(document).on("click", ".select-for-info", function (event) {
                 let isChecked = $("<small class='card-text'></small>");
                 let projectName = $("<small class='card-text'></p>");
                 header.html(sentBy);
-                projectName.html("<span class='text-muted'>Project: </span>" + response.result.projectName);
+                if (response.result.projectName != null) {
+                    projectName.html("<span class='text-muted'>Project: </span>" + response.result.projectName);
+                }
+                else {
+                    projectName.html("<span class='text-muted'>No mentioned project for this message</span>");
+                }
                 sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt, true, true));
                 if (response.result.isChecked) {
                     isChecked.html(" <i class='fas fa-check-double text-primary'></i> This message has been checked");
@@ -2538,11 +2814,58 @@ $("#RTM_Text").on("keyup", function () {
     if (value < 1) $("#ReplyToMsgSend_Btn").attr("disabled", true);
     else $("#ReplyToMsgSend_Btn").attr("disabled", false);
 });
+$("#Text").on("click", function () {
+    findUserBySearchname($(this).val(), 0, 0);
+});
+
+$("#Name").on("keyup", function () {
+    checkAcceptability();
+});
+$("#Project_Description").on("keyup", function () {
+    checkAcceptability();
+});
+$("#TextPart").on("keyup", function () {
+    checkAcceptability();
+});
 $("#Text").on("keyup", function () {
     let value = lengthCounter("Text", 2500);
-    if (value < 1) $("#MsgSendSbmt_Btn").attr("disabled", true);
-    else $("#MsgSendSbmt_Btn").attr("disabled", false);
+    if (value < 1) {
+        $("#MsgSendSbmt_Btn").attr("disabled", true);
+        $(".btn-submit").attr("disabled", true);
+    }
+    else {
+        $("#MsgSendSbmt_Btn").attr("disabled", false);
+        $(".btn-submit").attr("disabled", false);
+    }
+
+    if ($(this).val().includes("@")) {
+        $("#MentionedPeopleInfo_Btn").fadeIn(300);
+    }
+    else {
+        additionalArray = [];
+        $("#MentionedPeopleInfo_Btn").fadeOut(300);
+        $("#MentionedPeople_Box").fadeOut(300);
+        setTimeout(function () {
+            $("#MentionedPeople_Box").empty();
+        }, 350);
+    }
 });
+$("#MentionedPeopleInfo_Btn").on("click", function () {
+    let value = findUserBySearchname($("#Text").val());
+    $("#MentionedPeople_Box").empty();
+    if (value.length > 0) {
+        for (let i = 0; i < value.length; i++) {
+            let badge = $("<span class='badge bg-light text-dark rounded-pill safe-font warning-badge me-1'></span>");
+            badge.html(value[i]);
+            $("#MentionedPeople_Box").append(badge);
+        }
+        $("#MentionedPeople_Box").fadeIn(300);
+    }
+    else {
+        $("#MentionedPeople_Box").fadeOut(300);
+    }
+});
+
 $(".send-msg-form-control").on("keyup", function (event) {
     let id = event.target.id;
     if (id != "" || id != undefined) {
@@ -2742,6 +3065,45 @@ $("#GameSpeedIncrease_Btn").on("click", function () {
         openModal("Game speed has been decreased to base speed (1.5 sec. interval)", "Done", null, 2, null, null, null, 2.5, " <i class='fas fa-backward text-danger'></i> ");
     }
     $("#GameSpeedType_Val").val(type);
+});
+
+$("#UnlinkAllTheProject_Btn").on("click", function () {
+    slideToLeftAnimation("HaveLinkedProject_Box");
+    $("#HaveLinkedProject_Box").fadeOut(350);
+    setTimeout(function () {
+        $("#NoLinkedProject_Box").fadeIn(150);
+        $("#LP_Name_Lbl").html("Project name");
+        $("#LP_CreatedAt_Lbl").html("Project date");
+    }, 600);
+
+    $("#LinkedProjectId").val(0);
+    $(".link-the-project").addClass("btn-outline-primary");
+    $(".link-the-project").removeClass("btn-primary");
+    $(".link-the-project").html(" <i class='fas fa-check'></i> Linked");
+});
+$(document).on("click", ".link-the-project", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        let projectName = $("#ProjectName_Lbl-" + trueId).html();
+        let projectCreatedAt = $("#CreatedAt_Lbl-" + trueId).html();
+        $("#LP_Name_Lbl").html(projectName);
+        $("#LP_CreatedAt_Lbl").html(projectCreatedAt);
+        $("#NoLinkedProject_Box").fadeOut(0);
+        $("#HaveLinkedProject_Box").fadeIn(0);
+
+        $("#LinkedProjectId").val(trueId);
+        $(".link-the-project").removeClass("btn-primary");
+        $(".link-the-project").addClass("btn-outline-primary");
+        $(".link-the-project").html(" <i class='fas fa-link'></i> Link With Post");
+        $("#LinkTheProject-" + trueId).addClass("btn-primary");
+        $("#LinkTheProject-" + trueId).removeClass("btn-outline-primary");
+        $("#LinkTheProject-" + trueId).html(" <i class='fas fa-check'></i> Linked");
+
+        if (fullWidth < 717) {
+            smallBarAnimatedOpenAndClose(false);
+            animatedOpen(false, "Preload_Container", true, false);
+        }
+    }
 });
 
 $(document).on("click", ".get-user-short-info", function (event) {
@@ -2956,17 +3318,17 @@ $(document).on("click", ".btn-static-bar-open", function (event) {
         $("#" + trueId).fadeIn(0);
         $("#" + trueId).css("z-index", -1000);
         $("#" + trueId).css("bottom", botNavbarH + 2 + "px");
-    }, 150);
+    }, 0);
     setTimeout(function () {
         $("#" + trueId + "-Open").css("transform", "rotate(360deg)");
         $("#" + trueId + "-Open").html(" <i class='fas fa-chevron-down'></i> ");
         $("#" + trueId + "-Open").attr("disabled", true);
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 56 + "px");
-    }, 300);
+    }, 50);
     setTimeout(function () {
         $("#" + trueId + "-Open").css("bottom", currentBtnBottom + 2 + "px");
         $("#" + trueId).css("z-index", 0);
-    }, 550);
+    }, 350);
 });
 $(document).on("click", ".btn-status-bar-close", function (event) {
     let trueId = getTrueName(event.target.id);
@@ -2985,10 +3347,10 @@ $(document).on("click", ".btn-status-bar-close", function (event) {
         $("#" + trueId + "-Open").css("bottom", botNavbarH - 32 + "px");
         $("#" + trueId + "-Open").attr("disabled", false);
         $("#" + trueId + "-Open").html(" <i class='fas fa-bars btn-static-bar-open' id='StatusBar_Container-OpenX'></i> ");
-    }, 350);
+    }, 300);
     setTimeout(function () {
         $("#" + trueId + "-Open").css("bottom", botNavbarH + 9 + "px");
-    }, 700);
+    }, 600);
 });
 $(document).on("click", ".btn-static-backdrop-open", function (event) {
     openStaticBackdrop(event.target.id, true);
@@ -3084,26 +3446,38 @@ $(".main-container").on("scroll", function (event) {
         let mainContainerWidth = $("#" + trueId).innerWidth();
         let scrollHeight = parseInt($("#" + trueId).scrollTop());
         let containerH = $("#" + trueId + "-Header").innerHeight();
-        let containerTop = $("#" + trueId + "-Header").css("top");
-        containerTop = parseInt(containerTop) + containerH;
-
-        if (scrollHeight >= 28) {
-            $("#" + trueId + "-Header").css("position", "fixed");
-            $("#" + trueId + "-Header").css("z-index", "1000");
-            $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
-            //$("#" + trueId + "-Header").css("background-color", "transparent");
-            //$("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
-            $("#" + trueId + "-Header").addClass("shadow-sm");
-            $("#" + trueId + "-Hanging").fadeIn(50);
-            $("#" + trueId + "-Hanging").css("top", containerTop + "px");
+        let containerTop = $("#" + trueId + "-Header").css("margin-top");
+        if (fullWidth <= 717) containerTop = parseInt(containerTop) + parseInt(containerH) + 24;
+        else containerTop = parseInt(containerTop) + parseInt(containerH) + 28;
+        if (scrollHeight >= 16) {
+            if (!isScrolled) {
+                $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
+                setTimeout(function () {
+                    $("#" + trueId + "-Header .h5").addClass("fs-4");
+                    $("#" + trueId + "-Header").css("z-index", "1000");
+                    $("#" + trueId + "-Header").css("position", "fixed");
+                    $("#" + trueId + "-Header").css("top", "22px");
+                    $("#" + trueId + "-Header").css("transform", "rotate3d(30deg)");
+                    $("#" + trueId + "-Header").addClass("border-bottom");
+                }, 150);
+                setTimeout(function () {
+                    $("#" + trueId + "-Hanging").fadeIn(50);
+                    $("#" + trueId + "-Hanging").css("top", containerTop + "px");
+                }, 200);
+                isScrolled = true;
+            }
         }
         else {
+            $("#" + trueId + "-Header .h5").removeClass("fs-4");
             $("#" + trueId + "-Header").css("position", "relative");
+            $("#" + trueId + "-Header").css("width", "100%");
             $("#" + trueId + "-Header").css("z-index", "0");
-            $("#" + trueId + "-Header").removeClass("shadow-sm");
-            $("#" + trueId + "-Header").css("backdrop-filter", "none");
+            $("#" + trueId + "-Header").removeClass("border-bottom");
+            $("#" + trueId + "-Header").css("border-radius", "8px 8px 1px 1px");
+            $("#" + trueId + "-Header").css("top", "0");
             $("#" + trueId + "-Hanging").css("top", "-1200px");
             $("#" + trueId + "-Hanging").fadeOut(250);
+            isScrolled = false;
         }
     }
 });
@@ -3116,15 +3490,26 @@ $(".smallside-box-container").on("scroll", function (event) {
             $("#" + trueId + "-Header").css("position", "fixed");
             $("#" + trueId + "-Header").css("z-index", "1000");
             $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
-            $("#" + trueId + "-Header").css("background-color", "transparent");
-            $("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
+            //$("#" + trueId + "-Header").css("background-color", "transparent");
+            //$("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
             $("#" + trueId + "-Header").addClass("shadow-sm");
         }
         else {
             $("#" + trueId + "-Header").css("position", "relative");
             $("#" + trueId + "-Header").css("z-index", "0");
             $("#" + trueId + "-Header").removeClass("shadow-sm");
-            $("#" + trueId + "-Header").css("backdrop-filter", "none");
+/*            $("#" + trueId + "-Header").css("backdrop-filter", "none");*/
+        }
+    }
+});
+
+$(document).on("click", ".copy-and-paste-the-text", function (event) {
+    let pasteTo = getTrueId(event.target.id);
+    if (pasteTo != null) {
+        let text = $("#" + event.target.id).text();
+        if (text != null) {
+            $("#" + pasteTo).val(text);
+            openModal("Selected part has been successfully pasted", "Done", null, 2, null, null, null, 2.75, "<i class='fas fa-clone text-primary'></i>");
         }
     }
 });
@@ -3134,6 +3519,79 @@ $(".upload-file-btn").on("click", function (event) {
     if (trueName != "") {
         getFile(trueName);
     }
+});
+
+$(document).on("click", "#PrevImg", function () {
+    let curIndex = $("#ImgIndex").val();
+    let maxCount = $("#ImgsCount").val();
+
+    curIndex = parseInt(curIndex);
+    maxCount = parseInt(maxCount);
+    curIndex--;
+    maxCount--;
+    if (curIndex <= 0) {
+        curIndex = 0;
+        $(this).attr("disabled", true);
+        $("#ImageCarouselWithControls").carousel(0);
+        $("#CurrentFileName_Lbl").text($("#ImageUrl-" + curIndex).val());
+    }
+    else {
+        $(this).attr("disabled", false);
+        $("#ImageCarouselWithControls").carousel("prev");
+        $("#CurrentFileName_Lbl").text($("#ImageUrl-" + curIndex).val());
+    }
+    let realNum = curIndex;
+    realNum++;
+    $("#ImgIndex").val(curIndex);
+    $("#CurrentImgIndex_Span").text(realNum);
+    $("#CurrentImgIndex_Span").fadeToggle(200);
+    $("#CurrentImgIndex_Span").fadeToggle(350);
+/*    $("#CurrentImgIndex_Span").slideDown(325);*/
+
+});
+$(document).on("click", "#NextImg", function () {
+    let curIndex = $("#ImgIndex").val();
+    let maxCount = $("#ImgsCount").val();
+
+    curIndex = parseInt(curIndex);
+    maxCount = parseInt(maxCount);
+    curIndex++;
+    maxCount--;
+
+    if (curIndex > maxCount) {
+        curIndex = 0;
+        $("#PrevImg").attr("disabled", true);
+        $("#ImageCarouselWithControls").carousel(0);
+    }
+    else {
+        $("#PrevImg").attr("disabled", false);
+        if ($("#ImgBox-" + curIndex).hasClass("carousel-item")) {
+            $("#ImageCarouselWithControls").carousel(curIndex);
+            $("#CurrentFileName_Lbl").text($("#ImageUrl-" + curIndex).val());
+        }
+        else {
+            let imgProperty = new Image();
+            imgProperty.src = "/ProjectPhotos/" + $("#ImageUrl-" + curIndex).val();
+
+            let div = $("<div class='carousel-item' data-bs-interval='999999'></div>");
+            let img = $("<img class='d-block image-main-box' alt='Cannot display this image' />");
+            div.attr("id", "ImgBox-" + curIndex);
+            img.attr("id", "ImgLbl-" + curIndex);
+            img.attr("src", imgProperty.src);
+            div.append(img);
+            $("#Images_Box").append(div);
+
+            $("#ImageCarouselWithControls").carousel(curIndex);
+            $("#CurrentFileName_Lbl").text($("#ImageUrl-" + curIndex).val());
+        }
+    }
+    let realNum = curIndex;
+    realNum++;
+    $("#ImgIndex").val(curIndex);
+
+    $("#CurrentImgIndex_Span").text(realNum);
+    $("#CurrentImgIndex_Span").slideToggle(225);
+    $("#CurrentImgIndex_Span").slideToggle(375);
 });
 
 function getFile(element) {
@@ -3286,6 +3744,19 @@ function lengthCounter(element, maxValue) {
     return length;
 }
 
+function findUserBySearchname(value) {
+    let index = 1;
+    for (let i = 0; i < value.length; i++) {
+        if (value[i] == "@") {
+            index = i;
+            let name = value.substring(index, value.indexOf(" ", index))
+            additionalArray.push(name);
+        }
+    }
+
+    return additionalArray;
+}
+
 function addOptionToText(element, type, value1, value2) {
     let textBefore;
     let textAfter;
@@ -3400,6 +3871,7 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
             }
             else {
                 if (daysFrom == 1) fullAlert = daysFrom + " day ago, at " + hr + ":" + min;
+                else if (daysFrom == 0) fullAlert = "today, at " + hr + ":" + min;
                 else fullAlert = daysFrom + " days ago, at " + hr + ":" + min;
             }
         }
@@ -3466,6 +3938,18 @@ function rowsCountAutoCorrection(element, length) {
         else {
             $("#" + element).attr("rows", 1);
         }
+    }
+}
+
+function checkAcceptability() {
+    let title = $("#Name").val().length;
+    let description = $("#Project_Description").val().length;
+    let text = $("#TextPart").val().length;
+    if (title >= 3 && description >= 40 && text >= 120) {
+        $(".btn-submit").attr("disabled", false);
+    }
+    else {
+        $(".btn-submit").attr("disabled", true);
     }
 }
 
@@ -3632,7 +4116,9 @@ function navBarBtnSelector(href) {
 }
 
 function displayCorrect(width) {
-    let neededH = fullHeigth - 24;
+    let botOffNavbarH = $("#MainBotOffNavbar").innerHeight();
+    let neededH = fullHeigth - 24 - botOffNavbarH;
+
     $(".main-container").css("height", neededH + "px");
     $(".main-container").css("max-height", neededH + "px");
     $(".bubble-container").css("max-height", neededH + "px");
@@ -3702,6 +4188,7 @@ function smallBarAnimatedOpenAndClose(open) {
             }, 150);
         }
         else {
+            animatedClose(true, "smallside-box-container");
             $("#Main_SideBar").fadeOut(750);
             $("#Main_SideBar").css("left", "-1200px");
         }
@@ -3786,6 +4273,8 @@ function bubbleAnimation(element, isForOpening) {
 }
 
 function animatedOpen(forAll, element, sticky, closeOtherContainers) {
+    let botOffNavbarH = $("#MainBotOffNavbar").innerHeight();
+
     smallBarAnimatedOpenAndClose(false);
     if (closeOtherContainers) animatedClose(true, "main-container");
     else animatedClose(true, "smallside-box-container");
@@ -3796,17 +4285,19 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
                 currentContainerName = null;
             }
             $("." + element).fadeIn(25);
-            $("." + element).css("border-radius", "10px");
+            $("." + element).css("z-index", -100);
             if (sticky) {
-                $("." + element).css("bottom", "20px");
+                $("." + element).css("bottom", botOffNavbarH + 18 + "px");
                 setTimeout(function () {
-                    $("." + element).css("bottom", 0);
-                    $("." + element).css("border-radius", "8px 8px 2px 2px");
+                    $("." + element).css("z-index", 0);
+                }, 100);
+                setTimeout(function () {
+                    $("." + element).css("bottom", botOffNavbarH + 1 + "px");
+                    $("." + element).css("z-index", 100);
                 }, 550);
             }
             else {
-                $("." + element).css("bottom", 0);
-                $("." + element).css("border-radius", "8px 8px 2px 2px");
+                $("." + element).css("bottom", botOffNavbarH + 1 + "px");
             }
         }
         else {
@@ -3814,21 +4305,43 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
                 if (currentContainerName != null) lastContainerName = currentContainerName;
                 currentContainerName = element;
             }
-            $("#" + element).css("border-radius", "10px");
             $("#" + element).fadeIn(25);
             $("#" + element + "-CardBox").fadeIn(25);
             if (sticky) {
-                $("#" + element).css("bottom", "20px");
+                $("#" + element).css("z-index", -100);
+                $("#" + element).css("bottom", botOffNavbarH + 18 + "px");
                 setTimeout(function () {
-                    $("#" + element).css("bottom", 0);
-                    $("#" + element + "-CardBox").css("bottom", 0);
-                    $("#" + element).css("border-radius", "8px 8px 1px 1px");
+                    $("#" + element).css("z-index", 0);
+                }, 100);
+                setTimeout(function () {
+                    $("#" + element).css("bottom", botOffNavbarH + 1 + "px");
+                    $("#" + element + "-CardBox").css("bottom", botOffNavbarH + 1 + "px");
+                    $("#" + element).css("border-radius", "8px");
+                    $("#" + element + "-Header").fadeIn(250);
                 }, 550);
             }
             else {
                 $("#" + element).css("bottom", 0);
                 $("#" + element + "-CardBox").css("bottom", 0);
-                $("#" + element).css("border-radius", "8px 8px 1px 1px");
+                $("#" + element).css("z-index", 100);
+                $("#" + element + "-Header").fadeIn(250);
+            }
+
+            if ($("#MainModal_Container").css("display") != "none" && !closeOtherContainers) {
+                if (fullWidth >= 717) {
+                    let predictedH = $("#" + element).innerHeight() + 8 + $("#MainModal_Container").innerHeight();
+                    if (predictedH <= fullHeigth - 24) {
+                        setTimeout(function () {
+                            $("#MainModal_Container").css("bottom", $("#" + element).innerHeight() + 8 + "px");
+                        }, 100);
+                    }
+                    else {
+                        animatedClose(false, "MainModal_Container");
+                    }
+                }
+                else {
+                    animatedClose(false, "MainModal_Container");
+                }
             }
         }
     }, 175);
@@ -3930,18 +4443,29 @@ function gameOne(type) {
     return score;
 }
 
-function animatedClose(forAll, elemet) {
+function animatedClose(forAll, element) {
     if (forAll) {
-        $("." + elemet).css("bottom", "-1200px");
+        $("." + element).css("z-index", -100);
+        $("." + element).css("bottom", "-1200px");
         $(".card-box-container").css("bottom", "-1200px");
-        $("." + elemet).fadeOut(250);
+        $("." + element).fadeOut(250);
         $(".card-box-container").fadeOut(250);
     }
     else {
-        $("#" + elemet).css("bottom", "-1200px");
-        $("#" + elemet + "-CardBox").css("bottom", "-1200px");
-        $("#" + elemet).fadeOut(250);
-        $("#" + elemet + "-CardBox").fadeOut(300);
+        $("#" + element + "-Header").fadeOut(50);
+        $("#" + element).css("z-index", -100);
+        $("#" + element).css("bottom", "-1200px");
+        $("#" + element + "-CardBox").css("bottom", "-1200px");
+        $("#" + element).fadeOut(250);
+        $("#" + element + "-CardBox").fadeOut(300);
+
+        if ($("#MainModal_Container").css("display") != "none" && $("#" + element).hasClass("smallside-box-container")) {
+            if (fullWidth >= 717) {
+                setTimeout(function () {
+                    $("#MainModal_Container").css("bottom", "6px");
+                }, 75);
+            }
+        }
     }
 }
 

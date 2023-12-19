@@ -172,6 +172,32 @@ namespace ApplicationY.Migrations
                     b.ToTable("Likes");
                 });
 
+            modelBuilder.Entity("ApplicationY.Models.LikedPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<bool>("IsRemoved")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("PostId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("PostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("LikedPosts");
+                });
+
             modelBuilder.Entity("ApplicationY.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -254,6 +280,9 @@ namespace ApplicationY.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("IsPrivate")
+                        .HasColumnType("bit");
+
                     b.Property<bool>("IsRemoved")
                         .HasColumnType("bit");
 
@@ -264,9 +293,14 @@ namespace ApplicationY.Migrations
                         .HasMaxLength(2500)
                         .HasColumnType("nvarchar(2500)");
 
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
                     b.HasKey("Id");
 
                     b.HasIndex("LinkedProjectId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Posts");
                 });
@@ -313,6 +347,9 @@ namespace ApplicationY.Migrations
                     b.Property<string>("Link2")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("MainPhotoId")
+                        .HasColumnType("int");
+
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -351,6 +388,42 @@ namespace ApplicationY.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Projects");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.Purge", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasMaxLength(900)
+                        .HasColumnType("nvarchar(900)");
+
+                    b.Property<bool>("IsClosed")
+                        .HasColumnType("bit");
+
+                    b.Property<int?>("ProjectId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("SenderId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int?>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProjectId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("Purges");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Reply", b =>
@@ -510,6 +583,9 @@ namespace ApplicationY.Migrations
                     b.Property<bool>("IsEmailChanged")
                         .HasColumnType("bit");
 
+                    b.Property<bool>("IsVerified")
+                        .HasColumnType("bit");
+
                     b.Property<string>("Link1")
                         .HasColumnType("nvarchar(max)");
 
@@ -554,8 +630,8 @@ namespace ApplicationY.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("PseudoName")
-                        .HasMaxLength(24)
-                        .HasColumnType("nvarchar(24)");
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
 
                     b.Property<string>("ReserveCode")
                         .HasMaxLength(6)
@@ -588,6 +664,30 @@ namespace ApplicationY.Migrations
                         .HasFilter("[NormalizedUserName] IS NOT NULL");
 
                     b.ToTable("AspNetUsers", (string)null);
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.VerificationQueue", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("SentAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.Property<DateTime?>("VerifiedAt")
+                        .HasColumnType("datetime2");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("VerificationQueues");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<int>", b =>
@@ -775,6 +875,21 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("ApplicationY.Models.LikedPost", b =>
+                {
+                    b.HasOne("ApplicationY.Models.Post", "Post")
+                        .WithMany("LikedPosts")
+                        .HasForeignKey("PostId");
+
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany("LikedPosts")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Post");
+
+                    b.Navigation("User");
+                });
+
             modelBuilder.Entity("ApplicationY.Models.Message", b =>
                 {
                     b.HasOne("ApplicationY.Models.Project", "Project")
@@ -807,7 +922,15 @@ namespace ApplicationY.Migrations
                         .WithMany("Posts")
                         .HasForeignKey("LinkedProjectId");
 
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Project");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Project", b =>
@@ -823,6 +946,21 @@ namespace ApplicationY.Migrations
                         .IsRequired();
 
                     b.Navigation("Category");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.Purge", b =>
+                {
+                    b.HasOne("ApplicationY.Models.Project", "Project")
+                        .WithMany("Purges")
+                        .HasForeignKey("ProjectId");
+
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany("Purges")
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("Project");
 
                     b.Navigation("User");
                 });
@@ -878,6 +1016,17 @@ namespace ApplicationY.Migrations
                         .HasForeignKey("CountryId");
 
                     b.Navigation("Country");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.VerificationQueue", b =>
+                {
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<int>", b =>
@@ -946,6 +1095,11 @@ namespace ApplicationY.Migrations
                     b.Navigation("Users");
                 });
 
+            modelBuilder.Entity("ApplicationY.Models.Post", b =>
+                {
+                    b.Navigation("LikedPosts");
+                });
+
             modelBuilder.Entity("ApplicationY.Models.Project", b =>
                 {
                     b.Navigation("Audios");
@@ -956,14 +1110,20 @@ namespace ApplicationY.Migrations
 
                     b.Navigation("Posts");
 
+                    b.Navigation("Purges");
+
                     b.Navigation("Updates");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.User", b =>
                 {
+                    b.Navigation("LikedPosts");
+
                     b.Navigation("Notifications");
 
                     b.Navigation("Projects");
+
+                    b.Navigation("Purges");
 
                     b.Navigation("Subscribtions");
 

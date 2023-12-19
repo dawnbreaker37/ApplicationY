@@ -5,6 +5,8 @@
     User? UserInfo = ViewBag.UserInfo;
     Project? ProjectInfo = ViewBag.ProjectInfo;
     GetCommentaries_ViewModel? LastSentComment = ViewBag.LastSentCommentInfo;
+    GetProjectImages_ViewModel? MainImgInfo = ViewBag.MainImgInfo;
+    List<GetProjectImages_ViewModel>? Images = ViewBag.Images;
     double PrevPricePercentageChange = ViewBag.TargetPriceChangePerc;
     bool IsLiked = ViewBag.IsLiked;
     int CommentsCount = ViewBag.CommentsCount;
@@ -158,7 +160,7 @@
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="fas fa-file-invoice-dollar"></i> <br />Project</button>
             </div>
             <div class="col">
-                <a asp-controller="User" asp-action="Info" asp-route-Id="@UserInfo?.SearchName" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-user-circle"></i> <br/>@ProjectInfo.User?.PseudoName's Page</a>
+                <a asp-controller="User" asp-action="Info" asp-route-Id="@UserInfo?.SearchName" class="btn btn-navbar btn-sm w-100"> <i class="fas fa-user-circle"></i> <br/>@ProjectInfo.UserName's Page</a>
             </div>
             <div class="col d-lg-none d-md-none d-xl-none d-sm-block">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenY"> <i class="fas fa-times text-danger"></i> <br/>Close </button>
@@ -275,7 +277,7 @@
                             <div class="dropstart">
                                 <button type="button" class="btn btn-sm mt-1 rounded-message-btn" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
                                 <ul class="dropdown-menu shadow-sm p-1">
-                                    <li><button type="button" class="dropdown-item mb-1" id="GetMailOfCreator_Btn"> <i class="fas fa-envelope-open-text"></i> Write Via Mail</button></li>
+                                    <li><button type="button" class="dropdown-item mb-1" id="GetMailOfCreator_Btn"> <i class="fas fa-envelope-open-text"></i> Write via Mail</button></li>
                                     <li><button type="button" class="dropdown-item select-to-other-links"> <i class="fas fa-paperclip"></i> Other Links of <span class="fw-500">@ProjectInfo.User?.PseudoName</span></button></li>
                                 </ul>
                             </div>
@@ -332,11 +334,62 @@
     </div>
 </div>
 
+@if (UserInfo != null)
+{
+    <div class="main-container shadow-standard scrollbar-hidden" id="Purge_Container">
+        <div class="header-container p-3 pb-2" id="Purge_Container-Header">
+            <button type="button" class="btn btn-back btn-sm float-end">&larr; Back</button>
+            <h6 class="h5 text-truncate">Purge</h6>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="box-container p-3 bg-light">
+                <h6 class="h6 safe-font"> <i class="fas fa-bolt text-danger"></i> What's <strong>Purge</strong>?</h6>
+                <small class="card-text text-muted">Every single project introduced here, on our platform, may be used in several ways based on the project owner's own vision. But if You find that this project doesn't respond at least one of the following points, You can purge it. We'll consider your purge and answer you by notification about the action that we've used for this project.<br />But after all, we ask You to describe the problem that you've mentioned (as shorter as You can)</small>
+            </div>
+            <div class="mt-2">
+                <div class="p-3 bordered-container">
+                    <h6 class="h6 safe-font">Points to Purge</h6>
+                    <ul>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP0-PurgeDescription">This project is just an advertisement</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP1-PurgeDescription">This project disrespects the rights of any kind of minorities</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP2-PurgeDescription">This project calls for violence</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP3-PurgeDescription">This project shows some kind of prohibited content</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP4-PurgeDescription">This project is published many times from different accounts (or single account)</li>
+                    </ul>
+                    <small class="card-text text-muted"> <i class="fas fa-ellipsis-h"></i> Click to one of this points to copy and paste at description box</small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="Project" asp-action="PurgeTheProject" id="PurgeTheProject_Form">
+                        <div class="d-none">
+                            <input type="hidden" name="Id" value="@ProjectInfo.Id" />
+                            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                        </div>
+                        <div>
+                            <label for="Description" class="form-label fw-500">Description</label>
+                            <textarea name="Description" id="PurgeDescription" maxlength="900" class="form-control" rows="4" placeholder="Please, shortly describe your opinion"></textarea>
+                            <small class="card-text text-muted">Max length: 900</small>
+                        </div>
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col col-7">
+                                    <button type="submit" class="btn btn-danger w-100 btn-standard-with-no-colour">Send</button>
+                                </div>
+                                <div class="col col-5">
+                                    <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour btn-open-container" id="Preload_Container-OpenX">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end" aria-label="close" id="Preload_Container-Close"></button>
-        <a asp-controller="Project" asp-action="Report" asp-route-Id="@ProjectInfo.Id" class="btn btn-standard-not-animated btn-sm float-end me-2"> <i class="far fa-flag text-danger"></i> Report</a>
-        <a asp-controller="User" asp-action="Purge" asp-route-Id="@ProjectInfo.UserId" class="btn btn-standard-not-animated btn-sm float-end me-2"> <i class="fas fa-bolt text-info"></i> Purge</a>
+        <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-2 btn-open-container" id="Purge_Container-Open"> <i class="fas fa-bolt text-danger"></i> Purge</button>
         <h6 class="h5 text-truncate">@ProjectInfo.Name</h6>
     </div>
     <div class="hanging-container shadow-sm p-2 d-none" id="Preload_Container-Hanging">
@@ -368,8 +421,8 @@
                 }
                 <div>
                     <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
-                        <input type="hidden" name="Id" id="GSU_Id_Val" value="@UserInfo?.Id" />
-                        <button type="submit" class="btn btn-text btn-lg safe-font">@UserInfo?.PseudoName</button>
+                        <input type="hidden" name="Id" id="GSU_Id_Val" value="@ProjectInfo.UserId" />
+                        <button type="submit" class="btn btn-text btn-lg safe-font">@ProjectInfo.UserName</button>
                     </form>
                 </div>
             </div>
@@ -497,7 +550,7 @@
             <p class="card-text white-space-on mt-1" id="Preview_LongDescription">@ViewBag.FullText</p>
         </div>
         <div class="card-group mt-2">
-            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+            <div class="card shadow-sm p-3" id="Preview_StartUpBox">
                 @if (ProjectInfo.TargetPrice != 0)
                 {
                     <h2 class="h2 text-primary safe-font" id="Preview_TagPrice">$@ProjectInfo.TargetPrice.ToString("N0")</h2>
@@ -612,16 +665,46 @@
         {
             <div class="box-container mt-2">
                 <div class="card-group">
-                    <div class="card p-2 shadow-sm">
-                        <h6 class="h6">Photos & Images</h6>
-                        <small class="card-text text-muted mt-2">This project has got <strong>@ImagesCount</strong> photo(s)</small>
-                        <div class="horizontal-scrolled-container scrollbar-hidden mt-1">
-                            @foreach (GetProjectImages_ViewModel Item in ViewBag.Images)
+                    <div class="card p-3 shadow-sm">
+                        <div class="d-none">
+                            <input type="hidden" id="ImageUrl-0" value="@MainImgInfo.Name" />
+                            @for(int i = 1; i < Images.Count; i++)
                             {
-                                <div class="box-container bg-transparent d-inline-block me-2">
-                                    <img src="~/ProjectPhotos/@Item.Name" class="image-main-box" alt="Cannot display this image" />
-                                </div>
+                                <input type="hidden" id="ImageUrl-@i" value="@Images[i].Name" />   
                             }
+                        </div>
+                        <h6 class="h6">Photos & Images</h6>
+                        <div id="ImageCarouselWithControls" class="carousel slide mt-2" data-bs-ride="carousel">
+                            <div class="carousel-inner" id="ImgCarouseInner_Box">
+                                <div class="d-none">
+                                    <input type="hidden" id="ImgIndex" value="0" />
+                                    <input type="hidden" id="ImgsCount" value="@ImagesCount" />
+                                </div>
+                                <div id="Images_Box">
+                                    <div class="carousel-item active" data-bs-interval="999999" id="ImgBox-0">
+                                        <img src="/ProjectPhotos/@MainImgInfo.Name" id="ImgLbl-0" class="d-block image-main-box" alt="Cannot display this image" />
+                                    </div>
+                                </div>
+                            </div>
+                            <button class="carousel-control-prev" type="button" id="PrevImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="prev">
+                                <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Previous</span>
+                            </button>
+                            <button class="carousel-control-next" type="button" id="NextImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="next">
+                                <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                                <span class="visually-hidden">Next</span>
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card p-3 shadow-sm">
+                        <h6 class="h6">Files Info</h6>
+                        <div class="mt-2 text-center">
+                            <button type="button" class="btn btn-text btn-sm text-muted" id="CurrentFileName_Lbl">@MainImgInfo.Name</button>
+                        </div>
+                        <div class="box-container p-2 text-center">
+@*                             <div class="num-scroll-div"> *@
+                                <span class="number-spot safe-font display-5" id="CurrentImgIndex_Span">1</span><span class="display-5 safe-font"> of @ImagesCount</span>
+@*                             </div> *@
                         </div>
                     </div>
                 </div>
@@ -670,7 +753,7 @@
         {
             <div class="box-container mt-2">
                 <div class="card-group">
-                    <div class="card me-2 p-2 shadow-sm">
+                    <div class="card p-2 shadow-sm">
                         <h6 class="h6"> <i class="fab fa-youtube text-danger"></i> Youtube Video</h6>
                         <div class="box-container mt-2" id="YT_VideoPlayer_Box">
                             <iframe class="yt-container w-100 ratio-16x9" id="YT_VideoPlayer" src="@ViewBag.YTLink" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
@@ -685,6 +768,5 @@
                 </div>
             </div>
         }
-            </div>
-    </div>
+        </div>
 </div>

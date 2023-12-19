@@ -10,8 +10,7 @@ namespace ApplicationY.ViewModels
         [MinLength(1, ErrorMessage = "Min length of message is 1 character")]
         public string? Text { get; set; }
         public DateTime SentAt { get; set; }
-        [Required]
-        public int ProjectId { get; set; }
+        public int? ProjectId { get; set; }
         [Required]
         public int UserId { get; set; }
         [Required]

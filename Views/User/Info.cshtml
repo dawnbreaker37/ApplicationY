@@ -26,6 +26,45 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
                 <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
             </form>
+            <form method="post" asp-controller="Post" asp-action="Remove" id="RemoveThePost_Form">
+                <input type="hidden" name="UserId" value="@CurrentUserInfo.Id" />
+                <input type="hidden" name="Id" id="RTP_PostId_Val" value="0" />
+            </form>
+            <form method="post" asp-controller="Post" asp-action="Like" id="LikeThePost_Form">
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <input type="hidden" name="Id" id="LTP_PostId_Val" value="0" />
+            </form>
+            <form method="post" asp-controller="Post" asp-action="Dislike" id="DislikeThePost_Form">
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <input type="hidden" name="Id" id="DLTP_PostId_Val" value="0" />
+            </form>
+        </div>
+
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
+            <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">Send Message</h5>
+            </div>
+            <div class="mt-2 p-3 pt-0">
+                <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessage_Form">
+                    <div class="d-none">
+                        <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                        <input type="hidden" name="ProjectId" value="0" />
+                        <input type="hidden" name="UserId" value="@CurrentUserInfo.Id" />
+                    </div>
+                    <div class="row">
+                        <div class="col col-1">
+                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MsgSendSbmt_Btn" disabled> <i class="fas fa-arrow-up"></i></button>
+                        </div>
+                        <div class="col col-9">
+                            <textarea name="Text" id="Text" rows="1" placeholder="Enter text here" class="form-control w-100 form-control-sm send-msg-form-control"></textarea>
+                        </div>
+                        <div class="col col-2">
+                            <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100 text-full-delete" id="FullDelete-Text"> <i class="fas fa-backspace"></i> </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
         </div>
     }
     <div class="d-none">
@@ -90,10 +129,61 @@
     }
 </div>
 
+@if(UserInfo != null)
+{
+    <div class="main-container shadow-standard scrollbar-hidden" id="Purge_Container">
+        <div class="header-container p-3 pb-2" id="Preload_Container-Header">
+            <button type="button" class="btn btn-back btn-sm float-end">&larr; Back</button>
+            <h6 class="h5 text-truncate">Purge</h6>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="box-container p-3 bg-light">
+                <h6 class="h6 safe-font"> <i class="fas fa-bolt text-danger"></i> What's <strong>Purge</strong>?</h6>
+                <small class="card-text text-muted">Every single project introduced here, on our platform, may be used in several ways based on the project owner's own vision. But if You find that this project doesn't respond at least one of the following points, You can purge it. We'll consider your purge and answer you by notification about the action that we've used for this project.<br />But after all, we ask You to describe the problem that you've mentioned (as shorter as You can)</small>
+            </div>
+            <div class="mt-2">
+                <div class="p-3 bordered-container">
+                    <h6 class="h6 safe-font">Points to Purge</h6>
+                    <ul>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP0-PurgeDescription">It's a fake account</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP1-PurgeDescription">It's a scam account</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP2-PurgeDescription">It's a propaganding account</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP3-PurgeDescription">It's a doppelganger account</li>
+                        <li class="card-text copy-and-paste-the-text btn-text" id="PtP4-PurgeDescription">It's an account with prohibited content</li>
+                    </ul>
+                    <small class="card-text text-muted"> <i class="fas fa-ellipsis-h"></i> Click to one of this points to copy and paste at description box</small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="User" asp-action="PurgeTheUser" id="PurgeTheProject_Form">
+                        <div class="d-none">
+                            <input type="hidden" name="UserId" value="@CurrentUserInfo.Id" />
+                            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                        </div>
+                        <div>
+                            <label for="Description" class="form-label fw-500">Description</label>
+                            <textarea name="Description" id="PurgeDescription" maxlength="900" class="form-control" rows="4" placeholder="Please, shortly describe your opinion"></textarea>
+                            <small class="card-text text-muted">Max length: 900</small>
+                        </div>
+                        <div class="mt-3">
+                            <div class="row">
+                                <div class="col col-7">
+                                    <button type="submit" class="btn btn-danger w-100 btn-standard-with-no-colour">Send</button>
+                                </div>
+                                <div class="col col-5">
+                                    <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour btn-open-container" id="Preload_Container-OpenX">Cancel</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 
 <div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="Close" id="Preload_Container-Close"></button>
+        <button type="button" class="btn btn-close float-end" aria-label="Close" id="Preload_Container-Close"></button>
         <h5 class="h5 text-truncate">@CurrentUserInfo.PseudoName</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
@@ -134,21 +224,21 @@
                         }
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-lg btn-standard-not-animated border-0"> <i class="far fa-comment-dots"></i> </button>
+                        <button type="button" class="btn btn-lg btn-standard-not-animated border-0 smallside-btn-open-container" id="SendMessage_Container-Open"> <i class="far fa-comment-dots smallside-btn-open-container" id="SendMessage_Container-OpenY"></i> </button>
                     </div>
                     <div class="col">
                         <div class="dropdown">
                             <button class="btn btn-lg btn-standard-not-animated border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
                             <ul class="dropdown-menu shadow-sm p-1">
-                                <li><button type="button" class="dropdown-item copy-the-main-link mb-1"> <i class="far fa-copy"></i> Copy The Link</button></li>
-                                <li><button type="button" class="dropdown-item mb-1"> <i class="far fa-paper-plane"></i> Write Via Inbox</button></li>
-                                <li><button type="button" class="dropdown-item"> <i class="far fa-flag text-danger"></i> Report</button></li>
+                                <li><button type="button" class="dropdown-item copy-the-main-link mb-1"> <i class="far fa-copy"></i> Copy the Link</button></li>
+                                <li><button type="button" class="dropdown-item mb-1"> <i class="far fa-paper-plane"></i> Write via Inbox</button></li>
+                                <li><button type="button" class="dropdown-item text-danger btn-open-container" id="Purge_Container-Open"> <i class="fas fa-bolt"></i> Purge</button></li>
                             </ul>
                         </div>
                     </div>
                 </div>
                 <div>
-                    <button type="button" class="btn bg-white btn-sm w-100 btn-standard-not-animated smallside-btn-open-container" id="ProjectsList_Container-OpenY">Projects ∙ @ProjectsCount</button>
+                    <button type="button" class="btn btn-sm w-100 side-single-btn mt-1 smallside-btn-open-container" id="ProjectsList_Container-OpenY">Projects ∙ @ProjectsCount</button>
                 </div>
             </div>
             @if (CurrentUserInfo.ProfilePhoto != null)
@@ -319,11 +409,91 @@
             </div>
             <div class="mt-2 box-container bg-transparent">              
                 <h4 class="h4">Posts</h4>
-                <div class="text-center mt-4">
-                    <h1 class="display-6"> <i class="far fa-sticky-note"></i> </h1>
-                    <h4 class="h4 safe-font">No Sent Posts</h4>
-                    <small class="card-text text-muted"><strong>@CurrentUserInfo.PseudoName</strong> haven't sent any posts yet. Wait for it. The time for it will come soon</small>
+                @if(ViewBag.PostsCount <= 0)
+                {
+                    <div class="text-center mt-4" id="NoPosts_Box">
+                        <h1 class="display-6"> <i class="far fa-sticky-note"></i> </h1>
+                        <h4 class="h4 safe-font">No Sent Posts</h4>
+                        <small class="card-text text-muted"><strong>@CurrentUserInfo.PseudoName</strong> haven't sent any posts yet. Wait for it. The time for it will come soon</small>
+                    </div>
+                }
+                else
+                {
+                    <small class="card-text text-muted">@CurrentUserInfo.PseudoName has got <strong id="PostsCount_Lbl">@ViewBag.PostsCount</strong> post(s)</small>
+                    <div class="mt-1" id="HavePosts_Box">
+                    @foreach(GetPost_ViewModel Item in ViewBag.Posts)
+                    {
+                        <div class="bordered-container p-2 mt-2" id="PostBox-@Item.Id">
+                                <div class="dropdown">
+                                    <button class="btn btn-standard-not-animated float-end ms-1 btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
+                                    <ul class="dropdown-menu shadow-sm p-1">
+                                        <li><button type="button" class="dropdown-item mb-1 copy-the-text-of-the-post" id="CopyTheText-@Item.Id"> <i class="far fa-copy"></i> Copy to the clipboard</button></li>
+                                        @if(Item.LinkedProjectId != 0)
+                                        {
+                                            <li><a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="dropdown-item"> <i class="far fa-folder-open"></i> Project Info</a></li>
+                                        }
+                                        @if(UserInfo?.Id == CurrentUserInfo.Id)
+                                        {
+                                            <li><button type="button" class="dropdown-item text-danger remove-the-post mt-1" id="RemoveThePostBtn-@Item.Id"> <i class="far fa-trash-alt"></i> Delete</button></li>
+                                        }
+                                    </ul>
+                                </div>
+                            @if(UserInfo?.ProfilePhoto != null)
+                            {
+                                <img class="image-ultra-small-box" src="/ProfilePhotos/7f3f9ae5-d86.png" alt="Cannot display this image" />
+                                <p class="card-text fw-500 mt-1">@UserInfo?.PseudoName<br /><small class="card-text text-muted">@Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></p>
+                            }
+                            else
+                            {
+                                <p class="card-text fw-500">@UserInfo?.PseudoName<br /><small class="card-text text-muted">@Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></p>
+                            }
+                            @if(Item.Project != null)
+                            {
+                                <div class="box-container bg-light p-2">
+                                    <small class="card-text fw-500"> <i class="fas fa-link text-primary"></i> @Item.Project.Name</small>
+                                    <div></div>
+                                    <small class="card-text text-muted">at @Item.Project.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                    <div class="mt-3"></div>
+                                    <small class="card-text white-space-on">@Item.Project.Description</small>
+                                    <div class="box-container bg-light mt-2 p-2">
+                                        <div class="row">
+                                            <div class="col">
+                                                <a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-book-open"></i> Look</a>
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-share"></i> Share</button>
+                                            </div>
+                                            <div class="col">
+                                                <button type="button" class="btn btn-standard-not-animated btn-sm w-100" disabled>@Item.Project.Views.ToString("N0") views</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            }
+                            <div class="mt-2">
+                                <p class="card-text white-space-on" id="PostsTextLbl-@Item.Id">@Item.Text</p>
+                            </div>
+                            <div class="border-top mt-2 pt-2">
+                                <small class="card-text text-muted float-end ms-1 pt-1">0 viewed</small>
+                                    @if (!Item.IsLiked)
+                                    {
+                                        <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block like-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="far fa-heart"></i> Like</button>
+                                    }
+                                    else
+                                    {
+                                        <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block dislike-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="fas fa-heart text-primary"></i> Liked</button>
+                                    }
+                                    <button type="button" class="btn btn-standard-not-animated btn-sm"> <i class="fas fa-share"></i> Share</button>
+                            </div>
+                    </div>   
+                    }
                 </div>
+                    <div class="text-center mt-4" style="display: none;" id="NoPosts_Box">
+                        <h1 class="display-6"> <i class="far fa-sticky-note"></i> </h1>
+                        <h4 class="h4 safe-font">No Sent Posts</h4>
+                        <small class="card-text text-muted"><strong>@CurrentUserInfo.PseudoName</strong> haven't sent any posts yet. Wait for it. The time for it will come soon</small>
+                    </div>
+                }
             </div>
         </div>
     </div>

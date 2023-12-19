@@ -223,7 +223,7 @@ namespace ApplicationY.Repositories
                 {
                     NewLinkTag = " <i class='fab fa-youtube text-danger'></i> " + LinkTag;
                 }
-                else NewLinkTag = LinkTag;
+                else NewLinkTag = " <i class='fas fa-globe text-primary'></i> " + LinkTag;
                 return NewLinkTag;
             }
             return null;

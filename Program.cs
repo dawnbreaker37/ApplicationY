@@ -21,6 +21,7 @@ builder.Services.AddTransient<IMailService, SendEmailRepository>();
 builder.Services.AddTransient<ICategory, CategoryRepository>();
 builder.Services.AddTransient<IAudios, AudiosRepository>();
 builder.Services.AddTransient<ISubscribe, SubscribersRepository>();
+builder.Services.AddTransient<IOthers, OthersRepository>();
 builder.Services.AddIdentity<User, IdentityRole<int>>(Opt =>
 {
     Opt.Password.RequiredUniqueChars = 8;

@@ -8,8 +8,8 @@ namespace ApplicationY.Models
     {
         public DateTime PasswordResetDate { get; set; }
         public bool IsEmailChanged { get; set; }
-        [MinLength(4)]
-        [MaxLength(24)]
+        [MinLength(3)]
+        [MaxLength(60)]
         public string? PseudoName { get; set; }
         [MinLength(4)]
         [MaxLength(12)]
@@ -28,6 +28,7 @@ namespace ApplicationY.Models
         public string? ProfilePhoto { get; set; }
         public DateTime? CreatedAt { get; set; }
         public bool IsCompany { get; set; }
+        public bool IsVerified { get; set; }
         [ForeignKey("Country")]
         public int? CountryId { get; set; }
         public Country? Country { get; set; }
@@ -35,5 +36,7 @@ namespace ApplicationY.Models
         public List<Notification>? Notifications { get; set; }
         public List<Subscribtion>? Subscribtions { get; set; }
         public List<Project>? Projects { get; set; }
+        public List<LikedPost>? LikedPosts { get; set; }
+        public List<Purge>? Purges { get; set; }
     }
 }

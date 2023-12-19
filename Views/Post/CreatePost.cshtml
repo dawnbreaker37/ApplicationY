@@ -2,7 +2,7 @@
 @{
     ViewData["Title"] = "Create Post";
 
-    User UserInfo = ViewBag.UserInfo;
+    User? UserInfo = ViewBag.UserInfo;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -10,6 +10,7 @@
     {
         <div class="d-none">
             <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <input type="hidden" id="PageInfo_UserSearchname" value="@UserInfo.SearchName" />
             <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
@@ -19,33 +20,35 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="get" asp-controller="User" asp-action="FindShortestInfoBySearchName" id="FindShortestInfoBySearchname_Form">
+                <input type="hidden" name="Id" id="FSISN_Id_Val" />
+            </form>
         </div>
     }
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="Preload_Container-Open"> <i class="fas fa-plus"></i> <br />Create</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="Preload_Container-Open"> <i class="far fa-comment-alt"></i> <br />Create</button>
             </div>
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
             </div>
             <div class="col d-none d-lg-block d-xl-block d-md-block">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Info_Container-Open"> <i class="fas fa-info-circle"></i> <br />Info</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="ProjectsList_Container-Open"> <i class="far fa-folder-open"></i> <br />Projects</button>
             </div>
         </div>
     </div>
 
     <div class="box-container bg-light p-3 mt-2" id="AboutPosts_Box">
-        <h6 class="h6 safe-font"> <i class="far fa-comment-alt"></i> Lets talk about posts!</h6>
+        <h6 class="h6 safe-font"> <i class="far fa-comment-alt"></i> Lets talk about the posts!</h6>
         <div class="mt-2 border-top pt-2">           
             <p class="card-text"> <i class="fas fa-user-friends"></i> This's the easiest way to start a conversation with other people. Ask them, answer or reply to them or just tell them something interesting</p>
             <p class="card-text mt-2"> <i class="fas fa-link"></i> Link one of your projects to the post which will appear in a simple and compact box inside of your post</p>
             <div class="bordered-container p-2 mt-2">
                 <button type="button" class="btn btn-standard-not-animated float-end ms-1 btn-sm"> <i class="fas fa-ellipsis-h"></i> </button>
                 <img class="image-ultra-small-box" style="background-color: #0d6efd;" src="/ProfilePhotos/7f3f9ae5-d86.png" alt="Cannot display this image" />
-                <h6 class="h6 mt-1">Some Random User</h6>
-                <small class="card-text text-muted">3hr ago</small>
-                <div class="box-container mt-2 p-2">
+                <p class="card-text fw-500 mt-1">Some Random User<br/><small class="card-text text-muted">3hr ago</small></p>
+                <div class="box-container p-2">
                     <small class="card-text fw-500"> <i class="fas fa-link text-primary"></i> Some Random Project</small>
                     <div></div>
                     <small class="card-text text-muted">1d 3hr ago</small>
@@ -76,5 +79,117 @@
             </div>
         </div>
     </div>
+
+    <div class="smallside-box-container shadow-standard" id="ProjectsList_Container">
+        <div class="header-container p-3 pb-2" id="ProjectsList_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="ProjectsList_Container-Close"></button>
+            <h5 class="h5 text-truncate">Projects to Link</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0" id="ProjectsToPin_Box">
+            @if(ViewBag.ProjectsCount > 0)
+            {
+                foreach(Project project in ViewBag.Projects)
+                {
+                    <div class="box-container bg-light p-2 mt-1 mb-1" id="PinTheProjectBox-@project.Id">
+                        <span class="badge bg-white text-dark warning-badge float-end ms-1 fw-normal">@project.Views.ToString("N0") views</span>
+                        @if(project.TargetPrice != 0)
+                        {
+                            <p class="card-text fw-500" id="ProjectName_Lbl-@project.Id">@project.Name<br /><small class="card-text safe-font text-primary">$@project.TargetPrice.ToString("N0")</small></p>
+                        }
+                        else
+                        {
+                            <p class="card-text fw-500" id="ProjectName_Lbl-@project.Id">@project.Name<br /><small class="card-text safe-font text-muted">No Target Price</small></p>
+                        }
+                        <div></div>
+                        <small class="card-text" id="CreatedAt_Lbl-@project.Id"> <i class="far fa-calendar-alt"></i> Created at: @project.CreatedAt.ToString("dd/MM/yyyy")</small>
+                        <div class="mt-1 text-center">
+                            <button type="button" class="btn btn-outline-primary fw-500 btn-sm rounded-pill link-the-project w-100" id="LinkTheProject-@project.Id"> <i class="fas fa-link"></i> Link With Post</button>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    </div>
 </div>
+
+@if(UserInfo != null)
+{
+    <div class="main-container shadow-standard" id="Preload_Container">
+        <div class="header-container p-3 pb-2" id="Preload_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+            <h5 class="h5 text-truncate">Create Post</h5>
+        </div>
+        <div class="p-3 pt-2">
+            <form method="post" asp-controller="Post" asp-action="Create" id="CreatePost_Form">
+                <div class="d-none">
+                    <input type="hidden" asp-for="UserId" value="@UserInfo.Id" />
+                    <input type="hidden" asp-for="LinkedProjectId" value="0" />
+                </div>
+                <div>
+                    <label class="form-label fw-500" asp-for="Text">What's going on?</label>
+                    <div></div>
+                    <button type="button" class="btn btn-text btn-sm mb-1" style="display: none;" id="MentionedPeopleInfo_Btn"> <i class="fas fa-at text-primary"></i> Mentioned</button>
+                    <textarea id="Text" name="Text" class="form-control" rows="5" placeholder="Tell what's happening around you.."></textarea>
+                </div>
+                <div class="bordered-container rounded-pill p-1 mt-1" style="display: none;" id="MentionedPeople_Box">
+
+                </div>
+                <div class="mt-1">
+                    <div>
+                        <button type="button" class="btn btn-text btn-sm d-inline-block me-2 smallside-btn-open-container" id="ProjectsList_Container-OpenY"> <i class="fas fa-link"></i> Link a Project</button>
+                        <button type="button" class="btn btn-text btn-sm d-inline-block me-2"> <i class="fas fa-cog"></i> Settings</button>
+                        <button type="button" class="btn btn-text btn-sm d-inline-block"> <i class="fab fa-replyd"></i> Who could reply?</button>
+                    </div>
+                </div>
+                <div class="mt-2 border-top pt-2">
+                    <div class="row">
+                        <div class="col col-7">
+                            <button type="submit" class="btn btn-primary btn-submit w-100 btn-standard-with-no-colour" disabled>Post</button>
+                        </div>
+                        <div class="col col-5">
+                            <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour text-truncate smallside-btn-open-container" id="ProjectsList_Container-OpenY">Projects List</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="p-3 pt-0">
+            <div class="bordered-container mt-2 p-2" id="NoLinkedProject_Box">
+                <h6 class="h6 safe-font">Linked Project</h6>
+                <div class="mt-3 border-top pt-3 text-center">
+                    <h2 class="h2 safe-font">No Linked Project</h2>
+                    <small class="card-text text-muted">There's no linked project for this post</small>
+                </div>
+            </div>
+            <div class="bordered-container mt-2 p-2" style="display: none;" id="HaveLinkedProject_Box">
+                <h6 class="h6 safe-font">Linked Project</h6>
+                <div class="mt-2 border-top pt-2">
+                    <p class="card-text safe-font fs-5" id="LP_Name_Lbl">Project name<br/><small class="card-text" id="LP_Price_Lbl">Target Price</small></p>
+                    <small class="card-text text-muted" id="LP_CreatedAt_Lbl">Created at</small>
+                    <div class="box-container bg-light p-2 mt-2 text-center" id="UnlinkTheProject_Box">
+                        <small class="card-text text-muted">Click to unlink the project</small>
+                        <button type="button" class="btn btn-outline-danger fw-500 mt-2 rounded-pill w-100" id="UnlinkAllTheProject_Btn"> <i class="fas fa-unlink"></i> Unlink</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-container shadow-standard" id="Completed_Container">
+        <div class="header-container p-3 pb-2" id="Completed_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Completed_Container-Close"></button>
+            <h6 class="h5 text-truncate">Post Created</h6>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="text-center p-3">
+                <h2 class="h2 display-4"> <i class="fas fa-check-circle"></i> </h2>
+                <h4 class="h4 display-5 safe-font">Post has been created successfully</h4>
+                <small class="card-text text-muted">Go by link below to have a look on it on your main page</small>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-text" id="LookAtThePost_Btn"> <i class="fas fa-eye"></i> Have a Look at the Post</a>
+                </div>
+            </div>
+        </div>
+    </div>
+}
 

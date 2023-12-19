@@ -9,7 +9,7 @@ namespace ApplicationY.ViewModels
         [MinLength(3, ErrorMessage = "Min. length of project title is 3 digits")]
         [MaxLength(40, ErrorMessage = "Max. length of project title is 40 digits")]
         public string? Name { get; set; }
-        [Required(ErrorMessage = "Description of project is required")]
+        [Required(ErrorMessage = "Description for the project is required")]
         [MinLength(40, ErrorMessage = "Description requires to contain more than 40 digits")]
         [MaxLength(1600, ErrorMessage = "Title description of project can't be larger that 1600 digits")]
         public string? Description { get; set; }

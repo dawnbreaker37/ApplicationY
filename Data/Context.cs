@@ -15,13 +15,16 @@ namespace ApplicationY.Data
         public DbSet<Project> Projects { get; set; }
         public DbSet<Message> Messages { get; set; }
         public DbSet<Reply> Replies { get; set; }
+        public DbSet<LikedPost> LikedPosts { get; set; }
         public DbSet<Like> Likes { get; set; }  
         public DbSet<Comment> Comments { get; set; }
         public DbSet<Category> Categories { get; set; }
+        public DbSet<VerificationQueue> VerificationQueues { get; set; }
         public DbSet<Update> Updates { get; set; }
         public DbSet<Subscribtion> Subscribtions { get; set; }
         public DbSet<Image> Images { get; set; }
         public DbSet<Audio> Audios { get; set; }
         public DbSet<Post> Posts { get; set; }
+        public DbSet<Purge> Purges { get; set; }
     }
 }

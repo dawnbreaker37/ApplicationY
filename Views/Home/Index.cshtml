@@ -20,8 +20,17 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="post" asp-controller="Project" asp-action="RemoveFromLiked" id="RemoveFromLiked_Form">
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <input type="hidden" name="ProjectId" id="DTP_ProjectId_Val" value="0" />
+            </form>
     </div>
     }
+    <div class="d-none">
+        <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
+            <input type="hidden" name="Id" id="GSU_Id_Val" value="0" />
+        </form>
+    </div>
     <div class="box-container text-center p-2 shadow-sm">
         <div class="row text-center">
             <div class="col">
@@ -48,8 +57,8 @@
             @foreach(GetSubscribtions_ViewModel Item in ViewBag.Subscribtions)
             {
                 <div class="box-container bg-light p-2 mt-1">
-                    <button type="button" class="btn btn-sm btn-standard-not-animated border-0"> <i class="fas fa-check-double text-primary"></i> Subscribed</button>
-                    <h6 class="h6">@Item.UserName</h6>
+                    <button type="button" class="btn btn-sm btn-text get-user-short-info" id="GSUB-@Item.UserId"> <i class="far fa-bell"></i> Subscribed</button>
+                    <h6 class="h6 mt-1 get-user-short-info" id="GSU-@Item.UserId">@Item.UserName<br /><small class="card-text text-muted fw-normal">@Item.UserSearchName</small></h6>
                 </div>
             }
         }
@@ -62,28 +71,80 @@
         }
     </div>
     <div class="bordered-container p-2 mt-2">
-        <p class="card-text safe-font"> <i class="far fa-bell"></i> Liked Projects ∙ @ViewBag.LikedProjectsCount</p>
+        <p class="card-text safe-font"> <i class="far fa-bell"></i> Liked Projects ∙ <span id="LikedProjectsCount_Lbl">@ViewBag.LikedProjectsCount</span></p>
         @if (ViewBag.LikedProjectsCount > 0)
         {
-            @foreach (GetLikedProjects_ViewModel Item in ViewBag.LikedProjects)
-            {
-                <div class="box-container bg-light p-2 mt-1">
-                    <button type="button" class="btn btn-standard-not-animated border-0 float-end ms-1"> <i class="fas fa-heart text-primary"></i> </button>
-                    <h6 class="h6">@Item.Name</h6>
-                    <small class="card-text text-muted">@Item.CreatorName</small>
+            <div id="HaveLikedProjects_Box">
+                @foreach (GetLikedProjects_ViewModel Item in ViewBag.LikedProjects)
+                {
+                    <div class="box-container bg-light p-2 mt-1" id="LikedProjectBox-@Item.ProjectId">
+                        <button type="button" class="btn btn-standard-not-animated border-0 float-end ms-1 dislike-the-project" id="DTP_ProjectId-@Item.ProjectId"> <i class="fas fa-heart text-primary dislike-the-project" id="DTPI_ProjectId-@Item.ProjectId"></i> </button>
+                        <h6 class="h6">@Item.Name</h6>
+                        <small class="card-text text-muted">@Item.CreatorName</small>
+                    </div>
+                }
+                <div class="mt-1">
+                    <a asp-controller="Project" asp-action="Liked" class="btn btn-text btn-sm fw-normal text-muted"> <i class="fas fa-ellipsis-h"></i> More about your liked projects</a>
                 </div>
-            }
-            <div class="mt-1">
-                <a asp-controller="Project" asp-action="Liked" class="btn btn-text btn-sm fw-normal text-muted"> <i class="fas fa-ellipsis-h"></i> More about your liked projects</a>
             </div>
-        }
-        else
-        {
-            <div class="box-container bg-light p-2 text-center">
+            <div class="box-container bg-light p-2 text-center" style="display: none;" id="NoLikedProjects_Box">
                 <h2 class="h2"> <i class="fas fa-heart-broken"></i> </h2>
                 <h6 class="h6">No Liked Projects</h6>
             </div>
         }
+        else
+        {
+            <div class="box-container bg-light p-2 text-center" id="NoLikedProjects_Box">
+                <h2 class="h2"> <i class="fas fa-heart-broken"></i> </h2>
+                <h6 class="h6">No Liked Projects</h6>
+            </div>
+        }
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
+        <div class="header-container p-3 pb-2" id="UserShortInfo_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="USI_UsernameTitle_Span"></span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="box-container">
+                <div class="box-container p-2 bg-light">
+                    <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
+                    <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
+                    <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
+                    <div class="mt-2 pt-1 border-top"></div>
+                    <div class="mb-1">
+                        <input type="hidden" id="USI_Id_Val" value="0" />
+                        <input type="hidden" id="USI_SubscribersCount_Val" value="0" />
+                        <button type="button" class="btn bg-white subscribe-for-user btn-standard-with-no-colour float-end ms-1 btn-sm" id="USI_SubscribersInfo_Btn"></button>
+                        <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
+                    </div>
+                </div>
+                <div class="card-group mt-2">
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Contact Info</p>
+                        <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
+                        <div class="mt-2"></div>
+                        <small class="card-text" id="USI_Date_Lbl"></small>
+                    </div>
+                    <div class="card p-2 bg-light">
+                        <p class="card-text fw-500">Links</p>
+                        <small class="card-text" id="USI_Link1_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
+                        <div class="border-top pt-1 mt-2"></div>
+                        <small class="card-text" id="USI_Link2_Lbl"></small>
+                        <div></div>
+                        <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
+                    </div>
+                </div>
+                <div class="mt-1 ms-1">
+                    <small class="card-text white-space-on mt-2" id="USI_Description_Lbl">Description</small>
+                    <div></div>
+                    <a href="#" class="btn btn-text mt-3 btn-sm" id="USI_Userpage_Link"> <i class="fas fa-chevron-right"></i> Page Link</a>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 <div class="main-container shadow-standard" id="Preload_Container">

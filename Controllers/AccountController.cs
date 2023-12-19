@@ -242,6 +242,14 @@ namespace ApplicationY.Controllers
             else return Json(new { success = false, alert = "An error occured while trying to update your personal information. Please, check all datas and try again" });
         }
 
+        [HttpPost]
+        public async Task<IActionResult> QueueForVerification(int Id)
+        {
+            bool Result = await _accountRepository.QueueForVerificationAsync(Id);
+            if (Result) return Json(new { success = true, time = DateTime.Now, alert = "You've got in line for the verification. Please, wait, it may take few days before you get the email. When you'll get the email of verification, please, go by the link in that email to instantly verify your account. Thanks for your patience!" });
+            else return Json(new { success = false, alert = "You've already been queued for the verification. Please, wait until you'll get the email message for verification. Thanks for your patience" });
+        }
+
         [HttpGet]
         public async Task<IActionResult> IsSearchNameUnique(int Id, string SearchName)
         {

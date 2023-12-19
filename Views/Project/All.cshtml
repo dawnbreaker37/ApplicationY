@@ -488,6 +488,44 @@
 
         <div class="box-container mt-2" style="display: none;" id="PreviewImages_Box">
             <div class="card-group">
+                <div class="card p-3 shadow-sm">
+                    <div class="d-none" id="ImgsHiddenUrls_Box">
+                    </div>
+                    <h6 class="h6">Photos & Images</h6>
+                    <div id="ImageCarouselWithControls" class="carousel slide mt-2" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="ImgCarouseInner_Box">
+                            <div class="d-none">
+                                <input type="hidden" id="ImgIndex" value="0" />
+                                <input type="hidden" id="ImgsCount" value="0" />
+                            </div>
+                            <div id="Images_Box">
+
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" id="PrevImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" id="NextImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card p-3 shadow-sm">
+                    <h6 class="h6">Files Info</h6>
+                    <div class="mt-2 text-center">
+                        <button type="button" class="btn btn-text btn-sm text-muted" id="CurrentFileName_Lbl">No current files</button>
+                    </div>
+                    <div class="box-container p-2 text-center">
+                        <span class="number-spot safe-font display-5" id="CurrentImgIndex_Span">0</span><span class="display-5 safe-font"> of <span id="FullImgsCount_Span">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+@*         <div class="box-container mt-2" style="display: none;" id="PreviewImages_Box">
+            <div class="card-group">
                 <div class="card p-2 shadow-sm">
                     <h6 class="h6">Photos & Images</h6>
                     <small class="card-text text-muted mt-2">This project has got <strong id="ImagesCount_Lbl">0</strong> photo(s)</small>
@@ -495,7 +533,7 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div> *@
 
         <div class="box-container mt-2" style="display: none;" id="PreviewAudios_Box">
             <div class="card-group">

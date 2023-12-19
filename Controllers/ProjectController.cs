@@ -17,9 +17,10 @@ namespace ApplicationY.Controllers
         private readonly ICategory _categoryRepository;
         private readonly IImages _imagesRepository;
         private readonly IAudios _audiosRepository;
+        private readonly IOthers _othersRepository;
         private readonly Context _context;
 
-        public ProjectController(UserManager<User> userManager, IImages imagesRepository, IAudios audiosRepository, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
+        public ProjectController(UserManager<User> userManager, IOthers othersRepository, IImages imagesRepository, IAudios audiosRepository, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -28,6 +29,7 @@ namespace ApplicationY.Controllers
             _categoryRepository = categoryRepository;
             _imagesRepository = imagesRepository;
             _audiosRepository = audiosRepository;
+            _othersRepository = othersRepository;
         }
 
         public async Task<IActionResult> Create()
@@ -85,7 +87,7 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
-                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false);
+                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, false);
                     if (UserAllProjects_Preview != null)
                     {
                         List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();
@@ -101,6 +103,14 @@ namespace ApplicationY.Controllers
             }
             else return RedirectToAction("Create", "Account");
             return RedirectToAction("Index", "Home");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> PurgeTheProject(int Id, int SenderId, string Description)
+        {
+            int Result = await _othersRepository.SendPurgeAsync(Id, SenderId, 0, Description);
+            if (Result != 0) return Json(new { success = true, alert = "Purge request has been successfully sent. Please, wait. Your asnwer will in 1-2 day(s) by notification which will appear in your notifications list. Thank you!", projectId = Id });
+            else return Json(new { success = false, alert = "You've already sent a purge request for this project. Please, wait for your answer or check your notifications list. May be the is waiting for you!" });
         }
 
         [HttpGet]
@@ -148,7 +158,7 @@ namespace ApplicationY.Controllers
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
                     IQueryable<Audio>? Audios_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true, UserInfo.Id);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -159,7 +169,7 @@ namespace ApplicationY.Controllers
                         double PercentageOfTargetPrice = Math.Round((double)(ProjectInfo.TargetPrice / 10000000 * 100), 1);
                         if (FullText != null) MainFullText = FullText?.ToString();
 
-                        Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+                        Images_Preview = _imagesRepository.GetAllProjectImages(Id, 0);
                         Audios_Preview = _audiosRepository.GetProjectAudios(Id);
                         Categories_Preview = _categoryRepository.GetAll();
                         if (Categories_Preview != null)
@@ -217,6 +227,14 @@ namespace ApplicationY.Controllers
                 if (Result != null) return Json(new { success = true, alert = "Selected images has been successfully uploaded", result = Result });
             }
             return Json(new { success = false, alert = "An error occured while trying to upload images. Please, try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SetAsMainImg(int Id, int ProjectId)
+        {
+            int Result = await _imagesRepository.SetAsMainAsync(Id, ProjectId);
+            if (Result != 0) return Json(new { success = true, alert = "Main image has been successfully changed", image = Result });
+            else return Json(new { success = false, alert = "Unable to change main image. Please, try again later" });
         }
 
         [HttpPost]
@@ -365,24 +383,33 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles)
         {
-            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo);
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo, SenderId);
             if (ProjectInfo != null)
             {
+                int ImagesCount = 0;
                 List<Audio>? Audios = null;
+                GetProjectImages_ViewModel? MainImg = null;
                 List<GetProjectImages_ViewModel>? Images = null;
                 if (GetFiles)
                 {
                     IQueryable<Audio>? Audios_Preview = _audiosRepository.GetProjectAudios(Id);
-                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id, ProjectInfo.MainPhotoId);
 
                     if (Audios_Preview != null) Audios = await Audios_Preview.ToListAsync();
                     if (Images_Preview != null) Images = await Images_Preview.ToListAsync();
+                    if (ProjectInfo.MainPhotoId != 0)
+                    {
+                        MainImg = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
+;
+                        if (MainImg != null) ImagesCount = Images == null ? 0 : Images.Count + 1;
+                        else ImagesCount = Images == null ? 0 : Images.Count;
+                    }
                 }
 
                 bool IsLiked = false;
                 int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                 if (SenderId != 0) IsLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, SenderId);
-                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, Images = Images });
+                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, imgsCount = ImagesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, mainImg = MainImg, images = Images });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
         }
@@ -391,7 +418,7 @@ namespace ApplicationY.Controllers
         {
             if(Id != 0)
             {
-                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true);
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true, true, 0);
                 if(ProjectInfo != null)
                 {
                     List<GetProjectImages_ViewModel>? Images = null;
@@ -403,8 +430,8 @@ namespace ApplicationY.Controllers
                     bool HasAlreadyBeenLiked = false;
                     double PreviousPricePercentage = 0;
                     double TotalDays = 0;
-                    int ImagesCount = 0;
                     int AudiosCount = 0;
+                    int ImagesCount = 0;
 
                     int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
@@ -412,8 +439,9 @@ namespace ApplicationY.Controllers
                     int FullProjectsCount = await _projectRepository.GetProjectsCount();
                     double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
                     double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount  * 100, 1);
-                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id);
+                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id, ProjectInfo.MainPhotoId);
                     IQueryable<Audio>? AudiosPreview = _audiosRepository.GetProjectAudios(Id);
+                    GetProjectImages_ViewModel? MainImgInfo = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
 
                     if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
 
@@ -422,7 +450,7 @@ namespace ApplicationY.Controllers
                     if (ProjectInfo.TextPart2 != null) sb.Append(ProjectInfo.TextPart2);
                     if(ProjectInfo.TextPart3 != null) sb.Append(ProjectInfo.TextPart3);
 
-                    if(ProjectInfo.Deadline != null)
+                    if (ProjectInfo.Deadline != null)
                     {
                         TimeSpan StartDay = DateTime.Now.Subtract((DateTime)ProjectInfo.Deadline);
                         TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
@@ -438,15 +466,16 @@ namespace ApplicationY.Controllers
                     if (ProjectInfo.YoutubeLink != null)
                     {
                         YoutubeVideoLink = "https://www.youtube.com/embed/" + ProjectInfo.YoutubeLink;
-                        AdditionalYoutubeLink= "https://www.youtube.com/watch?v=" + @ProjectInfo.YoutubeLink;
+                        AdditionalYoutubeLink= "https://www.youtube.com/watch?v=" + ProjectInfo.YoutubeLink;
                     }
 
-                    if(Images_Preview != null)
+                    if (Images_Preview != null)
                     {
                         Images = await Images_Preview.ToListAsync();
+                        if (MainImgInfo != null) Images = Images.Prepend(MainImgInfo).ToList();
                         ImagesCount = Images.Count;
                     }
-                    if(AudiosPreview != null)
+                    if (AudiosPreview != null)
                     {
                         Audios = await AudiosPreview.ToListAsync();
                         AudiosCount = Audios.Count;
@@ -469,6 +498,7 @@ namespace ApplicationY.Controllers
                     ViewBag.Images = Images;
                     ViewBag.Audios = Audios;
                     ViewBag.ImagesCount = ImagesCount;
+                    ViewBag.MainImgInfo = MainImgInfo;
                     ViewBag.AudiosCount = AudiosCount;
                     ViewBag.ReleaseNotesCount = ReleaseNotesCount;
                     ViewBag.TargetPriceChangePerc = PreviousPricePercentage;

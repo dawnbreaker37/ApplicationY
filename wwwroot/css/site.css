@@ -104,7 +104,9 @@ html {
     max-height: 100%;
     border-radius: 0;
     background-color: white;
+    border-radius: 9px;
     border-right: 1px solid rgb(240, 240, 240);
+    box-shadow: rgba(0, 0, 0, 0.1) 1px -2px 2px;
     display: block;
     transition: all ease 0.35s;
 }
@@ -215,9 +217,38 @@ html {
     border-radius: 8px 8px 0 0;
 }
 
+.number-spot {
+    position: relative;
+}
+
+.side-single-btn {
+    cursor: pointer;
+    border-radius: 6px;
+    border: 1px solid rgb(240, 240, 240);
+    font-weight: 500;
+    background-color: transparent;
+    transition: all ease 0.3s;
+    background: linear-gradient(to left, transparent 50%, rgb(240, 240, 240) 50%) right;
+    background-size: 200%;
+    transition: 0.25s ease-out;
+}
+.side-single-btn:hover,
+.side-single-btn:active {
+    background-position: left;
+    border: 1px solid white;
+}
+
+@keyframes btn-fill-animation {
+    0% {
+        background-color: transparent;
+    }
+    25% {
+
+    }
+}
+
 .btn-right-bottom-fixed {
     cursor: pointer;
-    border-radius: 34px;
     background-color: #0d6efd;
     color: #fdfdfd;
     position: fixed;
@@ -317,6 +348,11 @@ html {
     transition: all ease 0.3s;
 }
 
+.mh-450 {
+    max-height: 450px;
+    overflow-y: auto;
+}
+
 .bubble-container {
     border-radius: 12px;
     background-color: transparent;
@@ -376,6 +412,7 @@ html {
     border-radius: 8px 8px 2px 2px;
     background-color: white;
     bottom: -1200px;
+    overflow-x: hidden;
     display: none;
     transition: all ease 0.55s;
 }
@@ -527,12 +564,28 @@ body {
 
 .image-main-box {
     cursor: pointer;
-    height: 290px;
-    width: 370px;
+/*    height: 370px;
+    width: 495px;*/
+    height: 345px;
+    width: 100%;
     object-fit: fill;
     border-radius: 8px;
     display: inline-block;
     transition: all ease 0.375s;
+}
+.carousel-item {
+    border-radius: 8px;
+    transition: all ease 0.35s;
+}
+.carousel-inner {
+    border-radius: 8px;
+}
+.carousel {
+    border-radius: 8px;
+    height: 345px;
+    width: 100%;
+/*    height: 370px;
+    width: 495px;*/
 }
 
 .main-title-font-style {
@@ -623,6 +676,10 @@ body {
     animation: thumbtack-animation 0.9s linear;
 }
 
+.text-official {
+    color: burlywood;
+}
+
 .bell-icon {
     animation-play-state: running;
     animation-delay: 0.15s;
@@ -634,13 +691,17 @@ body {
     animation: roll-icon-animation 0.85s linear;
 }
 .hanging-container {
-    border-radius: 1px;
+    border-radius: 8px 8px 1px 1px;
     background-color: white;
     position: fixed;
     z-index: 750;
     top: -1200px;
     display: none;
     transition: all ease 0.25s;
+}
+
+.h5 {
+    transition: all ease 0.225s;
 }
 
 .fast-transition {
@@ -740,6 +801,16 @@ body {
     }
 }
 
+@media screen and (max-width: 768px) {
+    .image-main-box {
+        width: 100%;
+        height: 255px;
+    }
+    .carousel {
+        width: 100%;
+        height: 265px;
+    }
+}
 @media screen and (max-width: 1024px) {
     .game-hole {
         height: 45px;
@@ -757,6 +828,12 @@ body {
     }
 }
 
+@media screen and (max-height: 600px) {
+    .mh-450 {
+        max-height: 333px;
+        overflow-y: auto;
+    }
+}
 @media screen and (max-height: 650px) {
     .yt-container {
         height: 160px;

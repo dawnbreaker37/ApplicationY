@@ -95,6 +95,60 @@ namespace ApplicationY.Repositories
             return false;
         }
 
+        public async Task<VerificationQueue?> HasTheVerificationBeenSent(int Id)
+        {
+            return await _context.VerificationQueues.AsNoTracking().Select(q => new VerificationQueue { SentAt = q.SentAt, UserId = q.UserId, VerifiedAt = q.VerifiedAt }).FirstOrDefaultAsync(q => q.UserId == Id);
+        }
+
+        public async Task<int> SendVerificationEmailAsync(string Id)
+        {
+            throw new NotImplementedException();
+            //if(Id != null)
+            //{
+            //    User? UserInfo = await _userManager.FindByIdAsync(Id);
+            //    if(UserInfo != null)
+            //    {
+            //        SendEmail_ViewModel Model = new SendEmail_ViewModel
+            //        {
+
+            //        }
+            //    }
+            //}
+        }
+
+        public async Task<int> VerifyUserAsync(int Id)
+        {
+            if(Id != 0)
+            {
+                int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsVerified, true));
+                if (Result != 0)
+                {
+                    int InfoChangeResult = await _context.VerificationQueues.Where(u => u.UserId == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.VerifiedAt, DateTime.Now));
+                    if (InfoChangeResult != 0) return Id;
+                }
+            }
+            return 0;
+        }
+
+        public async Task<bool> QueueForVerificationAsync(int Id)
+        {
+            bool HaveQueuedYet = await _context.VerificationQueues.AnyAsync(q => q.UserId == Id);
+            if (!HaveQueuedYet)
+            {
+                VerificationQueue verificationQueue = new VerificationQueue()
+                {
+                    SentAt = DateTime.Now,
+                    UserId = Id,
+                    VerifiedAt = null
+                };
+                await _context.AddAsync(verificationQueue);
+                await _context.SaveChangesAsync();
+
+                return true;
+            }
+            return false;
+        }
+
         public async Task<string?> SendTemporaryCodeAsync(int Id, string Email, bool NeedsUniqueCode)
         {
             if (!String.IsNullOrEmpty(Email))

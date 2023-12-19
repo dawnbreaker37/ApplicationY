@@ -3,6 +3,7 @@
     ViewData["Title"] = "Your Account";
 
     User? UserInfo = ViewBag.UserInfo;
+    VerificationQueue? VerificationInfo = ViewBag.VerificationInfo;
     bool PermissionToChangePassword = ViewBag.PermissionToChangePassword;
     double ProfileFullnessPercentage = ViewBag.ProfileFullnessPercentage;
 }
@@ -632,7 +633,7 @@
         <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="AddPhoto_Container-Open"> <i class="fas fa-camera"></i> Profile Photo</button>
         @if (!UserInfo.EmailConfirmed)
         {
-            <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your account isn't verified. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to verify your account. It'll take 2-3 mins, but after you'll have more secured account with some improved features. <a class='text-decoration-none' href='/User/Verify/@UserInfo.Id'>More about it at verification page</a>. <div class='bordered-container bg-gradient-three text-light p-2 mt-3'><h6 class='h6 safe-font'>Features of verified account</h6> <div class='mt-2 border-top pt-2'><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 1.5x</span> <small class='card-text'>more projects per 1 account - 32 projects before/80 projects after</small></p></div><div class='mt-2'></div><small class='card-text'>Better positions and recommendations for other users when they search something like one of your projects</small><div class='mt-2'></div><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 28%</span><small class='card-text'> more digits for description or text per every project - 11700 digits before/14000 digits after</small></p><div class='mt-2'><small class='card-text'>Additional statistic features about your projects</small></div></div>"> <i class="fas fa-check"></i> Verify Now</button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your email isn't confirmed. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to confirm your email. It'll take 2-3 mins, but after that you'll have more secured account with some additional features. <a class='text-decoration-none' href='/User/Verify/@UserInfo.Id'>More about it at confirmation page</a>. <div class='bordered-container bg-gradient-three text-light p-2 mt-3'><h6 class='h6 safe-font'>Features of verified account</h6> <div class='mt-2 border-top pt-2'><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 1.5x</span> <small class='card-text'>more projects per 1 account - 32 projects before/80 projects after</small></p></div><div class='mt-2'></div><small class='card-text'>Better positions and recommendations for other users when they search something like one of your projects</small><div class='mt-2'></div><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 28%</span><small class='card-text'> more digits for description or text per every project - 11700 digits before/14000 digits after</small></p><div class='mt-2'><small class='card-text'>Additional statistic features about your projects</small></div></div>"> <i class="fas fa-mail-bulk"></i> Confirm</button>
         }
         <h5 class="h5 text-truncate">About You</h5>
     </div>
@@ -653,12 +654,26 @@
             }
             @if (UserInfo.PseudoName == null)
             {
-                <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.UserName</h1>
+                @if (UserInfo.IsVerified)
+                {
+                    <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.UserName <i class="fas fa-check-circle text-official"></i></h1>
+                }
+                else
+                {
+                    <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.UserName</h1>
+                }
                 <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i> <span class="text-dark">Searchname:</span> @UserInfo.SearchName</small>
             }
             else
             {
-                <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.PseudoName</h1>
+                @if (UserInfo.IsVerified)
+                {
+                    <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.PseudoName <i class="fas fa-check-circle text-official"></i> </h1>
+                }
+                else
+                {
+                    <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.PseudoName </h1>
+                }
                 <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i>, <i class="fas fa-hashtag text-dark"></i> <span class="text-dark">Searchname, Username:</span> @UserInfo.SearchName, @UserInfo.UserName</small>
             }
             <div class="mt-2"></div>
@@ -798,26 +813,77 @@
                     {
                         <small class="card-text">You've done all the necessary steps:</small>
                         <ul>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> Described your account</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-link"></i> </span> Added some links from you</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-envelope"></i> </span> Entered your work email</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-check-double"></i> </span>Verified your account</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span>Added the date</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> Describe your account</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-link"></i> </span> Add some links from you</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-envelope"></i> </span> Enter your working email</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-check-double"></i> </span>Verify your account</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span>Add the date</small></li>
                         </ul>
                     }
                     else
                     {
                         <small class="card-text">These steps are necessary:</small>
                         <ul>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> To describe account</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-link"></i> </span> To add some links from you</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-envelope"></i> </span> To enter a work email</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-check-double"></i> </span> To verify your account</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span>To add the date (of birth or creation of company)</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> Describe account</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-link"></i> </span> Add some links from you</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-envelope"></i> </span> Enter a work email</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-check-double"></i> </span> Verify your account</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span> Add the date (of birth or creation of company)</small></li>
                         </ul>
                     }
                 </div>
             </div>
         </div>
+        @if(VerificationInfo == null)
+        {
+            <div class="box-container shadow-sm bg-white mt-2 p-2" id="VerificationNotSent_Box">
+                <h5 class="h5"> <i class="fas fa-check-circle text-official"></i> Verify your account</h5>
+                <p class="card-text">Verify your account to become an official member of our community. This will provide you an verified account with the additional certificate icon behind your name, which is going to help and inform others about your officiality</p>
+                <div class="bordered-container p-3 mt-3">
+                    <div class="float-end ms-1">
+                        <div class="row">
+                            <div class="col">
+                                <button type="button" class="btn btn-lg btn-standard-not-animated border-0 w-100"> <i class="fas fa-bell text-primary"></i> </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="btn btn-lg btn-standard-not-animated border-0 w-100"> <i class="far fa-comment-dots"></i> </button>
+                            </div>
+                            <div class="col">
+                                <button type="button" class="btn btn-lg btn-standard-not-animated border-0 w-100"> <i class="fas fa-ellipsis-h"></i> </button>
+                            </div>
+                        </div>
+                    </div>
+                    <h3 class="h3 main-title-font-style">Eclipse <i class="fas fa-check-circle text-official smallside-modal-open-by-hover" id="VerifiedAccountInfo_Modal" data-content="This's an official and verified account of <span class='safe-font'>Eclipse</span>!"></i> </h3>
+                    <small class="card-text">Some kind of profile description...</small>
+                </div>
+                <div class="mt-1">
+                    <div>
+                        <form method="post" asp-controller="Account" asp-action="QueueForVerification" id="QueueForVerification_Form">
+                            <input type="hidden" name="Id" value="@UserInfo.Id" />
+                            <button type="submit" class="btn btn-light btn-standard-with-no-colour">Verify now <i class="fas fa-certificate text-official"></i> </button>
+                        </form>
+                    </div>
+                    <div class="ms-1">
+                        <small class="card-text text-muted">You will need to verify your email. Note that the account email must be an official working email of your company (or either your official individual email address), which we will be able to check and submit</small>
+                    </div>
+                </div>
+            </div>
+            <div class="box-container mt-2 p-3 shadow-sm text-center" style="display: none;" id="VerificationWaiting_Box">
+                <h2 class="h2"> <i class="fas fa-hourglass-half"></i> </h2>
+                <h4 class="h4 safe-font">Verification request is sent</h4>
+                <small class="card-text text-muted">Your verification request has been sent at <span class="safe-font" id="VerificationSentAt_Lbl"></span>. Please, wait until you'll receive the confirmation email</small>
+            </div>
+        }
+        else
+        {
+            @if(!UserInfo.IsVerified)
+            {
+                <div class="box-container mt-2 p-3 shadow-sm text-center" id="VerificationWaiting_Box">
+                    <h2 class="h2"> <i class="fas fa-hourglass-half"></i> </h2>
+                    <h4 class="h4 safe-font">Verification request is sent</h4>
+                    <small class="card-text text-muted">Your verification request has been sent at <span class="safe-font">@VerificationInfo.SentAt.ToShortDateString(), @VerificationInfo.SentAt.ToShortTimeString()</span>. Please, wait until you'll receive the confirmation email</small>
+                </div>
+            }
+        }
     </div>
 </div>

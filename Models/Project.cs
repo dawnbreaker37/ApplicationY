@@ -25,6 +25,7 @@ namespace ApplicationY.Models
         public int Views { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime LastUpdatedAt { get; set; }
+        public int MainPhotoId { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsClosed { get; set; }
         [ForeignKey("Category")]
@@ -38,6 +39,7 @@ namespace ApplicationY.Models
         public List<Image>? Images { get; set; }
         public List<Audio>? Audios { get; set; }
         public List<Post>? Posts { get; set; }
+        public List<Purge>? Purges { get; set; }
         [NotMapped]
         public string? CategoryName { get; set; }
         [NotMapped]
