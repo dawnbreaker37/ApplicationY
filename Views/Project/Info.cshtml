@@ -45,10 +45,10 @@
                 <h5 class="h5 text-truncate">About Categories</h5>
             </div>
             <div class="mt-2 p-3 pt-0">
-                <h6 class="h6">Categories For Projects</h6>
-                <small class="card-text">Owners of projects must choose one category from the prepared list which describes their project. Below in the list we'll show to you all categories to inform you</small>
-                <div class="mt-3">
-                    <div class="bordered-container p-2">
+                <h6 class="h6">Project Categories</h6>
+                <small class="card-text">Creators of every single project must choose a category from the prepared list which describes the project. All available categories are presented below</small>
+                <div class="mt-3" id="CategoriesInfo_Box">
+@*                     <div class="bordered-container p-2">
                         <h3 class="h3"> <i class="fas fa-code text-primary"></i> </h3>
                         <h6 class="h6 safe-font text-primary">IT & Programming</h6>
                         <small class="card-text text-muted">For all programmers and IT developers who needs for a help or a comment</small>
@@ -87,8 +87,9 @@
                         <h3 class="h3"> <i class="fas fa-tablet-alt text-secondary"></i> </h3>
                         <h6 class="h6 safe-font text-secondary">Devices</h6>
                         <small class="card-text text-muted">For all large and small device makers</small>
-                    </div>
+                    </div> *@
                 </div>
+                <small class="card-text text-muted">Available categories: <span id="AvailableCategories_Span">0</span></small>
             </div>
         </div>
 
@@ -191,8 +192,14 @@
             {
                 <div></div>
                 <h1 class="h1 d-none" id="CategoryMainIcon_Lbl"> @ProjectInfo.CategoryDescription </h1>
-                <h5 class="h5 safe-font smallside-btn-open-container" id="AboutCategories_Container-Open">@ProjectInfo.CategoryName</h5>
-                <small class="card-text text-muted">@ProjectsByThisCategory.ToString("N0") project(s) created in this category</small>
+                <div>
+                    <input type="hidden" id="CategoryInfo_Name_Val" value="@ProjectInfo.CategoryName" />
+                    <form method="get" asp-controller="Categories" asp-action="GetAllCategories" id="GetAllCategories_Form">
+                        <button type="submit" class="btn btn-text btn-lg safe-font" id="GAC_Sbmt_Btn">@ProjectInfo.CategoryName</button>
+                    </form>
+                </div>
+@*                 <h5 class="h5 safe-font smallside-btn-open-container" id="AboutCategories_Container-Open">@ProjectInfo.CategoryName</h5> *@
+                <small class="card-text text-muted">@ProjectsByThisCategory.ToString("N0") project(s) created</small>
                 <div></div>
                 <small class="card-text text-muted">@CategoryPercentage% of all categories</small>
             }

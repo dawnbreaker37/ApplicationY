@@ -322,9 +322,10 @@ namespace ApplicationY.Repositories
             return _context.Projects.AsNoTracking().Where(p => (!p.IsRemoved && !p.IsClosed) && (CategoryId == 0 || p.CategoryId == CategoryId) && (Keyword == null || (p.Name!.ToLower().Contains(Keyword.ToLower())) || (p.Description!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart1!.ToLower().Contains(Keyword.ToLower())) || (p.TextPart2 != null && p.TextPart2.ToLower().Contains(Keyword.ToLower())) || (p.TextPart3 != null && p.TextPart3.ToLower().Contains(Keyword.ToLower()))) && (MinPrice == 0 && MaxPrice == 0 || p.TargetPrice >= MinPrice && p.TargetPrice <= MaxPrice)).Select(p => new GetProjects_ViewModel { Id = p.Id, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, Name = p.Name, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, UserName = p.User!.PseudoName, Views = p.Views, UserId = p.UserId, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved }).OrderByDescending(p => p.Views).ThenByDescending(p => p.LastUpdatedAt);
         }
 
-        public async Task<int> GetProjectsCount()
+        public async Task<int> GetProjectsCount(int UserId)
         {
-            return await _context.Projects.AsNoTracking().CountAsync(p => !p.IsRemoved);
+            if (UserId == 0) return await _context.Projects.AsNoTracking().CountAsync(p => !p.IsRemoved);
+            else return await _context.Projects.AsNoTracking().CountAsync(p => !p.IsRemoved && p.UserId == UserId && !p.IsClosed);
         }
 
         public async Task<bool> AddReleaseNoteAsync(int ProjectId, string Title, string Description)

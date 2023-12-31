@@ -106,9 +106,9 @@ namespace ApplicationY.Controllers
                 string? TrueLink1 = null;
                 string? TrueLink2 = null;
 
-                IQueryable<Project?>? UserProjects = null;
+                //IQueryable<Project?>? UserProjects = null;
                 IQueryable<GetPost_ViewModel>? Posts = null;
-                List<Project?>? UserProjectsResult = null;
+                //List<Project?>? UserProjectsResult = null;
                 List<GetPost_ViewModel>? PostsResult = null;
                 List<LikedPost>? LikedPosts = null;
 
@@ -119,16 +119,15 @@ namespace ApplicationY.Controllers
                     int SubscribersCount = await _subscribeRepository.GetSubscribersCount(CurrentUserInfo.Id);
                     if (UserInfo != null)
                     {
-                        UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, UserInfo.Id, false, false);
+                        //UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, UserInfo.Id, false, false);
                         IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
-                        Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id);
 
                         ViewBag.UserInfo = UserInfo;
                     }
-                    else UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, 0, false, false);
-                    if(UserProjects != null) UserProjectsResult = await UserProjects.ToListAsync();
+                    Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id);
+                    int ProjectsCount = await _projectRepository.GetProjectsCount(CurrentUserInfo.Id);
 
-                    if(Posts != null) PostsResult = await Posts.ToListAsync();
+                    if (Posts != null) PostsResult = await Posts.ToListAsync();
                     if(PostsResult != null && UserInfo != null)
                     {
                         IQueryable<LikedPost>? LikedPosts_Preview = _postRepository.GetUsersLikedPosts(UserInfo.Id);
@@ -164,8 +163,8 @@ namespace ApplicationY.Controllers
                     ViewBag.Posts = PostsResult;
                     ViewBag.PostsCount = PostsResult == null ? 0 : PostsResult.Count;
                     ViewBag.SubscribersCount = SubscribersCount;
-                    ViewBag.UserProjects = UserProjectsResult;
-                    ViewBag.ProjectsCount = UserProjectsResult?.Count;
+                    //ViewBag.UserProjects = UserProjectsResult;
+                    ViewBag.ProjectsCount = ProjectsCount;
                     ViewBag.TrueLink1 = TrueLink1;
                     ViewBag.TrueLink2 = TrueLink2;
 

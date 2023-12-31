@@ -125,7 +125,7 @@
                 <small class="card-text text-muted">For example: <span class="text-primary">#0d6efd</span> or just enter <span class="text-danger">red</span></small>
             </div>
             <div class="mt-3">
-                <label class="form-label fw-500 ms-1">Enter Link</label>
+                <label class="form-label fw-500 ms-1" id="AddOption_Val2_Label">Enter Link</label>
                 <input type="text" class="form-control" autocomplete="off" id="AddOption_Val2" disabled placeholder="Enter the link here" />
             </div>
             <div class="mt-3">
@@ -183,87 +183,8 @@
             <div class="col">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="AddImages_Container-OpenY"> <i class="far fa-images"></i> <br />Images</button>
             </div>
-            <div class="col">
+            <div class="col d-lg-none d-xl-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
-            </div>
-        </div>
-    </div>
-
-<div class="main-container shadow-standard" id="Completed_Container">
-    <div class="header-container p-3 pb-2" id="Completed_Container-Header">
-        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Completed_Container-Close"></button>
-        <h6 class="h5 text-truncate">Project Created</h6>
-    </div>
-    <div class="mt-2 p-3 pt-0">
-        <div class="text-center p-3">
-            <h2 class="h2 display-4"> <i class="fas fa-check-circle"></i> </h2>
-            <h4 class="h4 display-5 safe-font">Project has been created successfully</h4>
-            <small class="card-text text-muted">Go by link below to have a look on it by side and edit it if something is not well enough</small>
-            <div class="mt-2">
-                <a href="#" class="btn btn-text" id="LookAtProject_Btn"> <i class="fas fa-eye"></i> Have A Look At Project</a>
-            </div>
-        </div>
-    </div>
-</div>
-
-<div class="main-container shadow-standard" id="Preview_Container">
-    <div class="header-container p-3 pb-2" id="Preview_Container-Header">
-        <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
-        <h6 class="h5 text-truncate">Preview The Project</h6>
-    </div>
-    <div class="mt-2 p-3 pt-0">
-        <div class="box-container">
-            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
-        </div>
-        <div class="box-container shadow-sm mt-2 p-2">
-            <div class="p-2">
-                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="fas fa-bell"></i> Subscribe</button>
-                <h5 class="h5 safe-font">@UserInfo?.PseudoName</h5>
-            </div>
-            <div class="row mt-1">
-                <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br/> Like</button>
-                </div>
-                <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-comments"></i> <br /> Comments</button>
-                </div>
-                <div class="col">
-                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-ellipsis-h"></i> <br/> More</button>
-                </div>
-            </div>
-        </div>
-        <div class="box-container mt-2">
-            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
-            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
-        </div>
-        <div class="card-group mt-2">
-            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
-                <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$0.00</h3>
-                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
-                <div class="mt-3">
-                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
-                    <div></div>
-                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
-                </div>
-                <div class="mt-2">
-                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
-                    <div></div>
-                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
-                </div>
-            </div>
-            <div class="card shadow-sm p-3" id="Preview_LinksBox">
-                <h6 class="h6">Main Links</h6>
-                <div class="border-top mt-1 pt-1"></div>
-                <div>
-                    <a href="#" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
-                    <div></div>
-                    <small class="card-text text-muted" id="Preview_LinkText1">First Link Href</small>
-                </div>
-                <div class="mt-2">
-                    <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
-                    <div></div>
-                    <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
-                </div>
             </div>
         </div>
     </div>
@@ -301,6 +222,16 @@
                     <button type="button" class="btn btn-text btn-sm text-primary btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-5"> <i class="fas fa-palette add-option" data-html="TextPart" id="AddOptIcon-5"></i> </button>
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-6"> <i class="far fa-square add-option" data-html="TextPart" id="AddOptIcon-6"></i> </button>
                     <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour add-option me-2" data-html="TextPart" id="AddOpt-2"> <i class="fas fa-link"></i> Link</button>
+                    <div class="dropdown d-inline">
+                        <button type="button" class="btn btn-text btn-sm btn-standard-with-no-colour" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
+                        <ul class="dropdown-menu shadow-sm p-1">
+                            <li><button type="button" class="btn btn-standard-not-animated fw-normal text-start btn-sm w-100 to-uppercase" id="ToUppercase-TextPart"> <i class="fas fa-chevron-up disabled"></i> Uppercase</button></li>
+                            <li><button type="button" class="btn btn-standard-not-animated fw-normal text-start btn-sm w-100 add-option mt-1 info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Some hinted text will appear when someone hovers or clicks on this part" data-html="TextPart" id="AddOpt-9"> <i class="far fa-lightbulb text-warning add-option" data-html="TextPart" id="AddOptIcon-9"></i> Text with hint</button></li>
+                            <li><button type="button" class="btn btn-standard-not-animated fw-normal text-start btn-sm w-100 add-option mt-1" data-html="TextPart" id="AddOpt-10"> <i class="fas fa-fill-drip text-primary add-option" data-html="TextPart" id="AddOptIcon-10"></i> Backgrounded text</button></li>
+                            <li><button type="button" class="btn btn-standard-not-animated fw-normal text-start btn-sm w-100 add-option mt-1" data-html="TextPart" id="AddOpt-8"> <i class="fas fa-font add-option" data-html="TextPart" id="AddOptIcon-8"></i> Alternative font family</button></li>
+                            <li><button type="button" class="btn btn-standard-not-animated fw-normal text-start btn-sm w-100 to-randomise mt-1" id="ToRandomise-TextPart"> <i class="fas fa-random"></i> Randomise</button></li>
+                        </ul>
+                    </div>
                 </div>
                 <textarea asp-for="TextPart" class="form-control mt-1" rows="6" placeholder="Enter main information about your project"></textarea>
             </div>
@@ -334,7 +265,7 @@
                 <div class="overflow-auto mh-280 scrollbar-hidden">
                     <input type="hidden" id="LastCategoryId_Val" value="@ViewBag.LastCategoryId" />
                     <input type="hidden" asp-for="CategoryId" value="0" />
-                    @foreach(Category Item in ViewBag.Categories)
+                    @foreach (Category Item in ViewBag.Categories)
                     {
                         <div class="bordered-container category-select-container p-2 mt-1 mb-1" id="CategoryValue-@Item.Id">
                             <span class="category-icon category-select-container border-0" id="CategoryIcon-@Item.Id">@Item.Description</span>
@@ -415,24 +346,24 @@
             <div class="ms-1">
                 <small class="card-text text-muted">If your project is has no deadline enter 0 (or leave the field empty)</small>
             </div>
-                <div class="mt-3">
-                        <div class="ms-1">
-                            <label class="form-label fw-500" asp-for="ImagesFiles">Choose Images</label>
-                        </div>
-                        <div>
-                            <div id="ImagesFiles-Get" class="upload-file-btn">Click to Upload</div>
-                            <div class="d-none">
-                                <input type="file" asp-for="ImagesFiles" multiple accept=".png, .jpg, .jpeg" onchange="sub(this);" />
-                            </div>
-                        </div>
-                        <div class="ms-1">
-                            <small class="card-text text-muted" id="ChosenFileName_Lbl">You can upload up to 6 images per project</small>
-                        </div>
+            <div class="mt-3">
+                <div class="ms-1">
+                    <label class="form-label fw-500" asp-for="ImagesFiles">Choose Images</label>
                 </div>
+                <div>
+                    <div id="ImagesFiles-Get" class="upload-file-btn">Click to Upload</div>
+                    <div class="d-none">
+                        <input type="file" asp-for="ImagesFiles" multiple accept=".png, .jpg, .jpeg" onchange="sub(this);" />
+                    </div>
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted" id="ChosenFileName_Lbl">You can upload up to 6 images per project</small>
+                </div>
+            </div>
             <div class="mt-3">
                 <div class="row">
                     <div class="col col-7">
-                            <button type="submit" class="btn btn-primary btn-submit w-100 btn-standard-with-no-colour" disabled> <i class="fas fa-plus-circle"></i> Create</button>
+                        <button type="submit" class="btn btn-primary btn-submit w-100 btn-standard-with-no-colour" disabled> <i class="fas fa-plus-circle"></i> Create</button>
                     </div>
                     <div class="col col-5">
                         <button type="button" class="btn btn-light w-100 btn-standard-with-no-colour text-truncate" disabled id="PreviewTheProject_Btn"> <i class="fas fa-eye"></i> Have a look</button>
@@ -443,3 +374,82 @@
     </div>
 </div>
 
+<div class="main-container shadow-standard" id="Completed_Container">
+    <div class="header-container p-3 pb-2" id="Completed_Container-Header">
+        <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="Completed_Container-Close"></button>
+        <h6 class="h5 text-truncate">Project Created</h6>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="text-center p-3">
+            <h2 class="h2 display-4"> <i class="fas fa-check-circle"></i> </h2>
+            <h4 class="h4 display-5 safe-font">Project has been created successfully</h4>
+            <small class="card-text text-muted">Go by link below to have a look on it by side and edit it if something is not well enough</small>
+            <div class="mt-2">
+                <a href="#" class="btn btn-text" id="LookAtProject_Btn"> <i class="fas fa-eye"></i> Have A Look At Project</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-container shadow-standard" id="Preview_Container">
+    <div class="header-container p-3 pb-2" id="Preview_Container-Header">
+        <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
+        <h6 class="h5 text-truncate">Preview The Project</h6>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container">
+            <h1 class="h1 text-primary safe-font" id="Preview_Title">Project Title</h1>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1"> <i class="fas fa-bell"></i> Subscribe</button>
+                <h5 class="h5 safe-font">@UserInfo?.PseudoName</h5>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-comments"></i> <br /> Comments</button>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="box-container mt-2">
+            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
+        </div>
+        <div class="card-group mt-2">
+            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+                <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$0.00</h3>
+                <small class="card-text text-muted" id="Preview_TagPriceDescription">needs this project for his start</small>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Invest</button>
+                    <div></div>
+                    <small class="card-text text-muted">Invest to this project and become a part of it</small>
+                </div>
+                <div class="mt-2">
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                    <div></div>
+                    <small class="card-text text-muted">Learn more about investments and how they work in our project from the QA page</small>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3" id="Preview_LinksBox">
+                <h6 class="h6">Main Links</h6>
+                <div class="border-top mt-1 pt-1"></div>
+                <div>
+                    <a href="#" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText1">First Link Href</small>
+                </div>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

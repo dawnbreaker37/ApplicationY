@@ -135,6 +135,11 @@ html {
     transition: all ease 0.3s;
 }
 
+.rounded-corners-text {
+    padding: 1px;
+    border-radius: 4px;
+}
+
 .info-popover-show {
     color: black;
     border-radius: 8px;
@@ -721,6 +726,33 @@ body {
     filter: drop-shadow(45px);
 }
 
+.special-form-control {
+    border-radius: 4px;
+    outline: none;
+    resize: none;
+    border: 1px solid rgb(240, 240, 240);
+    padding: 6px;
+}
+
+.btn-cornerless {
+    cursor: pointer;
+    font-weight: 500;
+    font-family: 'Trebuchet MS';
+    border: 1px solid #0d6efd;
+    background-color: #0d6efd;
+    color: white;
+    font-size: large;
+    border-radius: 4px;
+    padding: 6px;
+    transition: all ease 0.3s;
+}
+.btn-cornerless:hover,
+.btn-cornerless:active {
+    color: black;
+    background-color: transparent;
+    border: 1px solid rgb(240, 240, 240);
+}
+
 .mh-280 {
     max-height: 280px;
 }
@@ -740,6 +772,9 @@ body {
     border-radius: 0;
 }
 
+.comment-anim {
+    animation: comment-anim 1.6s infinite normal;
+}
 .simple-anim {
     animation: simple-anim 2.3s infinite normal;
 }
@@ -757,6 +792,34 @@ body {
 }
 .customizable-anim {
     animation: customizable-anim 1s infinite normal;
+}
+.landscape-form-anim {
+    animation: landscape-anim;
+    animation-duration: 2.25s;
+    animation-direction: normal;
+    animation-iteration-count: infinite;
+    animation-delay: 0.75s;
+}
+
+@keyframes comment-anim {
+    0% {
+        transform: rotate(0);
+    }
+    20% {
+        transform: rotate(220deg);
+    }
+    40% {
+        transform: rotate(180deg);
+    }
+    60% {
+        transform: rotate(-30deg);
+    }
+    80% {
+        transform: rotate(15deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
 }
 
 @keyframes customizable-anim {
@@ -847,24 +910,36 @@ body {
     }
 }
 
+@keyframes landscape-anim {
+    0% {
+        transform: rotate(0);
+    }
+    50% {
+        transform: rotate(-90deg);
+    }
+    100% {
+        transform: rotate(0);
+    }
+}
+
 @keyframes simple-anim {
     0% {
         transform: translate(0, 0);
     }
     20% {
-        transform: translate(-12px, -16px);
+        transform: translate(12px, 0);
     }
     40% {
-        transform: translate(24px, 16px);
+        transform: translate(24px, 0);
     }
    60% {
-        transform: translate(-8px, -12px);
+        transform: translate(-12px, 0);
     }
     80% {
-        transform: translate(-10px, -10px);
+        transform: translate(-24px, 0);
     }
     100% {
-        transform: translate(-4px, -6px);
+        transform: translate(-6px, 0);
     }
 }
 

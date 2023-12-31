@@ -436,7 +436,7 @@ namespace ApplicationY.Controllers
                     int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                     int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                     int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
-                    int FullProjectsCount = await _projectRepository.GetProjectsCount();
+                    int FullProjectsCount = await _projectRepository.GetProjectsCount(0);
                     double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
                     double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount  * 100, 1);
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id, ProjectInfo.MainPhotoId);
@@ -517,5 +517,18 @@ namespace ApplicationY.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserProjects(int Id)
+        {
+            IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(Id, 0, false, false);
+            if(Projects_Preview != null)
+            {
+                List<Project?>? Projects = await Projects_Preview.ToListAsync();
+                if (Projects != null) return Json(new { success = true, result = Projects, count = Projects.Count });
+            }
+            return Json(new { success = false, alert = "We haven't found any project from this user so, there's nothing to load" });
+        }
+
     }
 }

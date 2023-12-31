@@ -4,7 +4,6 @@
 
     GetUserInfo_ViewModel? CurrentUserInfo = ViewBag.CurrentUserInfo;
     User? UserInfo = ViewBag.UserInfo;
-    List<Project?>? Projects = ViewBag.UserProjects;
     int ProjectsCount = ViewBag.ProjectsCount;
     bool IsSubscribed = ViewBag.IsSubscribed;
 }
@@ -89,10 +88,10 @@
         <div class="smallside-box-container shadow-standard scrollbar-hidden" id="ProjectsList_Container">
             <div class="header-container p-3 pb-2" id="ProjectsList_Container-Header">
                 <button type="button" class="btn btn-close float-end ms-1" id="ProjectsList_Container-Close" aria-label="close"></button>
-                <h5 class="h5 text-truncate">Projects, <span id="ProjectsCount_Span">@ProjectsCount.ToString("N0")</span></h5>
+                <h5 class="h5 text-truncate">Projects</h5>
             </div>
-            <div class="mt-2 p-3 pt-0">
-                @foreach(Project Item in ViewBag.UserProjects)
+            <div class="mt-2 p-3 pt-0" id="UserProjects_Box">
+@*                 @foreach(Project Item in ViewBag.UserProjects)
                 {
                     <div class="bordered-container p-2 mt-1 mb-1">
                         <small class="badge bg-light text-dark warning-badge safe-font fw-normal float-end ms-1">@Item.Views.ToString("N0") views</small>
@@ -123,7 +122,7 @@
                             <small class="card-text"> <i class="fas fa-redo-alt"></i> Updated: @Item.LastUpdatedAt.ToShortDateString(), at @Item.LastUpdatedAt.ToShortTimeString()</small>
                         </div>
                     </div>
-                }
+                } *@
             </div>
         </div>
     }
@@ -238,7 +237,10 @@
                     </div>
                 </div>
                 <div>
-                    <button type="button" class="btn btn-sm w-100 side-single-btn mt-1 smallside-btn-open-container" id="ProjectsList_Container-OpenY">Projects ∙ @ProjectsCount</button>
+                    <form method="get" asp-controller="Project" asp-action="GetUserProjects" id="GetUserProjects_Form">
+                        <input type="hidden" name="Id" value="@CurrentUserInfo.Id" />
+                        <button type="submit" class="btn btn-sm w-100 side-single-btn mt-1 smallside-btn-open-container">Projects ∙ @ProjectsCount</button>
+                    </form>
                 </div>
             </div>
             @if (CurrentUserInfo.ProfilePhoto != null)
@@ -359,6 +361,7 @@
                         {
                             <div class="col">
                                 <small class="card-text safe-font">He/She's an</small>
+                                <div></div>
                                 <small class="card-text text-muted">individual creator</small>
                             </div>
                             <div class="col">

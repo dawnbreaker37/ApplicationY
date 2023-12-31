@@ -8,6 +8,7 @@ let fullWidth = 0;
 let fullHeigth = 0;
 let lastContainerName = undefined;
 let currentContainerName = null;
+let bufferText;
 
 window.onload = function () {
     let currentUrl = document.location.href;
@@ -16,7 +17,7 @@ window.onload = function () {
     fullHeigth = window.innerHeight;
     displayCorrect(fullWidth);
 
-    animatedOpen(false, "Preload_Container", true);
+    animatedOpen(false, "Preload_Container", true, true);
     navBarBtnSelector(document.location.href);
 
     if (currentUrl.toLowerCase().includes("/profile")) {
@@ -856,6 +857,55 @@ $("#CreatePost_Form").on("submit", function (event) {
     });
 });
 
+$("#GetAllCategories_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            let categoryName = $("#CategoryInfo_Name_Val").val();
+            $("#CategoriesInfo_Box").empty();
+            $("#AvailableCategories_Span").text(response.count);
+            $.each(response.categories, function (index) {
+                let div = $("<div class='bordered-container p-2 mt-1 mb-1'></div>");
+                let icon = $("<h2 class='h2'></h2>");
+                let name = $("<h5 class='h5 safe-font'></h5>");
+                let description = $("<small class='card-text text-muted'></small>");
+                let currentCategoryName = response.categories[index].name;
+
+                if (currentCategoryName != categoryName) {
+                    icon.html(response.categories[index].description);
+                    name.text(response.categories[index].name);
+                    div.append(icon);
+                    div.append(name);
+                }
+                else {
+                    icon.html(response.categories[index].description);
+                    name.text(response.categories[index].name);
+                    description.text("Current project category");
+                    div.append(icon);
+                    div.append(name);
+                    div.append(description);
+                }
+                $("#CategoriesInfo_Box").append(div);
+            });
+        }
+        else {
+            let div = $("<div class='bordered-container p-2'></div>");
+            let icon = $("<h3 class='h3'> <i class='fas fa-stream'></i> </h3>");
+            let name = $("<h6 class='h6 safe-font'>No Categories</h6>");
+            let description = $("<small class='card-text text-muted'>No currently available categories for now</small>");
+
+            div.append(icon);
+            div.append(name);
+            div.append(description);
+            $("#CategoriesInfo_Box").append(div);
+        }
+        animatedOpen(false, "AboutCategories_Container", false, false);
+    });
+});
+
 $("#GetFullProject_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -1142,6 +1192,43 @@ $("#GetFullProject_Form").on("submit", function (event) {
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
+        }
+    });
+});
+
+$("#GetUserProjects_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#UserProjects_Box").empty();
+            $.each(response.result, function (index) {
+                let mainDiv = $("<div class='bordered-container p-2 mt-1 mb-1'></div>");
+                let heading = $("<a class='h5 text-decoration-none text-primary'></a>");
+                let viewsCountBadge = $("<span class='badge warning-badge bg-light text-dark p-1 fw-normal'></span>");
+                let description = $("<small class='card-text white-space-on'></small>");
+                let separator = $("<div class='mt-2'></div>");
+                let dateTimeBadge = $("<small class='card-text text-muted'></small>");
+
+                heading.attr("href", "/Project/Info" + response.result[index].id);
+                heading.text(response.result[index].name);
+                viewsCountBadge.text(response.result[index].views.toLocaleString() + " views");
+                description.html(response.result[index].description);
+                dateTimeBadge.text(convertDateAndTime(response.result[index].createdAt, false, false));
+
+                mainDiv.append(viewsCountBadge);
+                mainDiv.append(heading);
+                mainDiv.append(dateTimeBadge);
+                mainDiv.append(separator);
+                mainDiv.append(description);
+                $("#UserProjects_Box").append(mainDiv);
+            });
+            smallBarAnimatedOpenAndClose(true);
+            animatedOpen(false, "ProjectsList_Container", false, false);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
         }
     });
 });
@@ -2316,12 +2403,12 @@ $("#AddOptionSbmt_Btn").on("click", function () {
     let value1 = $("#AddOption_Val1").val();
     let value2 = $("#AddOption_Val2").val();
     let value3 = $("#AddOption_Val3").val();
+    value3 = value3 == "" ? null : value3;
     let whereAndFrom = $("#AddOption_WhereAndFrom_Val").val();
-
     if (type != 0) {
         animatedOpen(false, "EditDescription_Container", true, false);
         if (value3 == null) addOptionToText(whereAndFrom, type, value1, value2);
-        else addOptionToText(whereAndFrom, type, value1, value3);
+        else addOptionToText(whereAndFrom, type, value1, value3, value2);
         $("#AddOption_Val1").val(null);
         $("#AddOption_Val2").val(null);
         $("#AddOption_Val3").val(null);
@@ -3375,10 +3462,11 @@ $(document).on("click", ".add-option", function (event) {
     $("#AddOption_Type_Val").val(type);
     $("#AddOption_WhereAndFrom_Val").val(whereAndFrom);
     $("#ColorOption_Box").addClass("d-none");
+    $("#AddOption_Val2_Label").text("Enter Link");
+    $("#AddOption_Val2").attr("disabled", true);
     switch (type) {
         case 1:
             $("#AddOption_Badge").html("Bold Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
         case 2:
             $("#AddOption_Badge").html("Link Text");
@@ -3386,33 +3474,75 @@ $(document).on("click", ".add-option", function (event) {
             break;
         case 3:
             $("#AddOption_Badge").html("Underlined Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
         case 4:
             $("#AddOption_Badge").html("Italic Styled Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
         case 5:
             $("#AddOption_Badge").html("Colored Text");
-            $("#AddOption_Val2").attr("disabled", true);
             $("#ColorOption_Box").removeClass("d-none");
             break;
         case 6:
             $("#AddOption_Badge").html("Included Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
         case 7:
             $("#AddOption_Badge").html("Heading Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
         case 8:
             $("#AddOption_Badge").html("Alternative Font Family");
-            $("#AddOption_Val2").attr("disabled", true);
+            break;
+        case 9:
+            $("#AddOption_Val2_Label").text("Enter Hint");
+            $("#AddOption_Badge").html(" <i class='far fa-lightbulb text-warning'></i> Hinted text");
+            $("#AddOption_Val2").attr("disabled", false);
+            break;
+        case 10:
+            $("#AddOption_Val2_Label").text("Enter Text Color");
+            $("#AddOption_Badge").html("Backgrounded text");
+            $("#AddOption_Val2").attr("disabled", false);
+            $("#AddOption_Val2").val("black");
+            $("#ColorOption_Box").removeClass("d-none");
             break;
         default:
             $("#AddOption_Badge").html("Bold Text");
-            $("#AddOption_Val2").attr("disabled", true);
             break;
+    }
+});
+
+$(document).on("click", ".to-uppercase", function (event) {
+    let element = getTrueId(event.target.id);
+    if (element != null) {
+        $(this).addClass("to-standardcase");
+        $(this).addClass("text-primary");
+        $(this).removeClass("to-uppercase");
+        $(this).removeClass("to-uppercase");
+        $(this).html(" <i class='fas fa-chevron-up disabled'></i> Uppercased");
+        let text = $("#" + element).val();
+        bufferText = text;
+        text = text.toUpperCase();
+        $("#" + element).val(text);
+    }
+});
+$(document).on("click", ".to-standardcase", function (event) {
+    let element = getTrueId(event.target.id);
+    if (element != null) {
+        $(this).addClass("to-uppercase");
+        $(this).removeClass("text-primary");
+        $(this).removeClass("to-standardcase");
+        $(this).html(" <i class='fas fa-chevron-up disabled'></i> Uppercase");
+        let text = $("#" + element).val();
+        let bufferTextLength = bufferText.length;
+        let addedText = text.substring(bufferTextLength, text.length);
+        text = bufferText + addedText;
+        $("#" + element).val(text);
+    }
+});
+
+$(document).on("click", ".to-randomise", function (event) {
+    let element = getTrueId(event.target.id);
+    if (element != null) {
+        let randomNumber = Math.floor(Math.random() * 100);
+        openModal("You've randomised this number. Click to paste it into your text", "Paste", "Close", 3, element, 2, null, 3.75, randomNumber);
     }
 });
 
@@ -3461,9 +3591,11 @@ $(".main-container").on("scroll", function (event) {
                     $("#" + trueId + "-Header").addClass("border-bottom");
                 }, 150);
                 setTimeout(function () {
-                    $("#" + trueId + "-Hanging").fadeIn(50);
                     $("#" + trueId + "-Hanging").css("top", containerTop + "px");
-                }, 200);
+                    setTimeout(function () {
+                        $("#" + trueId + "-Hanging").fadeIn(125);
+                    }, 100);
+                }, 300);
                 isScrolled = true;
             }
         }
@@ -3640,6 +3772,8 @@ function textDecoder(element, isFromText, needsTheReplacement) {
     value = value.replaceAll("{[", "<span class='text-decoration-underline'>");
     value = value.replaceAll("[^", "<span class='fst-italic'>");
     value = value.replaceAll('[&', '<span style="');
+    value = value.replaceAll("[?", "<span class='text-decoration-underline info-popover'");
+    value = value.replaceAll("[`", '<span class="rounded-corners-text" style="');
     value = value.replaceAll("[=", "<div class='bordered-container p-2 mt-2'><p class='card-text'>");
     value = value.replaceAll("=]", "</p></div>");
 
@@ -3649,6 +3783,20 @@ function textDecoder(element, isFromText, needsTheReplacement) {
     }
 
     return value;
+}
+
+function pasteTo(element, value) {
+    let currentTxt = $("#" + element).val();
+    let secondTxtPart = null;
+    let cursorPosition = $("#" + element).prop("selectionStart");
+    if (cursorPosition != 0) {
+        secondTxtPart = currentTxt.substring(cursorPosition, currentTxt.length);
+        currentTxt = currentTxt.substring(0, cursorPosition);
+    }
+
+    if (secondTxtPart) currentTxt = currentTxt + value + secondTxtPart;
+    else currentTxt = currentTxt + " " + value;
+    $("#" + element).val(currentTxt);
 }
 
 function copyToClipboard(element, isFromText, copyTheMainLink) {
@@ -3757,7 +3905,7 @@ function findUserBySearchname(value) {
     return additionalArray;
 }
 
-function addOptionToText(element, type, value1, value2) {
+function addOptionToText(element, type, value1, value2, value3) {
     let textBefore;
     let textAfter;
     let text = $("#" + element).val();
@@ -3791,6 +3939,13 @@ function addOptionToText(element, type, value1, value2) {
             break;
         case 8:
             textBefore = textBefore + "[-" + value1 + "]]";
+            break;
+        case 9:
+            let randomId = "PopoverId-" + Math.floor(Math.random() * 3500);
+            textBefore = textBefore + "[? id='" + randomId +"' data-bs-container='body' data-bs-custom-class='info-popover-show shadow-sm' data-bs-toggle='popover' data-bs-placement='top' data-bs-content='" + value2 + "' > " + value1 + "]]";
+            break;
+        case 10:
+            textBefore = textBefore + '[` color:' + value2 + ';'  +'background-color: ' + value3 + '; ">' + value1 + ']]';
             break;
         default:
             textBefore = textBefore + " [[" + value1 + "]]";
@@ -4010,7 +4165,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
 
     if (btn1Txt == null) $("#MMC_FirstBtn").html("Close");
     else $("#MMC_FirstBtn").html(btn1Txt);
-    if (btn2Txt == null) $("#MMC_SecondBtn").html(null);
+    if (btn2Txt == null && btn1Txt != null) $("#MMC_SecondBtn").html("Close");
     else $("#MMC_SecondBtn").html(btn2Txt);
 
     if (btn1WhatToDo != null) {
@@ -4033,9 +4188,13 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                     closeContainerBubbleAnimation("MainModal_Container", true);
                 });
                 break;
+            case 3:
+                $("#MMC_FirstBtn").on("click", function () {
+                    pasteTo(btn1Action, icon);
+                });
             case 4:
                 $("#MMC_FirstBtn").on("click", function () {
-                    smallBarAnimatedOpenAndClose(true);
+/*                    smallBarAnimatedOpenAndClose(true);*/
                     animatedOpen(false, btn1Action, false, false);
                     $("#MainModal_Container").css("bottom", "-1200px");
                     $("#MainModal_Container").fadeOut(300);
@@ -4066,6 +4225,19 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
             case 2:
                 $("#MMC_SecondBtn").on("click", function () {
                     closeContainerBubbleAnimation("MainModal_Container", true);
+                });
+                break;
+            case 3:
+                $("#MMC_SecondBtn").on("click", function () {
+                    pasteTo(btn2Action, icon);
+                });
+                break;
+            case 4:
+                $("#MMC_SecondBtn").on("click", function () {
+                    /*                    smallBarAnimatedOpenAndClose(true);*/
+                    animatedOpen(false, btn1Action, false, false);
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
                 });
                 break;
             default:
@@ -4107,7 +4279,7 @@ function navBarBtnSelector(href) {
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
         $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
     }
-    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
+    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("info")  || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
         $("#HomeLink_Btn").fadeOut(0);
         $("#FirstReserve_Btn").fadeIn(0);
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
@@ -4119,14 +4291,14 @@ function displayCorrect(width) {
     let botOffNavbarH = $("#MainBotOffNavbar").innerHeight();
     let neededH = fullHeigth - 24 - botOffNavbarH;
     let sideBarStatus = $("#Main_SideBar").css("margin-left");
+    sideBarStatus = sideBarStatus == undefined ? -1200 : parseInt(sideBarStatus);
 
     $(".main-container").css("height", neededH + "px");
     $(".main-container").css("max-height", neededH + "px");
     $(".bubble-container").css("max-height", neededH + "px");
     $(".smallside-box-container").css("max-height", neededH + "px");
     $(".btn-right-bottom-fixed").css("bottom", botNavbarH + 10 + "px");
-
-    if (sideBarStatus < 0 || sideBarStatus == undefined) {
+    if (sideBarStatus < 0) {
         $("#MainBotOffNavbar").css("width", "100%");
         $(".main-container").css("width", "100%");
         $(".main-container").css("left", 0);
@@ -4154,7 +4326,6 @@ function displayCorrect(width) {
             $("#MainBotOffNavbar").css("left", 0);
             $("#Main_SideBar").css("left", "-1200px");
             $("#Main_SideBar").css("width", "100%");
-            $("#MainBotOffNavbar_Box").css("width", "100%");
             $("#Main_SideBar").fadeOut(0);
         }
         else {
@@ -4287,8 +4458,10 @@ function bubbleAnimation(element, isForOpening) {
 function animatedOpen(forAll, element, sticky, closeOtherContainers) {
     let botOffNavbarH = $("#MainBotOffNavbar").innerHeight();
 
-    smallBarAnimatedOpenAndClose(false);
-    if (closeOtherContainers) animatedClose(true, "main-container");
+    if (closeOtherContainers) {
+        smallBarAnimatedOpenAndClose(false);
+        animatedClose(true, "main-container");
+    }
     else animatedClose(true, "smallside-box-container");
     setTimeout(function () {
         if (forAll) {
@@ -4457,7 +4630,7 @@ function gameOne(type) {
 
 function animatedClose(forAll, element) {
     if (forAll) {
-        $("." + element).css("z-index", -100);
+        $("." + element).css("z-index", "-100");
         $("." + element).css("bottom", "-1200px");
         $(".card-box-container").css("bottom", "-1200px");
         $("." + element).fadeOut(250);
@@ -4465,7 +4638,7 @@ function animatedClose(forAll, element) {
     }
     else {
         $("#" + element + "-Header").fadeOut(50);
-        $("#" + element).css("z-index", -100);
+        $("#" + element).css("z-index", "-100");
         $("#" + element).css("bottom", "-1200px");
         $("#" + element + "-CardBox").css("bottom", "-1200px");
         $("#" + element).fadeOut(250);
