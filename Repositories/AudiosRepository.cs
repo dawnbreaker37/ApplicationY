@@ -15,7 +15,7 @@ namespace ApplicationY.Repositories
             _webHostEnvironment = webHostEnvironment;
         }
 
-        public async Task<List<string>?> CreateAudioAsync(int ProjectId, IFormFileCollection Audios, string Description)
+        public async Task<List<string>?> CreateAudioAsync(int ProjectId, IFormFileCollection Audios, List<string> Titles)
         {
             if(ProjectId != 0 && Audios != null)
             {
@@ -30,7 +30,7 @@ namespace ApplicationY.Repositories
                         if (Audios[i] != null)
                         {
                             string? Extension = Path.GetExtension(Audios[i].FileName);
-                            string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 8);
+                            string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 9);
                             string? FullFileName = string.Concat(NewFileName, Extension);
 
                             using(FileStream fs= new FileStream(_webHostEnvironment.WebRootPath + "/ProjectAudios/" + FullFileName, FileMode.Create))
@@ -38,7 +38,7 @@ namespace ApplicationY.Repositories
                                 await Audios[i].CopyToAsync(fs);
                                 Audio audio = new Audio
                                 {
-                                    Description = Description,
+                                    Title = Titles[i],
                                     IsRemoved = false,
                                     ProjectId = ProjectId,
                                     Name = FullFileName
@@ -51,6 +51,16 @@ namespace ApplicationY.Repositories
                         return FileNames;
                     }
                 }
+            }
+            return null;
+        }
+
+        public async Task<string?> EditAudioTitleAsync(int Id, string Title)
+        {
+            if((Id != 0) && (!String.IsNullOrEmpty(Title) && Title.Length <= 40))
+            {
+                int Result = await _context.Audios.Where(a => a.Id == Id && !a.IsRemoved).ExecuteUpdateAsync(a => a.SetProperty(a => a.Title, Title));
+                if (Result != 0) return Title;
             }
             return null;
         }

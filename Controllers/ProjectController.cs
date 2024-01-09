@@ -230,6 +230,14 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditAudioTitle(int Id, string Title)
+        {
+            string? Result = await _audiosRepository.EditAudioTitleAsync(Id, Title);
+            if (Result != null) return Json(new { success = true, alert = "Selected audio title has been successfully updated" });
+            else return Json(new { success = false, alert = "Unable to edit selected audio's title. Please, try again later" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> SetAsMainImg(int Id, int ProjectId)
         {
             int Result = await _imagesRepository.SetAsMainAsync(Id, ProjectId);
@@ -247,6 +255,14 @@ namespace ApplicationY.Controllers
                 else return Json(new { success = false, alert = "An error occured while trying to edit your project audio files. Please, try again later" });
             }
             else return Json(new { success = false, alert = "Something went wrong so we can't add these audios" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveAudio(int Id, int ProjectId)
+        {
+            int Result = await _audiosRepository.RemoveAudioAsync(Id, ProjectId);
+            if (Result != 0) return Json(new { success = true, alert = "Selected audio has been successfully removed from your project", result = Result });
+            else return Json(new { success = false, alert = "Unable to remove this project. Please, try again later" });
         }
 
         [HttpPost]

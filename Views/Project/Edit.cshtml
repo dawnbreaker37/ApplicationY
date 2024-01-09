@@ -21,6 +21,14 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="post" asp-controller="Project" asp-action="EditAudioTitle" id="EditAudioTitle_Form">
+                <input type="hidden" name="Id" id="EAT_Id_Val" value="0" />
+                <input type="hidden" name="Title" id="EAT_Title_Val" value="" />
+            </form>
+            <form method="post" asp-controller="Project" asp-action="RemoveAudio" id="RemoveAudio_Form">
+                <input type="hidden" name="Id" id="RA_Id_Val" value="0" />
+                <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
+            </form>
         </div>
     }
 
@@ -30,7 +38,7 @@
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-pencil-alt"></i> <br />Edit</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Info_Container-Open"> <i class="fas fa-info-circle"></i> <br />Info</button>
+                <a asp-controller="Project" asp-action="Info" asp-route-Id="@ProjectInfo.Id" class="btn btn-navbar btn-sm w-100"> <i class="far fa-folder-open"></i> <br />Project</a>
             </div>
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
@@ -175,16 +183,19 @@
                     <div class="mt-2">
                         @foreach (Audio Item in ViewBag.Audios)
                         {
-                            <div class="mt-1 mb-1">
+                            <div class="mt-1 mb-1" id="AudioFullBox-@Item.Id">
                                 <input type="hidden" id="AudioSrc-@Item.Id" value="/ProjectAudios/@Item.Name" />
                                 <div class="box-container bg-light p-2">
-                                    <h6 class="h6 safe-font ms-1" id="AudioFileName-@Item.Id">@Item.Name</h6>
-                                    <div class="d-inline-block mt-1">
+                                    <div>
+                                        <input type="text" class="no-borders-form-control edit-audio-form-control" autocomplete="off" maxlength="40" id="EditAudioTitle-@Item.Id" value="@Item.Title" placeholder="Enter audio's title" />
+                                    </div>
+                                    <div class="d-inline-block mt-2">
                                         <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-audio-backward me-1" id="AudioBackwardBtn-@Item.Id"> <i class="fas fa-backward btn-audio-backward" id="AudioBackwardIcon-@Item.Id"></i> </button>
                                         <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-play-audio me-1" id="PlayAudioBtn-@Item.Id"> <i class="fas fa-play btn-play-audio" id="PlayAudioIcon-@Item.Id"></i> </button>
                                         <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-pause-audio me-1 d-none" id="PauseAudioBtn-@Item.Id"> <i class="fas fa-pause btn-pause-audio" id="PauseAudioIcon-@Item.Id"></i> </button>
                                         <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-mute-audio me-1" id="MuteAudioBtn-@Item.Id"> <i class="fas fa-volume-up btn-mute-audio" id="MuteAudioIcon-@Item.Id"></i> </button>
                                         <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-unmute-audio me-1 d-none" id="UnmuteAudioBtn-@Item.Id"> <i class="fas fa-volume-mute btn-unmute-audio" id="UnmuteAudioIcon-@Item.Id"></i> </button>
+                                        <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-remove-audio me-1" id="RemoveAudio-@Item.Id"> <i class="fas fa-times btn-remove-audio text-danger" id="RemoveAudioIcon-@Item.Id"></i> </button>
                                         <small class="card-text pt-4 fw-500" id="AudioDuration-@Item.Id">00:00/00:00</small>
                                         <div class="box-container bg-secondary rounded-pill mt-1 ms-1 standard-transition">
                                             <div class="box-container bg-dark audio-progress rounded-pill" id="AudioDurationProgress-@Item.Id" style="width: 0; height: 5px;"></div>
@@ -195,6 +206,9 @@
                                         <source src="/ProjectAudios/@Item.Name" type="audio/ogg" />
                                     </audio>
                                 </div>
+                            </div>
+                            <div class="mt-2">
+                                <small class="card-text text-muted mt-2">Select audio's title to edit it</small>
                             </div>
                         }
                     </div>

@@ -93,6 +93,30 @@
             </div>
         </div>
 
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AudioPlayerLg_Container">
+            <div class="p-4">
+                <div class="row">
+                    <div class="col col-lg-3 col-md-4 col-sm-4">
+                        <div class="box-container bg-light text-center p-3">
+                            <h3 class="h3" id="AudioMainStatusIcon_Lbl"> <i class="fas fa-play btn-pause-audio"></i> </h3>
+                        </div>
+                    </div>
+                    <div class="col col-lg-9 col-md-8 col-sm-8 p-2 pe-0">
+                        <h5 class="h5" id="AudioMainTitle_Lbl">Audio Title</h5>
+                        <small class="card-text text-muted" id="AudioMainStatus_Lbl">Playing</small>
+                    </div>
+                </div>
+                <div class="mt-2">
+                    <small class="card-text float-end ms-1 me-1" id="AudioMainMuted_Icon" style="display: none;"> <i class="fas fa-volume-mute"></i> </small>
+                    <small class="card-text d-inline" id="AudioMainCurrentDuration_Lbl">00:00/00:00</small>
+                    <small class="card-text text-muted" id="AudioMainDurationLeft_Lbl"></small>
+                    <div class="box-container bg-secondary rounded-pill mt-1 standard-transition">
+                        <div class="box-container bg-dark audio-progress rounded-pill" id="AudioDurationMainProgress" style="width: 0; height: 5px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
         <div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserShortInfo_Container">
             <div class="header-container p-3 pb-2" id="UserShortInfo_Container-Header">
                 <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserShortInfo_Container-Close"></button>
@@ -731,7 +755,14 @@
                                 <div class="mt-1 mb-1">
                                     <input type="hidden" id="AudioSrc-@Item.Id" value="/ProjectAudios/@Item.Name" />
                                     <div class="box-container bg-light p-2">
-                                        <h6 class="h6 safe-font ms-1" id="AudioFileName-@Item.Id">@Item.Name</h6>
+                                        @if(Item.Title != null) 
+                                        {
+                                            <h6 class="h6 safe-font ms-1" id="AudioFileName-@Item.Id">@Item.Title</h6>
+                                        }
+                                        else
+                                        {
+                                            <h6 class="h6 safe-font ms-1" id="AudioFileName-@Item.Id">@Item.Name</h6>
+                                        }
                                         <div class="d-inline-block mt-1">
                                             <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-audio-backward me-1" id="AudioBackwardBtn-@Item.Id"> <i class="fas fa-backward btn-audio-backward" id="AudioBackwardIcon-@Item.Id"></i> </button>
                                             <button type="button" class="btn btn-light btn-standard-with-no-colour border-0 btn-sm btn-play-audio me-1" id="PlayAudioBtn-@Item.Id"> <i class="fas fa-play btn-play-audio" id="PlayAudioIcon-@Item.Id"></i> </button>

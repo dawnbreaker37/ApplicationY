@@ -336,7 +336,7 @@ html {
     border-bottom: 1px solid transparent;
 }
 .smallside-modal-container {
-    z-index: 1;
+    z-index: 0;
     border: 1px solid transparent;
     background-color: #f8f9fa;
     border-radius: 8px;
@@ -345,6 +345,25 @@ html {
     transition: all ease 0.45s;
     bottom: -1200px;
     display: none;
+}
+
+.no-borders-form-control {
+    margin: 0 6px 0 6px;
+    width: 100%;
+    cursor: pointer;
+    padding: 0;
+    font-weight: 400;
+    outline: none;
+    border: 0;
+    border-radius: 8px;
+    background-color: transparent;
+    transition: all ease 0.3s;
+}
+.no-borders-form-control:hover,
+.no-borders-form-control:active {
+    margin: 0;
+    padding: 6px 12px 6px 12px;
+    background-color: #fdfdfd;
 }
 
 .header-container {
