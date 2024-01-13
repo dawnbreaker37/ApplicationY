@@ -162,7 +162,7 @@ namespace ApplicationY.Repositories
 
         public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
         {
-            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.ISO + ", " + u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, IsVerifiedAccount = u.IsVerified, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
             else return null;
         }
 

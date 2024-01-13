@@ -232,7 +232,6 @@ html {
     border: 1px solid rgb(240, 240, 240);
     font-weight: 500;
     background-color: transparent;
-    transition: all ease 0.3s;
     background: linear-gradient(to left, transparent 50%, rgb(240, 240, 240) 50%) right;
     background-size: 200%;
     transition: 0.25s ease-out;
@@ -240,7 +239,6 @@ html {
 .side-single-btn:hover,
 .side-single-btn:active {
     background-position: left;
-    border: 1px solid white;
 }
 
 @keyframes btn-fill-animation {

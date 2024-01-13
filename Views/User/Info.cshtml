@@ -75,7 +75,7 @@
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenX"> <i class="far fa-user-circle"></i> <br />About</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="SendMessage_Container-OpenY"> <i class="fas fa-reply"></i> <br /> Send Msg</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="SendMessage_Container-OpenY"> <i class="far fa-comments"></i> <br /> Send Msg</button>
             </div>
             <div class="col d-lg-none d-md-none d-xl-none d-sm-block">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-OpenY"> <i class="fas fa-times text-danger"></i> <br />Close</button>
@@ -91,38 +91,6 @@
                 <h5 class="h5 text-truncate">Projects</h5>
             </div>
             <div class="mt-2 p-3 pt-0" id="UserProjects_Box">
-@*                 @foreach(Project Item in ViewBag.UserProjects)
-                {
-                    <div class="bordered-container p-2 mt-1 mb-1">
-                        <small class="badge bg-light text-dark warning-badge safe-font fw-normal float-end ms-1">@Item.Views.ToString("N0") views</small>
-                        <h4 class="h4 safe-font"><a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.Id" class="text-decoration-none">@Item.Name</a></h4>
-                        @if(Item.TargetPrice != 0)
-                        {
-                            <h6 class="h6 fw-normal text-success"><span class="text-muted">Target: </span>$@Item.TargetPrice.ToString("N0")</h6>
-                            @if(Item.PastTargetPrice != 0)
-                            {
-                                <small class="card-text text-danger text-decoration-line-through">$@Item.PastTargetPrice.ToString("N0")</small>
-                            }
-                        }
-                        else
-                        {
-                            <h6 class="h6 text-muted fw-normal">No Target Price</h6>
-                            @if (Item.PastTargetPrice != 0)
-                            {
-                                <small class="card-text text-danger text-decoration-line-through">$@Item.PastTargetPrice.ToString("N0")</small>
-                            }
-                        }
-                        <div class="mt-3"></div>
-                        <small class="card-text white-space-on">@Item.Description</small>
-                        <div class="bg-light box-container p-2 mt-2">
-                            <small class="card-text text-muted">Additional</small>
-                            <div class="border-top mt-1 pt-1"></div>
-                            <small class="card-text"> <i class="far fa-calendar-alt"></i> Created: @Item.CreatedAt.ToShortDateString(), at @Item.CreatedAt.ToShortTimeString()</small>
-                            <div class="mt-1"></div>
-                            <small class="card-text"> <i class="fas fa-redo-alt"></i> Updated: @Item.LastUpdatedAt.ToShortDateString(), at @Item.LastUpdatedAt.ToShortTimeString()</small>
-                        </div>
-                    </div>
-                } *@
             </div>
         </div>
     }
@@ -183,7 +151,9 @@
 <div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end" aria-label="Close" id="Preload_Container-Close"></button>
-        <h5 class="h5 text-truncate">@CurrentUserInfo.PseudoName</h5>
+        <span class="h5 text-truncate">@CurrentUserInfo.PseudoName</span>
+        <div></div>
+        <small class="card-text text-muted">@ProjectsCount projects created</small>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-2">
@@ -236,11 +206,14 @@
                         </div>
                     </div>
                 </div>
-                <div>
+                <div id="GetProjectsForm_Box">
                     <form method="get" asp-controller="Project" asp-action="GetUserProjects" id="GetUserProjects_Form">
                         <input type="hidden" name="Id" value="@CurrentUserInfo.Id" />
                         <button type="submit" class="btn btn-sm w-100 side-single-btn mt-1 smallside-btn-open-container">Projects ∙ @ProjectsCount</button>
                     </form>
+                </div>
+                <div style="display: none;" id="GetProjectsButton_Box">
+                    <button type="button" class="btn btn-sm w-100 side-single-btn mt-1 smallside-btn-open-container" id="ProjectsList_Container-Open">Projects ∙ @ProjectsCount</button>
                 </div>
             </div>
             @if (CurrentUserInfo.ProfilePhoto != null)
@@ -250,8 +223,16 @@
                 </div>
                 <div class="mt-1"></div>
             }
-            <h3 class="display-5 main-title-font-style">@CurrentUserInfo.PseudoName</h3>
-            <div class="mt-2 ms-1">
+            @if(CurrentUserInfo.IsVerifiedAccount)
+            {
+                <span class="h1 main-title-font-style info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="This account if officially verified">@CurrentUserInfo.PseudoName <span class="fs-2"><i class="fas fa-certificate text-official"></i></span> </span>
+            }
+            else
+            {
+                <span class="h1 main-title-font-style">@CurrentUserInfo.PseudoName</span>
+            }
+            <p class="text-muted p-0">@@@CurrentUserInfo.SearchName</p>
+            <div class="mt-3">
                 @if (CurrentUserInfo.Description != null)
                 {
                     <small class="card-text white-space-on mt-2" id="ProfileDescription_Lbl">@CurrentUserInfo.Description</small>
@@ -261,155 +242,47 @@
                     <small class="card-text mt-2" id="ProfileDescription_Lbl">No Profile Description</small>
                 }
             </div>
-            <div class="box-container mt-2 p-2">
-                <div class="row text-center">
-                    <div class="col">
-                        <small class="card-text text-muted safe-font">Searchname</small>
-                        <p class="card-text">@CurrentUserInfo.SearchName</p>
-                    </div>
-                    <div class="col">
-                        <small class="card-text text-muted safe-font">Subscribers</small>
-                        @if (ViewBag.SubscribersCount != 0)
-                        {
-                            <p class="card-text"><span id="SubscribersCount_Lbl">@ViewBag.SubscribersCount</span> subscribers</p>
-                        }
-                        else
-                        {
-                            <p class="card-text"><span id="SubscribersCount_Lbl">No subscribers</span></p>
-                        }
-                    </div>
+            <div class="mt-3">
+                @if(CurrentUserInfo.Link1 != null)
+                {
+                    <a href="@CurrentUserInfo.Link1" class="btn btn-text btn-sm fw-normal text-primary text-decoration-none"> <i class="fas fa-link text-muted"></i> @CurrentUserInfo.Link1Tag</a>
+                    <div></div>
+                    <small class="card-text text-muted">@CurrentUserInfo.Link1</small>
+                }
+                @if(CurrentUserInfo.Link2 != null)
+                {
+                    <div class="mt-2"></div>
+                    <a href="@CurrentUserInfo.Link2" class="btn btn-text btn-sm fw-normal text-primary text-decoration-none"> <i class="fas fa-link text-muted"></i> @CurrentUserInfo.Link2Tag</a>
+                    <div></div>
+                    <small class="card-text text-muted">@CurrentUserInfo.Link2</small>
+                }
+                @if(CurrentUserInfo.CountryFullName != null)
+                {
+                    <div class="mt-2"></div>
+                    <small class="card-text"> <span class="text-muted"><i class="fas fa-map-marker-alt text-muted"></i> At</span> @CurrentUserInfo.CountryFullName</small>
+                }
+                @if(CurrentUserInfo.IsCompany)
+                {
+                    @if (CurrentUserInfo.CreatedAt != null)
+                    {
+                        <div class="mt-1"></div>
+                        <small class="card-text"> <span class="text-muted"><i class="far fa-calendar-alt"></i> Created</span> @CurrentUserInfo.CreatedAt?.ToString("dd/MM/yyyy")</small>
+                    }
+                }
+                else
+                {
+                    @if (CurrentUserInfo.CreatedAt != null)
+                    {
+                        <div class="mt-1"></div>
+                        <small class="card-text text-muted"> <span class="text-muted"><i class="far fa-calendar-alt"></i> Bornt</span> @CurrentUserInfo.CreatedAt?.ToString("dd/MM/yyyy")</small>
+                    }
+                }
+                <div class="mt-2">
+                    <small class="card-text text-muted"><span class="fw-500 text-dark">@ViewBag.SubscribersCount</span> subscribers ∙ <span class="fw-500 text-dark">@ProjectsCount</span> projects created</small>
                 </div>
             </div>
         </div>
         <div class="mt-2">
-            <div class="card-group">
-                <div class="card box-container p-2 shadow-sm bg-white">
-                    <h6 class="h6">Links</h6>
-                    <div>
-                        @if (CurrentUserInfo.Link1 != null)
-                        {
-                            @if (CurrentUserInfo.Link1Tag != null)
-                            {
-                                <small class="card-text fw-500 safe-font">@CurrentUserInfo.Link1Tag</small>
-                                <div></div>
-                                <a href="@ViewBag.TrueLink1" class="btn btn-text fw-normal btn-sm" id="UserInfo_LinkTag1_Lbl"> <i class="fas fa-external-link-alt text-primary"></i> @CurrentUserInfo.Link1</a>
-                            }
-                            else
-                            {
-                                <small class="card-text">First Link</small>
-                                <div></div>
-                                <small class="card-text" id="UserInfo_LinkTag1_Lbl"> <i class="fas fa-external-link-alt text-primary"></i> @CurrentUserInfo.Link1</small>
-                            }
-                        }
-                        else
-                        {
-                            <small class="card-text">No First Link</small>
-                            <div></div>
-                            <small class="card-text text-muted" id="UserInfo_LinkTag1_Lbl">No Active Link</small>
-                        }
-                    </div>
-                    <div class="mt-2">
-                        @if (CurrentUserInfo.Link2 != null)
-                        {
-                            @if (CurrentUserInfo.Link2Tag != null)
-                            {
-                                <small class="card-text fw-500 safe-font">@CurrentUserInfo.Link2Tag</small>
-                                <div></div>
-                                <a href="@ViewBag.TrueLink2" class="btn btn-text fw-normal btn-sm" id="UserInfo_LinkTag2_Lbl"> <i class="fas fa-external-link-alt text-primary"></i> @CurrentUserInfo.Link2</a>
-                            }
-                            else
-                            {
-                                <small class="card-text fw-500 safe-font">Second Link</small>
-                                <div></div>
-                                <small class="card-text" id="UserInfo_LinkTag2_Lbl"> <i class="fas fa-external-link-alt text-primary"></i> @CurrentUserInfo.Link2</small>
-                            }
-                        }
-                        else
-                        {
-                            <small class="card-text">No Second Link</small>
-                            <div></div>
-                            <small class="card-text text-muted" id="UserInfo_LinkTag2_Lbl">No Active Link</small>
-                        }
-                    </div>
-                </div>
-                <div class="card box-container p-2 shadow-sm bg-white">
-                    <h6 class="h6">Additional</h6>
-                    <div class="row mt-1 text-center">
-                        @if (CurrentUserInfo.IsCompany)
-                        {
-                            <div class="col">
-                                <small class="card-text safe-font">This's a</small>
-                                <div></div>
-                                <small class="card-text text-muted">Company</small>
-                            </div>
-                            <div class="col">
-                                @if (CurrentUserInfo.CreatedAt != null)
-                                {
-                                    <small class="card-text safe-font">Founded at</small>
-                                    <div></div>
-                                    <small class="card-text text-muted">@CurrentUserInfo.CreatedAt?.ToString("dd/MM/yyyy")</small>
-                                }
-                                else
-                                {
-                                    <small class="card-text safe-font">With unknown</small>
-                                    <div></div>
-                                    <small class="card-text text-muted">founding date</small>
-                                }
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="col">
-                                <small class="card-text safe-font">He/She's an</small>
-                                <div></div>
-                                <small class="card-text text-muted">individual creator</small>
-                            </div>
-                            <div class="col">
-                                @if (CurrentUserInfo.CreatedAt != null)
-                                {
-                                    <small class="card-text safe-font">Bornt at</small>
-                                    <div></div>
-                                    <small class="card-text text-muted">@CurrentUserInfo.CreatedAt?.ToShortDateString()</small>
-                                }
-                                else
-                                {
-                                    <small class="card-text safe-font">With unknown</small>
-                                    <div></div>
-                                    <small class="card-text text-muted">born date</small>
-                                }
-                            </div>
-                        }
-                    </div>
-                    <div class="row mt-3 text-center">
-                        <div class="col">
-                            <small class="card-text safe-font">Country</small>
-                            <div></div>
-                            @if(CurrentUserInfo.CountryFullName != null)
-                            {
-                                <small class="card-text text-muted">@CurrentUserInfo.CountryFullName</small>
-                            }
-                            else
-                            {
-                                <small class="card-text text-muted">No Information</small>
-                            }
-                        </div>
-                        <div class="col">
-                            @if(ProjectsCount > 0)
-                            {
-                                <small class="card-text safe-font">Projects Created</small>
-                                <div></div>
-                                <small class="card-text text-muted">@ProjectsCount.ToString("N0")</small>
-                            }
-                            else
-                            {
-                                <small class="card-text safe-font">Projects Info</small>
-                                <div></div>
-                                <small class="card-text text-muted">Haven't created any project yet</small>
-                            }
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="mt-2 box-container bg-transparent">              
                 <h4 class="h4">Posts</h4>
                 @if(ViewBag.PostsCount <= 0)

@@ -103,8 +103,8 @@ namespace ApplicationY.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 bool IsSubscribed = false;
-                string? TrueLink1 = null;
-                string? TrueLink2 = null;
+                //string? TrueLink1 = null;
+                //string? TrueLink2 = null;
 
                 //IQueryable<Project?>? UserProjects = null;
                 IQueryable<GetPost_ViewModel>? Posts = null;
@@ -119,9 +119,7 @@ namespace ApplicationY.Controllers
                     int SubscribersCount = await _subscribeRepository.GetSubscribersCount(CurrentUserInfo.Id);
                     if (UserInfo != null)
                     {
-                        //UserProjects = _projectRepository.GetUsersAllProjects(CurrentUserInfo.Id, UserInfo.Id, false, false);
                         IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
-
                         ViewBag.UserInfo = UserInfo;
                     }
                     Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id);
@@ -147,26 +145,12 @@ namespace ApplicationY.Controllers
                         }
                     }
 
-                    if (CurrentUserInfo.Link1 != null)
-                    {
-                        TrueLink1 = CurrentUserInfo.Link1;
-                        CurrentUserInfo.Link1 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link1);
-                    }
-                    if (CurrentUserInfo?.Link2 != null)
-                    {
-                        TrueLink2 = CurrentUserInfo.Link2;
-                        CurrentUserInfo.Link2 = _userRepository.LinkIconModifier(CurrentUserInfo?.Link2);
-                    }
-
                     ViewBag.CurrentUserInfo = CurrentUserInfo;
                     ViewBag.IsSubscribed = IsSubscribed;
                     ViewBag.Posts = PostsResult;
                     ViewBag.PostsCount = PostsResult == null ? 0 : PostsResult.Count;
                     ViewBag.SubscribersCount = SubscribersCount;
-                    //ViewBag.UserProjects = UserProjectsResult;
                     ViewBag.ProjectsCount = ProjectsCount;
-                    ViewBag.TrueLink1 = TrueLink1;
-                    ViewBag.TrueLink2 = TrueLink2;
 
                     return View();
                 }

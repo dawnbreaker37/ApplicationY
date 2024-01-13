@@ -928,6 +928,8 @@ $("#GetAllCategories_Form").on("submit", function (event) {
                 }
                 $("#CategoriesInfo_Box").append(div);
             });
+            $("#GetCategoriesForm_Box").fadeOut(0);
+            $("#GetCategoriesButton_Box").fadeIn(0);
         }
         else {
             let div = $("<div class='bordered-container p-2'></div>");
@@ -1266,6 +1268,8 @@ $("#GetUserProjects_Form").on("submit", function (event) {
             });
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "ProjectsList_Container", false, false);
+            $("#GetProjectsForm_Box").fadeOut(0);
+            $("#GetProjectsButton_Box").fadeIn(0);
         }
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
@@ -4054,30 +4058,29 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
 
     if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
     else year = " " + dT.getFullYear();
-    //if (dT.getFullYear() == dTCurrent.getFullYear()) year = "";
-    //else {
-    //    if (asShort) year = "/" + dT.getFullYear();
-    //    else year = " " + dT.getFullYear();
-    //}
 
     if (dT.getDate() < 10) day = "0" + dT.getDate();
     else day = dT.getDate();
 
     if (asShort) {
-        if (dTCurrent.getFullYear() == dT.getFullYear()) {
-            yearsFrom = 0;
+        if (dTCurrent.getFullYear() > dT.getFullYear()) {
+            monthsFrom = 11 - dT.getMonth() + dTCurrent.getMonth();
+            daysFrom = dT.getDate() - dTCurrent.getDate();
+            if (dTCurrent.getMonth() >= dT.getMonth()) {
+                yearsFrom = dTCurrent.getFullYear() - dT.getFullYear();
+            }
         }
         else {
-            yearsFrom = dTCurrent.getFullYear() - dT.getFullYear();
+            if (dTCurrent.getMonth() == dT.getMonth()) {
+                monthsFrom = 0;
+                daysFrom = dTCurrent.getDate() - dT.getDate();
+            }
+            else {
+                daysFrom = dTCurrent.getDate() - dT.getDate();
+                monthsFrom = dTCurrent.getMonth() - dT.getMonth();
+            }
         }
-        if (dTCurrent.getMonth() == dT.getMonth()) {
-            monthsFrom = 0;
-            daysFrom = dTCurrent.getDate() - dT.getDate();
-        }
-        else {
-            daysFrom = dTCurrent.getDate() - dT.getDate();
-            monthsFrom = dTCurrent.getMonth() - dT.getMonth();
-        }
+
         if (daysFrom < 0) daysFrom *= -1;
         if (monthsFrom < 0) monthsFrom *= -1;
 
@@ -4746,6 +4749,31 @@ function animatedClose(forAll, element) {
 
 $("#MMC_Text").on("click", function () {
     containerBubbleAnimation("MainModal_Container");
+});
+$("#IsBudget").on("change", function () {
+    let value = $(this).val();
+    value = value == "false" ? false : true;
+    if (value) {
+        smallBarAnimatedOpenAndClose(true);
+        animatedOpen(false, "AddDonationRules_Container", false, false);
+    }
+    else {
+        $("#DonationRules").val(null);
+        $("#DonationRulesDescription_TextBox").val(null);
+    }
+});
+$("#AcceptRules_Btn").on("click", function () {
+    let value = $("#DonationRulesDescription_TextBox").val();
+    if (value != null && value.length <= 1200) {
+        $("#DonationRules").val(value);
+        smallBarAnimatedOpenAndClose(false);
+        animatedClose(false, "AddDonationRules_Container");
+
+        openModal("Investment rules has been successfully added. Please, save changes to insert them", "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-check text-primary'></i>");
+    }
+    else {
+        openModal("Extremely large description for rules. Please, try to minimize them (up to 1,200 chars)", "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle text-danger'></i>");
+    }
 });
 
 $(document).on("mouseover", ".info-popover", function (event) {

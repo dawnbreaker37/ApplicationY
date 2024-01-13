@@ -21,15 +21,16 @@ namespace ApplicationY.ViewModels
         public string? Link2 { get; set; }
         public int Duration { get; set; } = 0;
         public DateTime? Deadline { get; set; }
+        [MaxLength(1200)]
+        public string? DonationRules { get; set; }
         public string? YoutubeLink { get; set; }
         [Required(ErrorMessage = "Select the category of your project")]
         public int CategoryId { get; set; }
-        [DataType(DataType.Url)]
-        public string? DonationLink { get; set; }
         [DataType(DataType.Currency)]
         public int ProjectPrice { get; set; }
         [MaxLength(400, ErrorMessage = "Please, try to describe your price change annotation shorter")]
         public string? TargetPriceChangeAnnotation { get; set; }
+        public bool IsBudget { get; set; }
         public int CurrentPrice { get; set; }
         [Required]
         public int UserId { get; set; }
