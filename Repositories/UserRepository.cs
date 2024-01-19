@@ -47,6 +47,14 @@ namespace ApplicationY.Repositories
                         SignInResult? SignInResult = await _signInManager.PasswordSignInAsync(Model.UserName, Model.Password, true, true);
                         if (SignInResult.Succeeded)
                         {
+                            IdentityUserRole<int> role = new IdentityUserRole<int>()
+                            {
+                                RoleId = 1,
+                                UserId = NewUser.Id
+                        };
+                            await _context.AddAsync(role);
+                            await _context.SaveChangesAsync();
+
                             return ReserveCode;
                         }
                     }

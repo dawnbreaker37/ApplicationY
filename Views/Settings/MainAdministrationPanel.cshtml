@@ -1,0 +1,65 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Main Administration Panel";
+
+    User? UserInfo = ViewBag.UserInfo;
+}
+
+<div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+        <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAll" id="GetAllMessages_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
+            <input type="hidden" name="Id" value="@UserInfo.Id" />
+        </form>
+        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
+            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
+        </form>
+        <form method="post" asp-controller="Subscribes" asp-action="SubscribtionOptionWithoutKnowing" id="SubscribtionOptionWithoutKnowing_Form">
+            <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
+            <input type="hidden" name="SubscriberId" id="SubOption_SubscriberId_Val" value="@UserInfo.Id" />
+        </form>
+    </div>
+    <div class="box-container shadow-sm p-3 text-center">
+        <div class="row">
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Search_Container-Open"> <i class="fas fa-search"></i> <br />Search</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-tools"></i> <br />Toolbox</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="AboutAdmin_Container-Open"> <i class="fas fa-user-shield"></i> <br />Info</button>
+            </div>
+            <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AboutAdmin_Container">
+        <div class="header-container p-3 pb-2" id="AboutAdmin_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="AboutAdmin_Container-Close"></button>
+            <h5 class="h5 text-truncate">Information</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div class="box-container bg-light p-2">
+                <h3 class="h3 safe"
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-container shadow-standard" id="Preload_Container">
+    <div class="header-container p-3 pb-2" id="Preload_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
+        <h5 class="h5 text-truncate">Toolbox</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+    </div>
+</div>

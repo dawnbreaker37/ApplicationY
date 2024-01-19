@@ -1,6 +1,7 @@
 ﻿using ApplicationY.Data;
 using ApplicationY.Interfaces;
 using ApplicationY.Models;
+using ApplicationY.ViewModels;
 using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +13,24 @@ namespace ApplicationY.Repositories
         public OthersRepository(Context context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<GetUserRole_ViewModel?> GetUserFullRoleInfoAsync(int UserId, int RoleId)
+        {
+            if (UserId != 0)
+            {
+                return await _context.Roles.Select(x => new GetUserRole_ViewModel { UserId = UserId, RoleId = x.Id, RoleName = x.Name }).FirstOrDefaultAsync(x => x.RoleId == RoleId);
+            }
+            else return null;
+        }
+
+        public async Task<int> GetUserRoleAsync(int UserId)
+        {
+            if (UserId != 0)
+            {
+                return await _context.UserRoles.AsNoTracking().Where(x => x.UserId == UserId).Select(x => x.RoleId).FirstOrDefaultAsync();
+            }
+            else return 0;
         }
 
         public async Task<int> SendPurgeAsync(int Id, int SenderId, int UserId, string Description)

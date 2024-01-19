@@ -62,6 +62,7 @@ namespace ApplicationY.Controllers
                         ProfileFullnessPercentage += 16.66;
                     }
                     int RoundedFullnessPercentage = (int)ProfileFullnessPercentage;
+                    int UserRole = await _othersRepository.GetUserRoleAsync(UserInfo.Id);
 
                     ViewBag.UserInfo = UserInfo;
                     ViewBag.LastPasswordChangeDays = DaysTillLastChange.Days;
@@ -70,6 +71,7 @@ namespace ApplicationY.Controllers
                     ViewBag.Int32FullnessPercentage = RoundedFullnessPercentage;
                     ViewBag.VerificationInfo = await _accountRepository.HasTheVerificationBeenSent(UserInfo.Id);
                     ViewBag.Countries = CountriesList;
+                    ViewBag.RoleId = UserRole;
 
                     return View();
                 }

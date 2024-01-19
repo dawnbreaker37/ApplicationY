@@ -6,6 +6,7 @@
     VerificationQueue? VerificationInfo = ViewBag.VerificationInfo;
     bool PermissionToChangePassword = ViewBag.PermissionToChangePassword;
     double ProfileFullnessPercentage = ViewBag.ProfileFullnessPercentage;
+    int UserRole = ViewBag.RoleId;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -639,6 +640,11 @@
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-3">
+            @if(UserRole >= 3)
+            {
+                <a asp-controller="Settings" asp-action="MainAdministrationPanel" class="btn btn-text ms-1 btn-sm float-end text-decoration-none"><span> <i class="fas fa-tools text-primary"></i> Admin Page</span></a>
+            }
+
             @if(UserInfo.ProfilePhoto != null)
             {
                 <div class="box-container bg-light">
@@ -674,123 +680,91 @@
                 {
                     <h1 class="h1 main-title-font-style" id="AY_Username">@UserInfo.PseudoName </h1>
                 }
-                <small class="card-text text-muted" id="AY_SearchName"> <i class="fas fa-at text-dark"></i>, <i class="fas fa-hashtag text-dark"></i> <span class="text-dark">Searchname, Username:</span> @UserInfo.SearchName, @UserInfo.UserName</small>
             }
-            <div class="mt-2"></div>
-            <small class="card-text text-muted" id="AY_Email"> <i class="fas fa-inbox text-dark"></i> <span class="text-dark">Inbox:</span> @UserInfo.Email</small>
             <div></div>
-            @if (!UserInfo.IsEmailChanged)
+            @if (UserInfo.Description != null)
             {
-                <button type="button" class="btn btn-text info-popover mt-2 btn-sm smallside-btn-open-container" id="EmailChange_Container-Open" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Click to change your email. Notice, that you can change you email once per account"> <i class="fas fa-pen-square"></i> Edit Email</button>
+                <small class="card-text white-space-on" id="AY_Description">@UserInfo.Description</small>
             }
-        </div>
-        <div class="card-group mt-2">
-            <div class="card shadow-sm p-3 me-1">
-                <div>
-                    @if (UserInfo.Description != null)
+            else
+            {
+                <small class="card-text white-space-on" id="AY_Description">No profile description</small>
+            }
+            <div class="mt-2">
+                @if (UserInfo.Link1 == null)
+                {
+                    <a href="#" class="btn btn-text btn-sm text-decoration-none" id="AY_Link1"> <i class="fas fa-link"></i> First Link: <span class="text-primary">Empty</span></a>
+                }
+                else
+                {
+                    <a href="@UserInfo.Link1" class="btn btn-text btn-sm text-decoration-none" id="AY_Link1"> <i class="fas fa-link text-primary"></i> @UserInfo.Link1Tag</a>
+                }
+                <div></div>
+                @if (UserInfo.Link2 == null)
+                {
+                    <a href="#" class="btn btn-text btn-sm text-decoration-none" id="AY_Link2"> <i class="fas fa-link"></i> Second Link: <span class="text-primary">Empty</span></a>
+                }
+                else
+                {
+                    <a href="@UserInfo.Link2" class="btn btn-text btn-sm text-decoration-none" id="AY_Link2"> <i class="fas fa-link text-primary"></i> @UserInfo.Link2Tag</a>
+                }
+            </div>
+            <div class="mt-2 border-top pt-2">
+                <div class="row">
+                    <div class="col">
+                        <button class="btn btn-standard-not-animated btn-sm w-100" type="button" data-bs-toggle="collapse" data-bs-target="#AdditionalInfo_Collapse" aria-expanded="false" aria-controls="AdditionalInfo_Collapse"> <i class="fas fa-ellipsis-h"></i><br/>Additional Info</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-standard-not-animated btn-sm smallside-btn-open-container w-100" id="LinkEdit_Container-Open"> <i class="fas fa-link"></i><br />Edit Link(s)</button>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <button type="button" class="btn btn-standard-not-animated btn-sm smallside-btn-open-container w-100" id="EditDescription_Container-Open"> <i class="fas fa-pen-square"></i><br />Edit Description</button>
+                    </div>
+                    @if (!UserInfo.IsEmailChanged)
                     {
-                        <h6 class="h6">Description</h6>
-                        <div></div>
-                        <small class="card-text white-space-on" id="AY_Description">@UserInfo.Description</small>
+                        <div class="col">
+                            <button type="button" class="btn btn-standard-not-animated info-popover btn-sm smallside-btn-open-container w-100" id="EmailChange_Container-Open" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Click to change your email. Notice, that you can change you email once per account"> <i class="fas fa-inbox"></i><br />Edit Email</button>
+                        </div>
                     }
-                    else
-                    {
-                        <h6 class="h6">Description</h6>
-                        <div></div>
-                        <small class="card-text white-space-on" id="AY_Description">No profile description</small>
-                    }
-                    <div></div>
-                    <button type="button" class="btn btn-text btn-sm smallside-btn-open-container mt-1" id="EditDescription_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
                 </div>
             </div>
-            <div class="card shadow-sm p-3 me-1">
-                <div>
-                    <h6 class="h6">Links</h6>
-                    @if(UserInfo.Link1 == null)
-                    {
-                        <a href="#" class="text-decoration-none text-dark" id="AY_Link1"><small class="card-text"> <i class="fas fa-globe text-primary"></i> First Link: <span class="text-primary">Empty</span></small></a>
-                    }
-                    else
-                    {
-                        <a href="@UserInfo.Link1" class="text-decoration-none text-dark" id="AY_Link1"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Official <span class="text-primary">@UserInfo.Link1Tag</span> Link</small></a>
-                    }
-                    <div></div>
-                    @if (UserInfo.Link2 == null)
-                    {
-                        <a href="#" class="text-decoration-none text-dark" id="AY_Link2"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Second Link: <span class="text-primary">Empty</span></small></a>
-                    }
-                    else
-                    {
-                        <a href="@UserInfo.Link2" class="text-decoration-none text-dark" id="AY_Link2"><small class="card-text"> <i class="fas fa-globe text-primary"></i> Official <span class="text-primary">@UserInfo.Link2Tag</span> Link</small></a>
-                    }
-                    <div class="mt-2 pt-1 border-top"></div>
-                    <small class="card-text"> <i class="fas fa-info-circle text-primary"></i> You can also add links in your account description part</small>
-                    <div></div>
-                    <button type="button" class="btn btn-text mt-2 btn-sm smallside-btn-open-container" id="LinkEdit_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
-                </div>
-            </div>
-            <div class="card shadow-sm p-3">
-                <div>
-                    <h6 class="h6">Personal Information</h6>
-                    <small class="card-text" id="AYA_Pseudoname"> <i class="fas fa-user-circle text-primary"></i> @UserInfo.PseudoName</small>
-                    <div></div>
-                    <small class="card-text" id="AYA_Searchname"> <i class="fas fa-at text-primary"></i> @UserInfo.SearchName</small>
-                    <div></div>
-                    <small class="card-text" id="AY_Inbox"> <i class="fas fa-inbox text-primary"></i> @UserInfo.Email</small>
-                    <div></div>
-                    <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
-                    <div class="mt-2 border-top pt-2"></div>
-                    @if (UserInfo.CountryId == null)
-                    {
-                        <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_Country">You haven't selected your country yet</span></small>
-                    }
-                    else
-                    {
-                        <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_Country">Your country: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span></small>
-                    }
-                    <div></div>
-                    @if(UserInfo.IsCompany)
-                    {
-                        <small class="card-text" id="AY_IsCompany"> <i class="far fa-building text-primary"></i>  You are a company</small>
-                    }
-                    else
-                    {
-                        <small class="card-text" id="AY_IsCompany"> <i class="fas fa-user-tie text-primary"></i>  You are a personal user</small>
-                    }
-                    <div></div>
-                    @if(UserInfo.CreatedAt == null)
-                    {
-                        <small class="card-text" id="AY_CreatedDate"> <i class="fas fa-clock text-primary"></i>  Signed or created at: no entered date</small>
-                    }
-                    else
-                    {
-                        <small class="card-text" id="AY_CreatedDate"> <i class="fas fa-clock text-primary"></i>  Signed or created at: @UserInfo.CreatedAt?.ToString("dd MMM yyyy")</small>
-                    }
-                    <div></div>
-                    <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditPersonalInfo_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
-                </div>
-            </div>
-        </div>
-        <div class="card-group mt-2">
-            <div class="card p-3 shadow-sm">
-                <div>
-                    <h6 class="h6">Country</h6>
-                    <div class="mt-3">
+            <div class="collapse" id="AdditionalInfo_Collapse">
+                <div class="card p-2 mt-2">
+                    <div>
                         @if (UserInfo.CountryId == null)
                         {
-                            <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">You haven't selected your country yet</span></small>
+                            <h2 class="h2 safe-font"><span id="AY_Country">You haven't selected your country yet</span></h2>
                         }
                         else
                         {
-                            <small class="card-text"> <i class="fas fa-globe-americas text-primary"></i> <span id="AY_CountryAdditional">Your country: @UserInfo.Country?.ISO, @UserInfo.Country?.Name</span></small>
+                            <h2 class="h2 safe-font"><span id="AY_Country">@UserInfo.Country?.ISO, @UserInfo.Country?.Name</span></h2>
                         }
+                        @if (UserInfo.IsCompany)
+                        {
+                            <small class="card-text text-muted" id="AY_IsCompany">Company/Business</small>
+                        }
+                        else
+                        {
+                            <small class="card-text" id="AY_IsCompany">Personal Account</small>
+                        }
+                        <div class="mt-1"></div>
+                        @if (UserInfo.CreatedAt == null)
+                        {
+                            <small class="card-text text-muted" id="AY_CreatedDate">No information about signing date</small>
+                        }
+                        else
+                        {
+                            <small class="card-text text-muted" id="AY_CreatedDate">Signed or created at: @UserInfo.CreatedAt?.ToString("dd/MM/yyyy")</small>
+                        }
+                        <div></div>
+                        <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditPersonalInfo_Container-Open"> <i class="fas fa-pen-square"></i> Edit</button>
                     </div>
-                    <div class="pt-2 mt-2 border-top"></div>
-                    <small class="card-text"> <i class="fas fa-info-circle text-primary"></i> Your country information will be used to inform your future viewers about your localization and geopoisition. It'll be never used to locate or show your actual position in your country, such as your city or street address</small>
-                    <div></div>
-                    <button type="button" class="btn btn-text btn-sm mt-2 smallside-btn-open-container" id="EditPersonalInfo_Container-OpenY"> <i class="fas fa-pen-square"></i> Edit</button>
                 </div>
             </div>
+        </div>
+        <div class="card-group mt-2">
             <div class="card p-3 ms-1 shadow-sm">
                 <h6 class="h6">Account Perfectionism</h6>
                 <div class="mt-3">
@@ -822,13 +796,13 @@
                     }
                     else
                     {
-                        <small class="card-text">These steps are necessary:</small>
+                        <small class="card-text">These steps may help you:</small>
                         <ul>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> Describe account</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-align-left"></i> </span> Describe your account</small></li>
                             <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-link"></i> </span> Add some links from you</small></li>
                             <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-envelope"></i> </span> Enter a work email</small></li>
                             <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-check-double"></i> </span> Verify your account</small></li>
-                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span> Add the date (of birth or creation of company)</small></li>
+                            <li class="card-text"><small> <span class="text-primary"> <i class="fas fa-clock"></i> </span> Add a date (of birth or creation of your company/business)</small></li>
                         </ul>
                     }
                 </div>

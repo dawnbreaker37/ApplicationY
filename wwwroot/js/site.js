@@ -270,11 +270,11 @@ $("#EditLinks_Form").on("submit", function (event) {
         if (response.success) {
             animatedClose(false, "LinkEdit_Container");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
-            if (response.link1Tag != null) $("#AY_Link1").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Official <span class='text-primary'>" + response.link1Tag + "</span> Link</small>");
-            else $("#AY_Link1").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Unknow Link</small>");
+            if (response.link1Tag != null) $("#AY_Link1").html(" <i class='fas fa-link text-primary'></i> "  + response.link1Tag);
+            else $("#AY_Link1").html(" <i class='fas fa-link text-primary'></i> Unknow Link");
             $("#AY_Link1").attr("href", response.link1);
-            if (response.link2Tag != null) $("#AY_Link2").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Official <span class='text-primary'>" + response.link2Tag + "</span> Link</small>");
-            else $("#AY_Link2").html("<small class='card-text text-dark'> <i class='fas fa-globe text-primary'></i> Unknow Link</small>");
+            if (response.link2Tag != null) $("#AY_Link2").html(" <i class='fas fa-link text-primary'></i> " + response.link2Tag);
+            else $("#AY_Link2").html(" <i class='fas fa-link text-primary'></i> Unknow Link");
             $("#AY_Link2").attr("href", response.link2);
         }
         else {
