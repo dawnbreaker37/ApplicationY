@@ -3,6 +3,7 @@
     ViewData["Title"] = "Main Administration Panel";
 
     User? UserInfo = ViewBag.UserInfo;
+    GetUserRole_ViewModel? RoleInfo = ViewBag.FullRoleInfo;
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
@@ -28,7 +29,7 @@
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Search_Container-Open"> <i class="fas fa-search"></i> <br />Search</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="Search_Container-Open"> <i class="fas fa-search"></i> <br />Search</button>
             </div>
             <div class="col">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-tools"></i> <br />Toolbox</button>
@@ -42,14 +43,72 @@
         </div>
     </div>
 
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AboutSelectedUser_Container">
+        <div class="header-container p-3 pb-2" id="AboutSelectedUser_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="AboutSelectedUser_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="ASU_UserPseudoname_Span"></span></h5>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AboutSelectedProject_Container">
+        <div class="header-container p-3 pb-2" id="AboutSelectedProject_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="AboutSelectedProject_Container-Close"></button>
+            <h5 class="h5 text-truncate">About <span id="ASP_ProjectNameHeader_Span"></span></h5>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Search_Container">
+        <div class="header-container p-3 pb-2" id="AboutAdmin_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Search_Container-Close"></button>
+            <h5 class="h5 text-truncate">Search</h5>
+            <div class="mt-1">
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour me-1">Search for users</button>
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour">Search for projects</button>
+            </div>
+            <div class="mt-1 border-top pt-2">
+                <div class="box-container" id="SearchForUsers_Box">
+                    <form method="get" asp-controller="User" asp-action="SearchForUsers" id="SearchFormUsers_Form">
+                        <div>
+                            <input type="text" name="Keyword" id="SFU_Keyword_Val" autocomplete="off" class="form-control w-100" placeholder="Enter search value" />
+                            <button type="submit" class="btn btn-primary w-100 mt-2 btn-standard-with-no-colour">Search</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AboutAdmin_Container">
         <div class="header-container p-3 pb-2" id="AboutAdmin_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="AboutAdmin_Container-Close"></button>
             <h5 class="h5 text-truncate">Information</h5>
         </div>
         <div class="mt-2 p-3 pt-0">
-            <div class="box-container bg-light p-2">
-                <h3 class="h3 safe"
+            <div class="box-container bg-light p-2 pb-0">
+                <span class="h3 main-title-font-style">@UserInfo.PseudoName</span>
+                <div></div>
+                <small class="card-text text-muted">@@@UserInfo.SearchName</small>
+                <div class="mt-3"></div>
+                <p class="badge bg-primary text-light warning-badge"> <i class="fas fa-user-shield"></i> @RoleInfo.RoleName</p>
+            </div>
+            <div class="bordered-container mt-2 p-2">
+                <h6 class="h6 safe-font">Permissions</h6>
+                <div class="border-top mt-2 pt-1"></div>
+                <small class="card-text text-muted">You're able to:</small>
+                <div class="box-container bg-light mt-2 p-2">
+                    <h6 class="h6"> <i class="fas fa-reply-all text-primary"></i> Reply</h6>
+                    <small class="card-text">to messages from users (including messages for supports)</small>
+                    <h6 class="h6 mt-2 border-top pt-2"> <i class="far fa-trash-alt text-danger"></i> Remove</h6>
+                    <small class="card-text">or edit some projects</small>
+                    <h6 class="h6 mt-2 border-top pt-2"> <i class="fas fa-bolt text-warning"></i> Purge</h6>
+                    <small class="card-text">and remove any project</small>
+                    <h6 class="h6 mt-2 border-top pt-2"> <i class="fas fa-mail-bulk text-primary"></i> Send</h6>
+                    <small class="card-text">emails to users (for news, answers and etc.). Notice that the message will be sent from our official email</small>
+                    <h6 class="h6 mt-2 border-top pt-2"> <i class="far fa-check-square text-official"></i> Give</h6>
+                    <small class="card-text">and decline <span class="text-official">Premium</span> subscribtions</small>
+                    <div class="mt-2 pt-1 border-top"></div>
+                    <small class="card-text text-muted">For some other permissions you may check our official tutorial via <a class="text-decoration-none text-primary" asp-controller="Home" asp-action="ForSupports">this link</a></small>
+                </div>
             </div>
         </div>
     </div>
@@ -61,5 +120,56 @@
         <h5 class="h5 text-truncate">Toolbox</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
+        <div class="box-container bg-light p-3" id="SelectedUserInfo_Box">
+            <span class="h2" id="SelectedUserInfo_Pseudoname_Lbl">No selected user</span>
+            <div></div>
+            <small class="card-text text-muted" id="SelectedUserInfo_Searchname_Lbl">Search and select for anyone to appear them here</small>
+            <div class="mt-2"></div>
+            <small class="card-text white-space-on" id="SelectedUserInfo_Description_Lbl"></small>
+        </div>
+        <div class="bordered-container mt-2 p-2" id="SelectedUserInfoAdditional_Box">
+            <h6 class="h6 safe-font">Additional Info</h6>
+            <div class="mt-1 p-3 pb-1 pt-1 text-center">
+                <div class="row">
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Email</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Projects</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Is Verified</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Username</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Removed Projects</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Premium Sub.</p>
+                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <button type="button" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-comments"></i> <br/>Message</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-folder"></i> <br />Projects</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm w-100" disabled> <i class="fas fa-minus"></i> <br />Disable</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>

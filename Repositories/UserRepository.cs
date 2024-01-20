@@ -136,9 +136,13 @@ namespace ApplicationY.Repositories
             return false;
         }
 
-        public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword)
+        public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword, bool NeedAdditionalInfo)
         {
-            if (Keyword != null) return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword) || u.Description != null && u.Description.ToLower().Contains(Keyword) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword)).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, Email = u.Email, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count });
+            if (Keyword != null)
+            {
+                if (!NeedAdditionalInfo) return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword.ToLower()) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword.ToLower()) || u.Description != null && u.Description.ToLower().Contains(Keyword.ToLower()) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword.ToLower())).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, Email = u.Email, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => !p.IsRemoved) });
+                else return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword.ToLower()) || u.PseudoName!.ToLower().Contains(Keyword.ToLower()) || u.Email!.ToLower().Contains(Keyword.ToLower()) || (u.UserName != null && u.UserName.ToLower().Contains(Keyword.ToLower()))).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, UserName = u.UserName, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => !p.IsRemoved), RemovedProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => p.IsRemoved) });
+            }
             else return null;
         }
 

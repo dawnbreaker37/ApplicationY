@@ -123,10 +123,10 @@ namespace ApplicationY.Controllers
             List<GetUserInfo_ViewModel>? UsersResult = null;
             List<GetProjects_ViewModel>? ProjectsResult = null;
             if (SearchOnlyProjects && !SearchOnlyUsers) ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
-            else if(!SearchOnlyProjects && SearchOnlyUsers) UsersResult_Preview = _user.FindUsers(Keyword);
+            else if(!SearchOnlyProjects && SearchOnlyUsers) UsersResult_Preview = _user.FindUsers(Keyword, false);
             else
             {
-                UsersResult_Preview = _user.FindUsers(Keyword);
+                UsersResult_Preview = _user.FindUsers(Keyword, false);
                 ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
             }
 

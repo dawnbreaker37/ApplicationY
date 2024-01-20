@@ -179,6 +179,20 @@ namespace ApplicationY.Controllers
 
             }
             return Json(new { success = false, alert = "Something went wrong while trying to confirm your email. Please, try again later" });
-        }       
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> SearchForUsers(string Keyword)
+        {
+            List<GetUserInfo_ViewModel>? Users = null;
+            IQueryable<GetUserInfo_ViewModel>? Users_Preview = _userRepository.FindUsers(Keyword, true);
+            if(Users_Preview != null)
+            {
+                Users = await Users_Preview.ToListAsync();
+
+                return Json(new { success = true, result = Users, count = Users.Count });
+            }
+            return Json(new { success = false, alert = "No found users by this keyword. Please, try another" });
+        }
     }
 }

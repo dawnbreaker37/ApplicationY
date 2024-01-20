@@ -1903,6 +1903,21 @@ $("#GetComments_Form").on("submit", function (event) {
     });
 });
 
+$("#SearchFormUsers_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            console.log(response.result);
+        }
+        else {
+            console.log(response.alert);
+        }
+    });
+});
+
 $("#SearchEverywhere_Keyword").on("change", function (event) {
     event.preventDefault();
     animatedOpen(false, "Waiter_Container", true, true);
