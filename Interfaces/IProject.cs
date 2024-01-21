@@ -28,6 +28,6 @@ namespace ApplicationY.Interfaces
         public IQueryable<GetReleaseNotes_ViewModel>? GetReleaseNotes(int ProjectId); 
         public IQueryable<GetProjects_ViewModel>? GetRandomProjects(int Count);
         public Task<int> GetProjectsCount(int UserId);
-        public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId);
+        public IQueryable<GetProjects_ViewModel>? FindProjects(string Keyword, int MinPrice, int MaxPrice, int CategoryId, bool LoadSimplified, bool GetRemovedToo);
     }
 }

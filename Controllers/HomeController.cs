@@ -122,12 +122,12 @@ namespace ApplicationY.Controllers
             IQueryable<GetUserInfo_ViewModel>? UsersResult_Preview = null;
             List<GetUserInfo_ViewModel>? UsersResult = null;
             List<GetProjects_ViewModel>? ProjectsResult = null;
-            if (SearchOnlyProjects && !SearchOnlyUsers) ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
+            if (SearchOnlyProjects && !SearchOnlyUsers) ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId, false, false);
             else if(!SearchOnlyProjects && SearchOnlyUsers) UsersResult_Preview = _user.FindUsers(Keyword, false);
             else
             {
                 UsersResult_Preview = _user.FindUsers(Keyword, false);
-                ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId);
+                ProjectsResult_Preview = _projectRepository.FindProjects(Keyword, MinPrice, MaxPrice, CategoryId, false, false);
             }
 
             if(UsersResult_Preview != null)

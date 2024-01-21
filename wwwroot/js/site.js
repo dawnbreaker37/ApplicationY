@@ -1903,6 +1903,54 @@ $("#GetComments_Form").on("submit", function (event) {
     });
 });
 
+$(document).on("click", ".select-search-result-user", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let email = $("#USRE-" + trueId).val();
+        let pseudoName = $("#USRP-" + trueId).text();
+        let searchName = $("#USRS-" + trueId).text();
+        let userName = $("#USRU-" + trueId).val();
+        let isVerified = $("#USRIV-" + trueId).val();
+        let isConfirmed = $("#USRIC-" + trueId).val();
+        let projectsCount = $("#USRPC-" + trueId).val();
+        let removedProjectsCount = $("#USRRPC-" + trueId).val();
+
+        isVerified = isVerified == "true" ? "Verified account" : "Isn't verified";
+        isConfirmed = isConfirmed == "true" ? "Confirmed via email" : "Isn't confirmed";
+
+        animatedClose(false, "Preload_Container");
+        setTimeout(function () {
+            animatedOpen(false, "Preload_Container", true, true);
+        }, 100);
+        setTimeout(function () {
+            $("#SelectedUserInfo_Email_Lbl").text(email);
+            $("#SelectedUserInfo_ProjectsCount_Lbl").text(projectsCount);
+            $("#SelectedUserInfo_IsVerified_Lbl").text(isVerified);
+            $("#SelectedUserInfo_Username_Lbl").text(userName);
+            $("#SelectedUserInfo_RemovedProjects_Lbl").text(removedProjectsCount);
+            $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Premium Sub.");
+            $("#SelectedUserInfo_Pseudoname_Lbl").text(pseudoName);
+            $("#SelectedUserInfoMain_Pseudoname_Lbl").text(pseudoName);
+            $("#SelectedUserInfoMain_Searchname_Lbl").text(searchName);
+            $("#SelectedUserInfo_Searchname_Lbl").text(searchName);
+            $("#SelectedUserInfo_IsConfirmed_Lbl").text(isConfirmed);
+        }, 200);
+    }
+    else {
+        $("#SelectedUserInfo_Email_Lbl").text("No Info");
+        $("#SelectedUserInfo_ProjectsCount_Lbl").text("0");
+        $("#SelectedUserInfo_IsVerified_Lbl").text("No Info");
+        $("#SelectedUserInfo_Username_Lbl").text("No Info");
+        $("#SelectedUserInfo_RemovedProjects_Lbl").text("0");
+        $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Info");
+        $("#SelectedUserInfo_Pseudoname_Lbl").text("No Info");
+        $("#SelectedUserInfoMain_Pseudoname_Lbl").text("No selected user");
+        $("#SelectedUserInfoMain_Searchname_Lbl").text("Search and select for anyone to appear them here");
+        $("#SelectedUserInfo_Searchname_Lbl").text("No Info");
+        $("#SelectedUserInfo_IsConfirmed_Lbl").text("No Info");
+    }
+});
+
 $("#SearchFormUsers_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -1910,10 +1958,80 @@ $("#SearchFormUsers_Form").on("submit", function (event) {
 
     $.get(url, data, function (response) {
         if (response.success) {
-            console.log(response.result);
+            if (response.count > 0) {
+                animatedClose(false, "Search_Container");
+                setTimeout(function () {
+                    $("#SearchResultCount_Span").text(response.count);
+                    $("#SearchResultsMain_Box").empty();
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='box-container bg-light p-2 mt-2'></div>");
+                        let isVerifiedHdn = $("<input type='hidden' />");
+                        let isConfirmedHdn = $("<input type='hidden' />");
+                        let pseudoName = $("<span class='h5'></span>");
+                        let separator1 = $("<div></div>");
+                        let searchName = $("<small class='card-text text-muted'></small>");
+                        let userName = $("<input type='hidden' />");
+                        let projectsCount = $("<input type='hidden' />");
+                        let removedProjectsCount = $("<input type='hidden' />");
+                        let emailName = $("<input type='hidden' />");
+                        let buttonsDiv = $("<div class='box-container mt-3'></div>");
+                        let btnsDivRow = $("<div class='row'></div>");
+                        let btnsDivCol1 = $("<div class='col'></div>");
+                        let btnsDivCol2 = $("<div class='col'></div>");
+                        let pageLink = $("<a class='btn btn-text btn-sm w-100'> <i class='fas fa-link'></i> Page</a>");
+                        let selectBtn = $("<a class='btn btn-text btn-sm w-100 select-search-result-user'> <i class='fas fa-check'></i> Select</a>");
+
+                        pseudoName.text(response.result[index].pseudoName);
+                        searchName.text("@" + response.result[index].searchName);
+                        userName.val(response.result[index].userName);
+                        projectsCount.val(response.result[index].projectsCount);
+                        removedProjectsCount.val(response.result[index].removedProjectsCount);
+                        isVerifiedHdn.val(response.result[index].IsVerifiedAccount);
+                        isConfirmedHdn.val(response.result[index].IsEmailConfirmed);
+                        emailName.val(response.result[index].email);
+                        div.append(pseudoName);
+                        div.append(separator1);
+                        div.append(searchName);
+                        div.append(userName);
+                        div.append(emailName);
+                        div.append(projectsCount);
+                        div.append(removedProjectsCount);
+                        btnsDivCol1.append(selectBtn);
+                        btnsDivCol1.append(isConfirmedHdn);
+                        btnsDivCol1.append(isVerifiedHdn);
+                        btnsDivCol2.append(pageLink);
+                        btnsDivRow.append(btnsDivCol1);
+                        btnsDivRow.append(btnsDivCol2);
+                        buttonsDiv.append(btnsDivRow);
+                        div.append(buttonsDiv);
+
+                        div.attr("id", "USRB-" + response.result[index].id);
+                        pseudoName.attr("id", "USRP-" + response.result[index].id);
+                        searchName.attr("id", "USRS-" + response.result[index].id);
+                        userName.attr("id", "USRU-" + response.result[index].id);
+                        emailName.attr("id", "USRE-" + response.result[index].id);
+                        isVerifiedHdn.attr("id", "USRIV-" + response.result[index].id);
+                        isConfirmedHdn.attr("id", "USRIC-" + response.result[index].id);
+                        projectsCount.attr("id", "USRPC-" + response.result[index].id);
+                        removedProjectsCount.attr("id", "USRRPC-" + response.result[index].id);
+                        pageLink.attr("href", "/User/Info/" + response.result[index].searchName);
+                        selectBtn.attr("id", "SelectSearchResultUser-" + response.result[index].id);
+                        $("#SearchResultsMain_Box").append(div);
+                    });
+                }, 150);
+                setTimeout(function () {
+                    $("#SearchResults_Box").fadeIn(0);
+                    animatedOpen(false, "Search_Container", false, false);
+                }, 225);
+            }
         }
         else {
-            console.log(response.alert);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+            $("#SearchResults_Box").fadeIn(250);
+            setTimeout(function () {
+                $("#SearchResultCount_Span").text(response.count);
+                $("#SearchResultsMain_Box").empty();
+            }, 250);
         }
     });
 });
@@ -3415,12 +3533,15 @@ $(document).on("click", ".select-to-remove", function (event) {
 $(document).on("click", ".project-box", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != 0 && trueId != "") {
+        animatedClose(false, "SettingsOfProject_Container");
+
         let selectedProjectName = $("#ProjectName-" + trueId).text();
         let isPinned = $("#ProjectIsPinned-" + trueId).val();
         let isLocked = $("#ProjectIsLocked-" + trueId).val();
         isLocked = isLocked == "false" ? false : true;
         isPinned = isPinned == "false" ? false : true;
 
+        $("#DirectProjectPage_Link").attr("href", "/Project/Info/" + trueId);
         $("#SelectedProjectName_Lbl").text(selectedProjectName);
         $("#GPI_Id").val(trueId);
         $(".have-an-edit").attr("href", "/Project/Edit/" + trueId);
@@ -3441,16 +3562,22 @@ $(document).on("click", ".project-box", function (event) {
         if (isLocked) {
             $("#LockProject_Box").addClass("d-none");
             $("#UnlockTheProject_Box").removeClass("d-none");
+            $("#DirectProjectPage_Link").addClass("disabled");
+            $("#DirectProjectLink_Lbl").text("Locked project can't be viewed directly");
         }
         else {
             $("#LockProject_Box").removeClass("d-none");
             $("#UnlockTheProject_Box").addClass("d-none");
+            $("#DirectProjectPage_Link").removeClass("disabled");
+            $("#DirectProjectLink_Lbl").text("Go directly to the project page");
         }
         $("#LTP_Id_Val").val(trueId);
         $("#ULTP_Id_Val").val(trueId);
 
-        smallBarAnimatedOpenAndClose(true);
-        animatedOpen(false, "SettingsOfProject_Container", false, false);
+        setTimeout(function () {
+            smallBarAnimatedOpenAndClose(true);
+            animatedOpen(false, "SettingsOfProject_Container", false, false);
+        }, 100);
     }
 });
 
@@ -4605,19 +4732,20 @@ function animatedOpen(forAll, element, sticky, closeOtherContainers) {
                 $("#" + element).css("bottom", botOffNavbarH + 18 + "px");
                 setTimeout(function () {
                     $("#" + element).css("z-index", 0);
+                    $("#" + element + "-Header").fadeIn(0);
                 }, 100);
                 setTimeout(function () {
                     $("#" + element).css("bottom", botOffNavbarH + 1 + "px");
                     $("#" + element + "-CardBox").css("bottom", botOffNavbarH + 1 + "px");
                     $("#" + element).css("border-radius", "8px");
-                    $("#" + element + "-Header").fadeIn(250);
                 }, 550);
             }
             else {
                 $("#" + element).css("bottom", 0);
+                $("#" + element + "-Header").css("top", 0);
                 $("#" + element + "-CardBox").css("bottom", 0);
                 $("#" + element).css("z-index", 100);
-                $("#" + element + "-Header").fadeIn(250);
+                $("#" + element + "-Header").fadeIn(50);
             }
 
             if ($("#MainModal_Container").css("display") != "none" && !closeOtherContainers) {

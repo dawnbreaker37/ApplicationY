@@ -75,6 +75,12 @@
                     </form>
                 </div>
             </div>
+            <div class="bordered-container p-2 mt-2" style="display: none;" id="SearchResults_Box">
+                <h6 class="h6 safe-font">Found results, <span id="SearchResultCount_Span"></span></h6>
+                <div class="border-top pt-1 mt-2" id="SearchResultsMain_Box">
+
+                </div>
+            </div>
         </div>
     </div>
 
@@ -121,11 +127,11 @@
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-3" id="SelectedUserInfo_Box">
-            <span class="h2" id="SelectedUserInfo_Pseudoname_Lbl">No selected user</span>
+            <span class="h2" id="SelectedUserInfoMain_Pseudoname_Lbl">No selected user</span>
             <div></div>
-            <small class="card-text text-muted" id="SelectedUserInfo_Searchname_Lbl">Search and select for anyone to appear them here</small>
-            <div class="mt-2"></div>
-            <small class="card-text white-space-on" id="SelectedUserInfo_Description_Lbl"></small>
+            <small class="card-text text-muted" id="SelectedUserInfoMain_Searchname_Lbl">Search and select for anyone to appear them here</small>
+@*             <div class="mt-2"></div>
+            <small class="card-text white-space-on" id="SelectedUserInfo_Description_Lbl"></small> *@
         </div>
         <div class="bordered-container mt-2 p-2" id="SelectedUserInfoAdditional_Box">
             <h6 class="h6 safe-font">Additional Info</h6>
@@ -137,25 +143,39 @@
                     </div>
                     <div class="col bordered-container p-2 me-1">
                         <p class="card-text safe-font">Projects</p>
-                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                        <small class="card-text" id="SelectedUserInfo_ProjectsCount_Lbl">No Info</small>
                     </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Removed Projects</p>
+                        <small class="card-text" id="SelectedUserInfo_RemovedProjects_Lbl">No Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
                     <div class="col bordered-container p-2">
                         <p class="card-text safe-font">Is Verified</p>
-                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                        <small class="card-text" id="SelectedUserInfo_IsVerified_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Premium Sub.</p>
+                        <small class="card-text" id="SelectedUserInfo_AboutPremiumSub_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Is Confirmed</p>
+                        <small class="card-text" id="SelectedUserInfo_IsConfirmed_Lbl">No Info</small>
                     </div>
                 </div>
                 <div class="row mt-2">
                     <div class="col bordered-container p-2 me-1">
-                        <p class="card-text safe-font">Username</p>
-                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                        <p class="card-text safe-font">Pseudoname</p>
+                        <small class="card-text" id="SelectedUserInfo_Pseudoname_Lbl">No Info</small>
                     </div>
                     <div class="col bordered-container p-2 me-1">
-                        <p class="card-text safe-font">Removed Projects</p>
-                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                        <p class="card-text safe-font">Searchname</p>
+                        <small class="card-text" id="SelectedUserInfo_Searchname_Lbl">No Info</small>
                     </div>
-                    <div class="col bordered-container p-2">
-                        <p class="card-text safe-font">Premium Sub.</p>
-                        <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Username</p>
+                        <small class="card-text" id="SelectedUserInfo_Username_Lbl">No Info</small>
                     </div>
                 </div>
                 <div class="row mt-2">
