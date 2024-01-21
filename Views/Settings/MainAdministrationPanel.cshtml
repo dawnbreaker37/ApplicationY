@@ -62,14 +62,22 @@
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Search_Container-Close"></button>
             <h5 class="h5 text-truncate">Search</h5>
             <div class="mt-1">
-                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour me-1">Search for users</button>
-                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour">Search for projects</button>
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour me-1" id="SearchForUsers_Btn">Search for users</button>
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour" id="SearchForProjects_Btn">Search for projects</button>
             </div>
             <div class="mt-1 border-top pt-2">
                 <div class="box-container" id="SearchForUsers_Box">
                     <form method="get" asp-controller="User" asp-action="SearchForUsers" id="SearchFormUsers_Form">
                         <div>
                             <input type="text" name="Keyword" id="SFU_Keyword_Val" autocomplete="off" class="form-control w-100" placeholder="Enter search value" />
+                            <button type="submit" class="btn btn-primary w-100 mt-2 btn-standard-with-no-colour">Search</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="box-continer" id="SearchForProject_Box">
+                    <form method="get" asp-controller="Project" asp-action="FindProjects" id="FindAdminProjects_Form">
+                        <div>
+                            <input type="text" name="Keyword" id="SFP_Keyword_Val" autocomplete="off" class="form-control w-100" placeholder="Enter search value" />
                             <button type="submit" class="btn btn-primary w-100 mt-2 btn-standard-with-no-colour">Search</button>
                         </div>
                     </form>
