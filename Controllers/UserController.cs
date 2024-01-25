@@ -81,18 +81,18 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetShortUserInfo(int Id)
+        public async Task<IActionResult> GetShortUserInfo(int Id, bool IsForAdmins)
         {
-            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true, false);
+            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true, false, IsForAdmins);
             if (Result != null) return Json(new { success = true, result = Result });
-            else return Json(new { success = false });
+            else return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
         }
 
         public async Task<IActionResult> Verify(int Id)
         {
             if (User.Identity.IsAuthenticated)
             {
-                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true, false);
+                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true, false, false);
                 ViewBag.UserInfo = UserInfo;
 
                 return View();
@@ -184,12 +184,10 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> SearchForUsers(string Keyword)
         {
-            List<GetUserInfo_ViewModel>? Users = null;
             IQueryable<GetUserInfo_ViewModel>? Users_Preview = _userRepository.FindUsers(Keyword, true);
             if(Users_Preview != null)
             {
-                Users = await Users_Preview.ToListAsync();
-
+                List<GetUserInfo_ViewModel>? Users = await Users_Preview.ToListAsync();
                 return Json(new { success = true, result = Users, count = Users.Count });
             }
             return Json(new { success = false, alert = "No found users by this keyword. Please, try another" });

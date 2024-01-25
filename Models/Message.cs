@@ -15,6 +15,7 @@ namespace ApplicationY.Models
         public int UserId { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsChecked { get; set; }
+        public bool IsFromSupports { get; set; }
         public DateTime SentAt { get; set; }
         public Project? Project { get; set; }
         public User? User { get; set; }

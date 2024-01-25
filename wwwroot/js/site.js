@@ -1906,49 +1906,296 @@ $("#GetComments_Form").on("submit", function (event) {
 $(document).on("click", ".select-search-result-user", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != "") {
-        let email = $("#USRE-" + trueId).val();
-        let pseudoName = $("#USRP-" + trueId).text();
-        let searchName = $("#USRS-" + trueId).text();
-        let userName = $("#USRU-" + trueId).val();
-        let isVerified = $("#USRIV-" + trueId).val();
-        let isConfirmed = $("#USRIC-" + trueId).val();
-        let projectsCount = $("#USRPC-" + trueId).val();
-        let removedProjectsCount = $("#USRRPC-" + trueId).val();
-
-        isVerified = isVerified == "true" ? "Verified account" : "Isn't verified";
-        isConfirmed = isConfirmed == "true" ? "Confirmed via email" : "Isn't confirmed";
-
-        animatedClose(false, "Preload_Container");
-        setTimeout(function () {
-            animatedOpen(false, "Preload_Container", true, true);
-        }, 100);
-        setTimeout(function () {
-            $("#SelectedUserInfo_Email_Lbl").text(email);
-            $("#SelectedUserInfo_ProjectsCount_Lbl").text(projectsCount);
-            $("#SelectedUserInfo_IsVerified_Lbl").text(isVerified);
-            $("#SelectedUserInfo_Username_Lbl").text(userName);
-            $("#SelectedUserInfo_RemovedProjects_Lbl").text(removedProjectsCount);
-            $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Premium Sub.");
-            $("#SelectedUserInfo_Pseudoname_Lbl").text(pseudoName);
-            $("#SelectedUserInfoMain_Pseudoname_Lbl").text(pseudoName);
-            $("#SelectedUserInfoMain_Searchname_Lbl").text(searchName);
-            $("#SelectedUserInfo_Searchname_Lbl").text(searchName);
-            $("#SelectedUserInfo_IsConfirmed_Lbl").text(isConfirmed);
-        }, 200);
+        $("#GUIFA_Id_Val").val(trueId);
+        $("#GetShortUserInfoForAdmins_Form").submit();
     }
-    else {
-        $("#SelectedUserInfo_Email_Lbl").text("No Info");
-        $("#SelectedUserInfo_ProjectsCount_Lbl").text("0");
-        $("#SelectedUserInfo_IsVerified_Lbl").text("No Info");
-        $("#SelectedUserInfo_Username_Lbl").text("No Info");
-        $("#SelectedUserInfo_RemovedProjects_Lbl").text("0");
-        $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Info");
-        $("#SelectedUserInfo_Pseudoname_Lbl").text("No Info");
-        $("#SelectedUserInfoMain_Pseudoname_Lbl").text("No selected user");
-        $("#SelectedUserInfoMain_Searchname_Lbl").text("Search and select for anyone to appear them here");
-        $("#SelectedUserInfo_Searchname_Lbl").text("No Info");
-        $("#SelectedUserInfo_IsConfirmed_Lbl").text("No Info");
+});
+$(document).on("click", ".select-project-result", function (event) {
+    event.preventDefault();
+    let trueId = getTrueId(event.target.id);
+    if (trueId != 0) {
+        $("#GFPFA_Id_Val").val(trueId);
+        $("#GetFullProjectForAdmins_Form").submit();
     }
+    else openModal("Invalid project ID. Please, try again", "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-slash text-warning'></i> ");
+});
+
+$("#SendMessageFromAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#SMFA_Text_Textarea").attr("disabled", true);
+            $("#SMFA_SendSbmt_Btn").attr("disabled", true);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-paper-plane text-primary'></i> ");
+            setTimeout(function () {
+                $("#SMFA_Text_Textarea").attr("disabled", false);
+                $("#SMFA_Text_Textarea").val("");
+                $("#SMFA_SendSbmt_Btn").attr("disabled", false);
+            }, 4000);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+            $("#SMFA_Text_Textarea").val("");
+        }
+    });
+});
+
+$("#DisableAccount_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "DisableAccount_Container");
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-minus text-danger'></i> ");
+            setTimeout(function () {
+                $("#DisableAccount_Box").fadeOut(0);
+                $("#EnableAccount_Box").fadeIn(0);
+                $("#SelectedUserInfoAdditional_Box").addClass("border-danger");
+                $("#SelectedUserInfo_IsDisabled_Lbl").fadeIn(300);
+                animatedOpen(false, "Preload_Container", true, true);
+            }, 175);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#EnableAccount_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "DisableAccount_Container");
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-check-double text-primary'></i> ");
+            setTimeout(function () {
+                $("#EnableAccount_Box").fadeOut(0);
+                $("#DisableAccount_Box").fadeIn(0);
+                $("#SelectedUserInfoAdditional_Box").removeClass("border-danger");
+                $("#SelectedUserInfo_IsDisabled_Lbl").fadeOut(300);
+                animatedOpen(false, "Preload_Container", true, true);
+            }, 175);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
+$("#GetFullProjectForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "Preload_Container");
+            setTimeout(function () {
+                let titleName = $("#PRSRT-" + response.result.id).text();
+                let creatorName = $("#PSRU-" + response.result.id).text();
+                
+                $("#SelectedProjectInfoMain_Title_Lbl").text(titleName);
+                $("#SelectedProjectInfoDescription_Searchname_Lbl").text(response.result.description);
+                $("#SelectedProjectInfo_Title_Lbl").text(titleName);
+                $("#SelectedProjectInfo_CreatedAt_Lbl").text(convertDateAndTime(response.result.createdAt, false, true));
+                $("#SelectedProjectInfo_LastModifiedAt_Lbl").text(convertDateAndTime(response.result.lastUpdatedAt, true, true));
+                $("#SelectedProjectInfo_IsClosed_Lbl").html(response.result.isClosed ? "<span class='text-warning'>Closed</span>" : "Actual Project");
+                $("#SelectedProjectInfo_IsRemoved_Lbl").html(response.result.isRemoved ? "<span class='text-danger'>Removed Project</span>" : "Saved Project");
+                $("#SelectedProjectInfo_ViewsCount_Lbl").text(response.result.views.toLocaleString());
+                $("#SelectedProjectInfo_TargetPrice_Lbl").text(response.result.targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                $("#SelectedProjectInfo_CreatorInfo_Lbl").text(creatorName);
+                $("#SelectedProjectInfo_Shortlink_Lbl").text(response.result.id);
+
+                animatedClose(false, "Search_Container");
+            }, 125);
+            setTimeout(function () {
+                animatedOpen(false, "Preload_Container", true, true);
+            }, 200);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+
+$("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "Preload_Container");
+            setTimeout(function () {
+                animatedOpen(false, "Preload_Container", true, true);
+            }, 100);
+            setTimeout(function () {
+                $("#SelectedUserInfo_Email_Lbl").text(response.result.email);
+                $("#SelectedUserInfo_ProjectsCount_Lbl").text(response.result.projectsCount);
+                $("#SelectedUserInfo_IsVerified_Lbl").text(response.result.isVerified);
+                $("#SelectedUserInfo_Username_Lbl").text(response.result.userName);
+                $("#SelectedUserInfo_RemovedProjects_Lbl").text(response.result.removedProjectsCount);
+                $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Premium Sub.");
+                $("#SelectedUserInfo_Pseudoname_Lbl").text(response.result.pseudoName);
+                $("#SelectedUserInfoMain_Pseudoname_Lbl").text(response.result.pseudoName);
+                $("#SelectedUserInfoMain_Searchname_Lbl").text("@" + response.result.searchName);
+                $("#SelectedUserInfo_Searchname_Lbl").text("@" + response.result.searchName);
+                $("#SelectedUserInfo_IsConfirmed_Lbl").text(response.result.isConfirmed);
+                $("#SM_Username_Lbl").text(response.result.pseudoName);
+                $("#DA_Username_Lbl").text(response.result.pseudoName + " (@" + response.result.searchName + ")");
+
+                if (response.result.isDisabled) {
+                    $("#SelectedUserInfo_IsDisabled_Lbl").fadeIn(350);
+                    $("#SelectedUserInfoAdditional_Box").addClass("border-danger");
+                    $("#DisableAccount_Container-Open").removeClass("btn-danger");
+                    $("#DisableAccount_Container-Open").addClass("btn-success");
+                    $("#DisableAccount_Container-Open").html(" <i class='fas fa-check-double'></i> <br/>Enable");
+                    $("#EnableAccount_Box").fadeIn(0);
+                    $("#DisableAccount_Box").fadeOut(0);
+                    $("#AboutDisabled_Box").fadeOut(0);
+                    $("#DisableReasons_Box").fadeOut(0);
+                    $("#AboutEnables_Box").fadeIn(0);
+                    $("#DA_MainHeader_Lbl").text("Enabling");
+                }
+                else {
+                    $("#SelectedUserInfo_IsDisabled_Lbl").fadeOut(350);
+                    $("#SelectedUserInfoAdditional_Box").removeClass("border-danger");
+                    $("#DisableAccount_Container-Open").addClass("btn-danger");
+                    $("#DisableAccount_Container-Open").removeClass("btn-success");
+                    $("#DisableAccount_Container-Open").html(" <i class='fas fa-minus'></i> <br/>Disable");
+                    $("#EnableAccount_Box").fadeOut(0);
+                    $("#DisableAccount_Box").fadeIn(0);
+                    $("#AboutDisabled_Box").fadeIn(0);
+                    $("#DisableReasons_Box").fadeIn(0);
+                    $("#AboutEnables_Box").fadeOut();
+                    $("#DA_MainHeader_Lbl").text("Disabling");
+                }
+
+                $("#SMFA_UserId_Val").val(response.result.id);
+                $("#GUPFA_Id_Val").val(response.result.id);
+                $("#DA_Id_Val").val(response.result.id);
+                $("#EA_Id_Val").val(response.result.id);
+                $("#GUPFA_Sbmt_Btn").attr("disabled", false);
+                $("#SendMessage_Container-Open").attr("disabled", false);
+                $("#DisableAccount_Container-Open").attr("disabled", false);
+            }, 200);
+        }
+        else {
+            animatedClose(false, "Preload_Container");
+            setTimeout(function () {
+                $("#SelectedUserInfo_Email_Lbl").text("No Info");
+                $("#SelectedUserInfo_ProjectsCount_Lbl").text("0");
+                $("#SelectedUserInfo_IsVerified_Lbl").text("No Info");
+                $("#SelectedUserInfo_Username_Lbl").text("No Info");
+                $("#SelectedUserInfo_RemovedProjects_Lbl").text("0");
+                $("#SelectedUserInfo_AboutPremiumSub_Lbl").text("No Premium Sub.");
+                $("#SelectedUserInfo_Pseudoname_Lbl").text("No Info");
+                $("#SelectedUserInfoMain_Pseudoname_Lbl").text("No Selected User");
+                $("#SelectedUserInfoMain_Searchname_Lbl").text("Choose a user from search list to appear it here");
+                $("#SelectedUserInfo_Searchname_Lbl").text("No Info");
+                $("#SelectedUserInfo_IsConfirmed_Lbl").text("No Info");
+                $("#GUPFA_Id_Val").val(0);
+                $("#DA_Id_Val").val(0);
+                $("#GUPFA_Sbmt_Btn").attr("disabled", true);
+                $("#SendMessage_Container-Open").attr("disabled", true);
+                $("#DisableAccount_Container-Open").attr("disabled", true);
+
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
+            }, 125);
+        }
+    });
+});
+
+$("#GetUserProjectsForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#ProjectPreviewResult_Box").empty();
+            if (response.count > 0) {
+                $.each(response.result, function (index) {
+                    let div = $("<div class='bordered-container mt-2 p-2'></div>");
+                    let viewsCountIcon = $("<span class='badge bg-light text-dark warning-badge safe-font float-end ms-1'></span>");
+                    let title = $("<span class='h2'></span>");
+                    let separatorOne = $("<div></div>");
+                    let createdAt = $("<small class='card-text text-muted'></small>");
+                    let lastModifiedAt = $("<small class='card-text text-muted'></small>");
+                    let isRemovedIcon = $("<span class='badge bg-danger warning-badge fw-normal'> <i class='fas fa-minus'></i> Removed Project</span>");
+                    let isClosedIcon = $("<span class='badge bg-warning warning-badge fw-normal'> <i class='fas fa-folder'></i> Closed Project</span>");
+                    let targetPriceLbl = $("<p class='card-text text-primary safe-font mt-1 fs-4'></p>");
+                    let btnsDiv = $("<di class='mt-2'></div>");
+                    let pageLink = $("<a class='btn btn-text btn-sm me-3'> <i class='fas fa-link'></i> Project Page</a>");
+                    let blockBtn = $("<button type='button' class='btn btn-text text-danger btn-sm'> <i class='fas fa-minus'></i> Block</button>");
+
+                    title.text(response.result[index].name);
+                    viewsCountIcon.text(response.result[index].views.toLocaleString() + " views");
+                    createdAt.text("created " + convertDateAndTime(response.result[index].createdAt, false, true));
+                    lastModifiedAt.text(", last updated at " + convertDateAndTime(response.result[index].lastUpdatedAt, true, true));
+                    targetPriceLbl.text(response.result[index].targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                    pageLink.attr("href", "/Project/Info/" + response.result[index].id);
+
+                    div.append(viewsCountIcon);
+                    div.append(title);
+                    div.append(separatorOne);
+                    div.append(createdAt);
+                    div.append(lastModifiedAt);
+                    if (response.result[index].isRemoved) {
+                        div.append(isRemovedIcon);
+                    }
+                    if (response.result[index].isClosed) {
+                        div.append(isClosedIcon);
+                    }
+                    btnsDiv.append(pageLink);
+                    btnsDiv.append(blockBtn);
+                    div.append(targetPriceLbl);
+                    div.append(btnsDiv);
+
+                    $("#ProjectPreviewResult_Box").append(div);
+                });
+                animatedOpen(false, "ProjectPreview_Container", true, true);
+            }
+            else {
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-slash text-warning'></i> ");
+            }
+
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+
+$("#SearchForProjects_Btn").on("click", function () {
+    animatedClose(false, "Search_Container");
+    $(this).addClass("text-primary");
+    $("#SearchForUsers_Btn").removeClass("text-primary");
+    setTimeout(function () {
+        $("#SearchForProject_Box").fadeIn(0);
+        $("#SearchForUsers_Box").fadeOut(0);
+    }, 175);
+    setTimeout(function () {
+        animatedOpen(false, "Search_Container", false, false);
+    }, 175);
+});
+$("#SearchForUsers_Btn").on("click", function () {
+    animatedClose(false, "Search_Container");
+    $(this).addClass("text-primary");
+    $("#SearchForProjects_Btn").removeClass("text-primary");
+    setTimeout(function () {
+        $("#SearchForProject_Box").fadeOut(0);
+        $("#SearchForUsers_Box").fadeIn(0);
+    }, 175);
+    setTimeout(function () {
+        animatedOpen(false, "Search_Container", false, false);
+    }, 175);
 });
 
 $("#SearchFormUsers_Form").on("submit", function (event) {
@@ -1961,19 +2208,17 @@ $("#SearchFormUsers_Form").on("submit", function (event) {
             if (response.count > 0) {
                 animatedClose(false, "Search_Container");
                 setTimeout(function () {
+                    animatedClose(false, "Preload_Container");
+                }, 125);
+
+                setTimeout(function () {
                     $("#SearchResultCount_Span").text(response.count);
                     $("#SearchResultsMain_Box").empty();
                     $.each(response.result, function (index) {
                         let div = $("<div class='box-container bg-light p-2 mt-2'></div>");
-                        let isVerifiedHdn = $("<input type='hidden' />");
-                        let isConfirmedHdn = $("<input type='hidden' />");
                         let pseudoName = $("<span class='h5'></span>");
                         let separator1 = $("<div></div>");
                         let searchName = $("<small class='card-text text-muted'></small>");
-                        let userName = $("<input type='hidden' />");
-                        let projectsCount = $("<input type='hidden' />");
-                        let removedProjectsCount = $("<input type='hidden' />");
-                        let emailName = $("<input type='hidden' />");
                         let buttonsDiv = $("<div class='box-container mt-3'></div>");
                         let btnsDivRow = $("<div class='row'></div>");
                         let btnsDivCol1 = $("<div class='col'></div>");
@@ -1983,22 +2228,10 @@ $("#SearchFormUsers_Form").on("submit", function (event) {
 
                         pseudoName.text(response.result[index].pseudoName);
                         searchName.text("@" + response.result[index].searchName);
-                        userName.val(response.result[index].userName);
-                        projectsCount.val(response.result[index].projectsCount);
-                        removedProjectsCount.val(response.result[index].removedProjectsCount);
-                        isVerifiedHdn.val(response.result[index].IsVerifiedAccount);
-                        isConfirmedHdn.val(response.result[index].IsEmailConfirmed);
-                        emailName.val(response.result[index].email);
                         div.append(pseudoName);
                         div.append(separator1);
                         div.append(searchName);
-                        div.append(userName);
-                        div.append(emailName);
-                        div.append(projectsCount);
-                        div.append(removedProjectsCount);
                         btnsDivCol1.append(selectBtn);
-                        btnsDivCol1.append(isConfirmedHdn);
-                        btnsDivCol1.append(isVerifiedHdn);
                         btnsDivCol2.append(pageLink);
                         btnsDivRow.append(btnsDivCol1);
                         btnsDivRow.append(btnsDivCol2);
@@ -2008,30 +2241,141 @@ $("#SearchFormUsers_Form").on("submit", function (event) {
                         div.attr("id", "USRB-" + response.result[index].id);
                         pseudoName.attr("id", "USRP-" + response.result[index].id);
                         searchName.attr("id", "USRS-" + response.result[index].id);
-                        userName.attr("id", "USRU-" + response.result[index].id);
-                        emailName.attr("id", "USRE-" + response.result[index].id);
-                        isVerifiedHdn.attr("id", "USRIV-" + response.result[index].id);
-                        isConfirmedHdn.attr("id", "USRIC-" + response.result[index].id);
-                        projectsCount.attr("id", "USRPC-" + response.result[index].id);
-                        removedProjectsCount.attr("id", "USRRPC-" + response.result[index].id);
                         pageLink.attr("href", "/User/Info/" + response.result[index].searchName);
                         selectBtn.attr("id", "SelectSearchResultUser-" + response.result[index].id);
                         $("#SearchResultsMain_Box").append(div);
                     });
                 }, 150);
-                setTimeout(function () {
-                    $("#SearchResults_Box").fadeIn(0);
-                    animatedOpen(false, "Search_Container", false, false);
-                }, 225);
+
+                if (fullWidth >= 717) {
+                    setTimeout(function () {
+                        $("#UserSearchResults_Box").fadeIn(0);
+                        $("#ProjectSearchResults_Box").fadeOut(0);
+                        $("#SearchResults_Box").fadeIn(0);
+                        animatedOpen(false, "Preload_Container", true, true);
+                    }, 175);
+                    setTimeout(function () {
+                        animatedOpen(false, "Search_Container", false, false);
+                    }, 225);
+                }
+                else {
+                    setTimeout(function () {
+                        $("#UserSearchResults_Box").fadeIn(0);
+                        $("#ProjectSearchResults_Box").fadeOut(0);
+                        $("#SearchResults_Box").fadeIn(0);
+                        animatedOpen(false, "Search_Container", false, false);
+                    }, 175);
+                }
+            }
+            else {
+                animatedClose(false, "Search_Container");
+                $("#SearchResultsMain_Box").empty();
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-slash text-warning'></i> ");
             }
         }
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
             $("#SearchResults_Box").fadeIn(250);
             setTimeout(function () {
+                $("#UserSearchResults_Box").fadeIn(0);
+                $("#ProjectSearchResults_Box").fadeOut(0);
                 $("#SearchResultCount_Span").text(response.count);
                 $("#SearchResultsMain_Box").empty();
             }, 250);
+        }
+    });
+});
+$("#FindAdminProjects_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#SearchResultCount_Span").text(response.count);
+            if (response.count > 0) {
+                animatedClose(false, "Preload_Container");
+                animatedClose(false, "Search_Container");
+                setTimeout(function () {
+                    $("#SearchResultsMain_Box").empty();
+                    $("#SearchResults_Box").fadeIn(0);
+                }, 125);
+
+                setTimeout(function () {
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='box-container mt-1 bg-light p-2'></div>");
+                        let title = $("<span class='h5'></span>");
+                        let userName = $("<small class='card-text text-muted'></small>");
+                        let separatorOne = $("<div></div>");
+                        let separatorTwo = $("<div></div>");
+                        let isRemovedIcon = $("<span class='badge bg-danger text-light warning-badge fw-normal'> <i class='fas fa-minus'></i> Removed</span>");
+                        let btnsDivRow = $("<div class='row'></div>");
+                        let btnsDiv=$("<div class='mt-3 box-container'></div>")
+                        let divCol1 = $("<div class='col'></div>");
+                        let divCol2 = $("<div class='col'></div>");
+                        let divCol3 = $("<div class='col'></div>");
+                        let projectPageLink = $("<a class='btn btn-text btn-sm w-100'> <i class='fas fa-link'></i> Project Page</a>");
+                        let projectSelectBtn = $("<button type='button' class='btn btn-text btn-sm w-100 select-project-result'> <i class='fas fa-check'></i> Select</button>");
+                        let projectCreatorInfoBtn = $("<button type='button' class='btn btn-text btn-sm w-100'> <i class='fas fa-user-circle'></i> Creator Info</button>");
+
+                        title.text(response.result[index].name);
+                        userName.text(response.result[index].userName);
+
+                        div.attr("id", "PSRD-" + response.result[index].id);
+                        title.attr("id", "PRSRT-" + response.result[index].id);
+                        userName.attr("id", "PSRU-" + response.result[index].id);
+                        projectPageLink.attr("href", "/Project/Info/" + response.result[index].id);
+                        projectSelectBtn.attr("id", "PRSSB-" + response.result[index].id);
+                        projectCreatorInfoBtn.attr("id", "PRSCB-" + response.result[index].id);
+                        divCol1.append(projectSelectBtn);
+                        divCol2.append(projectPageLink);
+                        divCol3.append(projectCreatorInfoBtn);
+                        btnsDivRow.append(divCol1);
+                        btnsDivRow.append(divCol2);
+                        btnsDivRow.append(divCol3);
+                        btnsDiv.append(btnsDivRow);
+
+                        div.append(title);
+                        div.append(separatorOne);
+                        div.append(userName);
+                        if (response.result[index].isRemoved) {
+                            div.append(separatorTwo);
+                            div.append(isRemovedIcon);
+                        }
+                        div.append(btnsDiv);
+                        $("#SearchResultsMain_Box").append(div);
+                    });
+                }, 150); 
+
+                if (fullWidth >= 717) {
+                    setTimeout(function () {
+                        $("#SearchResultsMain_Box").fadeIn(0);
+                        animatedOpen(false, "Preload_Container", true, true);
+                    }, 175);
+                    setTimeout(function () {
+                        $("#UserSearchResults_Box").fadeOut(0);
+                        $("#ProjectSearchResults_Box").fadeIn(0);
+                        animatedOpen(false, "Search_Container", false, false);
+                    }, 225);
+                }
+                else {
+                    setTimeout(function () {
+                        $("#UserSearchResults_Box").fadeOut(0);
+                        $("#ProjectSearchResults_Box").fadeIn(0);
+                        animatedOpen(false, "Search_Container", false, false);
+                    }, 150);
+                }
+            }
+            else {
+                animatedClose(false, "Search_Container");
+                $("#SearchResultsMain_Box").fadeOut(0);
+                $("#SearchResultsMain_Box").empty(0);
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle'></i>");
+            }
+        }
+        else {
+            $("#SearchResultsMain_Box").fadeOut(0);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle'></i>");
         }
     });
 });
@@ -2341,7 +2685,12 @@ $("#GetMessages_Btn").on("click", function (event) {
                         markAsReadBtn.fadeOut(0);
                     }
                     else isChecked.html(" <i class='fas fa-check text-muted'></i> ");
-                    senderName.text(response.result[index].senderName);
+                    if (response.result[index].isFromSupports) {
+                        senderName.html(response.result[index].senderName + ' <span class="badge bg-light text-primary warning-badge"><i class="fas fa-user-shield"></i></span> ');
+                    }
+                    else {
+                        senderName.text(response.result[index].senderName);
+                    }
 
                     div.attr("id", "AllMessages-" + response.result[index].id);
                     senderName.attr("id", "SentFrom-" + response.result[index].id);
@@ -3124,6 +3473,17 @@ $("#Project_Description").on("keyup", function () {
 });
 $("#TextPart").on("keyup", function () {
     checkAcceptability();
+});
+$("#DisablerText").on("keyup", function () {
+    let length = $(this).val().length;
+    if (length >= 40) {
+        $("#DA_Sbmt_Btn").attr("disabled", false);
+        $("#DA_Sbmt_Btn").text("Disable");
+    }
+    else {
+        $("#DA_Sbmt_Btn").attr("disabled", true);
+        $("#DA_Sbmt_Btn").text("Describtion must be more than 40");
+    }
 });
 $("#Text").on("keyup", function () {
     let value = lengthCounter("Text", 2500);
@@ -4512,7 +4872,13 @@ function navBarBtnSelector(href) {
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
         $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
     }
-    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("info")  || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
+    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("info") || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
+        $("#HomeLink_Btn").fadeOut(0);
+        $("#FirstReserve_Btn").fadeIn(0);
+        $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
+        $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
+    }
+    else if (href.toLowerCase().includes("settings")) {
         $("#HomeLink_Btn").fadeOut(0);
         $("#FirstReserve_Btn").fadeIn(0);
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");

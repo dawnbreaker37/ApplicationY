@@ -30,7 +30,7 @@ namespace ApplicationY.Controllers
                 if(UserInfo != null)
                 {
                     List<Project?>? Projects = null;
-                    IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, true);
+                    IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, true, false);
                     if(Projects_Preview != null)
                     {
                         Projects = Projects_Preview.ToList();

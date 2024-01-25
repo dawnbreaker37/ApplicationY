@@ -25,6 +25,18 @@
             <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
             <input type="hidden" name="SubscriberId" id="SubOption_SubscriberId_Val" value="@UserInfo.Id" />
         </form>
+        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProjectForAdmins_Form">
+            <input type="hidden" name="Id" id="GFPFA_Id_Val" value="0" />
+            <input type="hidden" name="GetUserName" value="false" />
+            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+            <input type="hidden" name="GetAdditionalInfo" value="false" />
+            <input type="hidden" name="GetFiles" value="false" />
+            <input type="hidden" name="GetRemovedToo" value="true" />
+        </form>
+        <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfoForAdmins_Form">
+            <input type="hidden" name="Id" id="GUIFA_Id_Val" value="0" />
+            <input type="hidden" name="IsForAdmins" value="true" />
+        </form>
     </div>
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
@@ -50,6 +62,73 @@
         </div>
     </div>
 
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
+        <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="SendMessage_Container-Close"></button>
+            <h5 class="h5 text-truncate">Send Message to <span class="text-primary" id="SM_Username_Lbl"> unknown user</span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div>
+                <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessageFromAdmins_Form">
+                    <input type="hidden" name="UserId" id="SMFA_UserId_Val" value="0" />
+                    <input type="hidden" name="SenderId" id="SMFA_SenderId_Val" value="@UserInfo.Id" />
+                    <div class="w-100">
+                        <textarea name="Text" class="form-control send-msg-form-control" id="SMFA_Text_Textarea" rows="1" maxlength="2500" placeholder="Enter your message here"></textarea>
+                    </div>
+                    <div>
+                        <small class="card-text text-muted">Your message will appear in notifications of users from  Admin or Support</small>
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100" id="SMFA_SendSbmt_Btn">Send Message</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="DisableAccount_Container">
+        <div class="header-container p-3 pb-2" id="DisabledAccount_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="DisableAccount_Container-Close"></button>
+            <h5 class="h5 text-truncate"><span id="DA_MainHeader_Lbl">Disabling</span> <span class="text-danger" id="DA_Username_Lbl"></span></h5>
+        </div>
+        <div class="mt-1 p-2">
+            <div class="box-container bg-light p-2" id="AboutDisabled_Box">
+                <h6 class="h6 safe-font">About disables</h6>
+                <small class="card-text text-muted">By disabling any account you restrict access to all information on that account (including projects, posts and etc.), so please, be sure that you're disabling true one. By the way, you can every single moment enable the disabled one, if you had made a mistake or sth else. Good luck.</small>
+            </div>
+            <div class="box-container bg-light p-2 mt-2" id="DisableReasons_Box">
+                <h6 class="h6 safe-font">Describe the reason</h6>
+                <small class="card-text text-muted">Please, describe the reason for the restriction (disabling) correctly and step by step so anyone could understand why this happened</small>
+            </div>
+            <div class="mt-2" id="DisableAccount_Box">
+                <form method="post" asp-controller="Account" asp-action="Disable" id="DisableAccount_Form">
+                    <div>
+                        <input type="hidden" name="Id" id="DA_Id_Val" value="0" />
+                        <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
+                        <textarea name="Description" id="DisablerText" maxlength="1000" rows="1" class="form-control send-msg-form-control w-100" placeholder="Describe the reason of restriction"></textarea>
+                    </div>
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-danger btn-standard-with-no-colour w-100" id="DA_Sbmt_Btn" disabled>Disable</button>
+                    </div>
+                </form>
+            </div>
+            <div class="box-container p-2 bg-light" style="display: none;" id="AboutEnables_Box">
+                <small class="card-text text-muted">You could enable any account without describing the reason</small>
+            </div>
+            <div class="mt-2" style="display: none;" id="EnableAccount_Box">
+                <form method="post" asp-controller="Account" asp-action="Disable" id="EnableAccount_Form">
+                    <div>
+                        <input type="hidden" name="Id" id="EA_Id_Val" value="0" />
+                        <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
+                    </div>
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-success btn-standard-with-no-colour w-100" id="EA_Sbmt_Btn">Enable</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container shadow-standard scrollbar-hidden" id="AboutSelectedProject_Container">
         <div class="header-container p-3 pb-2" id="AboutSelectedProject_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="AboutSelectedProject_Container-Close"></button>
@@ -61,9 +140,9 @@
         <div class="header-container p-3 pb-2" id="AboutAdmin_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Search_Container-Close"></button>
             <h5 class="h5 text-truncate">Search</h5>
-            <div class="mt-1">
-                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour me-1" id="SearchForUsers_Btn">Search for users</button>
-                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour" id="SearchForProjects_Btn">Search for projects</button>
+            <div>
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour me-1 mt-1 text-primary" id="SearchForUsers_Btn">Search for users</button>
+                <button type="button" class="btn btn-light btn-sm btn-standard-with-no-colour mt-1" id="SearchForProjects_Btn">Search for projects</button>
             </div>
             <div class="mt-1 border-top pt-2">
                 <div class="box-container" id="SearchForUsers_Box">
@@ -74,10 +153,12 @@
                         </div>
                     </form>
                 </div>
-                <div class="box-continer" id="SearchForProject_Box">
+                <div class="box-continer" style="display: none;" id="SearchForProject_Box">
                     <form method="get" asp-controller="Project" asp-action="FindProjects" id="FindAdminProjects_Form">
                         <div>
                             <input type="text" name="Keyword" id="SFP_Keyword_Val" autocomplete="off" class="form-control w-100" placeholder="Enter search value" />
+                            <input type="hidden" name="MinPrice" value="0" />
+                            <input type="hidden" name="MaxPrice" value="0" />
                             <button type="submit" class="btn btn-primary w-100 mt-2 btn-standard-with-no-colour">Search</button>
                         </div>
                     </form>
@@ -128,21 +209,30 @@
     </div>
 </div>
 
+<div class="main-container shadow-stadandard" id="ProjectPreview_Container">
+    <div class="header-container p-3 pb-2" id="ProjectPreview_Container-Header">
+        <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
+        <h5 class="h5 text-truncate">Project Preview</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0" id="ProjectPreviewResult_Box">
+    </div>
+</div>
+
 <div class="main-container shadow-standard" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Preload_Container-Close"></button>
         <h5 class="h5 text-truncate">Toolbox</h5>
     </div>
-    <div class="mt-2 p-3 pt-0">
+    <div class="mt-2 p-3 pt-0" id="UserSearchResults_Box">
         <div class="box-container bg-light p-3" id="SelectedUserInfo_Box">
             <span class="h2" id="SelectedUserInfoMain_Pseudoname_Lbl">No selected user</span>
             <div></div>
             <small class="card-text text-muted" id="SelectedUserInfoMain_Searchname_Lbl">Search and select for anyone to appear them here</small>
-@*             <div class="mt-2"></div>
-            <small class="card-text white-space-on" id="SelectedUserInfo_Description_Lbl"></small> *@
         </div>
         <div class="bordered-container mt-2 p-2" id="SelectedUserInfoAdditional_Box">
-            <h6 class="h6 safe-font">Additional Info</h6>
+            <span class="h6 safe-font">Additional Info</span>
+            <div></div>
+            <span class="badge bg-danger warning-badge safe-font" style="display: none;" id="SelectedUserInfo_IsDisabled_Lbl"> <i class="fas fa-minus"></i> Disabled</span>
             <div class="mt-1 p-3 pb-1 pt-1 text-center">
                 <div class="row">
                     <div class="col bordered-container p-2 me-1">
@@ -153,17 +243,17 @@
                         <p class="card-text safe-font">Projects</p>
                         <small class="card-text" id="SelectedUserInfo_ProjectsCount_Lbl">No Info</small>
                     </div>
-                    <div class="col bordered-container p-2 me-1">
+                    <div class="col bordered-container p-2">
                         <p class="card-text safe-font">Removed Projects</p>
                         <small class="card-text" id="SelectedUserInfo_RemovedProjects_Lbl">No Info</small>
                     </div>
                 </div>
                 <div class="row mt-2">
-                    <div class="col bordered-container p-2">
+                    <div class="col bordered-container p-2 me-1">
                         <p class="card-text safe-font">Is Verified</p>
                         <small class="card-text" id="SelectedUserInfo_IsVerified_Lbl">No Info</small>
                     </div>
-                    <div class="col bordered-container p-2">
+                    <div class="col bordered-container p-2 me-1">
                         <p class="card-text safe-font">Premium Sub.</p>
                         <small class="card-text" id="SelectedUserInfo_AboutPremiumSub_Lbl">No Info</small>
                     </div>
@@ -181,20 +271,92 @@
                         <p class="card-text safe-font">Searchname</p>
                         <small class="card-text" id="SelectedUserInfo_Searchname_Lbl">No Info</small>
                     </div>
-                    <div class="col bordered-container p-2 me-1">
+                    <div class="col bordered-container p-2">
                         <p class="card-text safe-font">Username</p>
                         <small class="card-text" id="SelectedUserInfo_Username_Lbl">No Info</small>
                     </div>
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <button type="button" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-comments"></i> <br/>Message</button>
+                        <button type="button" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100 smallside-btn-open-container" id="SendMessage_Container-Open" disabled> <i class="far fa-comments"></i> <br/>Message</button>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-folder"></i> <br />Projects</button>
+                        <div>
+                            <form method="get" asp-controller="Project" asp-action="GetUserProjects" id="GetUserProjectsForAdmins_Form">
+                                <input type="hidden" name="Id" id="GUPFA_Id_Val" value="0" />
+                                <input type="hidden" name="ForAdmins" value="true" />
+                                <button type="submit" class="btn btn-light btn-standard-with-no-colour btn-sm w-100" id="GUPFA_Sbmt_Btn" disabled> <i class="far fa-folder"></i> <br />Projects</button>
+                            </form>
+                        </div>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm w-100" disabled> <i class="fas fa-minus"></i> <br />Disable</button>
+                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm smallside-btn-open-container w-100" id="DisableAccount_Container-Open" disabled> <i class="fas fa-minus"></i> <br />Disable</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="mt-2 p-3 pt-0" style="display: none;" id="ProjectSearchResults_Box">
+        <div class="box-container bg-light p-3" id="SelectedProjectInfo_Box">
+            <span class="h2" id="SelectedProjectInfoMain_Title_Lbl">No selected project</span>
+            <div class="mt-1"></div>
+            <small class="card-text text-muted" id="SelectedProjectInfoDescription_Searchname_Lbl">Search and select for some projects to appear them here</small>
+        </div>
+        <div class="bordered-container mt-2 p-2" id="SelectedProjectInfoAdditional_Box">
+            <h6 class="h6 safe-font">Main Information</h6>
+            <div class="mt-1 p-3 pb-1 pt-1 text-center">
+                <div class="row">
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Project Title</p>
+                        <small class="card-text" id="SelectedProjectInfo_Title_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Created</p>
+                        <small class="card-text" id="SelectedProjectInfo_CreatedAt_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Last Modified</p>
+                        <small class="card-text" id="SelectedProjectInfo_LastModifiedAt_Lbl">No Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Is Closed</p>
+                        <small class="card-text" id="SelectedProjectInfo_IsClosed_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Is Removed</p>
+                        <small class="card-text" id="SelectedProjectInfo_IsRemoved_Lbl">No Info</small>
+                    </div>
+                    <div class="col bordered-container p-2">
+                        <p class="card-text safe-font">Views</p>
+                        <small class="card-text" id="SelectedProjectInfo_ViewsCount_Lbl">No Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Target Price</p>
+                        <small class="card-text" id="SelectedProjectInfo_TargetPrice_Lbl">No Value</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">Creator</p>
+                        <small class="card-text" id="SelectedProjectInfo_CreatorInfo_Lbl">No Creator Info</small>
+                    </div>
+                    <div class="col bordered-container p-2 me-1">
+                        <p class="card-text safe-font">ID (Shortlink)</p>
+                        <small class="card-text" id="SelectedProjectInfo_Shortlink_Lbl">No Shortlink Info</small>
+                    </div>
+                </div>
+                <div class="row mt-2">
+                    <div class="col">
+                        <button type="button" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-window-maximize"></i> <br />Preview</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-user-circle"></i> <br />About Creator</button>
+                    </div>
+                    <div class="col">
+                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm w-100" disabled> <i class="fas fa-minus"></i> <br />Remove</button>
                     </div>
                 </div>
             </div>

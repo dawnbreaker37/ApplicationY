@@ -141,7 +141,7 @@ namespace ApplicationY.Repositories
             if (Keyword != null)
             {
                 if (!NeedAdditionalInfo) return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword.ToLower()) || u.PseudoName!.ToLower().Contains(Keyword) || u.Email!.ToLower().Contains(Keyword.ToLower()) || u.Description != null && u.Description.ToLower().Contains(Keyword.ToLower()) || u.Country != null && u.Country.Name != null && u.Country.Name.ToLower().Contains(Keyword.ToLower())).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, CountryFullName = u.Country!.Name, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => !p.IsRemoved) });
-                else return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword.ToLower()) || u.PseudoName!.ToLower().Contains(Keyword.ToLower()) || u.Email!.ToLower().Contains(Keyword.ToLower()) || (u.UserName != null && u.UserName.ToLower().Contains(Keyword.ToLower()))).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, Email = u.Email, SearchName = u.SearchName, UserName = u.UserName, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => !p.IsRemoved), RemovedProjectsCount = u.Projects == null ? 0 : u.Projects.Count(p => p.IsRemoved), IsVerifiedAccount = u.IsVerified, IsEmailConfirmed = u.EmailConfirmed });
+                else return _context.Users.AsNoTracking().Where(u => u.SearchName!.ToLower().Contains(Keyword.ToLower()) || u.PseudoName!.ToLower().Contains(Keyword.ToLower()) || u.Email!.ToLower().Contains(Keyword.ToLower()) || (u.UserName != null && u.UserName.ToLower().Contains(Keyword.ToLower()))).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName });
             }
             else return null;
         }
@@ -152,16 +152,20 @@ namespace ApplicationY.Repositories
             else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
         }
 
-        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo, bool NeedPhoto)
+        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo, bool NeedPhoto, bool ForAdmins)
         {
             if(Id != 0)
             {
-                if (NeedLargerInfo)
+                if (!ForAdmins)
                 {
-                    if(NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
-                    else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                    if (NeedLargerInfo)
+                    {
+                        if (NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                        else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                    }
+                    else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
                 }
-                else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
+                else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, IsDisabled = u.IsDisabled, SearchName = u.SearchName, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, IsVerifiedAccount = u.IsVerified, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, RemovedProjectsCount = u.Projects != null ? u.Projects.Count(p => p.IsRemoved) : 0 }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
         }

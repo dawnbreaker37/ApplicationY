@@ -23,6 +23,7 @@ namespace ApplicationY.ViewModels
         public string? CountryFullName { get; set; }
         public int? ProjectsCount { get; set; }
         public int RemovedProjectsCount { get; set; }
+        public bool IsDisabled { get; set; }
         public int SubscribersCount { get; set; }
         public bool IsVerifiedAccount { get; set; }
         public Country? Country { get; set; }

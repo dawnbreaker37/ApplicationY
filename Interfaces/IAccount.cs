@@ -15,5 +15,6 @@ namespace ApplicationY.Interfaces
         public Task<bool> VerifyEmailAsync(VerifyEmail_ViewModel Model);
         public Task<bool> ChangeEmailViaReserveCodeAsync(ChangeEmail_ViewModel Model);
         public Task<string?> ChangeEmailViaOldEmailAsync(ChangeEmail_ViewModel Model);
+        public Task<int> DisableOrEnableAccountAsync(int Id, int SenderId, string Description);
     }
 }

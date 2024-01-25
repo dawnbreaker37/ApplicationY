@@ -87,7 +87,7 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
-                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, false);
+                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, false, false);
                     if (UserAllProjects_Preview != null)
                     {
                         List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();
@@ -158,7 +158,7 @@ namespace ApplicationY.Controllers
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
                     IQueryable<Audio>? Audios_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true, UserInfo.Id);
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true, UserInfo.Id, false);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -397,9 +397,9 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles)
+        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles, bool GetRemovedToo)
         {
-            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo, SenderId);
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo, SenderId, GetRemovedToo);
             if (ProjectInfo != null)
             {
                 int ImagesCount = 0;
@@ -434,7 +434,7 @@ namespace ApplicationY.Controllers
         {
             if(Id != 0)
             {
-                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true, true, 0);
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true, true, 0, false);
                 if(ProjectInfo != null)
                 {
                     List<GetProjectImages_ViewModel>? Images = null;
@@ -535,9 +535,24 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetUserProjects(int Id)
+        public async Task<IActionResult> FindProjects(string Keyword)
         {
-            IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(Id, 0, false, false);
+            IQueryable<GetProjects_ViewModel>? Project_Preview = _projectRepository.FindProjects(Keyword, 0, 0, 0, true, true);
+            if (Project_Preview != null)
+            {
+                List<GetProjects_ViewModel>? ProjectsResult = await Project_Preview.ToListAsync();
+                int ProjectsCount = ProjectsResult.Count;
+
+                if (ProjectsResult != null) return Json(new { success = true, result = ProjectsResult, count = ProjectsCount });
+                else return Json(new { success = false, alert = "No projects found by this keyword. Please, try another one" });
+            }
+            else return Json(new { success = false, alert = "Something went wrong. Please, try again later" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetUserProjects(int Id, bool ForAdmins)
+        {
+            IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(Id, 0, false, false, ForAdmins);
             if(Projects_Preview != null)
             {
                 List<Project?>? Projects = await Projects_Preview.ToListAsync();
@@ -545,6 +560,5 @@ namespace ApplicationY.Controllers
             }
             return Json(new { success = false, alert = "We haven't found any project from this user so, there's nothing to load" });
         }
-
     }
 }

@@ -9,8 +9,8 @@ namespace ApplicationY.Interfaces
         public Task<string?> EditAsync(CreateProject_ViewModel Model);
         public Task<List<string?>?> EditImagesAsync(int Id, IFormFileCollection Images);
         public Task<int> RemoveAsync(int Id, int UserId);
-        public Task<Project?> GetProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo, int UserId);
-        public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo, bool GetCompressed);
+        public Task<Project?> GetProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo, int UserId, bool GetRemovedToo);
+        public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo, bool GetCompressed, bool ForAdmins);
         public IQueryable<Project?>? GetUserAllProjectsByFilters(ProjectFilters_ViewModel Model);
         public Task<int> GetUsersLastProjectIdAsync(int UserId);
         public Task<int> CloseProjectAsync(int Id, int UserId);

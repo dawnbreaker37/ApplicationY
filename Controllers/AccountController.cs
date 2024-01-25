@@ -269,5 +269,13 @@ namespace ApplicationY.Controllers
             }
             return Json(new { success = false });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> Disable(int Id, int DisablerId, string Description)
+        {
+            int Result = await _accountRepository.DisableOrEnableAccountAsync(Id, DisablerId, Description);
+            if (Result != 0) return Json(new { success = true, alert = "Selected account has been disabled", id = Id });
+            else return Json(new { success = false, alert = "An error occured. Please, try again later" });
+        }
     }
 }

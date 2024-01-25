@@ -29,6 +29,7 @@ namespace ApplicationY.Models
         public DateTime? CreatedAt { get; set; }
         public bool IsCompany { get; set; }
         public bool IsVerified { get; set; }
+        public bool IsDisabled { get; set; }
         [ForeignKey("Country")]
         public int? CountryId { get; set; }
         public Country? Country { get; set; }

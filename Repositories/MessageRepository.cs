@@ -49,7 +49,7 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0)
             {
-                if (!GetSentMessages) return _context.Messages.Where(u => u.UserId == UserId && !u.IsRemoved).Select(u => new GetMessages_ViewModel { Id = u.Id, IsChecked = u.IsChecked, ProjectId = u.ProjectId, SentAt = u.SentAt, Text = u.Text, SenderId = u.SenderId, SenderName = u.User!.PseudoName }).OrderByDescending(u => u.SentAt).AsNoTracking();
+                if (!GetSentMessages) return _context.Messages.Where(u => u.UserId == UserId && !u.IsRemoved).Select(u => new GetMessages_ViewModel { Id = u.Id, IsChecked = u.IsChecked, IsFromSupports = u.IsFromSupports, ProjectId = u.ProjectId, SentAt = u.SentAt, Text = u.Text, SenderId = u.SenderId, SenderName = u.User!.PseudoName }).OrderByDescending(u => u.SentAt).AsNoTracking();
                 else return _context.Messages.AsNoTracking().Where(u => u.SenderId == UserId && !u.IsRemoved).Select(u => new GetMessages_ViewModel { Id = u.Id, IsChecked = u.IsChecked, ProjectName = u.Project!.Name, SentAt = u.SentAt, Text = u.Text, UserId = u.UserId }).OrderByDescending(u => u.SentAt);
             }
             else return null;
@@ -112,17 +112,38 @@ namespace ApplicationY.Repositories
         {
             if(Model.UserId != 0 && Model.SenderId != 0 && !String.IsNullOrEmpty(Model.Text))
             {
-                Model.ProjectId = Model.ProjectId == 0 ? null : Model.ProjectId;
-                Message message = new()
+                Message message;
+                bool IsSenderAnAdmin = await _context.UserRoles.AsNoTracking().AnyAsync(u => u.UserId == Model.UserId && u.RoleId != 0);
+                if (IsSenderAnAdmin)
                 {
-                    IsChecked = false,
-                    IsRemoved = false,
-                    ProjectId = Model.ProjectId,
-                    Text = Model.Text,
-                    SentAt = DateTime.Now,
-                    SenderId = Model.SenderId,
-                    UserId = Model.UserId
-                };
+                    Model.ProjectId = Model.ProjectId == 0 ? null : Model.ProjectId;
+                    message = new()
+                    {
+                        IsChecked = false,
+                        IsRemoved = false,
+                        ProjectId = Model.ProjectId,
+                        Text = Model.Text,
+                        IsFromSupports = true,
+                        SentAt = DateTime.Now,
+                        SenderId = Model.SenderId,
+                        UserId = Model.UserId
+                    };
+                }
+                else
+                {
+                    Model.ProjectId = Model.ProjectId == 0 ? null : Model.ProjectId;
+                    message = new()
+                    {
+                        IsChecked = false,
+                        IsRemoved = false,
+                        ProjectId = Model.ProjectId,
+                        Text = Model.Text,
+                        IsFromSupports = false,
+                        SentAt = DateTime.Now,
+                        SenderId = -256,
+                        UserId = Model.UserId
+                    };
+                }
                 await _context.AddAsync(message);
                 await _context.SaveChangesAsync();
 

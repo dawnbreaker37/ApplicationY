@@ -241,5 +241,42 @@ namespace ApplicationY.Repositories
             }
             return false;
         }
+
+        public async Task<int> DisableOrEnableAccountAsync(int Id, int SenderId, string Description)
+        {
+            if(Id != 0 && SenderId != 0)
+            {
+                bool IsSenderAnAdmin = await _context.UserRoles.AnyAsync(u => u.UserId == SenderId && u.RoleId != 0);
+                if(IsSenderAnAdmin)
+                {
+                    bool IsAccountDisabled = await _context.Users.AnyAsync(u => u.IsDisabled);
+                    if (!IsAccountDisabled)
+                    {
+                        if ((!String.IsNullOrEmpty(Description)) && Description.Length <= 1000 && Description.Length >= 40)
+                        {
+                            await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsDisabled, true));
+                            DisabledAccount disabledAccount = new DisabledAccount
+                            {
+                                Description = Description,
+                                DisabledAt = DateTime.Now,
+                                SenderId = SenderId,
+                                UserId = Id
+                            };
+                            await _context.AddAsync(disabledAccount);
+                            await _context.SaveChangesAsync();
+
+                            return Id;
+                        }
+                    }
+                    else
+                    {
+                        await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsDisabled, false));
+                        int Result = await _context.DisabledAccounts.Where(u => u.UserId == Id && u.SenderId == SenderId).ExecuteDeleteAsync();
+                        if(Result != 0) { return Id; }
+                    }
+                }
+            }
+            return 0;
+        }
     }
 }
