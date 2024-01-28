@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
 
 namespace ApplicationY.Controllers
 {
@@ -271,11 +272,18 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Disable(int Id, int DisablerId, string Description)
+        public async Task<IActionResult> Disable(int Id, string Description)
         {
-            int Result = await _accountRepository.DisableOrEnableAccountAsync(Id, DisablerId, Description);
-            if (Result != 0) return Json(new { success = true, alert = "Selected account has been disabled", id = Id });
-            else return Json(new { success = false, alert = "An error occured. Please, try again later" });
+            string? CurrentUserId = _userManager.GetUserId(User);
+            int CurrentUserId_Int32;
+            bool TryParseResult = Int32.TryParse(CurrentUserId, out CurrentUserId_Int32);
+
+            if (TryParseResult)
+            {
+                int Result = await _accountRepository.DisableOrEnableAccountAsync(Id, CurrentUserId_Int32, Description);
+                if (Result != 0) return Json(new { success = true, alert = "Selected account has been disabled", id = Id });
+            }
+            return Json(new { success = false, alert = "An error occured. Please, try again later" });
         }
     }
 }

@@ -1953,8 +1953,15 @@ $("#DisableAccount_Form").on("submit", function (event) {
             animatedClose(false, "DisableAccount_Container");
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-minus text-danger'></i> ");
             setTimeout(function () {
-                $("#DisableAccount_Box").fadeOut(0);
                 $("#EnableAccount_Box").fadeIn(0);
+                $("#DisableAccount_Box").fadeOut(0);
+                $("#DA_MainHeader_Lbl").text("Enabling");
+                $("#AboutDisabled_Box").fadeOut(0);
+                $("#DisableReasons_Box").fadeOut(0);
+                $("#AboutEnables_Box").fadeIn(0);
+                $("#DisableAccount_Container-Open").removeClass("btn-danger");
+                $("#DisableAccount_Container-Open").addClass("btn-success");
+                $("#DisableAccount_Container-Open").html(" <i class='fas fa-check-double'></i> <br/>Enable");
                 $("#SelectedUserInfoAdditional_Box").addClass("border-danger");
                 $("#SelectedUserInfo_IsDisabled_Lbl").fadeIn(300);
                 animatedOpen(false, "Preload_Container", true, true);
@@ -1975,8 +1982,15 @@ $("#EnableAccount_Form").on("submit", function (event) {
             animatedClose(false, "DisableAccount_Container");
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-check-double text-primary'></i> ");
             setTimeout(function () {
+                $("#DisableAccount_Container-Open").removeClass("btn-success");
+                $("#DisableAccount_Container-Open").addClass("btn-danger");
+                $("#DisableAccount_Container-Open").html(" <i class='fas fa-check-double'></i> <br/>Disable");
                 $("#EnableAccount_Box").fadeOut(0);
                 $("#DisableAccount_Box").fadeIn(0);
+                $("#DA_MainHeader_Lbl").text("Disabling");
+                $("#AboutDisabled_Box").fadeIn(0);
+                $("#DisableReasons_Box").fadeIn(0);
+                $("#AboutEnables_Box").fadeOut(0);
                 $("#SelectedUserInfoAdditional_Box").removeClass("border-danger");
                 $("#SelectedUserInfo_IsDisabled_Lbl").fadeOut(300);
                 animatedOpen(false, "Preload_Container", true, true);
@@ -2031,6 +2045,8 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
 
     $.get(url, data, function (response) {
         if (response.success) {
+            let currentAdminRoleId = $("#AdminRoleId").val();
+
             animatedClose(false, "Preload_Container");
             setTimeout(function () {
                 animatedOpen(false, "Preload_Container", true, true);
@@ -2049,6 +2065,11 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#SelectedUserInfo_IsConfirmed_Lbl").text(response.result.isConfirmed);
                 $("#SM_Username_Lbl").text(response.result.pseudoName);
                 $("#DA_Username_Lbl").text(response.result.pseudoName + " (@" + response.result.searchName + ")");
+                if (response.roleInfo.roleId == 0) $("#SelectedUserInfo_AdminPostValue_Lbl").fadeOut();
+                else {
+                    $("#SelectedUserInfo_AdminPostValue_Lbl").fadeIn(0);
+                    $("#SelectedUserInfo_AdminPostValue_Lbl").html(" <i class='fas fa-user-shield text-primary'></i> " + response.roleInfo.roleName);
+                }
 
                 if (response.result.isDisabled) {
                     $("#SelectedUserInfo_IsDisabled_Lbl").fadeIn(350);
@@ -2083,7 +2104,14 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#EA_Id_Val").val(response.result.id);
                 $("#GUPFA_Sbmt_Btn").attr("disabled", false);
                 $("#SendMessage_Container-Open").attr("disabled", false);
-                $("#DisableAccount_Container-Open").attr("disabled", false);
+                if (response.roleInfo.roleId >= currentAdminRoleId) {
+                    $("#DisableAccount_Container-Open").attr("disabled", true);
+                    $("#GUPFA_Sbmt_Btn").attr("disabled", true);
+                }
+                else {
+                    $("#DisableAccount_Container-Open").attr("disabled", false);
+                    $("#GUPFA_Sbmt_Btn").attr("disabled", false);
+                }
             }, 200);
         }
         else {
@@ -2105,6 +2133,7 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#GUPFA_Sbmt_Btn").attr("disabled", true);
                 $("#SendMessage_Container-Open").attr("disabled", true);
                 $("#DisableAccount_Container-Open").attr("disabled", true);
+                $("#GUPFA_Sbmt_Btn").attr("disabled", true);
 
                 openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
             }, 125);
@@ -2138,7 +2167,7 @@ $("#GetUserProjectsForAdmins_Form").on("submit", function (event) {
                     title.text(response.result[index].name);
                     viewsCountIcon.text(response.result[index].views.toLocaleString() + " views");
                     createdAt.text("created " + convertDateAndTime(response.result[index].createdAt, false, true));
-                    lastModifiedAt.text(", last updated at " + convertDateAndTime(response.result[index].lastUpdatedAt, true, true));
+                    lastModifiedAt.text(", last updated " + convertDateAndTime(response.result[index].lastUpdatedAt, true, true));
                     targetPriceLbl.text(response.result[index].targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
                     pageLink.attr("href", "/Project/Info/" + response.result[index].id);
 
@@ -3482,7 +3511,7 @@ $("#DisablerText").on("keyup", function () {
     }
     else {
         $("#DA_Sbmt_Btn").attr("disabled", true);
-        $("#DA_Sbmt_Btn").text("Describtion must be more than 40");
+        $("#DA_Sbmt_Btn").text("Description must be more than 40 symbs.");
     }
 });
 $("#Text").on("keyup", function () {
@@ -4030,6 +4059,28 @@ $(document).on("click", ".btn-open-liquid-container", function (event) {
 $(document).on("click", ".btn-close-liquid-container", function (event) {
     let trueId = getTrueName(event.target.id);
     bubbleAnimation(trueId, false);
+});
+$(document).on("click", ".btn-open-released-liquid-container", function (event) {
+    let trueId = getTrueName(event.target.id);
+    let title = $("#" + event.target.id).attr("data-title");
+    let textHtml = $("#" + event.target.id).attr("data-html");
+    let bodyElement0 = $("<div class='mt-2 p-1'></div>");
+    let bodyElement1 = $("<p class='card-text'></p>");
+    bodyElement0.append(bodyElement1);
+    bodyElement1.append(textHtml);
+
+    $("#SB_C-Body").empty();
+    $("#SB_C-Title").html(" <i class='fas fa-times'></i> " + title);
+    $("#SB_C-Body").append(bodyElement0);
+
+    bubbleAnimation(trueId, true);
+});
+
+$(document).on("click", ".btn-hide", function (event) {
+    let trueId = getTrueName(event.target.id);
+    if (trueId != null) {
+        slideToLeftAnimation(trueId);
+    }
 });
 
 $(document).on("click", ".add-option", function (event) {
@@ -4849,13 +4900,12 @@ function slideToLeftAnimation(element) {
     let elementCurrentLeft = $("#" + element).css("left");
     elementCurrentLeft = parseInt(elementCurrentLeft);
 
-    $("#" + element).css("position", "relative");
-    $("#" + element).css("border", "none");
-    $("#" + element).css("margin-left", elementCurrentLeft + 16 + "px");
+/*    $("#" + element).css("border", "none");*/
+    $("#" + element).css("filter", "blur(5px)");
     setTimeout(function () {
-        $("#" + element).css("margin-left", "-1200px");
-    }, 350);
-    $("#" + element).fadeOut(500);
+        $("#" + element).css("margin-left", "-2400px");
+        $("#" + element).fadeOut(150);
+    }, 200);
 }
 
 function navBarBtnSelector(href) {
@@ -4878,7 +4928,7 @@ function navBarBtnSelector(href) {
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
         $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
     }
-    else if (href.toLowerCase().includes("settings")) {
+    else if (href.toLowerCase().includes("settings") && fullWidth < 717) {
         $("#HomeLink_Btn").fadeOut(0);
         $("#FirstReserve_Btn").fadeIn(0);
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");

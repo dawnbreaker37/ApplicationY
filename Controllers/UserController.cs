@@ -84,8 +84,17 @@ namespace ApplicationY.Controllers
         public async Task<IActionResult> GetShortUserInfo(int Id, bool IsForAdmins)
         {
             GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true, false, IsForAdmins);
-            if (Result != null) return Json(new { success = true, result = Result });
-            else return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
+            if (IsForAdmins)
+            {
+                int UserRoleId = await _othersRepository.GetUserRoleAsync(Id);
+                GetUserRole_ViewModel? RoleInfo = await _othersRepository.GetUserFullRoleInfoAsync(Id, UserRoleId);
+                if (Result != null) return Json(new { success = true, result = Result, roleInfo = RoleInfo });
+            }
+            else 
+            {
+                if (Result != null) return Json(new { success = true, result = Result });
+            }
+            return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
         }
 
         public async Task<IActionResult> Verify(int Id)

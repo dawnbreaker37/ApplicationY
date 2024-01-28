@@ -19,7 +19,7 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0)
             {
-                return await _context.Roles.Select(x => new GetUserRole_ViewModel { UserId = UserId, RoleId = x.Id, RoleName = x.Name }).FirstOrDefaultAsync(x => x.RoleId == RoleId);
+                return await _context.Roles.AsNoTracking().Where(x => x.Id == RoleId).Select(x => new GetUserRole_ViewModel { RoleId = RoleId, RoleName = x.Name }).FirstOrDefaultAsync();
             }
             else return null;
         }

@@ -12,11 +12,13 @@ namespace ApplicationY.Repositories
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
         private readonly INotifications _notificationsRepository;
-        public AccountRepository(Context context, UserManager<User> userManager, INotifications notificationsRepository) : base(context)
+        private readonly IOthers _othersRepository;
+        public AccountRepository(Context context, UserManager<User> userManager, IOthers others, INotifications notificationsRepository) : base(context)
         {
             _context = context;
             _userManager = userManager;
-            _notificationsRepository = notificationsRepository; 
+            _notificationsRepository = notificationsRepository;
+            _othersRepository = others;
         }
 
         public Task<string?> ChangeEmailViaOldEmailAsync(ChangeEmail_ViewModel Model)
@@ -246,26 +248,30 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && SenderId != 0)
             {
-                bool IsSenderAnAdmin = await _context.UserRoles.AnyAsync(u => u.UserId == SenderId && u.RoleId != 0);
-                if(IsSenderAnAdmin)
+                int SenderRoleId = await _othersRepository.GetUserRoleAsync(SenderId);
+                if(SenderRoleId > 0)
                 {
                     bool IsAccountDisabled = await _context.Users.AnyAsync(u => u.IsDisabled);
                     if (!IsAccountDisabled)
                     {
-                        if ((!String.IsNullOrEmpty(Description)) && Description.Length <= 1000 && Description.Length >= 40)
+                        int TargetRoleId = await _othersRepository.GetUserRoleAsync(Id);
+                        if (TargetRoleId < SenderRoleId)
                         {
-                            await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsDisabled, true));
-                            DisabledAccount disabledAccount = new DisabledAccount
+                            if ((!String.IsNullOrEmpty(Description)) && Description.Length <= 1000 && Description.Length >= 40)
                             {
-                                Description = Description,
-                                DisabledAt = DateTime.Now,
-                                SenderId = SenderId,
-                                UserId = Id
-                            };
-                            await _context.AddAsync(disabledAccount);
-                            await _context.SaveChangesAsync();
+                                await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsDisabled, true));
+                                DisabledAccount disabledAccount = new DisabledAccount
+                                {
+                                    Description = Description,
+                                    DisabledAt = DateTime.Now,
+                                    SenderId = SenderId,
+                                    UserId = Id
+                                };
+                                await _context.AddAsync(disabledAccount);
+                                await _context.SaveChangesAsync();
 
-                            return Id;
+                                return Id;
+                            }
                         }
                     }
                     else
