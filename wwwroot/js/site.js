@@ -1,5 +1,6 @@
 ﻿let keywordIndex = 0;
 let finishIndex = 0;
+let mentionedPeopleIndex = 1;
 let additionalArray = [];
 let isScrolled = false;
 
@@ -55,10 +56,12 @@ window.onload = function () {
     }
 }
 window.onresize = function () {
+    let curUrl = document.location.href;
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
     fullWidth = window.innerWidth;
     fullHeigth = window.innerHeight;
     displayCorrect(fullWidth);
+    navBarBtnSelector(curUrl);
 }
 
 $("#UserName").on("change", function (event) {
@@ -201,13 +204,16 @@ $("#ChangeEmailViaReserveCode_Form").on("submit", function (event) {
         if (response.success) {
             animatedClose(false, "EmailChange_Container");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
+            $("#EmailEditInbox_Lbl").text(response.email);
+            $("#EmailChange_Container-Open").attr("disabled", true);
+            $("#EmailChange_Container-Open").html(" <i class='fas fa-inbox'></i> <br/>Changed Recently");
+            $("#IsEmailChanged_Lbl").text("You've changed your email address recently");
             $("#AY_Email").html(' <i class="fas fa-inbox text-dark"></i> <span class="text-dark">Inbox:</span> ' + response.email);
-            $("#EmailChange_Container-Open").fadeOut(300);
         }
         else {
             animatedClose(false, "EmailChange_Container");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3);
-            $("#EmailChange_Container-Open").fadeOut(300);
+            $("#EmailChange_Container-Open").attr("disabled", true);
         }
     });
 });
@@ -975,7 +981,7 @@ $("#GetFullProject_Form").on("submit", function (event) {
             if (response.result.textPart2 != null) fullText += response.result.textPart2;
             if (response.result.textPart3 != null) fullText += response.result.textPart3;
 
-            if (response.images != null) {
+            if (response.imgsCount > 0) {
                 $("#PreviewImages_Box").fadeIn(350);
                 $("#FullImgsCount_Span").text(response.imgsCount);
                 $("#ImgsCount").val(response.imgsCount);
@@ -1030,21 +1036,13 @@ $("#GetFullProject_Form").on("submit", function (event) {
                         $("#ImgsHiddenUrls_Box").append(hiddenUrl);
                     }
                 }
-                //$.each(response.images, function (index) {
-                //    let div = $("<div class='box-container bg-transparent d-inline-block me-2'></div>");
-                //    let img = $("<img class='image-main-box' alt='Cannot display this image' />");
-                //    img.attr("src", "/ProjectPhotos/" + response.images[index].name);
-                //    div.append(img);
-                //    div.attr("id", "ImgBox-" + response.images[index].id);
-                //    $("#ImgCarouseInner_Box").append(div);
-                //});
             }
             else {
                 $("#Images_Box").empty();
                 $("#PreviewImages_Box").fadeOut(350);
             }
 
-            if (response.audios != null) {
+            if (response.audiosCount > 0) {
                 $("#AudiosExample_Box").empty();
                 let count = response.audios.length;
                 $("#AudiosCount_Lbl").text(count);
@@ -1221,6 +1219,7 @@ $("#GetFullProject_Form").on("submit", function (event) {
                 $("#Preview_LinkBtn2").html(' <i class="fas fa-external-link-alt"></i> No Link');
                 $("#Preview_LinkText2").text("No external second link");
             }
+
             animatedClose(false, "SettingsOfProject_Container");
             if (fullWidth < 717) {
                 smallBarAnimatedOpenAndClose(false);
@@ -1847,8 +1846,11 @@ $("#GetComments_Form").on("submit", function (event) {
     let data = $(this).serialize();
     $.get(url, data, function (response) {
         if (response.success) {
-            $("#CommentsMain_Box").empty();
             if (response.count > 0) {
+                let allLoadedCommentsCount = parseInt(response.skippedCount) + parseInt(response.loadedCount);
+                if (response.skippedCount <= 0) {
+                    $("#CommentsMain_Box").empty();
+                }
                 $.each(response.result, function (index) {
                     let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
                     let title = $("<h6 class='h6'></h6>");
@@ -1875,6 +1877,17 @@ $("#GetComments_Form").on("submit", function (event) {
                     $("#CommentsCount_Val").val(response.count);
                     $("#CommentsCount_Span").text(response.count.toLocaleString());
                 });
+                $("#SkippedCount_Val").val(allLoadedCommentsCount);
+
+                if (allLoadedCommentsCount < response.count) {
+                    $("#LoadMoreComments_Btn").fadeIn(0);
+                    $("#LoadMoreComments_Btn").attr("disabled", false);
+                    $("#LoadMoreComments_Btn").text("Load more comments");
+                }
+                else {
+                    $("#LoadMoreComments_Btn").attr("disabled", true);
+                    $("#LoadMoreComments_Btn").text("No more comments to load");
+                }
             }
             else {
                 let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
@@ -1893,6 +1906,10 @@ $("#GetComments_Form").on("submit", function (event) {
                 $("#CommentsMain_Box").append(div);
                 $("#CommentsCount_Val").val(0);
                 $("#CommentsCount_Span").text(" out of comments");
+
+                $("#LoadMoreComments_Btn").fadeIn(0);
+                $("#LoadMoreComments_Btn").attr("disabled", false);
+                $("#LoadMoreComments_Btn").text("Load more comments");
             }
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "Comments_Container", false, false);
@@ -1902,12 +1919,198 @@ $("#GetComments_Form").on("submit", function (event) {
         }
     });
 });
+$("#LoadMoreComments_Btn").on("click", function () {
+    $("#GetComments_Form").submit();
+});
+
+$("#GetAllPosts_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#HaveSomePosts_Box").empty();
+            let userImgUrl = $("#PageInfo_UserImgUrl").val();
+            $.each(response.result, function (index) {
+                let div = $("<div class='bordered-container p-2 mt-2'></div>");
+                let img = $("<img class='image-ultra-small-box me-2' />");
+                let privateIcon = $("<span class='badge bg-light text-dark warning-badge fw-normal float-end ms-1' style='display: none;'> <i class='fas fa-lock text-danger'></i> Private</span>");
+                let mentionsAllowedIcon = $("<span class='badge bg-light text-dark warning-badge fw-normal float-end ms-1' style='display: none;'> <i class='fas fa-quote-right text-primary'></i> Mentions allowed</span>");
+                let userName = $("<span class='h6 mt-1'>You</h6>");
+                let separator1 = $("<div class='mt-3'></div>");
+                let separator2 = $("<div></div>");
+                let dateNTime = $("<small class='card-text text-muted'></small>");
+                let mainText = $("<span class='card-text white-space-on'></span>");
+                let btnsDiv = $("<div class='box-container bg-light mt-2 p-1'></div>");
+                let btnsRow = $("<div class='row'></div>");
+                let btnCol1 = $("<div class='col'></div>");
+                let btnCol2 = $("<div class='col'></div>");
+                let btnCol3 = $("<div class='col'></div>");
+                let editBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-edit-post'> <i class='fas fa-pen'></i> Edit</button>");
+                let lockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-lock-post'> <i class='fas fa-lock'></i> Lock</button>");
+                let unlockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-unlock-post'> <i class='fas fa-unlock'></i> Unlock</button>");
+                let removeBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 text-danger btn-preremove-post'> <i class='fas fa-trash-alt'></i> Remove</button>");
+
+                div.attr("id", "PostBoxBox-" + response.result[index].id);
+                privateIcon.attr("id", "IsPrivateIcon-" + response.result[index].id);
+                mainText.attr("id", "PostText-" + response.result[index].id);
+                dateNTime.attr("id", "PostDateNTime-" + response.result[index].id);
+                editBtn.attr("id", "EditPost-" + response.result[index].id);
+                lockBtn.attr("id", "LockPost-" + response.result[index].id);
+                unlockBtn.attr("id", "UnlockPost-" + response.result[index].id);
+                removeBtn.attr("id", "RemovePost-" + response.result[index].id);
+                mentionsAllowedIcon.attr("id", "MentionsAllowedIcon-" + response.result[index].id);
+
+                img.attr("src", "/ProfilePhotos/" + userImgUrl);
+                mainText.html(response.result[index].text);
+                dateNTime.text("sent " + convertDateAndTime(response.result[index].createdAt, true, true));
+
+                if (response.result[index].isPrivate) {
+                    privateIcon.fadeIn(0);
+                    lockBtn.fadeOut(0);
+                    unlockBtn.fadeIn(0);
+                }
+                else {
+                    lockBtn.fadeIn(0);
+                    unlockBtn.fadeOut(0);
+                }
+                if (response.result[index].allowMentions) {
+                    mentionsAllowedIcon.fadeIn(0);
+                }
+                else {
+                    mentionsAllowedIcon.fadeOut(0);
+                }
+
+                btnCol1.append(editBtn);
+                btnCol2.append(lockBtn);
+                btnCol2.append(unlockBtn);
+                btnCol3.append(removeBtn);
+                btnsRow.append(btnCol1);
+                btnsRow.append(btnCol2);
+                btnsRow.append(btnCol3);
+                btnsDiv.append(btnsRow);
+
+                div.append(mentionsAllowedIcon);
+                div.append(privateIcon);
+                div.append(img);
+                div.append(userName);
+                div.append(separator2);
+                div.append(dateNTime);
+                div.append(separator1);
+                div.append(mainText);
+                div.append(btnsDiv);
+                $("#HaveSomePosts_Box").append(div);
+            });
+            $("#GetAllPosts_Sbmt_Btn").fadeOut(0);
+            $("#Posts_Container-Open").fadeIn(0);
+            animatedOpen(false, "Posts_Container", false, false);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+
+$("#EditPost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#PostText-" + response.result).text($("#EPF_Text").val());
+            $("#EPF_Text").val("");
+            animatedOpen(false, "Posts_Container", false, false);
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-pen text-primary'></i> ");
+            }, 75);
+        }
+        else {
+            animatedOpen(false, "EditPost_Container", false, false);
+            $("#EPF_Text").val("");
+            setTimeout(function () {
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
+            }, 75);
+        }
+    });
+});
+$("#LockThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPrivateIcon-" + response.result).fadeIn(300);
+            $("#LockPost-" + response.result).fadeOut(0);
+            $("#UnlockPost-" + response.result).fadeIn(0);
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-lock text-danger'></i> ");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+$("#UnlockThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPrivateIcon-" + response.result).fadeOut(300);
+            $("#LockPost-" + response.result).fadeIn(0);
+            $("#UnlockPost-" + response.result).fadeOut(0);
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-unlock text-primary'></i> ");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+$("#RemoveThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let count = $("#PostsCount_Lbl").text();
+            count = parseInt(count);
+            count--;
+            $("#PostsCount_Lbl").text(count);
+            if (count <= 0) {
+                slideToLeftAnimation("PostBoxBox-" + response.result);
+                setTimeout(function () {
+                    $("#HaveSomePosts_Box").fadeOut(225);
+                }, 225);
+                setTimeout(function () {
+                    $("#NoPosts_Box").fadeIn(225);
+                }, 325);
+            }
+            else {
+                slideToLeftAnimation("PostBoxBox-" + response.result);
+            }
+        }
+        else {
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
 
 $(document).on("click", ".select-search-result-user", function (event) {
     let trueId = getTrueId(event.target.id);
-    if (trueId != "") {
+    if (parseInt(trueId)) {
         $("#GUIFA_Id_Val").val(trueId);
         $("#GetShortUserInfoForAdmins_Form").submit();
+    }
+    else {
+        let trueId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        if (trueId != null) {
+            $("#GUIFA_Id_Val").val(trueId);
+            $("#GetShortUserInfoForAdmins_Form").submit();
+        }
     }
 });
 $(document).on("click", ".select-project-result", function (event) {
@@ -1919,6 +2122,13 @@ $(document).on("click", ".select-project-result", function (event) {
     }
     else openModal("Invalid project ID. Please, try again", "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-slash text-warning'></i> ");
 });
+//$(document).on("click", ".get-short-user-info-for-admins", function (event) {
+//    let trueId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+//    if (trueId != null) {
+//        $("#GUIFA_Id_Val").val(trueId);
+//        $("#GetShortUserInfoForAdmins_Form").submit();
+//    }
+//});
 
 $("#SendMessageFromAdmins_Form").on("submit", function (event) {
     event.preventDefault();
@@ -1939,6 +2149,30 @@ $("#SendMessageFromAdmins_Form").on("submit", function (event) {
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
             $("#SMFA_Text_Textarea").val("");
+        }
+    });
+});
+
+$("#ChangeUserRole_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "UserImprove_Container");
+            $("#SelectedUserInfo_AdminPostValue_Lbl").fadeIn(300);
+            $("#SelectedUserInfo_AdminPostValue_Lbl").html(' <i class="fas fa-user-shield"></i> ' + response.roleName);
+            $("#SelectedUserRoleInfo_Status").text(response.roleName);
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-user-plus text-primary'></i> ");
+            }, 175);
+        }
+        else {
+            animatedClose(false, "UserImprove_Container");
+            setTimeout(function () {
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+            }, 175);
         }
     });
 });
@@ -2002,6 +2236,64 @@ $("#EnableAccount_Form").on("submit", function (event) {
     });
 });
 
+$("#DisableAProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#DP_Description").val("");
+            $("#DP_Id_Val").val(0);
+            animatedClose(false, "BlockAProject_Container");
+            setTimeout(function () {
+                $("#SelectedProjectInfo_IsRemoved_Lbl").html("<span class='text-danger'>Removed Project</span>");
+                $("#BlockAProject_Container-Open").addClass("btn-success");
+                $("#BlockAProject_Container-Open").removeClass("btn-danger");
+                $("#BlockAProject_Container-Open").html(" <i class='fas fa-check-double'></i> <br/>Enable");
+                $("#ForEnabledProjects_Box").fadeOut(0);
+                $("#ForDisabledProjects_Box").fadeIn(0);
+                $("#ProjectSearchResults_Box").fadeIn(0);
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-minus text-danger'></i> ");
+                animatedOpen(false, "ProjectSearchResults_Box", true, true);
+            }, 175);
+        }
+        else {
+            animatedClose(false, "BlockAProject_Container");
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+            }, 175);
+        }
+    });
+});
+$("#EnableAProject_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#EP_Id_Val").val(0);
+            animatedClose(false, "BlockAProject_Container");
+            setTimeout(function () {
+                $("#ForDisabledProjects_Box").fadeOut(0);
+                $("#ForDisabledProjects_Box").fadeIn(0);
+                $("#ProjectSearchResults_Box").fadeIn(0);
+                $("#SelectedProjectInfo_IsRemoved_Lbl").text("Saved Project (enabled)");
+                $("#BlockAProject_Container-Open").removeClass("btn-success");
+                $("#BlockAProject_Container-Open").addClass("btn-danger");
+                $("#BlockAProject_Container-Open").html(" <i class='fas fa-minus'></i> <br/>Disable");
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-check-double text-success'></i> ");
+                animatedOpen(false, "ProjectSearchResults_Box", true, true);
+            }, 175);
+        }
+        else {
+            animatedClose(false, "BlockAProject_Container");
+            setTimeout(function () {
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+            }, 175);
+        }
+    });
+});
+
 $("#GetFullProjectForAdmins_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -2011,6 +2303,8 @@ $("#GetFullProjectForAdmins_Form").on("submit", function (event) {
         if (response.success) {
             animatedClose(false, "Preload_Container");
             setTimeout(function () {
+                $("#UserSearchResults_Box").fadeOut(0);
+                $("#ProjectSearchResults_Box").fadeIn(0);
                 let titleName = $("#PRSRT-" + response.result.id).text();
                 let creatorName = $("#PSRU-" + response.result.id).text();
                 
@@ -2025,6 +2319,29 @@ $("#GetFullProjectForAdmins_Form").on("submit", function (event) {
                 $("#SelectedProjectInfo_TargetPrice_Lbl").text(response.result.targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
                 $("#SelectedProjectInfo_CreatorInfo_Lbl").text(creatorName);
                 $("#SelectedProjectInfo_Shortlink_Lbl").text(response.result.id);
+                $("#GFP_Sbmt_Btn").attr("disabled", false);
+                $("#GFP_Id_Val").val(response.result.id);
+                $("#GFP_UserId_Val").val(response.result.userId);
+                $("#GSUIFA_SendId_Btn").attr("data-bs-html", response.result.userId);
+                $("#GSUIFA_SendId_Btn").attr("disabled", false);
+                if (response.result.isRemoved) {
+                    $("#BlockAProject_Container-Open").addClass("btn-success");
+                    $("#BlockAProject_Container-Open").removeClass("btn-danger");
+                    $("#BlockAProject_Container-Open").html(" <i class='fas fa-check-double'></i> <br/>Enable");
+                    $("#BlockAProject_Container-Open").attr("disabled", false);
+                    $("#EP_Id_Val").val(response.result.id);
+                    $("#ForEnabledProjects_Box").fadeOut(0);
+                    $("#ForDisabledProjects_Box").fadeIn(0);
+                }
+                else {
+                    $("#DP_Id_Val").val(response.result.id);
+                    $("#ForEnabledProjects_Box").fadeIn(0);
+                    $("#ForDisabledProjects_Box").fadeOut(0);
+                    $("#BlockAProject_Container-Open").removeClass("btn-success");
+                    $("#BlockAProject_Container-Open").addClass("btn-danger");
+                    $("#BlockAProject_Container-Open").html(" <i class='fas fa-minus'></i> <br/>Disable");
+                    $("#BlockAProject_Container-Open").attr("disabled", false);
+                }
 
                 animatedClose(false, "Search_Container");
             }, 125);
@@ -2033,6 +2350,8 @@ $("#GetFullProjectForAdmins_Form").on("submit", function (event) {
             }, 200);
         }
         else {
+            $("#GFP_Sbmt_Btn").attr("disabled", true);
+            $("#GSUIFA_SendId_Btn").attr("disabled", true);
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i> ");
         }
     });
@@ -2049,9 +2368,12 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
 
             animatedClose(false, "Preload_Container");
             setTimeout(function () {
+                $("#UserSearchResults_Box").fadeIn(0);
+                $("#ProjectSearchResults_Box").fadeOut(0);
                 animatedOpen(false, "Preload_Container", true, true);
             }, 100);
             setTimeout(function () {
+                $("#SelectedUserInfo_Id_Val").val(response.result.id);
                 $("#SelectedUserInfo_Email_Lbl").text(response.result.email);
                 $("#SelectedUserInfo_ProjectsCount_Lbl").text(response.result.projectsCount);
                 $("#SelectedUserInfo_IsVerified_Lbl").text(response.result.isVerified);
@@ -2065,11 +2387,6 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#SelectedUserInfo_IsConfirmed_Lbl").text(response.result.isConfirmed);
                 $("#SM_Username_Lbl").text(response.result.pseudoName);
                 $("#DA_Username_Lbl").text(response.result.pseudoName + " (@" + response.result.searchName + ")");
-                if (response.roleInfo.roleId == 0) $("#SelectedUserInfo_AdminPostValue_Lbl").fadeOut();
-                else {
-                    $("#SelectedUserInfo_AdminPostValue_Lbl").fadeIn(0);
-                    $("#SelectedUserInfo_AdminPostValue_Lbl").html(" <i class='fas fa-user-shield text-primary'></i> " + response.roleInfo.roleName);
-                }
 
                 if (response.result.isDisabled) {
                     $("#SelectedUserInfo_IsDisabled_Lbl").fadeIn(350);
@@ -2104,11 +2421,35 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#EA_Id_Val").val(response.result.id);
                 $("#GUPFA_Sbmt_Btn").attr("disabled", false);
                 $("#SendMessage_Container-Open").attr("disabled", false);
-                if (response.roleInfo.roleId >= currentAdminRoleId) {
-                    $("#DisableAccount_Container-Open").attr("disabled", true);
-                    $("#GUPFA_Sbmt_Btn").attr("disabled", true);
+                if (response.roleInfo != null) {
+                    if (response.roleInfo.roleId == 0) {
+                        $("#SelectedUserInfo_AdminPostValue_Lbl").fadeOut();
+                        $("#SelectedUserRoleInfo_Status").removeClass("text-primary");
+                        $("#SelectedUserRoleInfo_Status").text("Standard User");
+                    }
+                    else {
+                        $("#SelectedUserInfo_AdminPostValue_Lbl").fadeIn(0);
+                        $("#SelectedUserRoleInfo_Status").text(response.roleInfo.roleName);
+                        $("#SelectedUserRoleInfo_Status").addClass("text-primary");
+                        $("#SelectedUserInfo_AdminPostValue_Lbl").html(" <i class='fas fa-user-shield text-primary'></i> " + response.roleInfo.roleName);
+                    }
+
+                    if (response.roleInfo.roleId >= currentAdminRoleId) {
+                        $("#UserImprove_Container-Open").attr("disabled", true);
+                        $("#DisableAccount_Container-Open").attr("disabled", true);
+                        $("#GUPFA_Sbmt_Btn").attr("disabled", true);
+                    }
+                    else {
+                        $("#DisableAccount_Container-Open").attr("disabled", false);
+                        $("#GUPFA_Sbmt_Btn").attr("disabled", false);
+                        $("#UserImprove_Container-Open").attr("disabled", true);
+                    }
                 }
-                else {
+                else { 
+                    $("#SelectedUserInfo_AdminPostValue_Lbl").fadeOut();
+                    $("#SelectedUserRoleInfo_Status").removeClass("text-primary");
+                    $("#SelectedUserRoleInfo_Status").text("Standard User");
+                    $("#UserImprove_Container-Open").attr("disabled", false);
                     $("#DisableAccount_Container-Open").attr("disabled", false);
                     $("#GUPFA_Sbmt_Btn").attr("disabled", false);
                 }
@@ -3477,6 +3818,49 @@ $(document).on("click", ".btn-pause-audio", function (event) {
     }
 });
 
+$(document).on("click", ".btn-edit-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        let text = $("#PostText-" + trueId).text();
+        $("#EPF_Text").val(text);
+        $("#EPF_Id_Val").val(trueId);
+        animatedOpen(false, "EditPost_Container", false, false);
+    }
+});
+$(document).on("click", ".btn-lock-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#LTP_Val_Id").val(trueId);
+        $("#LockThePost_Form").submit();
+    }
+});
+$(document).on("click", ".btn-unlock-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#UTP_Val_Id").val(trueId);
+        $("#UnlockThePost_Form").submit();
+    }
+});
+$(document).on("click", ".btn-preremove-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        openModal("Are you sure to remove the selected post? If you've already decided confirm your action by clicking <span class='badge bg-white text-danger warning-badge'> <i class='fas fa-trash-alt'></i> Remove</span> button again", "Got It", "No, save it", 2, null, 2, null, 6.5, " <i class='fas fa-trash-alt text-danger'></i> ");
+        $("#RemovePost-" + trueId).removeClass("btn-preremove-post");
+        $("#RemovePost-" + trueId).addClass("btn-remove-post");
+        setTimeout(function () {
+            $("#RemovePost-" + trueId).addClass("btn-preremove-post");
+            $("#RemovePost-" + trueId).removeClass("btn-remove-post");
+        }, 6500);
+    }
+});
+$(document).on("click", ".btn-remove-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != null) {
+        $("#RTP_Val_Id").val(trueId);
+        $("#RemoveThePost_Form").submit();
+    }
+});
+
 $("#Name").on("keyup", function () {
     let value = $(this).val();
     if (value.length > 0) $("#PreviewTheProject_Btn").attr("disabled", false);
@@ -3503,15 +3887,17 @@ $("#Project_Description").on("keyup", function () {
 $("#TextPart").on("keyup", function () {
     checkAcceptability();
 });
-$("#DisablerText").on("keyup", function () {
-    let length = $(this).val().length;
+$(".description-check").on("keyup", function (event) {
+    let trueId = event.target.id;
+    let neededBtn = $("#" + trueId).attr("data-bs-html");
+    let length = $("#" + trueId).val().length;
     if (length >= 40) {
-        $("#DA_Sbmt_Btn").attr("disabled", false);
-        $("#DA_Sbmt_Btn").text("Disable");
+        $("#" + neededBtn).attr("disabled", false);
+        $("#" + neededBtn).text("Disable");
     }
     else {
-        $("#DA_Sbmt_Btn").attr("disabled", true);
-        $("#DA_Sbmt_Btn").text("Description must be more than 40 symbs.");
+        $("#" + neededBtn).attr("disabled", true);
+        $("#" + neededBtn).text("Description must be more than 40 symbs.");
     }
 });
 $("#Text").on("keyup", function () {
@@ -3529,27 +3915,25 @@ $("#Text").on("keyup", function () {
         $("#MentionedPeopleInfo_Btn").fadeIn(300);
     }
     else {
-        additionalArray = [];
         $("#MentionedPeopleInfo_Btn").fadeOut(300);
         $("#MentionedPeople_Box").fadeOut(300);
-        setTimeout(function () {
-            $("#MentionedPeople_Box").empty();
-        }, 350);
     }
 });
 $("#MentionedPeopleInfo_Btn").on("click", function () {
     let value = findUserBySearchname($("#Text").val());
-    $("#MentionedPeople_Box").empty();
+    $("#MentionedPeopleCounter_Box").empty();
+    mentionedPeopleIndex = 1;
+    additionalArray = [];
     if (value.length > 0) {
         for (let i = 0; i < value.length; i++) {
-            let badge = $("<span class='badge bg-light text-dark rounded-pill safe-font warning-badge me-1'></span>");
+            let badge = $("<span class='badge bg-light text-dark rounded-pill fw-normal warning-badge me-1'></span>");
             badge.html(value[i]);
-            $("#MentionedPeople_Box").append(badge);
+            $("#MentionedPeopleCounter_Box").append(badge);
         }
         $("#MentionedPeople_Box").fadeIn(300);
     }
     else {
-        $("#MentionedPeople_Box").fadeOut(300);
+        slideToLeftAnimation("MentionedPeople_Box");
     }
 });
 
@@ -3731,6 +4115,11 @@ $("#DecreaseStep_Btn").on("click", function () {
     currentStep = currentStep.toLocaleString("en-US", { style: "currency", currency: "USD" });
 
     $("#StepOfRange_Span").text("Step: " + currentStep);
+});
+
+$("#UserImprove_Container-Open").on("click", function () {
+    let userId = $("#SelectedUserInfo_Id_Val").val();
+    $("#CUR_UserId_Val").val(userId);
 });
 
 $("#PreviewTheProject_Btn").on("click", function () {
@@ -4244,27 +4633,25 @@ $(".main-container").on("scroll", function (event) {
         }
     }
 });
-$(".smallside-box-container").on("scroll", function (event) {
-    let trueId = event.target.id;
-    if (trueId != "") {
-        let mainContainerWidth = $("#" + trueId).innerWidth();
-        let scrollHeight = parseInt($("#" + trueId).scrollTop());
-        if (scrollHeight >= 28) {
-            $("#" + trueId + "-Header").css("position", "fixed");
-            $("#" + trueId + "-Header").css("z-index", "1000");
-            $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
-            //$("#" + trueId + "-Header").css("background-color", "transparent");
-            //$("#" + trueId + "-Header").css("backdrop-filter", "blur(5px)");
-            $("#" + trueId + "-Header").addClass("shadow-sm");
-        }
-        else {
-            $("#" + trueId + "-Header").css("position", "relative");
-            $("#" + trueId + "-Header").css("z-index", "0");
-            $("#" + trueId + "-Header").removeClass("shadow-sm");
-/*            $("#" + trueId + "-Header").css("backdrop-filter", "none");*/
-        }
-    }
-});
+//$(".smallside-box-container").on("scroll", function (event) {
+//    let trueId = event.target.id;
+//    if (trueId != "") {
+//        let mainContainerWidth = $("#" + trueId).innerWidth();
+//        let scrollHeight = parseInt($("#" + trueId).scrollTop());
+//        if (scrollHeight >= 40) {
+//            $("#" + trueId + "-Header").css("position", "fixed");
+//            $("#" + trueId + "-Header").css("z-index", "1000");
+//            $("#" + trueId + "-Header").css("width", mainContainerWidth + "px");
+//            $("#" + trueId + "-Header").addClass("shadow-sm");
+//        }
+//        else {
+//            $("#" + trueId + "-Header").css("position", "relative");
+//            $("#" + trueId + "-Header").css("z-index", "0");
+//            $("#" + trueId + "-Header").removeClass("shadow-sm");
+//            $("#" + trueId + "-Header").css("top", "0");
+//        }
+//    }
+//});
 
 $(document).on("click", ".copy-and-paste-the-text", function (event) {
     let pasteTo = getTrueId(event.target.id);
@@ -4287,6 +4674,7 @@ $(".upload-file-btn").on("click", function (event) {
 $(document).on("click", "#PrevImg", function () {
     let curIndex = $("#ImgIndex").val();
     let maxCount = $("#ImgsCount").val();
+    let counterMaxCount = maxCount;
 
     curIndex = parseInt(curIndex);
     maxCount = parseInt(maxCount);
@@ -4306,15 +4694,15 @@ $(document).on("click", "#PrevImg", function () {
     let realNum = curIndex;
     realNum++;
     $("#ImgIndex").val(curIndex);
-    $("#CurrentImgIndex_Span").text(realNum);
-    $("#CurrentImgIndex_Span").fadeToggle(200);
-    $("#CurrentImgIndex_Span").fadeToggle(350);
-/*    $("#CurrentImgIndex_Span").slideDown(325);*/
+    $("#CurrentImgIndex_Span").text(realNum + " of " + counterMaxCount);
+    $("#CurrentImgIndex_Span").fadeToggle(175);
+    $("#CurrentImgIndex_Span").fadeToggle(300);
 
 });
 $(document).on("click", "#NextImg", function () {
     let curIndex = $("#ImgIndex").val();
     let maxCount = $("#ImgsCount").val();
+    let counterMaxCount = maxCount;
 
     curIndex = parseInt(curIndex);
     maxCount = parseInt(maxCount);
@@ -4325,6 +4713,7 @@ $(document).on("click", "#NextImg", function () {
         curIndex = 0;
         $("#PrevImg").attr("disabled", true);
         $("#ImageCarouselWithControls").carousel(0);
+        $("#CurrentFileName_Lbl").text($("#ImageUrl-0").val());
     }
     else {
         $("#PrevImg").attr("disabled", false);
@@ -4335,7 +4724,6 @@ $(document).on("click", "#NextImg", function () {
         else {
             let imgProperty = new Image();
             imgProperty.src = "/ProjectPhotos/" + $("#ImageUrl-" + curIndex).val();
-
             let div = $("<div class='carousel-item' data-bs-interval='999999'></div>");
             let img = $("<img class='d-block image-main-box' alt='Cannot display this image' />");
             div.attr("id", "ImgBox-" + curIndex);
@@ -4352,7 +4740,7 @@ $(document).on("click", "#NextImg", function () {
     realNum++;
     $("#ImgIndex").val(curIndex);
 
-    $("#CurrentImgIndex_Span").text(realNum);
+    $("#CurrentImgIndex_Span").text(realNum + " of " + counterMaxCount);
     $("#CurrentImgIndex_Span").slideToggle(225);
     $("#CurrentImgIndex_Span").slideToggle(375);
 });
@@ -4524,11 +4912,10 @@ function lengthCounter(element, maxValue) {
 }
 
 function findUserBySearchname(value) {
-    let index = 1;
     for (let i = 0; i < value.length; i++) {
         if (value[i] == "@") {
-            index = i;
-            let name = value.substring(index, value.indexOf(" ", index))
+            mentionedPeopleIndex = i;
+            let name = value.substring(mentionedPeopleIndex, value.indexOf(" ", mentionedPeopleIndex))
             additionalArray.push(name);
         }
     }
@@ -4906,6 +5293,10 @@ function slideToLeftAnimation(element) {
         $("#" + element).css("margin-left", "-2400px");
         $("#" + element).fadeOut(150);
     }, 200);
+    setTimeout(function () {
+        $("#" + element).css("filter", "none");
+        $("#" + element).css("margin-left", "0");
+    }, 300);
 }
 
 function navBarBtnSelector(href) {
@@ -4922,13 +5313,7 @@ function navBarBtnSelector(href) {
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
         $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
     }
-    else if ((href.toLowerCase().includes("profile") || href.toLowerCase().includes("info") || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && (fullWidth < 717)) {
-        $("#HomeLink_Btn").fadeOut(0);
-        $("#FirstReserve_Btn").fadeIn(0);
-        $("#FirstReserve_Btn").addClass("smallside-btn-open-container");
-        $("#FirstReserve_Btn").html(" <i class='fas fa-bars'></i> <br/>Menu");
-    }
-    else if (href.toLowerCase().includes("settings") && fullWidth < 717) {
+    else if ((href.toLowerCase().includes("settings") || href.toLowerCase().includes("/project/all") || href.toLowerCase().includes("profile") || href.toLowerCase().includes("info") || href.toLowerCase().includes("create") || href.toLowerCase().includes("edit")) && fullWidth < 717) {
         $("#HomeLink_Btn").fadeOut(0);
         $("#FirstReserve_Btn").fadeIn(0);
         $("#FirstReserve_Btn").addClass("smallside-btn-open-container");

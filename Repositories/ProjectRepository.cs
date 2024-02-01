@@ -165,7 +165,7 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
-        public async Task<Project?> GetProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo, int UserId, bool GetRemovedToo)
+        public async Task<Project?> GetProjectAsync(int Id, int UserId, bool GetUsername, bool GetAdditionalInfo)
         {
             Project? ProjectInfo = null;
             if (GetAdditionalInfo)
@@ -183,14 +183,17 @@ namespace ApplicationY.Repositories
                 }
                 else return null;
             }
-            else
+            else return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId || !p.IsClosed)).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, IsBudget = p.IsBudget, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
+        }
+
+        public async Task<Project?> GetAllProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo)
+        {
+            if (GetAdditionalInfo)
             {
-                if (!GetRemovedToo)
-                {
-                    return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId || !p.IsClosed)).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, IsBudget = p.IsBudget, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
-                }
-                else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, UserId = p.UserId }).FirstOrDefaultAsync(p => p.Id == Id && p.UserId == UserId);
+                if(GetUsername) return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Description = p.Description, CreatedAt = p.CreatedAt, TextPart1 = p.TextPart1, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, MainPhotoId = p.MainPhotoId, Link1 = p.Link1, Link2 = p.Link2, Name = p.Name, Deadline = p.Deadline, IsBudget = p.IsBudget, Duration = p.Duration, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, YoutubeLink = p.YoutubeLink, CategoryName = p.Category != null ? p.Category.Name : null, LastUpdatedAt = p.LastUpdatedAt, UserName = p.User!.PseudoName, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, UserId = p.UserId }).FirstOrDefaultAsync(p => p.Id == Id);
+                else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Description = p.Description, CreatedAt = p.CreatedAt, TextPart1 = p.TextPart1, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, MainPhotoId = p.MainPhotoId, Link1 = p.Link1, Link2 = p.Link2, Name = p.Name, Deadline = p.Deadline, IsBudget = p.IsBudget, Duration = p.Duration, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, YoutubeLink = p.YoutubeLink, CategoryName = p.Category != null ? p.Category.Name : null, LastUpdatedAt = p.LastUpdatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice }).FirstOrDefaultAsync(p => p.Id == Id);
             }
+            else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, UserId = p.UserId }).FirstOrDefaultAsync(p => p.Id == Id);
         }
 
         public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo, bool GetCompressed, bool ForAdmins)
@@ -460,6 +463,44 @@ namespace ApplicationY.Repositories
                 }
             }
             return null;
+        }
+
+        public async Task<int> DisableProjectAsync(int Id, int DisablerId, string Description)
+        {
+            bool IsTheDisablerAnAdmin = await _context.UserRoles.AnyAsync(x => x.UserId == DisablerId);
+            if(IsTheDisablerAnAdmin && (!String.IsNullOrEmpty(Description) && Description.Length >= 40 && Description.Length < 320))
+            {
+                int Result = await _context.Projects.Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                if(Result != 0)
+                {
+                    DisabledProject disabledProject = new DisabledProject
+                    {
+                        Description = Description,
+                        DisabledAt = DateTime.Now,
+                        ProjectId = Id
+                    };
+                    await _context.AddAsync(disabledProject);
+                    await _context.SaveChangesAsync();
+
+                    return Id;
+                }
+            }
+            return 0;
+        }
+
+        public async Task<int> EnableProjectAsync(int Id, int DisablerId)
+        {
+            bool IsTheDisablerAnAdmin = await _context.UserRoles.AnyAsync(x => x.UserId == DisablerId);
+            if (IsTheDisablerAnAdmin)
+            {
+                int Result = await _context.Projects.Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, false));
+                if (Result != 0)
+                {
+                    await _context.DisabledProjects.Where(p => p.ProjectId == Id).ExecuteDeleteAsync();
+                    return Id;
+                }
+            }
+            return 0;
         }
     }
 }

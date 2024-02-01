@@ -281,8 +281,13 @@
         <div class="d-none">
             <input type="hidden" id="CommentsCount_Val" value="@CommentsCount" />
         </div>
-        <div class="mt-2 p-3 pt-0 mb-5" id="CommentsMain_Box">
+        <div class="mt-2 p-3 pt-0 mb-5">
+            <div id="CommentsMain_Box">
 
+            </div>
+            <div class="text-center">
+                <button type="button" class="btn btn-text btn-sm w-100 text-primary" style="display: none;" id="LoadMoreComments_Btn" disabled>Load more comments</button>
+            </div>
         </div>
     </div>
 
@@ -508,6 +513,8 @@
                     <div>
                         <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
                             <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
+                            <input type="hidden" name="SkipCount" id="SkippedCount_Val" value="0" />
+                            <input type="hidden" name="Count" value="1" />
                             <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
                         </form>
                     </div>
@@ -730,10 +737,9 @@
                         <div class="mt-2 text-center">
                             <button type="button" class="btn btn-text btn-sm text-muted" id="CurrentFileName_Lbl">@MainImgInfo.Name</button>
                         </div>
-                        <div class="box-container p-2 text-center">
-@*                             <div class="num-scroll-div"> *@
-                                <span class="number-spot safe-font display-5" id="CurrentImgIndex_Span">1</span><span class="display-5 safe-font"> of @ImagesCount</span>
-@*                             </div> *@
+                        <div class="box-container mt-1 text-center">
+@*                             <p class="card-text safe-font display-5"><span class="number-spot safe-font display-5" id="CurrentImgIndex_Span">1</span><span class="display-5 safe-font"> of @ImagesCount</span></p> *@
+                            <p class="card-text safe-font display-5" id="CurrentImgIndex_Span">1 of @ImagesCount</p>
                         </div>
                     </div>
                 </div>

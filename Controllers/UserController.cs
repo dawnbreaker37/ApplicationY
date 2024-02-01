@@ -5,6 +5,7 @@ using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ApplicationY.Controllers
 {
@@ -19,8 +20,9 @@ namespace ApplicationY.Controllers
         private readonly ISubscribe _subscribeRepository;
         private readonly IPost _postRepository;
         private readonly IOthers _othersRepository;
+        private readonly IMemoryCache _cache;
 
-        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, ISubscribe subscribeRepository, IOthers othersRepository, IPost postRepository, IAccount accountRepository, IUser userRepository, IProject projectRepository)
+        public UserController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IMemoryCache cache, ISubscribe subscribeRepository, IOthers othersRepository, IPost postRepository, IAccount accountRepository, IUser userRepository, IProject projectRepository)
         {
             _context = context;
             _userManager = userManager;
@@ -31,6 +33,7 @@ namespace ApplicationY.Controllers
             _projectRepository = projectRepository;
             _subscribeRepository = subscribeRepository;
             _postRepository = postRepository;
+            _cache = cache;
         }
 
         public async Task<IActionResult> Profile()
@@ -88,7 +91,10 @@ namespace ApplicationY.Controllers
             {
                 int UserRoleId = await _othersRepository.GetUserRoleAsync(Id);
                 GetUserRole_ViewModel? RoleInfo = await _othersRepository.GetUserFullRoleInfoAsync(Id, UserRoleId);
-                if (Result != null) return Json(new { success = true, result = Result, roleInfo = RoleInfo });
+                if (Result != null)
+                {
+                    return Json(new { success = true, result = Result, roleInfo = RoleInfo });
+                }
             }
             else 
             {
@@ -133,7 +139,7 @@ namespace ApplicationY.Controllers
                         IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
                         ViewBag.UserInfo = UserInfo;
                     }
-                    Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id);
+                    Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id, true);
                     int ProjectsCount = await _projectRepository.GetProjectsCount(CurrentUserInfo.Id);
 
                     if (Posts != null) PostsResult = await Posts.ToListAsync();

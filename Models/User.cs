@@ -39,5 +39,6 @@ namespace ApplicationY.Models
         public List<Project>? Projects { get; set; }
         public List<LikedPost>? LikedPosts { get; set; }
         public List<Purge>? Purges { get; set; }
+        public List<Mention>? Mentions { get; set; }
     }
 }

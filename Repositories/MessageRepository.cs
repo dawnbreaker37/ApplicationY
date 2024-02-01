@@ -55,9 +55,9 @@ namespace ApplicationY.Repositories
             else return null;
         }
 
-        public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId)
+        public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId, int SkipCount, int Count)
         {
-            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).OrderByDescending(c => c.SentAt);
+            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).Skip(SkipCount).Take(Count).OrderByDescending(c => c.SentAt);
             else return null;
         }
 

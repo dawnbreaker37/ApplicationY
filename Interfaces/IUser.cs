@@ -17,7 +17,7 @@ namespace ApplicationY.Interfaces
         public Task<bool> IsUserNameUniqueAsync(string UserName);
         public Task<bool> IsSearchNameUniqueAsync(int Id, string SearchName);
         public Task<string?> SubmitAccountByReserveCodeAsync(string? Username, string? Email, string ReserveCode);
-        public Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email, string Code);
+        public Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email);
         public IQueryable<User>? GetUserBySearchName(string SearchName);
         public IQueryable<GetUserInfo_ViewModel> GetRandomUsers(int MaxCount);
         public IQueryable<GetUserInfo_ViewModel>? FindUsers(string Keyword, bool NeedAdditionalInfo);

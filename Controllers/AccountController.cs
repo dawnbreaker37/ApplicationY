@@ -145,7 +145,7 @@ namespace ApplicationY.Controllers
                 };
                 MailKit_ViewModel KitModel = new MailKit_ViewModel();
                 bool Result2 = await _mailServiceRepository.SendEmailAsync(Model, KitModel);
-                string? Token = await _userRepository.SubmitEmailByUniqueCodeAsync(Id, Email, Result);
+                string? Token = await _userRepository.SubmitEmailByUniqueCodeAsync(Id, Email);
 
                 if (Result2 && Token != null)
                 {
@@ -177,7 +177,6 @@ namespace ApplicationY.Controllers
                     ToEmail = Email
                 };
                 bool Result2 = await _mailServiceRepository.SendEmailAsync(Model, KitModel);
-
                 if (Result2) return Json(new { success = true, email = UserInfo?.Email, text = "We've sent you your reserve code to your email. Please, check your mailbox and enter it in next widget" });
             }
             return Json(new { success = false, text = "An error occured while sending email. Please, try again later" });
@@ -284,6 +283,20 @@ namespace ApplicationY.Controllers
                 if (Result != 0) return Json(new { success = true, alert = "Selected account has been disabled", id = Id });
             }
             return Json(new { success = false, alert = "An error occured. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangeUserRole(int Id, int RoleId)
+        {
+            string? ChangerId = _userManager.GetUserId(User);
+            int ChangerUserId_Int32;
+            bool TryParseResult = Int32.TryParse(ChangerId, out ChangerUserId_Int32);
+            if (TryParseResult)
+            {
+                string? Result = await _accountRepository.ChangeUserRoleAsync(Id, ChangerUserId_Int32, RoleId);
+                if (Result != null) return Json(new { success = true, alert = "Selected user's role has been successfully updated", roleName = Result, userId = Id });
+            }
+            return Json(new { success = false, alert = "Unable to change selected user's role" });
         }
     }
 }

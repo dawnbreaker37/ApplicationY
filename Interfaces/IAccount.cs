@@ -16,5 +16,7 @@ namespace ApplicationY.Interfaces
         public Task<bool> ChangeEmailViaReserveCodeAsync(ChangeEmail_ViewModel Model);
         public Task<string?> ChangeEmailViaOldEmailAsync(ChangeEmail_ViewModel Model);
         public Task<int> DisableOrEnableAccountAsync(int Id, int SenderId, string Description);
+        public Task<string?> ChangeUserRoleAsync(int Id, int ChangerId, int RoleId);
+        public Task<User?> GetCurrentUserFromCacheAsync(int Id);
     }
 }

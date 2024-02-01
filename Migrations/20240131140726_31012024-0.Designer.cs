@@ -4,6 +4,7 @@ using ApplicationY.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationY.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240131140726_31012024-0")]
+    partial class _310120240
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -254,39 +257,6 @@ namespace ApplicationY.Migrations
                     b.ToTable("LikedPosts");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.Mention", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsRemoved")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("PostId")
-                        .HasColumnType("int");
-
-                    b.Property<DateTime>("SentAt")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Text")
-                        .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PostId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Mentions");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Message", b =>
                 {
                     b.Property<int>("Id")
@@ -368,9 +338,6 @@ namespace ApplicationY.Migrations
                         .HasColumnType("int");
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("AllowMentions")
-                        .HasColumnType("bit");
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("datetime2");
@@ -1014,23 +981,6 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.Mention", b =>
-                {
-                    b.HasOne("ApplicationY.Models.Post", "Post")
-                        .WithMany("Mentions")
-                        .HasForeignKey("PostId");
-
-                    b.HasOne("ApplicationY.Models.User", "User")
-                        .WithMany("Mentions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Message", b =>
                 {
                     b.HasOne("ApplicationY.Models.Project", "Project")
@@ -1239,8 +1189,6 @@ namespace ApplicationY.Migrations
             modelBuilder.Entity("ApplicationY.Models.Post", b =>
                 {
                     b.Navigation("LikedPosts");
-
-                    b.Navigation("Mentions");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Project", b =>
@@ -1261,8 +1209,6 @@ namespace ApplicationY.Migrations
             modelBuilder.Entity("ApplicationY.Models.User", b =>
                 {
                     b.Navigation("LikedPosts");
-
-                    b.Navigation("Mentions");
 
                     b.Navigation("Notifications");
 

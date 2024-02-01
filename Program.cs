@@ -31,6 +31,7 @@ builder.Services.AddIdentity<User, IdentityRole<int>>(Opt =>
     Opt.Password.RequireNonAlphanumeric = false;
 }).AddEntityFrameworkStores<Context>().AddRoles<IdentityRole<int>>().AddTokenProvider<DataProtectorTokenProvider<User>>(TokenOptions.DefaultProvider);
 builder.Services.AddDbContext<Context>(Opt => Opt.UseSqlServer(builder.Configuration.GetConnectionString("Database")));
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 

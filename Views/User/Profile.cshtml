@@ -420,7 +420,7 @@
         <div class="header-container p-3 pb-2" id="EmailChange_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end mt-1 ms-1" aria-label="close" id="EmailChange_Container-Close"></button>
             <button type="button" class="btn btn-outline-light text-dark btn-standard-with-no-colour border-0 btn-sm float-end mt-1 info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Click <span class='badge bg-light shadow-sm text-dark warning-badge'>Send Reserve Code</span> to send your reserve code to your current account. Click <span class='badge bg-light text-dark warning-badge'>Change Via One-Time Code</span> to receive a one-time code to your email and change email by that code" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
-            <h5 class="h5 text-truncate">Change Email Via Reserve Code</h5>
+            <h5 class="h5 text-truncate">Change Email via Reserve Code</h5>
         </div>
         <div class="mt-2 p-3 pt-0">
             <form method="post" asp-controller="Account" asp-action="ChangeEmailViaReserveCode" id="ChangeEmailViaReserveCode_Form">
@@ -577,25 +577,25 @@
             {
                 <h2 class="h2 safe-font">@UserInfo.UserName</h2>
             }
-            <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-inbox"></i> Inbox:</span> @UserInfo.Email</small>
+            <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-inbox"></i> Inbox:</span> <span id="EmailEditInbox_Lbl">@UserInfo.Email</span></small>
             <div></div>
-            @if(!UserInfo.IsEmailChanged)
+            @if(UserInfo.IsEmailChanged)
             {
-                <button type="button" class="btn btn-text btn-sm mt-1 smallside-btn-open-container" id="EmailEdit_Container-Open"> <i class="fas fa-pencil-alt"></i> Change</button>
+                <small class="card-text text-muted" id="IsEmailChanged_Lbl">You've already changed your email address once</small>
             }
             else
             {
-                <small class="card-text text-muted">You've already changed your email address once</small>
+                <small class="card-text text-muted" id="IsEmailChanged_Lbl">You may change your email address</small>
             }
             <div class="border-top mt-2 pt-2"></div>
             @if (PermissionToChangePassword)
             {
                 <div>
-                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-check-double text-primary"></i> Is able to change</small>
+                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-check text-primary"></i> you may change your password</small>
                     <div class="mt-1"></div>
                     @if (ViewBag.LastPasswordChangeDays > 100)
                     {
-                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span> haven't changed before or more than 100 days passed</small>
+                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span> more than 100 days</small>
                     }
                     else
                     {
@@ -634,7 +634,7 @@
         <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-btn-open-container border-0" id="AddPhoto_Container-Open"> <i class="fas fa-camera"></i> Profile Photo</button>
         @if (!UserInfo.EmailConfirmed)
         {
-            <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your email isn't confirmed. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to confirm your email. It'll take 2-3 mins, but after that you'll have more secured account with some additional features. <a class='text-decoration-none' href='/User/Verify/@UserInfo.Id'>More about it at confirmation page</a>. <div class='bordered-container bg-gradient-three text-light p-2 mt-3'><h6 class='h6 safe-font'>Features of verified account</h6> <div class='mt-2 border-top pt-2'><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 1.5x</span> <small class='card-text'>more projects per 1 account - 32 projects before/80 projects after</small></p></div><div class='mt-2'></div><small class='card-text'>Better positions and recommendations for other users when they search something like one of your projects</small><div class='mt-2'></div><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 28%</span><small class='card-text'> more digits for description or text per every project - 11700 digits before/14000 digits after</small></p><div class='mt-2'><small class='card-text'>Additional statistic features about your projects</small></div></div>"> <i class="fas fa-mail-bulk"></i> Confirm</button>
+            <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-1 smallside-modal-open-by-hover border-0" id="VerifyInfo_Modal" data-content="Your email isn't confirmed. Go by <a href='/User/Verify/@UserInfo.Id' class='text-decoration-none'>link</a> to confirm your email. It'll take 2-3 mins, but after that you'll have more secured account with some additional features. <a class='text-decoration-none' href='/User/Verify/@UserInfo.Id'>More about it at confirmation page</a>. <div class='bordered-container bg-gradient-three text-light p-2 mt-3'><h6 class='h6 safe-font'>Additional features of confirmed account</h6> <div class='mt-2 border-top pt-2'><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 2.25x</span> <small class='card-text'>more projects per 1 account - 24 projects before/54 projects after</small></p></div><div class='mt-2'></div><small class='card-text'>Safety & Security. No one could enter to your account and even if someone has entered you could reset your password easily in 4-5 mins</small><div class='mt-2'></div><p><span class='badge warning-badge p-2 bg-gradient-one safe-font'> <i class='fas fa-arrow-up'></i> 28%</span><small class='card-text'> more length for description or text per every project - 11700 digits before/14000 digits after</small></p><div class='mt-2'><small class='card-text'>Additional statistic features about your projects</small></div></div>"> <i class="fas fa-mail-bulk"></i> Confirm</button>
         }
         <h5 class="h5 text-truncate">About You</h5>
     </div>
@@ -726,6 +726,12 @@
                     {
                         <div class="col">
                             <button type="button" class="btn btn-standard-not-animated info-popover btn-sm smallside-btn-open-container w-100" id="EmailChange_Container-Open" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="Click to change your email. Notice, that you can change you email once per account"> <i class="fas fa-inbox"></i><br />Edit Email</button>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col">
+                            <button type="button" class="btn btn-standard-not-animated info-popover btn-sm smallside-btn-open-container w-100 disabled" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="left" data-bs-content="You've already changed your email address once"> <i class="fas fa-inbox"></i><br />Disabled</button>
                         </div>
                     }
                 </div>

@@ -25,13 +25,8 @@
             <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
             <input type="hidden" name="SubscriberId" id="SubOption_SubscriberId_Val" value="@UserInfo.Id" />
         </form>
-        <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProjectForAdmins_Form">
+        <form method="get" asp-controller="Project" asp-action="GetFullProject_ForAdmins" id="GetFullProjectForAdmins_Form">
             <input type="hidden" name="Id" id="GFPFA_Id_Val" value="0" />
-            <input type="hidden" name="GetUserName" value="false" />
-            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
-            <input type="hidden" name="GetAdditionalInfo" value="false" />
-            <input type="hidden" name="GetFiles" value="false" />
-            <input type="hidden" name="GetRemovedToo" value="true" />
         </form>
         <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfoForAdmins_Form">
             <input type="hidden" name="Id" id="GUIFA_Id_Val" value="0" />
@@ -89,6 +84,53 @@
         </div>
     </div>
 
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="BlockAProject_Container">
+        <div class="header-container p-3 pb-2" id="BlockAProject_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="BlockAProject_Container-Close"></button>
+            <h5 class="h5 text-truncate"><span id="DP_ProjectNameDescription_Lbl">Disabling</span> <span class="text-danger" id="DP_ProjectName_Lbl"></span></h5>
+        </div>
+        <div class="mt-1 p-2">
+            <div id="ForEnabledProjects_Box">
+                <div class="bg-light box-container p-2" id="DP_DescBox1">
+                    <h6 class="h6 safe-font">How to disable a project?</h6>
+                    <small class="card-text">When some project is out of our <span class="fw-500">terms and conditions</span> it should be disabled and that action could do any type of supports (from admins to guards). And when you've already decided to disable a project you must describe the reason (shortly, in 40-320 symbols) of it. After that you can disable by submitting the form</small>
+                </div>
+                <div class="bg-light box-container p-2 mt-2" id="DP_DescBox2">
+                    <h6 class="h6 safe-font">About enabling</h6>
+                    <small class="card-text">In case if you've missdisabled some project you could enable it in every moment and send a email message or in-app message to notify user about your mistake</small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="Project" asp-action="Disable" id="DisableAProject_Form">
+                        <input type="hidden" name="Id" id="DP_Id_Val" value="0" />
+                        <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
+                        <div>
+                            <textarea name="Description" id="DP_Description" placeholder="Describe the reason here..." class="form-control send-msg-form-control w-100 description-check" rows="1" maxlength="320" data-bs-html="DP_Sbmt_Btn"></textarea>
+                        </div>
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-danger w-100 btn-standard-with-no-colour" id="DP_Sbmt_Btn" disabled>Disable</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            <div id="ForDisabledProjects_Box">
+                <div class="bg-light box-container p-2" id="DP_DescBox3">
+                    <h6 class="h6 safe-font">When enable a project?</h6>
+                    <small class="card-text">When any user or owner of a project messages to us about his disabled project anyone from admins should read that message and review the disabled project. In such cases when the project was disabled without serious violation of our <span class="fw-500">terms and conditions</span> it must be enabled with a message informing the user about</small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="Project" asp-action="Enable" id="EnableAProject_Form">
+                        <input type="hidden" name="Id" id="EP_Id_Val" value="0" />
+                        <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
+                        <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
+                        <div class="mt-2">
+                            <button type="submit" class="btn btn-success w-100 btn-standard-with-no-colour">Enable</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container shadow-standard scrollbar-hidden" id="DisableAccount_Container">
         <div class="header-container p-3 pb-2" id="DisabledAccount_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="DisableAccount_Container-Close"></button>
@@ -108,7 +150,7 @@
                     <div>
                         <input type="hidden" name="Id" id="DA_Id_Val" value="0" />
                         <input type="hidden" name="DisablerId" value="@UserInfo.Id" />
-                        <textarea name="Description" id="DisablerText" maxlength="1000" rows="1" class="form-control send-msg-form-control w-100" placeholder="Describe the reason of restriction"></textarea>
+                        <textarea name="Description" id="DisablerText" maxlength="1000" rows="1" class="form-control send-msg-form-control w-100 description-check" data-bs-html="DA_Sbmt_Btn" placeholder="Describe the reason of restriction"></textarea>
                     </div>
                     <div class="mt-2">
                         <button type="submit" class="btn btn-danger btn-standard-with-no-colour w-100" id="DA_Sbmt_Btn" disabled>Disable</button>
@@ -211,6 +253,48 @@
     </div>
 </div>
 
+<div class="smallside-box-container shadow-standard scrollbar-hidden" id="UserImprove_Container">
+    <div class="header-container p-3 pb-2" id="UserImprove_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="UserImprove_Container-Close"></button>
+        <h5 class="h5 text-truncate">Improve User Role</h5>
+    </div>
+    <div class="mt-1 p-2 pt-0">
+        <div class="box-container bg-light p-2">
+            <h6 class="h6 safe-font">Roles hierarchy</h6>
+            <div class="border-top mt-2 pt-2">
+                <ol>
+                    <li class="card-text"><span class="fw-500">Standard User</span> - isn't allowed to enter to administration panel or do any action in here</li>
+                    <li class="card-text"><span class="fw-500 text-primary">Admin</span> - is allowed to message and check everyone's profile. Is able to purge projects</li>
+                    <li class="card-text"><span class="fw-500 text-primary">Support</span> - is allowed to contact (via email and in-app chat), check everyone's profile and block lower level profiles (admins, standard users). Is able to purge projects</li>
+                    <li class="card-text"><span class="fw-500 text-official">Guard</span> - is allowed to check everyone's profile, block lower level profiles (admins, standard users and supports). Is able to purge projects</li>
+                    <li class="card-text"><span class="fw-500 text-official">Main</span> - is allowed to do every action from this list</li>
+                </ol>
+            </div>
+        </div>
+        <div class="box-container mt-2">
+            <form method="post" asp-controller="Account" asp-action="ChangeUserRole" id="ChangeUserRole_Form">
+                <input type="hidden" name="Id" id="CUR_UserId_Val" value="0" />
+                <div>
+                    <label class="form-label fw-500 ms-1" for="RoleId">Choose a Role</label>
+                    <select class="form-select" name="RoleId" id="RoleId">
+                        <option value="0" selected>Standard User</option>
+                        @foreach (GetUserRole_ViewModel Item in ViewBag.AllRoles)
+                        {
+                            <option value="@Item.RoleId">@Item.RoleName</option>
+                        }
+                    </select>
+                </div>
+                <div class="ms-1 mt-1">
+                    <small class="card-text text-muted">Some roles may not be shown</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour">Accept Change</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="main-container shadow-stadandard" id="ProjectPreview_Container">
     <div class="header-container p-3 pb-2" id="ProjectPreview_Container-Header">
         <button type="button" class="btn btn-back btn-sm float-end ms-1">&larr; Back</button>
@@ -241,6 +325,7 @@
                     <div class="col bordered-container p-2 me-1">
                         <p class="card-text safe-font">Email</p>
                         <small class="card-text" id="SelectedUserInfo_Email_Lbl">No Info</small>
+                        <input type="hidden" id="SelectedUserInfo_Id_Val" value="0" />
                     </div>
                     <div class="col bordered-container p-2 me-1">
                         <p class="card-text safe-font">Projects</p>
@@ -298,6 +383,14 @@
                 </div>
             </div>
         </div>
+        <div class="box-container mt-2 bg-light p-2" id="SelectedUserRoleInfo_Box">
+            <span class="h6 safe-font">Role Info</span>
+            <div class="border-top mt-2 pt-1">
+                <small class="card-text">Rolename: <span class="fw-500" id="SelectedUserRoleInfo_Status">No Info</span></small>
+                <div></div>
+                <button type="button" class="btn btn-text btn-sm mt-1 smallside-btn-open-container" id="UserImprove_Container-Open" disabled> <i class="fas fa-user-plus"></i> Improve</button>
+            </div>
+        </div>
     </div>
 
     <div class="mt-2 p-3 pt-0" style="display: none;" id="ProjectSearchResults_Box">
@@ -353,14 +446,208 @@
                 </div>
                 <div class="row mt-2">
                     <div class="col">
-                        <button type="button" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-window-maximize"></i> <br />Preview</button>
+                        <div>
+                            <form method="get" asp-controller="Project" asp-action="GetFullProject" id="GetFullProject_Form">
+                                <input type="hidden" name="Id" id="GFP_Id_Val" value="0" />
+                                <input type="hidden" name="SenderId" id="GFP_UserId_Val" value="0" />
+                                <input type="hidden" name="GetAdditionalInfo" value="true" />
+                                <input type="hidden" name="GetUserName" value="true" />
+                                <input type="hidden" name="GetRemovedToo" value="true" />
+                                <input type="hidden" name="GetFiles" id="GFP_GetFiles_Val" value="true" />
+                                <button type="submit" class="btn btn-primary btn-standard-with-no-colour btn-sm w-100" disabled id="GFP_Sbmt_Btn"> <i class="far fa-window-maximize"></i> <br />Preview</button>
+                            </form>
+                        </div>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm w-100" disabled> <i class="far fa-user-circle"></i> <br />About Creator</button>
+                        <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm w-100 select-search-result-user" id="GSUIFA_SendId_Btn"> <i class="far fa-user-circle"></i> <br />About Creator</button>
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm w-100" disabled> <i class="fas fa-minus"></i> <br />Remove</button>
+                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm w-100 smallside-btn-open-container" id="BlockAProject_Container-Open" disabled> <i class="fas fa-minus"></i> <br />Remove</button>
                     </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="main-container shadow-standard" id="ProjectView_Container">
+    <div class="header-container p-3 pb-2" id="ProjectView_Container-Header">
+        <button type="button" class="btn btn-standard-not-animated btn-sm btn-open-container float-end ms-1" id="Preload_Container-OpenY">&larr; Back</button>
+        <h5 class="h5 text-truncate">Project Preview</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container">
+            <h1 class="h1 text-primary main-title-font-style" id="Preview_Title">Project Title</h1>
+        </div>
+        <div class="box-container shadow-sm mt-2 p-2">
+            <div class="p-2">
+                <a href="#" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1" id="Preview_ProjectPageLink2"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                <div>
+                    <h4 class="h4 safe-font" id="GCF_UserPseudoName_Lbl">Username</h4>
+                </div>
+            </div>
+            <div class="row mt-1">
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" id="UnableToLike_Btn" disabled> <i class="fas fa-heart-broken text-muted"></i> <br />Unable to Like</button>
+                </div>
+                <div class="col">
+                    <div>
+                        <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" disabled> <i class="fas fa-comment-slash text-muted"></i> <br /> Unable to Get</button>
+                    </div>
+                </div>
+                <div class="col">
+                    <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>
+                </div>
+            </div>
+        </div>
+        <div class="collapse mt-2" id="MoreInfo_Collapse">
+            <div class="card box-container shadow-sm p-3 pb-2">
+                <h5 class="h5">Additional Info</h5>
+                <div class="row mt-2 border-top pt-2 ms-1 me-1 text-center">
+                    <div class="col">
+                        <h6 class="h6">Views</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_ViewsCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Likes</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LikesCnt">0</small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Category</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_Category">Unknown</small>
+                    </div>
+                </div>
+                <div class="row mt-4 text-center">
+                    <div class="col">
+                        <h6 class="h6">Published</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_PublishedDate"></small>
+                    </div>
+                    <div class="col">
+                        <h6 class="h6">Last Update</h6>
+                        <small class="card-text text-muted safe-font" id="Preview_LastUpdatedDate"></small>
+                    </div>
+                </div>
+                <div class="row mt-4 text-center">
+                    <div class="col">
+                        <h6 class="h6">Release Notes</h6>
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-text btn-sm" disabled>Unable to show release notes</button>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-2 border-top pt-2">
+                    <a href="#" class="btn btn-text btn-sm" id="Preview_ProjectPageLink"> <i class="fas fa-chevron-right"></i> Go To Project Page</a>
+                    <div></div>
+                    <small class="card-text text-muted">It's only the preview widget of this project. If you need full access to this project (like sending messages, commentaries, subscribing or to like it) go to the project page by link</small>
+                </div>
+            </div>
+        </div>
+        <div class="box-container p-1 pt-2 pb-2 mt-2">
+            <p class="card-text white-space-on" id="Preview_ShortDescription">Shorter description</p>
+            <p class="card-text white-space-on mt-1" id="Preview_LongDescription">Main description</p>
+        </div>
+        <div class="card-group mt-2">
+            <div class="card shadow-sm p-3 me-1" id="Preview_StartUpBox">
+                <h3 class="h3 text-primary safe-font" id="Preview_TagPrice">$0.00</h3>
+                <small class="card-text safe-font d-none" id="Preview_PrevTagPrice">$0.00, 0%</small>
+                <div></div>
+                <small class="card-text text-muted d-none" id="Preview_TagPriceAnnotation"></small>
+                <div class="border-top pt-1 mt-2" id="Preview_TagPriceAnnotationSeparator"></div>
+                <div class="mb-2" id="InvestToProject_Box">
+                    <a href="#" id="Preview_DonationLink_Btn" class="btn btn-text btn-sm w-auto text-start"> <i class="fas fa-coins"></i> Donate/Invest</a>
+                    <div></div>
+                    <small class="card-text text-muted">There's no donation need for this project</small>
+                </div>
+                <div>
+                    <button type="button" class="btn btn-text btn-sm w-auto text-start"> <i class="fab fa-leanpub"></i> Learn More</button>
+                    <div></div>
+                    <small class="card-text text-muted">Learn more about project budgets and prices from the QA page</small>
+                </div>
+                <div class="box-container bg-light p-2 mt-2" id="Deadline_Box">
+                    <small class="card-text fw-500"> <i class="far fa-dot-circle text-danger"></i> Deadline</small>
+                    <div class="mt-1"></div>
+                    <small class="card-text">Approximately at <span class="safe-font" id="DeadlineDate_Lbl"></span></small>
+                    <div></div>
+                    <small class="card-text text-muted"><span class="safe-font" id="DeadlineDaysLeft_Lbl"></span> days left till end</small>
+                </div>
+            </div>
+            <div class="card shadow-sm p-3" id="Preview_LinksBox">
+                <h6 class="h6">Main Links</h6>
+                <div class="border-top mt-1 pt-1"></div>
+                <div>
+                    <a href="#" class="btn btn-text btn-sm w-auto text-start" id="Preview_LinkBtn1"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText1">First Link Href</small>
+                </div>
+                <div class="mt-2">
+                    <a href="#" class="btn btn-text btn-sm mt-2 w-auto text-start" id="Preview_LinkBtn2"> <i class="fas fa-external-link-alt"></i> Click To Relocate</a>
+                    <div></div>
+                    <small class="card-text text-muted" id="Preview_LinkText2">Second Link Href</small>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-container mt-2" style="display: none;" id="PreviewImages_Box">
+            <div class="card-group">
+                <div class="card p-3 shadow-sm">
+                    <div class="d-none" id="ImgsHiddenUrls_Box">
+                    </div>
+                    <h6 class="h6">Photos & Images</h6>
+                    <div id="ImageCarouselWithControls" class="carousel slide mt-2" data-bs-ride="carousel">
+                        <div class="carousel-inner" id="ImgCarouseInner_Box">
+                            <div class="d-none">
+                                <input type="hidden" id="ImgIndex" value="0" />
+                                <input type="hidden" id="ImgsCount" value="0" />
+                            </div>
+                            <div id="Images_Box">
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" id="PrevImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Previous</span>
+                        </button>
+                        <button class="carousel-control-next" type="button" id="NextImg" data-bs-target="#ImageCarouselWithControls" data-bs-slide="next">
+                            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                            <span class="visually-hidden">Next</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="card p-3 shadow-sm">
+                    <h6 class="h6">Files Info</h6>
+                    <div class="mt-2 text-center">
+                        <button type="button" class="btn btn-text btn-sm text-muted" id="CurrentFileName_Lbl">No current files</button>
+                    </div>
+                    <div class="box-container p-2 text-center">
+                        <span class="number-spot safe-font display-5" id="CurrentImgIndex_Span">0</span><span class="display-5 safe-font"> of <span id="FullImgsCount_Span">0</span></span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-container mt-2" style="display: none;" id="PreviewAudios_Box">
+            <div class="card-group">
+                <div class="card p-2 shadow-sm">
+                    <h6 class="h6">Audios</h6>
+                    <small class="card-text text-muted">This project has got <strong id="AudiosCount_Lbl">0</strong> audio(s)</small>
+                    <div class="mt-3" id="AudiosExample_Box">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="box-container mt-2 d-none" id="YT_VideoPlayer_MainBox">
+            <div class="card-group">
+                <div class="card me-1 p-3 pb-1 shadow-sm">
+                    <h6 class="h6"> <i class="fab fa-youtube text-danger"></i> Youtube Video</h6>
+                    <div class="box-container mt-2" id="YT_VideoPlayer_Box">
+                        <iframe class="yt-container w-100 ratio-16x9" id="YT_VideoPlayer" src="" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+                    </div>
+                </div>
+                <div class="card shadow-sm p-3 pb-2">
+                    <h6 class="h6"> <i class="fas fa-info-circle"></i> Additional Info</h6>
+                    <small class="card-text text-muted mt-2" id="YT_VideoLink_Lbl"> <i class="fas fa-external-link"></i> Link: </small>
+                    <div class="mt-1"></div>
+                    <a href="#" class="btn btn-text btn-sm text-start text-decoration-none mt-1" id="YT_VideoLink_Btn"> <i class="fab fa-youtube text-danger"></i> Watch On Youtube</a>
                 </div>
             </div>
         </div>

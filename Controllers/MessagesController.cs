@@ -132,15 +132,15 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetComments(int ProjectId)
+        public async Task<IActionResult> GetComments(int ProjectId, int SkipCount, int Count)
         {
-            IQueryable<GetCommentaries_ViewModel>? Result_Preview = _messageRepository.GetComments(ProjectId);
+            IQueryable<GetCommentaries_ViewModel>? Result_Preview = _messageRepository.GetComments(ProjectId, SkipCount, Count);
             if (Result_Preview != null)
             {
                 List<GetCommentaries_ViewModel>? Result = await Result_Preview.ToListAsync();
-                int Count = Result.Count;
+                int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(ProjectId);
 
-                return Json(new { success = true, result = Result, Count = Count });
+                return Json(new { success = true, result = Result, count = CommentsCount, loadedCount = Count, skippedCount = SkipCount });
             }
             else return Json(new { success = false, alert = "Unable to get comments of this project at this moment. Please, try again later" });
         }

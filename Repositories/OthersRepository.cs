@@ -15,6 +15,17 @@ namespace ApplicationY.Repositories
             _context = context;
         }
 
+        public IQueryable<GetUserRole_ViewModel>? GetAllRoles(int CurrentRoleId)
+        {
+            if (CurrentRoleId == 0) return _context.Roles.AsNoTracking().Select(r => new GetUserRole_ViewModel { RoleId = r.Id, RoleName = r.Name });
+            else return _context.Roles.AsNoTracking().Where(r => r.Id <= CurrentRoleId).Select(r => new GetUserRole_ViewModel { RoleId = r.Id, RoleName = r.Name });
+        }
+
+        public async Task<string?> GetRoleNameAsync(int RoleId)
+        {
+            return await _context.Roles.AsNoTracking().Where(r => r.Id == RoleId).Select(r => r.Name).FirstOrDefaultAsync();
+        }
+
         public async Task<GetUserRole_ViewModel?> GetUserFullRoleInfoAsync(int UserId, int RoleId)
         {
             if (UserId != 0)

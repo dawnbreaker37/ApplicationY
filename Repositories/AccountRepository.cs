@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ApplicationY.Repositories
 {
@@ -13,12 +14,14 @@ namespace ApplicationY.Repositories
         private readonly UserManager<User> _userManager;
         private readonly INotifications _notificationsRepository;
         private readonly IOthers _othersRepository;
-        public AccountRepository(Context context, UserManager<User> userManager, IOthers others, INotifications notificationsRepository) : base(context)
+        private readonly IMemoryCache _cache;
+        public AccountRepository(Context context, UserManager<User> userManager, IMemoryCache cache, IOthers others, INotifications notificationsRepository) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _notificationsRepository = notificationsRepository;
             _othersRepository = others;
+            _cache = cache;
         }
 
         public Task<string?> ChangeEmailViaOldEmailAsync(ChangeEmail_ViewModel Model)
@@ -144,24 +147,15 @@ namespace ApplicationY.Repositories
         {
             if (!String.IsNullOrEmpty(Email))
             {
-                    string? Code;
-                    if (!NeedsUniqueCode)
-                    {
+                string? Code;
+                if (!NeedsUniqueCode)
+                {
                     User? UserInfo = await _userManager.Users.AsNoTracking().Select(u => new User { Id = u.Id, Email = u.Email, ReserveCode = u.ReserveCode }).FirstOrDefaultAsync(u => u.Email == Email);
                     if (UserInfo != null)
                     {
                         Code = UserInfo.ReserveCode;
-
-                        await _context.TemporaryCodes.Where(u => u.UserId == UserInfo.Id).ExecuteDeleteAsync();
-                        TemporaryCode temporaryCode = new TemporaryCode
-                        {
-                            UserId = UserInfo.Id,
-                            Title = "Password recovering reserve code",
-                            Code = Code,
-                            SentDate = DateTime.Now
-                        };
-                        await _context.AddAsync(temporaryCode);
-                        await _context.SaveChangesAsync();
+                        _cache.Remove("uniqueCode_" + Id);
+                        _cache.Set("uniqueCode_" + Id, Code, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
 
                         return Code;
                     }
@@ -174,17 +168,8 @@ namespace ApplicationY.Repositories
                         if (IsEmailEqualToId)
                         {
                             Code = Guid.NewGuid().ToString("D").Substring(0, 8);
-                            await _context.TemporaryCodes.Where(u => u.UserId == Id).ExecuteDeleteAsync();
-
-                            TemporaryCode temporaryCode = new TemporaryCode
-                            {
-                                Code = Code,
-                                SentDate = DateTime.Now,
-                                Title = "Email confirmation code",
-                                UserId = Id
-                            };
-                            await _context.AddAsync(temporaryCode);
-                            await _context.SaveChangesAsync();
+                            _cache.Remove("uniqueCode_" + Id);
+                            _cache.Set("uniqueCode_" + Id, Code, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
 
                             return Code;
                         }
@@ -229,9 +214,10 @@ namespace ApplicationY.Repositories
                 bool AreEmailAndIdEqual = await _context.Users.AnyAsync(u => u.Id == Model.Id && u.Email == Model.Email);
                 if (AreEmailAndIdEqual)
                 {
-                    bool IsThereAnyCodeLikeThis = await _context.TemporaryCodes.AnyAsync(u => u.UserId == Model.Id && u.Code == Model.Code);
-                    if (IsThereAnyCodeLikeThis)
-                    {
+                    //bool IsThereAnyCodeLikeThis = await _context.TemporaryCodes.AnyAsync(u => u.UserId == Model.Id && u.Code == Model.Code);
+                    bool IsThereAnyCodeFromThisUser = _cache.TryGetValue("uniqueCode_" + Model.Id, out string? Code);
+                    if (IsThereAnyCodeFromThisUser && Model.Code == Code)
+                    {                       
                         User? UserInfo = await _userManager.FindByIdAsync(Model.Id.ToString());
                         if (UserInfo != null)
                         {
@@ -283,6 +269,45 @@ namespace ApplicationY.Repositories
                 }
             }
             return 0;
+        }
+
+        public async Task<string?> ChangeUserRoleAsync(int Id, int ChangerId, int RoleId)
+        {
+            if (Id != 0 && ChangerId != 0 && RoleId != 0)
+            {
+                int CurrentUserRole = await _othersRepository.GetUserRoleAsync(Id);
+                int ChangerRole = await _othersRepository.GetUserRoleAsync(ChangerId);
+                if (ChangerRole >= CurrentUserRole)
+                {
+                    string? NeededRoleName = await _othersRepository.GetRoleNameAsync(RoleId);
+                    User? UserInfo = await _userManager.FindByIdAsync(Id.ToString());
+                    if (UserInfo != null && NeededRoleName != null)
+                    {
+                        IdentityResult? Result = await _userManager.AddToRoleAsync(UserInfo, NeededRoleName);
+                        if (Result.Succeeded) return NeededRoleName;
+                    }
+                }
+            }
+            return null;
+        }
+
+        public async Task<User?> GetCurrentUserFromCacheAsync(int Id)
+        {
+            bool Result = _cache.TryGetValue("user_" + Id, out User? UserInfo);
+            if(Result)
+            {
+                if (UserInfo != null)
+                {
+                    return UserInfo;
+                }
+            }
+            else
+            {
+                UserInfo = await _userManager.FindByIdAsync(Id.ToString());
+                _cache.Set("user_" + Id, UserInfo, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
+                return UserInfo;
+            }
+            return null;
         }
     }
 }

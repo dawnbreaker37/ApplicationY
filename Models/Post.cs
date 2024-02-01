@@ -15,8 +15,10 @@ namespace ApplicationY.Models
         public int UserId { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsPrivate { get; set; }
+        public bool AllowMentions { get; set; }
         public Project? Project { get; set; }
         public User? User { get; set; }
         public List<LikedPost>? LikedPosts { get; set; }
+        public List<Mention>? Mentions { get; set; }
     }
 }

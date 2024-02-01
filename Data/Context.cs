@@ -27,5 +27,7 @@ namespace ApplicationY.Data
         public DbSet<Post> Posts { get; set; }
         public DbSet<Purge> Purges { get; set; }
         public DbSet<DisabledAccount> DisabledAccounts { get; set; }
+        public DbSet<DisabledProject> DisabledProjects { get; set; }
+        public DbSet<Mention> Mentions { get; set; }
     }
 }

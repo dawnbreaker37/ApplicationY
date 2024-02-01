@@ -22,8 +22,9 @@ namespace ApplicationY.Repositories
                 {
                     CreatedAt = DateTime.Now,
                     IsRemoved = false,
-                    IsPrivate = false,
+                    IsPrivate = Model.IsPrivate,
                     UserId = Model.UserId,
+                    AllowMentions = Model.AllowMentions,
                     LinkedProjectId = Model.LinkedProjectId,
                     Text = Model.Text
                 };
@@ -72,9 +73,10 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
-        public IQueryable<GetPost_ViewModel>? GetUserAllPosts(int UserId)
+        public IQueryable<GetPost_ViewModel>? GetUserAllPosts(int UserId, bool GetAdditionalInfo)
         {
-            return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, LinkedProjectId = p.LinkedProjectId, Text = p.Text, UserId = p.UserId, IsRemoved = p.IsRemoved,  Project = p.Project != null ? new Project { Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null}).OrderByDescending(p => p.CreatedAt);
+            if (GetAdditionalInfo) return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, LinkedProjectId = p.LinkedProjectId, Text = p.Text, UserId = p.UserId, AllowMentions = p.AllowMentions, IsRemoved = p.IsRemoved, Project = p.Project != null ? new Project { Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null }).OrderByDescending(p => p.CreatedAt);
+            else return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, Text = p.Text, UserId = UserId, IsPrivate = p.IsPrivate, AllowMentions = p.AllowMentions, LinkedProjectId = p.LinkedProjectId }).OrderByDescending(p => p.CreatedAt);
         }
 
         public async Task<int> RemovePostAsync(int Id, int UserId)
@@ -91,6 +93,59 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0) return _context.LikedPosts.AsNoTracking().Where(l => l.UserId == UserId && !l.IsRemoved).Select(l => new LikedPost { PostId = l.PostId, UserId = l.UserId });
             else return null;
+        }
+
+        public async Task<int> EditPostAsync(CreatePost_ViewModel Model)
+        {
+            if(!String.IsNullOrEmpty(Model.Text) && Model.Text.Length <= 2500)
+            {
+                int Result = await _context.Posts.Where(p => p.Id == Model.Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.Text, Model.Text));
+                if (Result != 0) return Model.Id;
+            }
+            return 0;
+        }
+
+        public async Task<int> LockThePostAsync(int Id, int UserId)
+        {
+            if(Id != 0 || UserId != 0)
+            {
+                int Result = await _context.Posts.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPrivate, true));
+                if (Result != 0) return Id;
+            }
+            return 0;
+        }
+
+        public async Task<int> UnlockThePostAsync(int Id, int UserId)
+        {
+            if (Id != 0 || UserId != 0)
+            {
+                int Result = await _context.Posts.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPrivate, false));
+                if (Result != 0) return Id;
+            }
+            return 0;
+        }
+
+        public async Task<int> GetUsersAllPostsCountAsync(int UserId)
+        {
+            return await _context.Posts.AsNoTracking().CountAsync(p => p.UserId == UserId && !p.IsRemoved);
+        }
+
+        public IQueryable<GetPost_ViewModel>? GetAllAssociatedPosts(int ProjectId)
+        {
+            if (ProjectId != 0) return _context.Posts.AsNoTracking().Where(p => p.LinkedProjectId == ProjectId && !p.IsPrivate && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, Text = p.Text, CreatedAt = p.CreatedAt, AllowMentions = p.AllowMentions }).OrderByDescending(p => p.CreatedAt);
+            else return null;
+        }
+
+        public IQueryable<GetPost_ViewModel>? GetAllAssociatedPostsWAdditionalInfo(int ProjectId)
+        {
+            if (ProjectId != 0) return _context.Posts.AsNoTracking().Where(p => p.LinkedProjectId == ProjectId && !p.IsPrivate && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, Text = p.Text, CreatedAt = p.CreatedAt, AllowMentions = p.AllowMentions, LikedCount = p.LikedPosts != null ? p.LikedPosts.Count(l => l.PostId == p.Id) : 0 }).OrderByDescending(p => p.CreatedAt);
+            else return null;
+        }
+
+        public async Task<int> GetAssociatedPostsCountAsync(int ProjectId)
+        {
+            if (ProjectId != 0) return await _context.Posts.CountAsync(p => p.LinkedProjectId == ProjectId);
+            else return 0;
         }
     }
 }

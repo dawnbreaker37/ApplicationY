@@ -1,9 +1,11 @@
-﻿using ApplicationY.Interfaces;
+﻿using ApplicationY.Data;
+using ApplicationY.Interfaces;
 using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Diagnostics;
 
 namespace ApplicationY.Controllers
@@ -11,15 +13,19 @@ namespace ApplicationY.Controllers
     public class HomeController : Controller
     {
         private readonly UserManager<User> _userManager;
+        private readonly Context _context;
         private readonly IUser _user;
         private readonly ILogger<HomeController> _logger;
         private readonly IProject _projectRepository;
         private readonly ICategory _categoryRepository;
         private readonly ISubscribe _subscribeRepository;
+        private readonly IMemoryCache _cache;
 
-        public HomeController(ILogger<HomeController> logger, ISubscribe subscribeRepository, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
+        public HomeController(Context context, ILogger<HomeController> logger, IMemoryCache cache, ISubscribe subscribeRepository, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
         {
+            _context = context;
             _user = user;
+            _cache = cache;
             _logger = logger;
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -49,6 +55,9 @@ namespace ApplicationY.Controllers
                     LikedProjects = await LikedProjects_Preview.ToListAsync();
                     LikedProjectsCount = LikedProjects.Count;
                 }
+
+                UserInfo.Country = await _context.Countries.AsNoTracking().FirstOrDefaultAsync(c => c.Id == UserInfo.CountryId);
+                _cache.Set("user_" + UserInfo.Id, UserInfo, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
 
                 ViewBag.UserInfo = UserInfo;
                 ViewBag.Subscribtions = Subscribtions;

@@ -47,7 +47,9 @@
             <div class="bordered-container p-2 mt-2">
                 <button type="button" class="btn btn-standard-not-animated float-end ms-1 btn-sm"> <i class="fas fa-ellipsis-h"></i> </button>
                 <img class="image-ultra-small-box" style="background-color: #0d6efd;" src="/ProfilePhotos/7f3f9ae5-d86.png" alt="Cannot display this image" />
-                <p class="card-text fw-500 mt-1">Some Random User<br/><small class="card-text text-muted">3hr ago</small></p>
+                <span class="h6 mt-1">Some Random User</span>
+                <div></div>
+                <small class="card-text text-muted">3h ago</small>
                 <div class="box-container p-2">
                     <small class="card-text fw-500"> <i class="fas fa-link text-primary"></i> Some Random Project</small>
                     <div></div>
@@ -131,14 +133,37 @@
                     <button type="button" class="btn btn-text btn-sm mb-1" style="display: none;" id="MentionedPeopleInfo_Btn"> <i class="fas fa-at text-primary"></i> Mentioned</button>
                     <textarea id="Text" name="Text" class="form-control" rows="5" placeholder="Tell what's happening around you.."></textarea>
                 </div>
-                <div class="bordered-container rounded-pill p-1 mt-1" style="display: none;" id="MentionedPeople_Box">
+                <div class="bordered-container p-2 pt-1 mt-1" style="display: none;" id="MentionedPeople_Box">
+                    <h6 class="h6 safe-font">Mentioned Users</h6>
+                    <div class="mt-1 pt-1 border-top" id="MentionedPeopleCounter_Box">
 
+                    </div>
                 </div>
                 <div class="mt-1">
                     <div>
                         <button type="button" class="btn btn-text btn-sm d-inline-block me-2 smallside-btn-open-container" id="ProjectsList_Container-OpenY"> <i class="fas fa-link"></i> Link a Project</button>
-                        <button type="button" class="btn btn-text btn-sm d-inline-block me-2"> <i class="fas fa-cog"></i> Settings</button>
-                        <button type="button" class="btn btn-text btn-sm d-inline-block"> <i class="fab fa-replyd"></i> Who could reply?</button>
+                        <button type="button" class="btn btn-text btn-sm d-inline-block me-2" data-bs-toggle="collapse" data-bs-target="#Settings_Collapse" aria-expanded="false" aria-controls="Settings_Collapse"> <i class="fas fa-cog"></i> Settings</button>
+                    </div>
+                </div>
+                <div class="collapse" id="Settings_Collapse">
+                    <div class="card bordered-container mt-2 p-2">
+                        <h6 class="h6 safe-font"> <i class="fas fa-cog"></i> Settings</h6>
+                        <div class="border-top pt-1">
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" asp-for="AllowMentions" checked />
+                                <label class="form-check-label fw-500" asp-for="AllowMentions">Allow Mentions</label>
+                            </div>
+                            <div class="ms-1">
+                                <small class="card-text text-muted">Other users may rewrite to your post and start discussions, so they'll be mentioned</small>
+                            </div>
+                            <div class="form-check form-switch mt-3">
+                                <input class="form-check-input" type="checkbox" asp-for="IsPrivate" />
+                                <label class="form-check-label fw-500" asp-for="IsPrivate">Private Post</label>
+                            </div>
+                            <div class="ms-1">
+                                <small class="card-text text-muted">Enable to make the post <span class="text-danger">private</span>. Disable to make it public</small>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 <div class="mt-2 border-top pt-2">

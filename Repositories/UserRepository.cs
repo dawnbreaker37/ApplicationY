@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ApplicationY.Repositories
 {
@@ -12,13 +13,15 @@ namespace ApplicationY.Repositories
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
         private readonly SignInManager<User> _signInManager;
+        private readonly IMemoryCache _cache;
         private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public UserRepository(Context context, UserManager<User> userManager, IWebHostEnvironment webHostEnvironment, SignInManager<User> signInManager) : base(context)
+        public UserRepository(Context context, UserManager<User> userManager, IMemoryCache cache, IWebHostEnvironment webHostEnvironment, SignInManager<User> signInManager) : base(context)
         {
             _context = context;
             _userManager = userManager;
             _signInManager = signInManager;
+            _cache = cache;
             _webHostEnvironment = webHostEnvironment;
         }
 
@@ -156,6 +159,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
+                bool Result = false;
                 if (!ForAdmins)
                 {
                     if (NeedLargerInfo)
@@ -163,7 +167,20 @@ namespace ApplicationY.Repositories
                         if (NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
                         else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
                     }
-                    else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
+                    else
+                    {
+                        Result = _cache.TryGetValue("user_" + Id, out User? UserInfo);
+                        if (!Result)
+                        {
+                            _cache.Set("user_" + Id, await _userManager.FindByIdAsync(Id.ToString()), new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
+                            return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
+                        }
+                        else
+                        {
+                            if(UserInfo != null) return new GetUserInfo_ViewModel { Id = UserInfo.Id, PseudoName = UserInfo.PseudoName, SearchName = UserInfo.SearchName, Description = UserInfo.Description, CountryFullName = UserInfo.Country!.ISO + ", " + UserInfo.Country!.Name };
+                            else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
+                        }
+                    }
                 }
                 else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, IsDisabled = u.IsDisabled, SearchName = u.SearchName, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, IsVerifiedAccount = u.IsVerified, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, RemovedProjectsCount = u.Projects != null ? u.Projects.Count(p => p.IsRemoved) : 0 }).FirstOrDefaultAsync(u => u.Id == Id);
             }
@@ -293,7 +310,7 @@ namespace ApplicationY.Repositories
             return null;
         }
 
-        public async Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email, string Code)
+        public async Task<string?> SubmitEmailByUniqueCodeAsync(int Id, string? Email)
         {
             if(Id != 0 && Email != null)
             {

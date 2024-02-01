@@ -11,6 +11,7 @@
         @if (UserInfo != null)
         {
             <input type="hidden" id="PageInfo_UserId" value="@UserInfo.Id" />
+            <input type="hidden" id="PageInfo_UserImgUrl" value="@UserInfo.ProfilePhoto" />
             <form method="get" asp-controller="Notifications" asp-action="GetNotifications" id="GetNotifications_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
@@ -20,10 +21,22 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
+            <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
+                <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
+            </form>
+            <form method="post" asp-controller="Project" asp-action="LockThePost" id="LockThePost_Form">
+                <input type="hidden" name="Id" id="LTP_Val_Id" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
+            <form method="post" asp-controller="Project" asp-action="UnlockThePost" id="UnlockThePost_Form">
+                <input type="hidden" name="Id" id="UTP_Val_Id" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
+            <form method="post" asp-controller="Project" asp-action="RemoveThePost" id="RemoveThePost_Form">
+                <input type="hidden" name="Id" id="RTP_Val_Id" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
         }
-        <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
-            <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
-        </form>
     </div>
 
     <div class="box-container shadow-sm p-3 text-center">
@@ -32,7 +45,20 @@
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-list-ul"></i> <br />Projects</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="ChartBar_Container-Open"> <i class="far fa-chart-bar"></i> <br />Chart Bar</button>
+                @if (ViewBag.PostsCount > 0)
+                {
+                    <div>
+                        <form method="get" asp-controller="Project" asp-action="GetAllPosts" id="GetAllPosts_Form">
+                            <input type="hidden" name="Id" value="@UserInfo!.Id" />
+                            <button type="submit" class="btn btn-navbar btn-sm w-100" id="GetAllPosts_Sbmt_Btn"> <i class="far fa-sticky-note"></i> <br />Posts</button>
+                        </form>
+                    </div>
+                    <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" style="display: none;" id="Posts_Container-Open"> <i class="far fa-sticky-note"></i> <br />Posts</button>
+                }
+                else
+                {
+                    <button type="button" class="btn btn-navbar btn-sm w-100" disabled> <i class="far fa-sticky-note"></i> <br />Posts</button>
+                }
             </div>
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
@@ -49,6 +75,43 @@
             <input type="hidden" id="CommentsCount_Val" value="0" />
         </div>
         <div class="mt-2 p-3 pt-0 mb-5" id="CommentsMain_Box">
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="EditPost_Container">
+        <div class="header-container p-3 pb-2" id="EditPost_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="PostsEditPost_Container_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Edit Post</h5>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div>
+                <form method="post" asp-controller="Project" asp-action="EditPost" id="EditPost_Form">
+                    <input type="hidden" name="Id" id="EPF_Id_Val" value="0" />
+                    <div>
+                        <textarea name="Text" id="EPF_Text" placeholder="What's going on..." class="form-control" rows="4" maxlength="2500"></textarea>
+                    </div>
+                    <div class="mt-2">
+                        <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour">Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Posts_Container">
+        <div class="header-container p-3 pb-2" id="Posts_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Posts_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Posts, <span id="PostsCount_Lbl">@ViewBag.PostsCount</span></h5>
+        </div>
+        <div class="mt-2 p-3 pt-0" id="Posts_Box">
+            <div id="HaveSomePosts_Box">
+
+            </div>
+            <div class="mt-1 p-2 text-center" style="display: none;" id="NoPosts_Box">
+                <h1 class="h1"> <i class="far fa-times-circle"></i> </h1>
+                <h5 class="h5 safe-font">No Current Posts</h5>
+                <small class="card-text text-muted">Create at least one post to edit, lock/unlock or remove it from this page</small>
+            </div>
         </div>
     </div>
 

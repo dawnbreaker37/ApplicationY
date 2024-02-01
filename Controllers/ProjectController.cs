@@ -18,9 +18,11 @@ namespace ApplicationY.Controllers
         private readonly IImages _imagesRepository;
         private readonly IAudios _audiosRepository;
         private readonly IOthers _othersRepository;
+        private readonly IAccount _accountRepository;
+        private readonly IPost _postRepository;
         private readonly Context _context;
 
-        public ProjectController(UserManager<User> userManager, IOthers othersRepository, IImages imagesRepository, IAudios audiosRepository, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
+        public ProjectController(UserManager<User> userManager, IPost postRepository, IAccount accountRepository, IOthers othersRepository, IImages imagesRepository, IAudios audiosRepository, ICategory categoryRepository, IProject projectRepository, IMessage messageRepository, Context context)
         {
             _userManager = userManager;
             _projectRepository = projectRepository;
@@ -30,6 +32,8 @@ namespace ApplicationY.Controllers
             _imagesRepository = imagesRepository;
             _audiosRepository = audiosRepository;
             _othersRepository = othersRepository;
+            _accountRepository = accountRepository;
+            _postRepository = postRepository;
         }
 
         public async Task<IActionResult> Create()
@@ -42,7 +46,7 @@ namespace ApplicationY.Controllers
                 List<Category>? Categories = null;
                 IQueryable<Category>? Categories_Preview = _categoryRepository.GetAll();
                 User? UserInfo = await _userManager.GetUserAsync(User);
-                if(Categories_Preview != null)
+                if (Categories_Preview != null)
                 {
                     Categories = await Categories_Preview.ToListAsync();
                     LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
@@ -52,7 +56,7 @@ namespace ApplicationY.Controllers
                 ViewBag.UserInfo = UserInfo;
                 ViewBag.Categories = Categories;
                 ViewBag.LastCategoryId = LastCategoryId;
-                ViewBag.Count = Count;  
+                ViewBag.Count = Count;
 
                 return View();
             }
@@ -84,21 +88,26 @@ namespace ApplicationY.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
+                //User? UserInfo = await _accountRepository.GetCurrentUserFromCacheAsync(Int32_Id);
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
+                    //await Response.Cookies.
                     IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, false, false);
-                    if (UserAllProjects_Preview != null)
-                    {
-                        List<Project?> Projects = await UserAllProjects_Preview.ToListAsync();
-                        int Count = Projects.Count;
+                    //IQueryable<GetPost_ViewModel>? GetUserAllPosts_Preview = _postRepository.GetUserAllPosts(UserInfo.Id, false);
 
-                        ViewBag.UserInfo = UserInfo;
-                        ViewBag.Projects = Projects;
-                        ViewBag.Count = Count;
+                    List<Project?>? Projects = UserAllProjects_Preview != null ? await UserAllProjects_Preview.ToListAsync() : null;
+                    //List<GetPost_ViewModel>? AllPosts = GetUserAllPosts_Preview != null ? await GetUserAllPosts_Preview.ToListAsync() : null;
+                    int ProjectsCount = Projects != null ? Projects.Count : 0;
+                    int PostsCount = await _postRepository.GetUsersAllPostsCountAsync(UserInfo.Id);
 
-                        return View();
-                    }
+                    ViewBag.UserInfo = UserInfo;
+                    ViewBag.Projects = Projects;
+                    //ViewBag.Posts = AllPosts;
+                    ViewBag.Count = ProjectsCount;
+                    ViewBag.PostsCount = PostsCount;
+
+                    return View();
                 }
             }
             else return RedirectToAction("Create", "Account");
@@ -111,6 +120,18 @@ namespace ApplicationY.Controllers
             int Result = await _othersRepository.SendPurgeAsync(Id, SenderId, 0, Description);
             if (Result != 0) return Json(new { success = true, alert = "Purge request has been successfully sent. Please, wait. Your asnwer will in 1-2 day(s) by notification which will appear in your notifications list. Thank you!", projectId = Id });
             else return Json(new { success = false, alert = "You've already sent a purge request for this project. Please, wait for your answer or check your notifications list. May be the is waiting for you!" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllPosts(int Id)
+        {
+            IQueryable<GetPost_ViewModel>? Posts_Preview = _postRepository.GetUserAllPosts(Id, false);
+            if (Posts_Preview != null)
+            {
+                List<GetPost_ViewModel>? Posts = await Posts_Preview.ToListAsync();
+                if (Posts != null) return Json(new { success = true, result = Posts });
+            }
+            return Json(new { success = false, alert = "You've got no posts. Create at least one post to edit, lock/unlock or remove it from this page" });
         }
 
         [HttpGet]
@@ -128,7 +149,7 @@ namespace ApplicationY.Controllers
                         List<Project?>? Projects = await Projects_Review.ToListAsync();
                         int Count = Projects.Count;
 
-                        ViewBag.UserInfo= UserInfo;
+                        ViewBag.UserInfo = UserInfo;
                         ViewBag.Projects = Projects;
                         ViewBag.Count = Count;
 
@@ -158,7 +179,7 @@ namespace ApplicationY.Controllers
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
                     IQueryable<Audio>? Audios_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, false, true, UserInfo.Id, false);
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, UserInfo.Id, false, true);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -178,7 +199,7 @@ namespace ApplicationY.Controllers
                             LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
                             Count = Categories.Count;
                         }
-                        if(Audios_Preview != null)
+                        if (Audios_Preview != null)
                         {
                             Audios = await Audios_Preview.ToListAsync();
                             AudiosCount = Audios.Count;
@@ -315,7 +336,7 @@ namespace ApplicationY.Controllers
                     int Count = 0;
                     List<GetLikedProjects_ViewModel>? LikedProjectsResult = null;
                     IQueryable<GetLikedProjects_ViewModel>? LikedProjectsResult_Preview = _projectRepository.GetLikedProjects(UserInfo.Id);
-                    if(LikedProjectsResult_Preview != null)
+                    if (LikedProjectsResult_Preview != null)
                     {
                         LikedProjectsResult = await LikedProjectsResult_Preview.ToListAsync();
                         Count = LikedProjectsResult.Count;
@@ -399,13 +420,16 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles, bool GetRemovedToo)
         {
-            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, GetUsername, GetAdditionalInfo, SenderId, GetRemovedToo);
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, SenderId, GetUsername, GetAdditionalInfo);
             if (ProjectInfo != null)
             {
                 int ImagesCount = 0;
                 List<Audio>? Audios = null;
                 GetProjectImages_ViewModel? MainImg = null;
                 List<GetProjectImages_ViewModel>? Images = null;
+                bool IsLiked = false;
+                int LikesCount = await _projectRepository.ProjectLikesCount(Id);
+
                 if (GetFiles)
                 {
                     IQueryable<Audio>? Audios_Preview = _audiosRepository.GetProjectAudios(Id);
@@ -416,25 +440,34 @@ namespace ApplicationY.Controllers
                     if (ProjectInfo.MainPhotoId != 0)
                     {
                         MainImg = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
-;
                         if (MainImg != null) ImagesCount = Images == null ? 0 : Images.Count + 1;
                         else ImagesCount = Images == null ? 0 : Images.Count;
                     }
                 }
 
-                bool IsLiked = false;
-                int LikesCount = await _projectRepository.ProjectLikesCount(Id);
                 if (SenderId != 0) IsLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, SenderId);
-                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, imgsCount = ImagesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, mainImg = MainImg, images = Images });
+
+                return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, imgsCount = ImagesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, mainImg = MainImg, audiosCount = Audios != null ? Audios.Count : 0, images = Images });
             }
             else return Json(new { success = false, alert = "Unable to have a look on this project at this moment. Please, try again later" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetFullProject_ForAdmins(int Id)
+        {
+            Project? ProjectInfo = await _projectRepository.GetAllProjectAsync(Id, false, false);
+            if(ProjectInfo != null)
+            {
+                return Json(new { success = true, result = ProjectInfo });
+            }
+            return Json(new { success = false, alert = "An error has been occured. Please, try again later" });
         }
 
         public async Task<IActionResult> Info(int Id)
         {
             if(Id != 0)
             {
-                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, true, true, 0, false);
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, 0, true, true);
                 if(ProjectInfo != null)
                 {
                     List<GetProjectImages_ViewModel>? Images = null;
@@ -559,6 +592,57 @@ namespace ApplicationY.Controllers
                 if (Projects != null) return Json(new { success = true, result = Projects, count = Projects.Count });
             }
             return Json(new { success = false, alert = "We haven't found any project from this user so, there's nothing to load" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Disable(int Id, int DisablerId, string Description)
+        {
+            int Result = await _projectRepository.DisableProjectAsync(Id, DisablerId, Description);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Selected project has been successfully disabled" });
+            else return Json(new { success = false, alert = "We can't disable this project right now. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Enable(int Id, int DisablerId)
+        {
+            int Result = await _projectRepository.EnableProjectAsync(Id, DisablerId);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Selected project has been successfully enabled" });
+            else return Json(new { success = false, alert = "We can't enable this project right now. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditPost(CreatePost_ViewModel Model)
+        {
+            if(ModelState.IsValid)
+            {
+                int Result = await _postRepository.EditPostAsync(Model);
+                if (Result != 0) return Json(new { success = true, alert = "Selected post has been successfully updated", result = Result });
+            }
+            return Json(new { success = false, alert = "An unexpected error has been occured. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LockThePost(int Id, int UserId)
+        {
+            int Result = await _postRepository.LockThePostAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, alert = "Selected post has been locked. Now it has became private", result = Result });
+            else return Json(new { success = false, alert = "An unexpected error has been occured. Please, try to lock the post again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UnlockThePost(int Id, int UserId)
+        {
+            int Result = await _postRepository.UnlockThePostAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, alert = "Selected post has been unlocked", result = Result });
+            else return Json(new { success = false, alert = "An unexpected error has been occured. Please, try to unlock the post again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveThePost(int Id, int UserId)
+        {
+            int Result = await _postRepository.RemovePostAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, result = Result });
+            else return Json(new { success = false, alert = "Unable to remove the selected post. Please, check all datas and then try again" });
         }
     }
 }

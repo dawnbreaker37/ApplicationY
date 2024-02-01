@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationY.Controllers
 {
@@ -29,11 +30,18 @@ namespace ApplicationY.Controllers
                     int UserRole = await _othersRepository.GetUserRoleAsync(UserInfo.Id);
                     if(UserRole >= 3)
                     {
+                        List<GetUserRole_ViewModel>? GetAllRoles_Result = null;
+                        IQueryable<GetUserRole_ViewModel>? GetAllRoles = _othersRepository.GetAllRoles(UserRole);
                         GetUserRole_ViewModel? FullRoleInfo = await _othersRepository.GetUserFullRoleInfoAsync(UserInfo.Id, UserRole);
+                        if(GetAllRoles != null)
+                        {
+                            GetAllRoles_Result = await GetAllRoles.ToListAsync();
+                        }
 
                         ViewBag.UserInfo = UserInfo;
                         ViewBag.FullRoleInfo = FullRoleInfo;
                         ViewBag.RoleId = UserRole;
+                        ViewBag.AllRoles = GetAllRoles_Result;
 
                         return View();
                     }
