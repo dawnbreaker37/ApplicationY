@@ -84,9 +84,9 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetShortUserInfo(int Id, bool IsForAdmins)
+        public async Task<IActionResult> GetShortUserInfo(int Id, bool NeedsLargerInfo, bool IsForAdmins)
         {
-            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, true, false, IsForAdmins);
+            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, NeedsLargerInfo, false, IsForAdmins);
             if (IsForAdmins)
             {
                 int UserRoleId = await _othersRepository.GetUserRoleAsync(Id);
@@ -120,12 +120,8 @@ namespace ApplicationY.Controllers
             if (User.Identity.IsAuthenticated)
             {
                 bool IsSubscribed = false;
-                //string? TrueLink1 = null;
-                //string? TrueLink2 = null;
 
-                //IQueryable<Project?>? UserProjects = null;
                 IQueryable<GetPost_ViewModel>? Posts = null;
-                //List<Project?>? UserProjectsResult = null;
                 List<GetPost_ViewModel>? PostsResult = null;
                 List<LikedPost>? LikedPosts = null;
 

@@ -67,9 +67,9 @@ namespace ApplicationY.Repositories
             else return null;
         }
 
-        public IQueryable<GetReplies_ViewModel>? GetReplies(int Id)
+        public IQueryable<GetReplies_ViewModel>? GetReplies(int Id, int SkipCount, int LoadCount)
         {
-            if (Id != 0) return _context.Replies.Where(r => r.CommentId == Id && !r.IsRemoved).AsNoTracking().Select(r => new GetReplies_ViewModel { Id = r.Id, SentAt = r.SentAt, Text = r.Text, Username = r.User!.PseudoName, UserId = r.UserId }).OrderByDescending(r => r.SentAt);
+            if (Id != 0) return _context.Replies.Where(r => r.CommentId == Id && !r.IsRemoved).AsNoTracking().Select(r => new GetReplies_ViewModel { Id = r.Id, SentAt = r.SentAt, Text = r.Text, Username = r.User!.PseudoName, UserId = r.UserId }).Skip(SkipCount).Take(LoadCount).OrderByDescending(r => r.SentAt);
             else return null;
         }
 
@@ -191,6 +191,12 @@ namespace ApplicationY.Repositories
                 return true;
             }
             return false;
+        }
+
+        public async Task<int> GetCommentRepliesCountAsync(int CommentId)
+        {
+            if (CommentId != 0) return await _context.Replies.AsNoTracking().CountAsync(r => r.CommentId == CommentId && !r.IsRemoved);
+            else return 0;
         }
     }
 }

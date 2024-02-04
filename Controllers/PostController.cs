@@ -4,6 +4,7 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationY.Controllers
 {
@@ -71,6 +72,18 @@ namespace ApplicationY.Controllers
             int Result = await _postRepository.DislikeThePostAsync(Id, UserId);
             if (Result != 0) return Json(new { success = true, id = Id });
             else return Json(new { success = false, alert = "Unable to remove your like from that post. Please, try again later" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllRelatedPosts(int Id)
+        {
+            IQueryable<GetPost_ViewModel>? Posts_Preview = _postRepository.GetAllAssociatedPostsWAdditionalInfo(Id);
+            if(Posts_Preview != null)
+            {
+                List<GetPost_ViewModel>? Posts_Result = await Posts_Preview.ToListAsync();
+                if (Posts_Result != null) return Json(new { success = true, result = Posts_Result });
+            }
+            return Json(new { success = false, alert = "We haven't found any post related with this project" });
         }
 
         [HttpPost]

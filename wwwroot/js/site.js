@@ -469,30 +469,15 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
             else $("#USI_Description_Lbl").text("No user description");
             $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
             $("#USI_Userpage_Link").html(" <i class='fas fa-chevron-right'></i> " + response.result.pseudoName + "'s Page");
-            $("#USI_Inbox_Lbl").html(" <i class='fas fa-inbox text-primary'></i> " + response.result.email);
-            $("#USI_Date_Lbl").html(" <i class='far fa-calendar-alt text-primary'></i> Created At: " + convertDateAndTime(response.result.createdAt, false, false));
-            if (response.result.link1 != null) {
-                $("#USI_Link1Tag_Lbl").text(response.result.link1Tag);
-                $("#USI_Link1_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> " + response.result.link1);
-            }
-            else {
-                $("#USI_Link1_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external first link");
-                $("#USI_Link1Tag_Lbl").text("No Link Tag");
-            }
-            if (response.result.link2 != null) {
-                $("#USI_Link2Tag_Lbl").text(response.result.link2Tag);
-                $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> " + response.result.link2Tag);
-            }
-            else {
-                $("#USI_Link2Tag_Lbl").text("No Link Tag");
-                $("#USI_Link2_Lbl").html(" <i class='fas fa-external-link-alt text-primary'></i> No external second link");
-            }
 
             if (response.result.country.name != null) {
                 $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.country.name);
             }
             else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
             $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
+
+            $("#UserShortInfo_Container_Opening_Box").fadeIn(0);
+            $("#GSUIF_Box").fadeOut(0);
 
             textDecoder("USI_Description_Lbl", true, true);
             smallBarAnimatedOpenAndClose(true);
@@ -2099,6 +2084,51 @@ $("#RemoveThePost_Form").on("submit", function (event) {
     });
 });
 
+$("#GetAllRelatedPosts_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+   
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#RelatedPosts_Box").empty();
+            $.each(response.result, function (index) {
+                let div = $("<div class='box-container bg-light p-2 me-1 ms-1 d-inline-block'></div>");
+                let creatorName = $("<span class='h6 p-0 get-user-short-info'></span>");
+                let separator1 = $("<div></div>");
+                let createdAt = $("<small class='card-text text-muted'></small>");
+                let separator2 = $("<div class='mt-3'></div>");
+                let mainText = $("<span class='card-text white-space-on'></p>");
+                let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
+                let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like " + response.result[index].likedCount + "</button > ");
+                let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
+
+                creatorName.attr("id", "GetShortUserInfo_ForPost_" + response.result[index].id +"-" + response.result[index].userId);
+                creatorName.text(response.result[index].creatorName);
+                createdAt.text(convertDateAndTime(response.result[index].createdAt, true, true));
+                mainText.html(response.result[index].text);
+
+                btnsDiv.append(likeThePostBtn);
+                btnsDiv.append(shareThePostBtn);
+                div.append(creatorName);
+                div.append(separator1);
+                div.append(createdAt);
+                div.append(separator2);
+                div.append(mainText);
+                div.append(btnsDiv);
+
+                $("#RelatedPosts_Box").append(div);
+            });
+            $("#GetAllRelatedPosts_Form_Box").fadeOut(0);
+            $("#GetAllRelatedPosts_Btn_Box").fadeIn(0);
+            $("#RelatedPosts_Box").slideDown(300);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+
 $(document).on("click", ".select-search-result-user", function (event) {
     let trueId = getTrueId(event.target.id);
     if (parseInt(trueId)) {
@@ -2122,13 +2152,6 @@ $(document).on("click", ".select-project-result", function (event) {
     }
     else openModal("Invalid project ID. Please, try again", "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-slash text-warning'></i> ");
 });
-//$(document).on("click", ".get-short-user-info-for-admins", function (event) {
-//    let trueId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
-//    if (trueId != null) {
-//        $("#GUIFA_Id_Val").val(trueId);
-//        $("#GetShortUserInfoForAdmins_Form").submit();
-//    }
-//});
 
 $("#SendMessageFromAdmins_Form").on("submit", function (event) {
     event.preventDefault();
@@ -3485,18 +3508,21 @@ $(document).on("click", ".send-reply-to-comment", function (event) {
         $("#RTC_Username").html(userName);
         $("#RTC_TextValue").html(text);
         $("#RTC_CommentId_Val").val(trueId);
-        $("#GAR_Id_Val").val(trueId);
+        $("#GR_Id_Val").val(trueId);
 
-        let url = $("#GetAllReplies_Form").attr("action");
-        let data = $("#GetAllReplies_Form").serialize();
+        event.preventDefault();
+        let url = $("#GetReplies_Form").attr("action");
+        let data = $("#GetReplies_Form").serialize();
         $.get(url, data, function (response) {
             if (response.success) {
                 $("#RepliesList_Box").empty();
                 $("#RTC_Count").val(response.count);
-                if (response.count > 0) {
+
+                if (response.loadedCount > 0) {
                     $.each(response.result, function (index) {
                         let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
-                        let title = $("<h6 class='h6'></h6>");
+                        let title = $("<span class='h6'></h6>");
+                        let separator1 = $("<div></div>");
                         let text = $("<small class='card-text white-space-on'></small>");
                         let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
 
@@ -3506,6 +3532,7 @@ $(document).on("click", ".send-reply-to-comment", function (event) {
 
                         div.append(sentAt);
                         div.append(title);
+                        div.append(separator1);
                         div.append(text);
                         $("#RepliesList_Box").append(div);
                     });
@@ -3542,6 +3569,11 @@ $(document).on("click", ".send-reply-to-comment", function (event) {
         openModal("You can't send reply for this comment", null, null, null, null, null, null, 2.75);
     }
 });
+
+//$("#LoadMoreReplies_Btn").on("click", function (event) {
+//    event.preventDefault();
+//    $("#GetAllReplies_Form").submit();
+//});
 
 $(document).on("click", ".select-to-hide", function (event) {
     let trueId = getTrueId(event.target.id);
@@ -3859,6 +3891,10 @@ $(document).on("click", ".btn-remove-post", function (event) {
         $("#RTP_Val_Id").val(trueId);
         $("#RemoveThePost_Form").submit();
     }
+});
+
+$("#LoadMoreReplies_Btn").on("click", function () {
+    $("#GetAllReplies_Form").submit();
 });
 
 $("#Name").on("keyup", function () {

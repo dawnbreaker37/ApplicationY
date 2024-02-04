@@ -541,12 +541,14 @@ namespace ApplicationY.Controllers
                         }
                         else ViewBag.UserInfo = null;
                     }
+                    int LinkedProjectsCount = await _postRepository.GetAssociatedPostsCountAsync(Id);
 
                     ViewBag.ProjectInfo = ProjectInfo;
                     ViewBag.TotalDays = TotalDays;
                     ViewBag.Images = Images;
                     ViewBag.Audios = Audios;
                     ViewBag.ImagesCount = ImagesCount;
+                    ViewBag.LinkedProjectsCount = LinkedProjectsCount;
                     ViewBag.MainImgInfo = MainImgInfo;
                     ViewBag.AudiosCount = AudiosCount;
                     ViewBag.ReleaseNotesCount = ReleaseNotesCount;

@@ -13,9 +13,10 @@ namespace ApplicationY.Interfaces
         public Task<int> CheckAsync(int MessageId, int UserId);
         public Task<int> RemoveAsync(int Id, int UserId);
         public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId, int SkipCount, int Count);
-        public IQueryable<GetReplies_ViewModel>? GetReplies(int CommentId);
+        public IQueryable<GetReplies_ViewModel>? GetReplies(int CommentId, int SkipCount, int LoadCount);
         public Task<int> SendCommentAsync(SendComment_ViewModel Model);
         public Task<int> GetProjectCommentsCountAsync(int ProjectId);
+        public Task<int> GetCommentRepliesCountAsync(int CommentId);
         public Task<GetCommentaries_ViewModel?> GetLastCommentsInfoAsync(int ProjectId);
     }
 }

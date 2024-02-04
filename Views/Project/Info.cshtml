@@ -11,6 +11,7 @@
     bool IsLiked = ViewBag.IsLiked;
     int CommentsCount = ViewBag.CommentsCount;
     int ImagesCount = ViewBag.ImagesCount;
+    int LinkedProjectsCount = ViewBag.LinkedProjectsCount;
     double ProjectsByThisCategory = ViewBag.ProjectsByThisCategory;
     double CategoryPercentage = ViewBag.CategoryPercentage;
 }
@@ -30,8 +31,8 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
-            <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
-                <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
+            <form method="get" asp-controller="Messages" asp-action="GetReplies" id="GetReplies_Form">
+                <input type="hidden" name="Id" id="GR_Id_Val" value="0" />
             </form>
             <form method="post" asp-controller="Subscribes" asp-action="SubscribtionOptionWithoutKnowing" id="SubscribtionOptionWithoutKnowing_Form">
                 <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
@@ -126,7 +127,8 @@
                 <div class="box-container">
                     <div class="box-container p-2 bg-light">
                         <small class="badge bg-white text-dark warning-badge safe-font fw-normal float-end" id="USI_CountryBadge">Country</small>
-                        <h2 class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</h2>
+                        <span class="h2 safe-font" id="USI_Username_Lbl">Pseudoname</span>
+                        <div></div>
                         <small class="card-text text-muted" id="USI_Searchname_Lbl">Searchname</small>
                         <div class="mt-2 pt-1 border-top"></div>
                         <div class="mb-1">
@@ -134,24 +136,6 @@
                             <input type="hidden" id="USI_SubscribersCount_Val" value="0" />
                             <button type="button" class="btn bg-white subscribe-for-user btn-standard-with-no-colour float-end ms-1 btn-sm" id="USI_SubscribersInfo_Btn"></button>
                             <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
-                        </div>
-                    </div>
-                    <div class="card-group mt-2">
-                        <div class="card p-2 bg-light">
-                            <p class="card-text fw-500">Contact Info</p>
-                            <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
-                            <div class="mt-2"></div>
-                            <small class="card-text" id="USI_Date_Lbl"></small>
-                        </div>
-                        <div class="card p-2 bg-light">
-                            <p class="card-text fw-500">Links</p>
-                            <small class="card-text" id="USI_Link1_Lbl"></small>
-                            <div></div>
-                            <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
-                            <div class="border-top pt-1 mt-2"></div>
-                            <small class="card-text" id="USI_Link2_Lbl"></small>
-                            <div></div>
-                            <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
                         </div>
                     </div>
                     <div class="mt-1 ms-1">
@@ -174,7 +158,13 @@
                     <h6 class="h6" id="RTC_Username">Username</h6>
                     <small class="card-text text-muted white-space-on" id="RTC_TextValue">Replying message text</small>
                 </div>
-                <div class="mt-2 mb-5" id="RepliesList_Box">
+                <div class="mt-2 mb-5">
+                    <div id="RepliesList_Box">
+
+                    </div>
+                    <div>
+                        <button type="button" class="btn text-primary btn-standard-not-animated border-0 w-100 mt-1 btn-sm" id="LoadMoreReplies_Btn" disabled>Load More Replies</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -244,21 +234,24 @@
             <h1 class="h1"> <i class="fas fa-sync-alt"></i> </h1>
             @if(ViewBag.ReleaseNotesCount > 1)
             {
-                <h5 class="h5 safe-font">There're @ViewBag.ReleaseNotesCount release notes for this project</h5>
+                <span class="h5 safe-font">There're @ViewBag.ReleaseNotesCount release notes for this project</span>
+                <div></div>
                 <small class="card-text text-muted">Click the button below to show them</small>
                 <div></div>
                 <button type="button" class="btn btn-text mt-2 get-release-notes" id="GRNProject-@ProjectInfo.Id"> <i class="fas fa-download"></i> Get Release Notes</button>
             }
             else if(ViewBag.ReleaseNotesCount == 1)
             {
-                <h5 class="h5 safe-font">There's a single release note for this project</h5>
+                <span class="h5 safe-font">There's a single release note for this project</span>
+                <div></div>
                 <small class="card-text text-muted">Click the button below to show them</small>
                 <div></div>
                 <button type="button" class="btn btn-text mt-2 get-release-notes" id="GRNProject-@ProjectInfo.Id"> <i class="fas fa-download"></i> Get Release Notes</button>
             }
             else
             {
-                <h5 class="h5 safe-font">There're no release notes for this project</h5>
+                <span class="h5 safe-font">There're no release notes for this project</span>
+                <div></div>
                 <small class="card-text text-muted">May be the owner of the project will add some release notes later</small>
             }
         </div>
@@ -286,7 +279,7 @@
 
             </div>
             <div class="text-center">
-                <button type="button" class="btn btn-text btn-sm w-100 text-primary" style="display: none;" id="LoadMoreComments_Btn" disabled>Load more comments</button>
+                <button type="button" class="btn btn-text btn-sm w-100 text-primary" style="display: none;" id="LoadMoreComments_Btn" disabled>Load More Comments</button>
             </div>
         </div>
     </div>
@@ -458,11 +451,15 @@
                 {
                     <button type="button" class="btn btn-light text-danger btn-standard-with-no-colour btn-sm float-end ms-1 me-1" disabled> <i class="far fa-paper-plane"></i> Sign In</button>
                 }
-                <div>
+                <div id="GSUIF_Box">
                     <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
                         <input type="hidden" name="Id" id="GSU_Id_Val" value="@ProjectInfo.UserId" />
+                        <input type="hidden" name="NeedsLargerInfo" value="true" />
                         <button type="submit" class="btn btn-text btn-lg safe-font">@ProjectInfo.UserName</button>
                     </form>
+                </div>
+                <div style="display: none;" id="UserShortInfo_Container_Opening_Box">
+                    <button type="button" class="btn btn-text btn-lg safe-font smallside-btn-open-container" id="UserShortInfo_Container-Open">@ProjectInfo.UserName</button>
                 </div>
             </div>
             <div class="row mt-1">
@@ -514,7 +511,7 @@
                         <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
                             <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
                             <input type="hidden" name="SkipCount" id="SkippedCount_Val" value="0" />
-                            <input type="hidden" name="Count" value="1" />
+                            <input type="hidden" name="Count" value="60" />
                             <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
                         </form>
                     </div>
@@ -590,6 +587,31 @@
             <p class="card-text white-space-on" id="Preview_ShortDescription">@ProjectInfo.Description</p>
             <p class="card-text white-space-on mt-1" id="Preview_LongDescription">@ViewBag.FullText</p>
         </div>
+        @if (LinkedProjectsCount > 0)
+        {
+            <div class="bordered-container p-3 mt-1">
+                <div class="row">
+                    <div class="col col-8">
+                        <span class="h5 safe-font">Related Posts ∙ @LinkedProjectsCount</span>
+                        <div></div>
+                        <small class="card-text text-muted">show all related to this project posts</small>
+                    </div>
+                    <div class="col col-4">
+                        <div id="GetAllRelatedPosts_Form_Box">
+                            <form method="get" asp-controller="Post" asp-action="GetAllRelatedPosts" id="GetAllRelatedPosts_Form">
+                                <input type="hidden" name="Id" value="@ProjectInfo.Id" />
+                                <button type="submit" class="btn btn-standard-not-animated btn-light w-100 btn-sm"> <i class="far fa-sticky-note"></i> <br/>Get Posts</button>
+                            </form>
+                        </div>
+                        <div style="display: none;" id="GetAllRelatedPosts_Btn_Box">
+                            <button type="button" class="btn btn-standard-not-animated btn-light w-100 btn-sm"> <i class="far fa-sticky-note"></i> <br />Get Posts</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bordered-container w-100 horizontal-scrolled-container p-2 ps-1 pe-1 mt-1" style="display: none;" id="RelatedPosts_Box">
+            </div>
+        }
         <div class="card-group mt-2">
             <div class="card shadow-sm p-3" id="Preview_StartUpBox">
                 @if (ProjectInfo.TargetPrice != 0)
@@ -795,20 +817,16 @@
         {
             <div class="box-container mt-2">
                 <div class="card-group">
-                    <div class="card p-2 shadow-sm">
-                        <h6 class="h6"> <i class="fab fa-youtube text-danger"></i> Youtube Video</h6>
-                        <div class="box-container mt-2" id="YT_VideoPlayer_Box">
+                    <div class="card p-2 pb-1 shadow-sm">
+                        <span class="h6 ms-1 p-0"> <i class="fab fa-youtube text-danger"></i> Youtube Video</span>
+                        <div></div>
+                        <small class="card-text text-muted ms-1" id="YT_VideoLink_Lbl">@ViewBag.AdditionalYTLink</small>
+                        <div class="box-container mt-3" id="YT_VideoPlayer_Box">
                             <iframe class="yt-container w-100 ratio-16x9" id="YT_VideoPlayer" src="@ViewBag.YTLink" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
                         </div>
-                    </div>
-                    <div class="card shadow-sm p-2">
-                        <h6 class="h6"> <i class="fas fa-info-circle"></i> Additional Info</h6>
-                        <small class="card-text text-muted mt-2" id="YT_VideoLink_Lbl"><i class="fas fa-external-link"></i> Link: @ViewBag.AdditionalYTLink</small>
-                        <div class="mt-1"></div>
-                        <a href="@ViewBag.AdditionalYTLink" class="btn btn-text btn-sm text-start text-decoration-none mt-1" id="YT_VideoLink_Btn"> <i class="fab fa-youtube text-danger"></i> Watch On Youtube</a>
                     </div>
                 </div>
             </div>
         }
-        </div>
+    </div>
 </div>
