@@ -8,6 +8,7 @@ namespace ApplicationY.Interfaces
         public IQueryable<GetPost_ViewModel>? GetUserAllPosts(int UserId, bool GetAdditionalInfo);
         public IQueryable<GetPost_ViewModel>? GetAllAssociatedPosts(int ProjectId);
         public IQueryable<GetPost_ViewModel>? GetAllAssociatedPostsWAdditionalInfo(int ProjectId);
+        public IQueryable<GetPost_ViewModel>? GetRandomPosts(int Count);
         public Task<int> GetAssociatedPostsCountAsync(int ProjectId);
         public Task<int> GetUsersAllPostsCountAsync(int UserId);
         public Task<int> CreatePostAsync(CreatePost_ViewModel Model);

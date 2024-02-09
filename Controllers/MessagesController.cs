@@ -39,39 +39,39 @@ namespace ApplicationY.Controllers
             if (ModelState.IsValid)
             {
                 bool Result = await _messageRepository.SendCommentReplyAsync(Model);
-                if (Result) return Json(new { success = true, text = Model.Text, messageId = Model.CommentId });                
+                if (Result) return Json(new { success = true, text = Model.Text, commentId = Model.CommentId });                
             }
             return Json(new { success = false, alert = "An error occured while trying to send your reply. Please, check all datas and then try again" });
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetReplies(int Id)
+        public async Task<IActionResult> GetReplies(int Id, int SkipCount, int LoadCount)
         {
-            IQueryable<GetReplies_ViewModel>? Replies_Preview = _messageRepository.GetReplies(Id, 0, 1);
+            IQueryable<GetReplies_ViewModel>? Replies_Preview = _messageRepository.GetReplies(Id, SkipCount, LoadCount);
             if (Replies_Preview != null)
             {
                 List<GetReplies_ViewModel>? Replies = await Replies_Preview.ToListAsync();
                 int Count = await _messageRepository.GetCommentRepliesCountAsync(Id);
 
-                if (Replies != null) return Json(new { success = true, result = Replies, count = Count, skippedCount = 0, loadedCount = Replies != null ? Replies.Count : 0 });
+                if (Replies != null) return Json(new { success = true, result = Replies, count = Count, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
                 else return Json(new { success = true, count = 0, skippedCount = 0, loadedCount = Replies != null ? Replies.Count : 0 });
             }
             else return Json(new { success = false, alert = "No found replies for this comment", count = 0 });
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetOtherReplies(int Id, int SkipCount)
-        {
-            IQueryable<GetReplies_ViewModel>? Replies_Preview = _messageRepository.GetReplies(Id, SkipCount, 1);
-            if (Replies_Preview != null)
-            {
-                List<GetReplies_ViewModel>? Replies = await Replies_Preview.ToListAsync();
+        //[HttpGet]
+        //public async Task<IActionResult> GetOtherReplies(int Id, int SkipCount, int LoadCount)
+        //{
+        //    IQueryable<GetReplies_ViewModel>? Replies_Preview = _messageRepository.GetReplies(Id, SkipCount, LoadCount);
+        //    if (Replies_Preview != null)
+        //    {
+        //        List<GetReplies_ViewModel>? Replies = await Replies_Preview.ToListAsync();
 
-                if (Replies != null) return Json(new { success = true, result = Replies, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
-                else return Json(new { success = true, count = 0, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
-            }
-            else return Json(new { success = false, alert = "No other replies found for this comment", count = 0 });
-        }
+        //        if (Replies != null) return Json(new { success = true, result = Replies, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
+        //        else return Json(new { success = true, count = 0, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
+        //    }
+        //    else return Json(new { success = false, alert = "No other replies found for this comment", count = 0 });
+        //}
 
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int MessageId, int UserId)

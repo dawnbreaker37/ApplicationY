@@ -49,5 +49,13 @@ namespace ApplicationY.Controllers
             }
             return RedirectToAction("Index", "Home");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetRemovedProjectInfo(int Id)
+        {
+            DisabledProject? ProjectInfo = await _othersRepository.DisabledProjectInfoAsync(Id);
+            if (ProjectInfo != null) return Json(new { success = true, result = ProjectInfo });
+            else return Json(new { success = false, alert = "We're sorry but we aren't able to show you the info of this project. You may try again later, thank you! <br/> If you have some questions or issues, please send a message to our email or use in-app chat" });
+        }
     }
 }

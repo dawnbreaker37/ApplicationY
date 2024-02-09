@@ -165,25 +165,35 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
-        public async Task<Project?> GetProjectAsync(int Id, int UserId, bool GetUsername, bool GetAdditionalInfo)
+        public async Task<Project?> GetProjectAsync(int Id, int UserId, bool GetUsername)
         {
-            Project? ProjectInfo = null;
-            if (GetAdditionalInfo)
+            if (Id != 0 || UserId != 0)
             {
-                if (GetUsername) ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, DonationRules = p.DonationRules, CategoryDescription = p.Category == null ? null : p.Category.Description, IsBudget = p.IsBudget, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId || !p.IsClosed));
-                else ProjectInfo = await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, IsBudget = p.IsBudget, DonationRules = p.DonationRules, Deadline = p.Deadline, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId && (!p.IsClosed || p.IsClosed) || !p.IsClosed));
-
-                if (ProjectInfo != null)
-                {
-                    ProjectInfo.Views++;
-                    _context.Update(ProjectInfo);
-                    await _context.SaveChangesAsync();
-
-                    return ProjectInfo;
-                }
-                else return null;
+                if (GetUsername) return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, DonationRules = p.DonationRules, CategoryDescription = p.Category == null ? null : p.Category.Description, IsBudget = p.IsBudget, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || (p.UserId != UserId && !p.IsClosed)));
+                else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, IsBudget = p.IsBudget, DonationRules = p.DonationRules, Deadline = p.Deadline, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || p.UserId != UserId && !p.IsClosed));
             }
-            else return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId || !p.IsClosed)).Select(p => new Project { Id = p.Id, Name = p.Name, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsClosed = p.IsClosed, IsBudget = p.IsBudget, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice }).FirstOrDefaultAsync();
+            return null;
+        }
+
+        public async Task<Project?> GetProjectAsync(int Id, int UserId)
+        {
+            if (Id != 0 || UserId != 0) return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, Name = p.Name, IsClosed = p.IsClosed, IsBudget = p.IsBudget }).FirstOrDefaultAsync(p => p.Id == Id && !p.IsRemoved && (p.UserId == UserId || !p.IsClosed));
+            else return null;
+        }
+
+
+        public async Task<int> IncreaseProjectViews(int Id, int CurrentCount, int Count)
+        {
+            if (Id != 0)
+            {
+                if (CurrentCount > 0)
+                {
+                    CurrentCount += Count;
+                }
+                else CurrentCount = Count;
+                return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.Views, CurrentCount));
+            }
+            return 0;
         }
 
         public async Task<Project?> GetAllProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo)
@@ -196,34 +206,41 @@ namespace ApplicationY.Repositories
             else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Description = p.Description, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, TargetPrice = p.TargetPrice, UserId = p.UserId }).FirstOrDefaultAsync(p => p.Id == Id);
         }
 
-        public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool GetAdditionalInfo, bool GetCompressed, bool ForAdmins)
+        public IQueryable<Project?>? GetUsersAllRemovedProjects(int UserId)
+        {
+            if (UserId != 0)
+            {
+                return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, TargetPrice = p.TargetPrice, Views = p.Views }).OrderByDescending(p => p.LastUpdatedAt);
+            }
+            else return null;
+        }
+
+        public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool ForAdmins)
+        {
+            if (!ForAdmins)
+            {
+                if (UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
+                else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, LastUpdatedAt = p.LastUpdatedAt, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
+            }
+            else
+            {
+                return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, LastUpdatedAt = p.LastUpdatedAt, TargetPrice = p.TargetPrice }).OrderByDescending(p => p.LastUpdatedAt);
+            }
+        }
+
+        public IQueryable<Project?>? GetUsersAllProjectsWInfo(int UserId, int SenderId, bool GetAdditionalInfo)
         {
             if(UserId != 0)
             {
-                if (!GetAdditionalInfo)
+                if (GetAdditionalInfo)
                 {
-                    if(!GetCompressed)
-                    {
-                        if (UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, IsPinned = p.IsPinned, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
-                        else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, IsPinned = p.IsPinned, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
-                    }
-                    else
-                    {
-                        if (!ForAdmins)
-                        {
-                            if (UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
-                            else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
-                        }
-                        else
-                        {
-                            return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, Views = p.Views, IsRemoved = p.IsRemoved, IsClosed = p.IsClosed, LastUpdatedAt = p.LastUpdatedAt, TargetPrice = p.TargetPrice }).OrderByDescending(p => p.LastUpdatedAt);
-                        }
-                    }
+                    if (UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsRemoved = p.IsRemoved, Description = p.Description, IsPinned = p.IsPinned, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
+                    else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, LastUpdatedAt = p.LastUpdatedAt, IsRemoved = p.IsRemoved, Description = p.Description, IsPinned = p.IsPinned, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
                 }
                 else
                 {
-                    if(UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, IsPinned = p.IsPinned, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, Link1 = p.Link1, Link2 = p.Link2, YoutubeLink = p.YoutubeLink, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
-                    else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, IsPinned = p.IsPinned, LastUpdatedAt = p.LastUpdatedAt, Description = p.Description, PastTargetPrice = p.PastTargetPrice, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, Link1 = p.Link1, Link2 = p.Link2, YoutubeLink = p.YoutubeLink, UserId = p.UserId }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
+                    if (UserId == SenderId) return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
+                    else return _context.Projects.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved && !p.IsClosed && !p.IsRemoved).Select(p => new Project { Id = p.Id, Name = p.Name, CreatedAt = p.CreatedAt, TargetPrice = p.TargetPrice, Views = p.Views, IsClosed = p.IsClosed, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
                 }
             }
             return null;

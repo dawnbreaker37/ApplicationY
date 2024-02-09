@@ -176,8 +176,25 @@ namespace ApplicationY.Repositories
                     }
                 }
             }
-
             return null;
+        }
+
+        public async Task<(string?, string?)> CheckTheTemporaryCodeAsync(int Id, string Code)
+        {
+            if(Id != 0 || Code != null)
+            {
+                bool Result = _cache.TryGetValue("uniqueCode_" + Id, out string? ConfirmationCode);
+                if(Result && ConfirmationCode == Code)
+                {
+                    _cache.Remove("uniqueCode_" + Id);
+                    User? UserInfo = await _userManager.FindByIdAsync(Id.ToString());
+                    if(UserInfo != null)
+                    {
+                        return (await _userManager.GeneratePasswordResetTokenAsync(UserInfo), UserInfo.ReserveCode);
+                    }
+                }
+            }
+            return (null, null);
         }
 
         public async Task<bool> UpdatePasswordAsync(UpdatePassword_ViewModel Model)
@@ -192,10 +209,11 @@ namespace ApplicationY.Repositories
                     IdentityResult? Result = await _userManager.ResetPasswordAsync(UserInfo, Model.Token, Model.Password);
                     if (Result.Succeeded)
                     {
+                        UserInfo.PasswordResetDate = DateTime.Now;
                         SendNotification_ViewModel SendNotificationModel = new SendNotification_ViewModel
                         {
-                            Title = "Password updated",
-                            Description = "Your password updated successfully at " + DateTime.Now.ToShortDateString() + ", at " + DateTime.Now.ToShortTimeString() + ".",
+                            Title = "Password Updated",
+                            Description = "Your password has been updated at " + DateTime.Now.ToShortDateString() + ", at " + DateTime.Now.ToShortTimeString() + ".",
                             UserId = UserInfo.Id,
                         };
                         await _notificationsRepository.SendNotification(SendNotificationModel);

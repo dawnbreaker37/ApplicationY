@@ -35,16 +35,6 @@ namespace ApplicationY.Controllers
         public async Task<IActionResult> SubscribtionOptionWithoutKnowing(int UserId, int SubscriberId)
         {
             bool IsSubscribed = await _subscribeRepository.IsUserSubscribed(UserId, SubscriberId);
-            //if (IsSubscribed)
-            //{
-            //    bool Result = await _subscribeRepository.DeclineSubscribtionAsync(UserId, SubscriberId);
-            //    if (Result) return Json(new { success = true, result = false, alert = "Your subscribtion has been successfully canceled" });
-            //}
-            //else
-            //{
-            //    bool Result = await _subscribeRepository.SubscribeAsync(UserId, SubscriberId);
-            //    if (Result) return Json(new { success = true, result = true, alert = "You have been successfully subscribed" });
-            //}
             Task<IActionResult>? Result = SubscribtionOption(UserId, SubscriberId, IsSubscribed);
             if(Result != null) return await Result;
             else return Json(new { success = false, alert = "An error occured while trying to accept/cancel your subscribtion. Please, try again later" });

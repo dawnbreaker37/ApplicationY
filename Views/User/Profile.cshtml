@@ -174,6 +174,44 @@
     </div>
 </div>
 
+<div class="smallside-box-container shadow-standard" id="PasswordChange_Container">
+    <div class="header-container p-3 pb-2" id="PasswordChange_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChange_Container-Close"></button>
+        <h5 class="h5 text-truncate">Change Password, Step 1/2</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container p-2 bg-light">
+            <p class="card-text fw-500"> <i class="fas fa-exclamation-triangle text-warning"></i> Warning</p>
+            <small class="card-text">Pay attention that after this change you won't able to change your password again for 28 days</small>
+        </div>
+        <div class="mt-2">
+            <form method="post" asp-controller="Account" asp-action="ChangePassword_First" id="ChangePassword_First_Form">
+                <div>
+                    <label class="form-label fw-500 ms-1" for="CurrentPassword">Current Password</label>
+                    <input type="password" name="CurrentPassword" id="CurrentPassword" class="form-control" placeholder="Enter your current password here" />
+                </div>
+                <div class="mt-3">
+                    <label class="form-label fw-500 ms-1" for="NewPassword">New Password</label>
+                    <input type="password" name="NewPassword" id="NewPassword" class="form-control" placeholder="Enter your new password here" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">If current password is correct you'll need to enter your reserve code</small>
+                </div>
+                <div class="mt-3">
+                    <div class="row">
+                        <div class="col">
+                            <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check and Continue</button>
+                        </div>
+                        <div class="col">
+                            <button type="button" class="btn btn-light btn-standard-with-no-colour w-100 smallside-btn-open-container" id="PasswordChangeViaEmail_Container-Open">Change via Email</button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 <div class="smallside-box-container shadow-standard" id="PasswordChangeSubmit_Container">
     <div class="header-container p-3 pb-2" id="PasswordChangeSubmit_Containr-Header">
         <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChangeSubmit_Container-Close"></button>
@@ -210,31 +248,79 @@
         </form>
     </div>
 </div>
-<div class="smallside-box-container shadow-standard" id="PasswordChange_Container">
-    <div class="header-container p-3 pb-2" id="PasswordChange_Container-Header">
-        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChange_Container-Close"></button>
-        <h5 class="h5 text-truncate">Change Password, Step 1/2</h5>
+
+<div class="smallside-box-container shadow-standard" id="ConfirmTheOneTimeCode_Container">
+    <div class="header-container p-3 pb-2" id="ConfirmTheOneTimeCode_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="ConfirmTheOneTimeCode_Container-Close"></button>
+        <h5 class="h5 text-truncate">Confirm the One-Time Code</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div>
+            <form method="post" asp-controller="Account" asp-action="ConfirmTheCode" id="ConfirmTheCode_Form">
+                <input type="hidden" name="Id" value="@UserInfo.Id" />
+                <div>
+                    <input type="text" maxlength="8" autocomplete="off" class="number-form-control w-100" name="Code" id="ConfirmTheCode_Code_Val" placeholder="8-digit code" />
+                </div>
+            </form>
+        </div>
+        <div class="mt-1 text-center">
+            <button type="button" class="btn btn-standard-not-animated text-primary mt-2 w-100" id="SPCC_TryAgain">Send the Code Again</button>
+            <div class="mt-2"></div>
+            <small class="card-text text-muted">If you didn't received the code try again when the timer goes off</small>
+        </div>
+    </div>
+</div>
+
+<div class="smallside-box-container shadow-standard" id="ResetThePassword_Container">
+    <div class="header-container p-3 pb-2" id="ResetThePassword_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="ResetThePassword_Container-Close"></button>
+        <h5 class="h5 text-truncate">Reset Your Password</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div>
+            <form method="post" asp-controller="Account" asp-action="UpdatePassword" id="UpdatePassword_Form">
+                <input type="hidden" name="EmailOrUsername" value="@UserInfo.Email" />
+                <input type="hidden" name="Token" id="ResetPassword_Token" />
+                <div>
+                    <label class="form-label fw-500 ms-1">New Password</label>
+                    <input type="hidden" name="PasswordConfirm" id="PasswordConfirm_Val" />
+                    <input type="password" autocomplete="off" class="form-control" placeholder="Enter your new password" name="Password" id="UpdatePassword_NewPassword_Val" maxlength="24" />
+                </div>
+                <div class="ms-1">
+                    <small class="card-text text-muted">New password must contain from <span class="fw-500">8</span> to <span class="fw-500">24</span> symbols</small>
+                </div>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-standard-with-no-colour btn-primary w-100">Submit Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<div class="smallside-box-container shadow-standard" id="PasswordChangeViaEmail_Container">
+    <div class="header-container p-3 pb-2" id="PasswordChangeViaEmail_Container-Header">
+        <button type="button" class="btn btn-close btn-sm float-end mt-1" aria-label="close" id="PasswordChangeViaEmail_Container-Close"></button>
+        <h5 class="h5 text-truncate">Change Password via Email</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container p-2 bg-light">
-            <p class="card-text fw-500"> <i class="fas fa-exclamation-triangle text-warning"></i> Warning</p>
-            <small class="card-text">Pay attention that after this change you won't able to change your password again for 28 days</small>
+            <p class="card-text fw-500"> <i class="fas fa-info-circle text-primary"></i> Instruction</p>
+            <small class="card-text">If you don't remember your current password you may try to change it by receiving a <span class="fw-500">one-time code</span> from us to your email. Enter that code to change the password</small>
         </div>
         <div class="mt-2">
-            <form method="post" asp-controller="Account" asp-action="ChangePassword_First" id="ChangePassword_First_Form">
+            <form method="post" asp-controller="Account" asp-action="SendCode" id="SendPasswordChangeCode_Form">
+                <input type="hidden" name="NeedUniqueCode" value="true" />
                 <div>
-                    <label class="form-label fw-500 ms-1" for="CurrentPassword">Current Password</label>
-                    <input type="password" name="CurrentPassword" id="CurrentPassword" class="form-control" placeholder="Enter your current password here" />
-                </div>
-                <div class="mt-3">
-                    <label class="form-label fw-500 ms-1" for="NewPassword">New Password</label>
-                    <input type="password" name="NewPassword" id="NewPassword" class="form-control" placeholder="Enter your new password here" />
+                    <input type="hidden" name="Email" value="@UserInfo.Email" />
+                    <input type="hidden" name="Id" value="@UserInfo.Id" />
+                    <label class="form-label fw-500 ms-1">Your Email</label>
+                    <input type="email" class="form-control" readonly value="@UserInfo.Email" placeholder="Your email address" />
                 </div>
                 <div class="ms-1">
-                    <small class="card-text text-muted">If current password is correct you'll need to enter your reserve code</small>
+                    <small class="card-text text-muted">If you haven't received the code, try again (once for 2 min)</small>
                 </div>
                 <div class="mt-3">
-                    <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100">Check and continue</button>
+                    <button type="submit" class="btn btn-primary w-100 btn-standard-with-no-colour" id="SPCC_Sbmt_Btn">Send Code</button>
                 </div>
             </form>
         </div>
@@ -244,7 +330,7 @@
 <div class="smallside-box-container shadow-standard" id="AddOption_Container">
     <div class="header-container p-3 pb-2" id="AddOption_Container-Header">
         <button type="button" class="btn btn-back btn-sm float-end ms-1">Back</button>
-        <h5 class="h5 text-truncate">Add Option To Text</h5>
+        <h5 class="h5 text-truncate">Add Option to Text</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="bordered-container p-2">
@@ -568,63 +654,66 @@
         <h5 class="h5 text-truncate">Security</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
-        <div class="box-container bg-light p-3">
-            @if (UserInfo.PseudoName != null)
-            {
-                <h2 class="h2 safe-font">@UserInfo.PseudoName</h2>
-            }
-            else
-            {
-                <h2 class="h2 safe-font">@UserInfo.UserName</h2>
-            }
-            <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-inbox"></i> Inbox:</span> <span id="EmailEditInbox_Lbl">@UserInfo.Email</span></small>
-            <div></div>
-            @if(UserInfo.IsEmailChanged)
-            {
-                <small class="card-text text-muted" id="IsEmailChanged_Lbl">You've already changed your email address once</small>
-            }
-            else
-            {
-                <small class="card-text text-muted" id="IsEmailChanged_Lbl">You may change your email address</small>
-            }
+        <div class="bordered-container p-2">
+            <h5 class="h5 safe-font">Email Settings</h5>
             <div class="border-top mt-2 pt-2"></div>
-            @if (PermissionToChangePassword)
+            <h6 class="h6">Email:</h6>
+            <p class="card-text">@UserInfo.Email</p>
+            <div class="mt-2"></div>
+            <h6 class="h6">Is Changed:</h6>
+            @if (UserInfo.IsEmailChanged)
             {
-                <div>
-                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-check text-primary"></i> you may change your password</small>
-                    <div class="mt-1"></div>
-                    @if (ViewBag.LastPasswordChangeDays > 100)
-                    {
-                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span> more than 100 days</small>
-                    }
-                    else
-                    {
-                        <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update: </span>@ViewBag.LastPasswordChangeDays days</small>
-                    }
-                    <div></div>
-                    <button type="button" class="btn btn-sm btn-text smallside-btn-open-container mt-1" id="PasswordChange_Container-Open"> <i class="fas fa-pencil-alt"></i> Change</button>
-                </div>
+                <p class="card-text" id="IsEmailChanged_Lbl">You've already changed your email address once</p>
             }
             else
             {
-                <div>
-                    <small class="card-text text-muted"> <span class="text-dark"><i class="fas fa-key"></i> Password:</span> <i class="fas fa-times text-danger"></i> Isn't able to change</small>
-                    <div class="mt-1"></div>
-                    <small class="card-text text-muted" id="PasswordUpdateDate_Lbl"> <span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update:</span> @ViewBag.LastPasswordChangeDays/28 days</small>
-                    <div></div>
-                    <button type="button" class="btn btn-sm btn-text mt-1" disabled> <i class="fas fa-pencil-alt"></i> Change</button>
-                </div>
+                <p class="card-text" id="IsEmailChanged_Lbl">You may change your email address</p>
             }
-            <div class="border-top pt-2 mt-2">
-                <small class="card-text text-muted">Log Out from account</small>
-                <div class="mt-2">
+        </div>
+        <div class="bordered-container p-2 mt-2">
+            <h5 class="h5 safe-font">Password Settings</h5>
+            <div class="border-top mt-2 pt-2"></div>
+            <h6 class="h6">Abitily to Change:</h6>
+            @if(PermissionToChangePassword)
+            {
+                <p class="card-text" id="PasswordStatus_Lbl">you may change your password</p>
+                <div class="mt-2"></div>
+                <h6 class="h6">Days Passed After Last Change:</h6>
+                @if (ViewBag.LastPasswordChangeDays > 100)
+                {
+                    <p class="card-text" id="PasswordUpdateDate_Lbl">more than 100 days</p>
+                }
+                else
+                {
+                    <p class="card-text" id="PasswordUpdateDate_Lbl">@ViewBag.LastPasswordChangeDays days</p>
+                }
+                <div class="mt-2"></div>
+                <button type="button" class="btn btn-text btn-sm smallside-btn-open-container" id="PasswordChange_Container-Open"> <i class="fas fa-pencil-alt"></i> Edit Password</button>
+            }
+            else
+            {
+                <p class="card-text" id="PasswordStatus_Lbl">you may not change it now</p>
+                <div class="mt-2"></div>
+                <h6 class="h6 safe-font">Days Passed After Last Change:</h6>
+                <p class="card-text" id="PasswordUpdateDate_Lbl">@ViewBag.LastPasswordChangeDays/28 days (changed @UserInfo.PasswordResetDate.ToShortDateString(), at @UserInfo.PasswordResetDate.ToShortTimeString())</p>
+                <div class="mt-2"></div>
+                <button type="button" class="btn btn-text btn-sm" disabled> <i class="fas fa-pencil-alt"></i> Unable to Edit</button>
+            }
+        </div>
+            <div class="bordered-container p-2 mt-2">
+                <h5 class="h5 safe-font">Log Out</h5>
+                <div class="mt-2 border-top pt-2">
+                <div>
                     <form method="post" asp-controller="Account" asp-action="LogOut">
-                        <button type="submit" class="btn btn-danger btn-sm btn-standard-with-no-colour"> <i class="fas fa-sign-out-alt"></i> Log Out</button>
+                        <button type="submit" class="btn btn-danger btn-standard-with-no-colour btn-sm"> <i class="fas fa-sign-out-alt"></i> Log Out</button>
                     </form>
+                </div>
+                <div class="mt-1">
+                    <small class="card-text text-muted">Terminates only this session</small>
+                </div>
                 </div>
             </div>
         </div>
-    </div>
 </div>
 
 <div class="main-container shadow-standard" id="Preload_Container">

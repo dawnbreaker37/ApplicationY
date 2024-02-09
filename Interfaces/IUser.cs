@@ -6,7 +6,8 @@ namespace ApplicationY.Interfaces
     public interface IUser : IBase<User>
     {
         public Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname);
-        public Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedsLargerInfo, bool NeedPhoto, bool ForAdmins);
+        public Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool ForAdmins);
+        public Task<GetUserInfo_ViewModel?> GetUserByIdWLargerInfoAsync(int Id, bool NeedPhoto);
         public Task<string?> CreateUserAsync(SignIn_ViewModel Model);
         public Task<bool> EditUserInfoAsync(EditAccount_ViewModel Model);
         public Task<bool> EditDescriptionAsync(EditDescription_ViewModel Model);

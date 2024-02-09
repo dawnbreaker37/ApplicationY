@@ -18,6 +18,7 @@ namespace ApplicationY.ViewModels
         public bool IsLiked { get; set; }
         public int LikedCount { get; set; } 
         public string? CreatorName { get; set; }
+        public string? CreatorPhoto { get; set; }
         public Project? Project { get; set; }
         public DateTime? ProjectCreatedAt { get; set; }
     }

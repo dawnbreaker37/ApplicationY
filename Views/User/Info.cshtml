@@ -9,6 +9,13 @@
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <form method="get" asp-controller="Mention" asp-action="GetMentions" id="GetMentions_Form">
+            <input type="hidden" name="Id" id="GetMentions_Id_Val" />
+            <input type="hidden" name="SkipCount" id="GetMentions_SkipCount_Val" value="0" />
+            <input type="hidden" name="LoadCount" value="40" />
+        </form>
+    </div>
     @if(UserInfo != null)
     {
         <div class="d-none">
@@ -39,6 +46,30 @@
             </form>
         </div>
 
+        <div class="box-container card-box-container shadow-standard position-absolute p-2" id="Mentions_Container-CardBox">
+            <div class="p-2 pt-0">
+                <div>
+                    <form method="post" asp-controller="Mention" asp-action="Send" id="SendMention_Form">
+                        <div class="d-none">
+                            <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                            <input type="hidden" name="ProjectId" id="SendMention_PostId_Val" value="0" />
+                        </div>
+                        <div class="row">
+                            <div class="col col-1">
+                                <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MentionText_SbmtBtn" disabled> <i class="fas fa-arrow-up"></i></button>
+                            </div>
+                            <div class="col col-9">
+                                <textarea name="Text" id="MentionText" rows="1" placeholder="Enter text here" data-bs-html="MentionText_SbmtBtn" data-bs-min-length="3" maxlength="1500" class="form-control w-100 form-control-sm send-msg-form-control description-check"></textarea>
+                            </div>
+                            <div class="col col-2">
+                                <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100 text-full-delete" id="FullDelete-MentionText"> <i class="fas fa-backspace"></i> </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
         <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
             <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
                 <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
@@ -66,6 +97,19 @@
             </div>
         </div>
     }
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Mentions_Container">
+        <div class="header-container p-3 pb-2" id="Mentions_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Mentions_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Mentions for the Post, <span id="MentionsCount_Lbl">0</span></h5>
+        </div>
+        <div class="mt-2 p-3 pb-2 pt-0" id="Mentions_Box">
+        </div>
+        <div class="mb-5 mt-2 pb-4 p-3 text-center">
+            <button type="button" class="btn btn-standard-not-animated text-primary btn-sm w-100 border-0" id="GetMoreMentions_Btn" disabled>Load More Mentions</button>
+        </div>
+    </div>
+
     <div class="d-none">
         <input type="hidden" id="PageInfo_CurrentUserSearchname" value="@CurrentUserInfo.SearchName" />
     </div>
@@ -153,7 +197,7 @@
         <button type="button" class="btn btn-close float-end" aria-label="Close" id="Preload_Container-Close"></button>
         <span class="h5 text-truncate">@CurrentUserInfo.PseudoName</span>
         <div></div>
-        <small class="card-text text-muted">@ProjectsCount projects created</small>
+        <small class="card-text text-muted">@ProjectsCount project(s) ∙ @ViewBag.PostsCount post(s)</small>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="box-container bg-light p-2">
@@ -225,7 +269,7 @@
             }
             @if(CurrentUserInfo.IsVerifiedAccount)
             {
-                <span class="h1 main-title-font-style info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="This account if officially verified">@CurrentUserInfo.PseudoName <span class="fs-2"><i class="fas fa-certificate text-official"></i></span> </span>
+                <span class="h1 main-title-font-style info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="bottom" data-bs-content="This account's officially verified">@CurrentUserInfo.PseudoName <span class="fs-2"><i class="fas fa-certificate text-official"></i></span> </span>
             }
             else
             {
@@ -316,28 +360,25 @@
                                 </div>
                             @if(UserInfo?.ProfilePhoto != null)
                             {
-                                <img class="image-ultra-small-box" src="/ProfilePhotos/7f3f9ae5-d86.png" alt="Cannot display this image" />
-                                <p class="card-text fw-500 mt-1">@UserInfo?.PseudoName<br /><small class="card-text text-muted">@Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></p>
+                                <img class="image-ultra-small-box" src="/ProfilePhotos/@UserInfo.ProfilePhoto" alt="Cannot display this image" />
+                                <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500" >@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
                             }
                             else
                             {
-                                <p class="card-text fw-500">@UserInfo?.PseudoName<br /><small class="card-text text-muted">@Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></p>
+                                    <small class="card-text fs-6"><span class="fw-500">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
                             }
                             @if(Item.Project != null)
                             {
-                                <div class="box-container bg-light p-2">
+                                <div class="box-container bg-light p-2 mt-2">
                                     <small class="card-text fw-500"> <i class="fas fa-link text-primary"></i> @Item.Project.Name</small>
                                     <div></div>
-                                    <small class="card-text text-muted">at @Item.Project.CreatedAt.ToString("dd/MM/yyyy")</small>
+                                    <small class="card-text text-muted">created @Item.Project.CreatedAt.ToString("dd/MM/yyyy")</small>
                                     <div class="mt-3"></div>
                                     <small class="card-text white-space-on">@Item.Project.Description</small>
                                     <div class="box-container bg-light mt-2 p-2">
                                         <div class="row">
                                             <div class="col">
-                                                <a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-book-open"></i> Look</a>
-                                            </div>
-                                            <div class="col">
-                                                <button type="button" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-share"></i> Share</button>
+                                                <a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-link"></i> Project Page</a>
                                             </div>
                                             <div class="col">
                                                 <button type="button" class="btn btn-standard-not-animated btn-sm w-100" disabled>@Item.Project.Views.ToString("N0") views</button>
@@ -350,7 +391,6 @@
                                 <p class="card-text white-space-on" id="PostsTextLbl-@Item.Id">@Item.Text</p>
                             </div>
                             <div class="border-top mt-2 pt-2">
-                                <small class="card-text text-muted float-end ms-1 pt-1">0 viewed</small>
                                     @if (!Item.IsLiked)
                                     {
                                         <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block like-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="far fa-heart"></i> Like</button>
@@ -358,6 +398,10 @@
                                     else
                                     {
                                         <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block dislike-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="fas fa-heart text-primary"></i> Liked</button>
+                                    }
+                                    @if (Item.AllowMentions)
+                                    {
+                                        <button type="button" class="btn btn-standard-not-animated btn-sm get-mentions me-2 smallside-btn-open-container" id="PostInfo_GetMentions-@Item.Id"> <i class="fas fa-quote-right text-primary"></i> Mentions</button>
                                     }
                                     <button type="button" class="btn btn-standard-not-animated btn-sm"> <i class="fas fa-share"></i> Share</button>
                             </div>

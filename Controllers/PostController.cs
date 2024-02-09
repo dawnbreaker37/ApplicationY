@@ -31,7 +31,7 @@ namespace ApplicationY.Controllers
                 if(UserInfo != null)
                 {
                     List<Project?>? Projects = null;
-                    IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, true, false);
+                    IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjectsWInfo(UserInfo.Id, UserInfo.Id, false);
                     if(Projects_Preview != null)
                     {
                         Projects = Projects_Preview.ToList();
@@ -81,7 +81,7 @@ namespace ApplicationY.Controllers
             if(Posts_Preview != null)
             {
                 List<GetPost_ViewModel>? Posts_Result = await Posts_Preview.ToListAsync();
-                if (Posts_Result != null) return Json(new { success = true, result = Posts_Result });
+                if (Posts_Result != null) return Json(new { success = true, count = Posts_Result.Count, result = Posts_Result });
             }
             return Json(new { success = false, alert = "We haven't found any post related with this project" });
         }

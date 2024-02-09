@@ -86,28 +86,30 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> GetShortUserInfo(int Id, bool NeedsLargerInfo, bool IsForAdmins)
         {
-            GetUserInfo_ViewModel? Result = await _userRepository.GetUserByIdAsync(Id, NeedsLargerInfo, false, IsForAdmins);
+            GetUserInfo_ViewModel? Result;
+            GetUserRole_ViewModel? RoleInfo = null;
             if (IsForAdmins)
             {
+                Result = await _userRepository.GetUserByIdAsync(Id, true);
+
                 int UserRoleId = await _othersRepository.GetUserRoleAsync(Id);
-                GetUserRole_ViewModel? RoleInfo = await _othersRepository.GetUserFullRoleInfoAsync(Id, UserRoleId);
-                if (Result != null)
-                {
-                    return Json(new { success = true, result = Result, roleInfo = RoleInfo });
-                }
+                RoleInfo = await _othersRepository.GetUserFullRoleInfoAsync(Id, UserRoleId);
             }
             else 
             {
-                if (Result != null) return Json(new { success = true, result = Result });
+                if (NeedsLargerInfo) Result = await _userRepository.GetUserByIdWLargerInfoAsync(Id, false);
+                else Result = await _userRepository.GetUserByIdAsync(Id, false);
             }
-            return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
+
+            if (Result != null) return Json(new { success = true, result = Result, roleInfo = RoleInfo });
+            else return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
         }
 
         public async Task<IActionResult> Verify(int Id)
         {
             if (User.Identity.IsAuthenticated)
             {
-                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdAsync(Id, true, false, false);
+                GetUserInfo_ViewModel? UserInfo = await _userRepository.GetUserByIdWLargerInfoAsync(Id, false);
                 ViewBag.UserInfo = UserInfo;
 
                 return View();
@@ -117,59 +119,56 @@ namespace ApplicationY.Controllers
 
         public async Task<IActionResult> Info(string? Id)
         {
-            if (User.Identity.IsAuthenticated)
+            bool IsSubscribed = false;
+            IQueryable<GetPost_ViewModel>? Posts = null;
+            List<GetPost_ViewModel>? PostsResult = null;
+            List<LikedPost>? LikedPosts = null;
+            GetUserInfo_ViewModel? CurrentUserInfo = await _userRepository.GetUserBySearchnameAsync(Id);
+            User? UserInfo = null;
+
+            if (CurrentUserInfo != null)
             {
-                bool IsSubscribed = false;
-
-                IQueryable<GetPost_ViewModel>? Posts = null;
-                List<GetPost_ViewModel>? PostsResult = null;
-                List<LikedPost>? LikedPosts = null;
-
-                User? UserInfo = await _userManager.GetUserAsync(User);
-                GetUserInfo_ViewModel? CurrentUserInfo = await _userRepository.GetUserBySearchnameAsync(Id);
-                if (CurrentUserInfo != null)
+                if (User.Identity.IsAuthenticated)
                 {
-                    int SubscribersCount = await _subscribeRepository.GetSubscribersCount(CurrentUserInfo.Id);
-                    if (UserInfo != null)
+                    UserInfo = await _userManager.GetUserAsync(User);
+                }
+                int SubscribersCount = await _subscribeRepository.GetSubscribersCount(CurrentUserInfo.Id);
+                if (UserInfo != null)
+                {
+                    IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
+                }
+                Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id, true);
+                int ProjectsCount = await _projectRepository.GetProjectsCount(CurrentUserInfo.Id);
+                if (Posts != null) PostsResult = await Posts.ToListAsync();
+                if (PostsResult != null && UserInfo != null)
+                {
+                    IQueryable<LikedPost>? LikedPosts_Preview = _postRepository.GetUsersLikedPosts(UserInfo.Id);
+                    if (LikedPosts_Preview != null) LikedPosts = await LikedPosts_Preview.ToListAsync();
+                    if (LikedPosts != null)
                     {
-                        IsSubscribed = await _subscribeRepository.IsUserSubscribed(CurrentUserInfo.Id, UserInfo.Id);
-                        ViewBag.UserInfo = UserInfo;
-                    }
-                    Posts = _postRepository.GetUserAllPosts(CurrentUserInfo.Id, true);
-                    int ProjectsCount = await _projectRepository.GetProjectsCount(CurrentUserInfo.Id);
-
-                    if (Posts != null) PostsResult = await Posts.ToListAsync();
-                    if(PostsResult != null && UserInfo != null)
-                    {
-                        IQueryable<LikedPost>? LikedPosts_Preview = _postRepository.GetUsersLikedPosts(UserInfo.Id);
-                        if(LikedPosts_Preview != null) LikedPosts = await LikedPosts_Preview.ToListAsync();
-                        if(LikedPosts != null)
+                        foreach (LikedPost Item in LikedPosts)
                         {
-                            foreach (LikedPost Item in LikedPosts)
+                            foreach (GetPost_ViewModel PostItem in PostsResult)
                             {
-                                foreach(GetPost_ViewModel PostItem in PostsResult)
+                                if (Item.PostId == PostItem.Id)
                                 {
-                                    if(Item.PostId == PostItem.Id)
-                                    {
-                                        PostItem.IsLiked = true;
-                                    }
+                                    PostItem.IsLiked = true;
                                 }
                             }
                         }
                     }
-
-                    ViewBag.CurrentUserInfo = CurrentUserInfo;
-                    ViewBag.IsSubscribed = IsSubscribed;
-                    ViewBag.Posts = PostsResult;
-                    ViewBag.PostsCount = PostsResult == null ? 0 : PostsResult.Count;
-                    ViewBag.SubscribersCount = SubscribersCount;
-                    ViewBag.ProjectsCount = ProjectsCount;
-
-                    return View();
                 }
-                else return RedirectToAction("Index", "Home");
+                ViewBag.UserInfo = UserInfo;
+                ViewBag.CurrentUserInfo = CurrentUserInfo;
+                ViewBag.IsSubscribed = IsSubscribed;
+                ViewBag.Posts = PostsResult;
+                ViewBag.PostsCount = PostsResult == null ? 0 : PostsResult.Count;
+                ViewBag.SubscribersCount = SubscribersCount;
+                ViewBag.ProjectsCount = ProjectsCount;
+
+                return View();
             }
-            else return RedirectToAction("Create", "Account");
+            else return RedirectToAction("Index", "Home");
         }
 
         [HttpPost]

@@ -40,8 +40,8 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0 || SubscriberId != 0)
             {
-                bool Result = await _context.Subscribtions.AnyAsync(s => s.SubscriberId == SubscriberId && s.UserId == s.UserId && !s.IsRemoved);
-                if (Result) return true;
+                bool Result = await _context.Subscribtions.AnyAsync(s => s.SubscriberId == SubscriberId && s.UserId == UserId && !s.IsRemoved);
+                return Result;
             }
             return false;
         }

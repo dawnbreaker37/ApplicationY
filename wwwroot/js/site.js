@@ -3,6 +3,8 @@ let finishIndex = 0;
 let mentionedPeopleIndex = 1;
 let additionalArray = [];
 let isScrolled = false;
+let modalTimeout;
+let modalInterval;
 
 let botNavbarH = 0;
 let fullWidth = 0;
@@ -364,7 +366,7 @@ $("#PasswordRecovering_Form").on("submit", function (event) {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4);
         }
     });
-});
+}); 
 $("#UpdatePassword_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -372,10 +374,19 @@ $("#UpdatePassword_Form").on("submit", function (event) {
 
     $.post(url, data, function (response) {
         if (response.success) {
+            $("#PasswordUpdateDate_Lbl").html('few seconds ago');
+            $("#PasswordStatus_Lbl").text("you may not change it now");
+            $("#PasswordChange_Container-Open").attr("disabled", true);
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4);
             animatedClose(true, "smallside-box-container");
+            setTimeout(function () {
+                animatedOpen(false, "EditSecuritySettings_Container", false, false);
+            }, 350);
         }
         else {
+            $("#PasswordUpdateDate_Lbl").html('<span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update:</span> few seconds');
+            $("#PasswordStatus_Lbl").text("you may not change it now");
+            $("#PasswordChange_Container-Open").attr("disabled", true);
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4);
             $("#NewPassword_Confirm").val("");
         }
@@ -425,6 +436,72 @@ $("#SendEmailConfirmationCode_Form").on("submit", function (event) {
     });
 });
 
+$("#SendPasswordChangeCode_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let timeOut = 120;
+            animatedClose(false, "PasswordChangeViaEmail_Container");
+            $("#SPCC_TryAgain").attr("disabled", true);
+            modalInterval = setInterval(function () {
+                timeOut--;
+                $("#SPCC_TryAgain").text("Try again after " + timeOut + " sec");
+            }, 1000);
+            setTimeout(function () {
+                $("#SPCC_TryAgain").attr("disabled", false);
+                $("#SPCC_TryAgain").text("Send Code Again");
+                clearInterval(modalInterval);
+            }, 120000);
+            animatedOpen(false, "ConfirmTheOneTimeCode_Container", false, false);
+            setTimeout(function () {
+                openModal(response.text, "Okay", null, 2, null, null, null, 4.75, "<i class='fas fa-paper-plane text-primary'></i>");
+            }, 500);
+        }
+        else {
+            $("#SPCC_Sbmt_Btn").attr("disabled", true);
+            $("#SPCC_Sbmt_Btn").text("Unable to Send. Try Again Later");
+            $("#SPCC_Sbmt_Btn").removeClass("btn-primary");
+            $("#SPCC_Sbmt_Btn").addClass("btn-danger");
+            openModal(response.text, "Got It", null, 2, null, null, null, 4.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#SPCC_TryAgain").on("click", function () {
+    $("#SendPasswordChangeCode_Form").submit();
+});
+
+$("#ConfirmTheCode_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#ResetPassword_Token").val(response.token);
+            animatedOpen(false, "ResetThePassword_Container", false, false);
+            setTimeout(function () {
+                openModal(response.alert, "Okay", null, 2, null, null, null, 4, "<i class='fas fa-check-circle text-primary'></i>");
+            }, 500);
+        }
+        else {
+            openModal(response.alert, "Okay", null, 2, null, null, null, 4, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#ConfirmTheCode_Code_Val").on("keyup", function () {
+    let length = $(this).val().length;
+    if (length >= 8) {
+        $("#ConfirmTheCode_Form").submit();
+    }
+});
+$("#UpdatePassword_NewPassword_Val").on("keyup", function () {
+    let currentVal = $(this).val();
+    $("#PasswordConfirm_Val").val(currentVal);
+});
+
 $("#EditProfilePhoto_Form").on("submit", function (event) {
     event.preventDefault();
     let file = $("#ProfilePhoto").get(0).files[0];
@@ -457,31 +534,37 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
     let data = $(this).serialize();
+
     $.get(url, data, function (response) {
         if (response.success) {
-            $("#USI_UsernameTitle_Span").html(response.result.pseudoName);
-            $("#USI_Username_Lbl").html(response.result.pseudoName);
-            $("#USI_Searchname_Lbl").html("@" + response.result.searchName);
-            $("#USI_Id_Val").val(response.result.id);
-            $("#USI_SubscribersCount_Val").val(response.result.subscribersCount);
-            $("#USI_SubscribersInfo_Btn").html(" <i class='fas fa-bell'></i> " + response.result.subscribersCount + " subscriber(s)");
-            if (response.result.description != null) $("#USI_Description_Lbl").text(response.result.description);
-            else $("#USI_Description_Lbl").text("No user description");
-            $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
-            $("#USI_Userpage_Link").html(" <i class='fas fa-chevron-right'></i> " + response.result.pseudoName + "'s Page");
+            animatedClose(false, "UserShortInfo_Container");
 
-            if (response.result.country.name != null) {
-                $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.country.name);
-            }
-            else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
-            $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
+            setTimeout(function () {
+                $("#USI_UsernameTitle_Span").html(response.result.pseudoName);
+                $("#USI_Username_Lbl").html(response.result.pseudoName);
+                $("#USI_Searchname_Lbl").html("@" + response.result.searchName);
+                $("#USI_Id_Val").val(response.result.id);
+                $("#USI_SubscribersCount_Val").val(response.result.subscribersCount);
+                $("#USI_SubscribersInfo_Btn").html(" <i class='fas fa-bell'></i> " + response.result.subscribersCount + " subscriber(s)");
+                if (response.result.description != null) $("#USI_Description_Lbl").text(response.result.description);
+                else $("#USI_Description_Lbl").text("No user description");
+                $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
+                $("#USI_Userpage_Link").html(" <i class='fas fa-chevron-right'></i> " + response.result.pseudoName + "'s Page");
 
-            $("#UserShortInfo_Container_Opening_Box").fadeIn(0);
-            $("#GSUIF_Box").fadeOut(0);
+                console.log(response.result.countryFullName);
+                if (response.result.countryFullName != null) {
+                    $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
+                }
+                else $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> No Country Info");
+                $("#USI_ProjectsCount_Lbl").html(response.result.projectsCount.toLocaleString() + " project(s) published");
 
-            textDecoder("USI_Description_Lbl", true, true);
-            smallBarAnimatedOpenAndClose(true);
-            animatedOpen(false, "UserShortInfo_Container", false, false);
+                $("#UserShortInfo_Container_Opening_Box").fadeIn(0);
+                $("#GSUIF_Box").fadeOut(0);
+
+                textDecoder("USI_Description_Lbl", true, true);
+                smallBarAnimatedOpenAndClose(true);
+                animatedOpen(false, "UserShortInfo_Container", false, false);
+            }, 150);
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
@@ -886,6 +969,133 @@ $("#CreatePost_Form").on("submit", function (event) {
     });
 });
 
+$("#SendMention_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = parseInt($("#MentionsCount_Lbl").text());
+            let div = $("<div class='mt-2 border-top p-2 pb-0'></div>");
+            let userName = $("<span class='h6'>You</h6>");
+            let separator1 = $("<div></div>");
+            let dateTime = $("<small class='card-text text-muted'>few seconds ago</small>");
+            let text = $("<p class='card-text white-space-on mt-1'></p>");
+            text.html(response.result);
+            div.append(userName);
+            div.append(separator1);
+            div.append(dateTime);
+            div.append(text);
+
+            if (currentCount > 0) {
+                $("#Mentions_Box").prepend(div);
+            }
+            else {
+                $("#Mentions_Box").empty();
+                $("#Mentions_Box").append(div);
+            }
+            currentCount++
+            $("#MentionsCount_Lbl").text(currentCount);
+        }
+    });
+});
+$("#GetMentions_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.get(url, data, function (response) {
+        if (response.success) {
+            animatedClose(false, "Mentions_Container");
+
+            setTimeout(function () {
+                if (response.count > 0) {
+                    let currentUserId = $("#PageInfo_UserId").val();
+                    $.each(response.result, function (index) {
+                        //<div class="dropdown">
+                        //    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        //        Dropdown button
+                        //    </button>
+                        //    <ul class="dropdown-menu">
+                        //        <li><a class="dropdown-item" href="#">Action</a></li>
+                        //        <li><a class="dropdown-item" href="#">Another action</a></li>
+                        //        <li><a class="dropdown-item" href="#">Something else here</a></li>
+                        //    </ul>
+                        //</div>
+
+                        let div = $("<div class='mt-2 border-top p-2 pb-0'></div>");
+                        let userName = $("<span class='h6'></h6>");
+                        let separator1 = $("<div></div>");
+                        let dateTime = $("<small class='card-text text-muted'></small>");
+                        let text = $("<p class='card-text white-space-on mt-2'></p>");
+                        if (currentUserId == response.result[index].userId) {
+                            let dropdownDiv = $("<div class='dropdown'></div>");
+                            let dropdownOpen_Btn = $("<button type='button' class='btn btn-standard-not-animated btn-sm float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+                            let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1 text-start'></ul>");
+                            let dropdownLi0 = $("<li></li>");
+                            let dropdownLi1 = $("<li class='mt-1'></li>");
+                            let dropdownLi2 = $("<li></li>");
+                            let sentDateTimeInfo = $("<small class='card-text text-muted p-1 w-100'></small>");
+                            let mentionEditBtn = $("<button type='button' class='btn btn-standard-not-animated text-start w-100 btn-sm'> <i class='fas fa-edit'></i> Edit</button>");
+                            let mentionRemoveBtn = $("<button type='button' class='btn btn-standard-not-animated text-start text-danger w-100 btn-sm'> <i class='fas fa-trash-alt'></i> Remove</button>");
+
+                            sentDateTimeInfo.text("sent " + convertDateAndTime(response.result[index].sentAt, false, true));
+                            dropdownLi0.append(sentDateTimeInfo);
+                            dropdownLi1.append(mentionEditBtn);
+                            dropdownLi2.append(mentionRemoveBtn);
+                            dropdownUl.append(dropdownLi0);
+                            dropdownUl.append(dropdownLi1);
+                            dropdownUl.append(dropdownLi2);
+                            dropdownDiv.append(dropdownOpen_Btn);
+                            dropdownDiv.append(dropdownUl);
+                            div.append(dropdownDiv);
+                        } 
+
+                        userName.text(response.result[index].user.pseudoName);
+                        dateTime.text(convertDateAndTime(response.result[index].sentAt, true, true));
+                        text.html(response.result[index].text);
+
+                        div.append(userName);
+                        div.append(separator1);
+                        div.append(dateTime);
+                        div.append(text);
+                        $("#Mentions_Box").prepend(div);
+                    });
+
+                    if (response.count > response.loadedCount) {
+                        $("#GetMoreMentions_Btn").attr("disabled", false);
+                        $("#GetMoreMentions_Btn").text("Load More Mentions");
+                    }
+                    else {
+                        $("#GetMoreMentions_Btn").attr("disabled", true);
+                        $("#GetMoreMentions_Btn").text("No More Mentions to Load");
+                    }
+                }
+                else {
+                    let div = $("<div class='box-container mt-3 p-1 text-center'></div>");
+                    let icon = $("<h1 class='h1'> <i class='far fa-sticky-note'></i> </h1>");
+                    let title = $("<h3 class='h3 safe-font'>No Mentions</h3>");
+                    let text = $("<small class='card-text text-muted'>This post haven't got any mention yet. You may be first one who've done it</small>");
+                    div.append(icon);
+                    div.append(title);
+                    div.append(text);
+                    $("#Mentions_Box").append(div);
+                }
+            }, 150);
+            $("#GetMentions_SkipCount_Val").val(response.loadedCount);
+            $("#MentionsCount_Lbl").text(response.count);
+            if (response.skippedCount == 0) $("#Mentions_Box").empty();
+
+ 
+            smallBarAnimatedOpenAndClose(true);
+            animatedOpen(false, "Mentions_Container", false, false);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
 $("#GetAllCategories_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -1106,8 +1316,11 @@ $("#GetFullProject_Form").on("submit", function (event) {
                     daysLeft += 365 - (((deadlineDay.getMonth()) + 1) * 30) + deadlineDay.getDate();
                 }
 
-                $("#DeadlineDate_Lbl").text(convertDateAndTime(deadlineDay, false, false));
-                $("#DeadlineDaysLeft_Lbl").text(daysLeft);
+                let day = deadlineDay.getDate() < 10 ? "0" + deadlineDay.getDate() : deadlineDay.getDate();
+                let month = deadlineDay.getMonth() < 10 ? "0" + deadlineDay.getMonth() : deadlineDay.getDate();
+
+                $("#DeadlineDate_Lbl").text(day + "/" + month + "/" + deadlineDay.getFullYear());
+                $("#DeadlineDaysLeft_Lbl").text(daysLeft + " days");
             }
 
             if (response.isLiked) {
@@ -1227,29 +1440,56 @@ $("#GetUserProjects_Form").on("submit", function (event) {
     $.get(url, data, function (response) {
         if (response.success) {
             $("#UserProjects_Box").empty();
+            let projectsCount_Lbl = $("<small class='card-text text-muted'></small>");
             $.each(response.result, function (index) {
                 let mainDiv = $("<div class='bordered-container p-2 mt-1 mb-1'></div>");
                 let heading = $("<a class='h5 text-decoration-none text-primary'></a>");
                 let viewsCountBadge = $("<span class='badge warning-badge float-end ms-1 bg-light text-dark p-1 fw-normal'></span>");
+                let isRemovedBadge = $("<span class='badge warning-badge float-end ms-1 bg-danger text-light p-1 fw-normal'> <i class='fas fa-minus'></i> Removed</span>");
+                let isClosedBadge = $("<span class='badge warning-badge float-end ms-1 bg-light text-danger p-1 fw-normal'> <i class='fas fa-lock'></i> Locked</span>");
                 let description = $("<small class='card-text white-space-on'></small>");
                 let separator1 = $("<div class='mt-2'></div>");
                 let separator2 = $("<div></div>");
+                let separator3 = $("<div class='mt-2'></div>");
+                let separator4 = $("<div></div>");
                 let dateTimeBadge = $("<small class='card-text text-muted'></small>");
+                let targetPriceVal = $("<small class='card-text text-muted'></small>");
+                let lastUpdateDate = $("<small class='card-text text-muted'></small>");
 
                 heading.attr("href", "/Project/Info/" + response.result[index].id);
                 heading.text(response.result[index].name);
                 viewsCountBadge.text(response.result[index].views.toLocaleString() + " views");
                 description.html(response.result[index].description);
-                dateTimeBadge.text(convertDateAndTime(response.result[index].createdAt, false, false));
+                dateTimeBadge.text('created ' + convertDateAndTime(response.result[index].createdAt, true, true));
+                lastUpdateDate.text('last updated ' + convertDateAndTime(response.result[index].lastUpdatedAt, false, true));
+                if (response.result[index].targetPrice != 0) {
+                    targetPriceVal.text(response.result[index].targetPrice.toLocaleString("en-US", { style: "currency", currency: "USD" }));
+                }
+                else {
+                    targetPriceVal.text("No Target Price");
+                }
 
+                if (response.result[index].isClosed) {
+                    mainDiv.append(isClosedBadge);
+                }
+                if (response.result[index].isRemoved) {
+                    mainDiv.append(isRemovedBadge);
+                }
                 mainDiv.append(viewsCountBadge);
                 mainDiv.append(heading);
                 mainDiv.append(separator2);
                 mainDiv.append(dateTimeBadge);
                 mainDiv.append(separator1);
                 mainDiv.append(description);
+                mainDiv.append(separator3);
+                mainDiv.append(targetPriceVal);
+                mainDiv.append(separator4);
+                mainDiv.append(lastUpdateDate);
                 $("#UserProjects_Box").append(mainDiv);
             });
+            projectsCount_Lbl.text(response.count + " projects created");
+            $("#UserProjects_Box").append(projectsCount_Lbl);
+
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "ProjectsList_Container", false, false);
             $("#GetProjectsForm_Box").fadeOut(0);
@@ -1751,7 +1991,7 @@ $("#SendReply_Form").on("submit", function (event) {
 
             title.html("You");
             text.html(response.text);
-            sentAt.text("Few seconds ago");
+            sentAt.text("few seconds ago");
 
             div.append(sentAt);
             div.append(title);
@@ -1763,6 +2003,9 @@ $("#SendReply_Form").on("submit", function (event) {
                 $("#RepliesList_Box").empty();
                 $("#RepliesList_Box").append(div);
             }
+            count++;
+            $("#RTC_Count").text(count);
+            $("#GetAndSendReply-" + response.commentId).html(" <i class='fas fa-reply'></i> Replies (" + count + ")");
         }
         else {
             $("#RTCC_TextValue").val("");
@@ -1906,6 +2149,80 @@ $("#GetComments_Form").on("submit", function (event) {
 });
 $("#LoadMoreComments_Btn").on("click", function () {
     $("#GetComments_Form").submit();
+});
+
+$("#GetReplies_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            let realLoadedCount = parseInt(response.skippedCount) + parseInt(response.loadedCount);
+            $("#GR_SkipCount_Val").val(realLoadedCount);
+            animatedClose(false, "ReplyToComment_Container");
+
+            if (response.skippedCount == 0) {
+                $("#RTC_Count").val(response.count);
+            }
+            $("#LoadMoreReplies_Btn").fadeIn(300);
+            if (response.count > realLoadedCount) {
+                $("#LoadMoreReplies_Btn").attr("disabled", false);
+                $("#LoadMoreReplies_Btn").text("Load More Replies");
+            }
+            else {
+                $("#LoadMoreReplies_Btn").attr("disabled", true);
+                $("#LoadMoreReplies_Btn").text("No More Replies to Load");
+            }
+
+            setTimeout(function () { 
+                if (response.loadedCount > 0) {
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
+                        let title = $("<span class='h6'></h6>");
+                        let separator1 = $("<div></div>");
+                        let text = $("<small class='card-text white-space-on'></small>");
+                        let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+
+                        title.html(response.result[index].username);
+                        text.html(response.result[index].text);
+                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
+
+                        div.append(sentAt);
+                        div.append(title);
+                        div.append(separator1);
+                        div.append(text);
+                        $("#RepliesList_Box").append(div);
+                    });
+                }
+                else {
+                    let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+                    let titleText = $("<h4 class='h4 safe-font'></h4>");
+                    let text = $("<small class='card-text text-muted'></small>");
+
+                    titleText.text("No Replies");
+                    text.text("Try to be the first one who has replied to this comment");
+                    div.append(titleText);
+                    div.append(text);
+                    $("#RepliesList_Box").append(div);
+                    $("#LoadMoreReplies_Btn").fadeOut(300);
+                }
+                smallBarAnimatedOpenAndClose(true);
+                animatedOpen(false, "ReplyToComment_Container", false, false);
+            }, 125);
+        }
+        else {
+            let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+            let titleText = $("<h4 class='h4 safe-font'></h4>");
+            let text = $("<small class='card-text text-muted'></small>");
+
+            titleText.text("No Replies");
+            text.text("Try to be the first one who is going to reply to this comment");
+            div.append(titleText);
+            div.append(text);
+            $("#RepliesList_Box").append(div);
+        }
+    });
 });
 
 $("#GetAllPosts_Form").on("submit", function (event) {
@@ -2092,36 +2409,41 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
     $.get(url, data, function (response) {
         if (response.success) {
             $("#RelatedPosts_Box").empty();
-            $.each(response.result, function (index) {
-                let div = $("<div class='box-container bg-light p-2 me-1 ms-1 d-inline-block'></div>");
-                let creatorName = $("<span class='h6 p-0 get-user-short-info'></span>");
-                let separator1 = $("<div></div>");
-                let createdAt = $("<small class='card-text text-muted'></small>");
-                let separator2 = $("<div class='mt-3'></div>");
-                let mainText = $("<span class='card-text white-space-on'></p>");
-                let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
-                let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like " + response.result[index].likedCount + "</button > ");
-                let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
+            if (response.count > 0) {
+                $.each(response.result, function (index) {
+                    let div = $("<div class='box-container bg-light p-2 me-1 ms-1 d-inline-block'></div>");
+                    let creatorName = $("<span class='h6 p-0 get-user-short-info'></span>");
+                    let separator1 = $("<div></div>");
+                    let createdAt = $("<small class='card-text text-muted'></small>");
+                    let separator2 = $("<div class='mt-3'></div>");
+                    let mainText = $("<span class='card-text white-space-on'></p>");
+                    let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
+                    let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like " + response.result[index].likedCount + "</button > ");
+                    let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
 
-                creatorName.attr("id", "GetShortUserInfo_ForPost_" + response.result[index].id +"-" + response.result[index].userId);
-                creatorName.text(response.result[index].creatorName);
-                createdAt.text(convertDateAndTime(response.result[index].createdAt, true, true));
-                mainText.html(response.result[index].text);
+                    creatorName.attr("id", "GetShortUserInfo_ForPost_" + response.result[index].id + "-" + response.result[index].userId);
+                    creatorName.text(response.result[index].creatorName);
+                    createdAt.text(convertDateAndTime(response.result[index].createdAt, true, true));
+                    mainText.html(response.result[index].text);
 
-                btnsDiv.append(likeThePostBtn);
-                btnsDiv.append(shareThePostBtn);
-                div.append(creatorName);
-                div.append(separator1);
-                div.append(createdAt);
-                div.append(separator2);
-                div.append(mainText);
-                div.append(btnsDiv);
+                    btnsDiv.append(likeThePostBtn);
+                    btnsDiv.append(shareThePostBtn);
+                    div.append(creatorName);
+                    div.append(separator1);
+                    div.append(createdAt);
+                    div.append(separator2);
+                    div.append(mainText);
+                    div.append(btnsDiv);
 
-                $("#RelatedPosts_Box").append(div);
-            });
-            $("#GetAllRelatedPosts_Form_Box").fadeOut(0);
-            $("#GetAllRelatedPosts_Btn_Box").fadeIn(0);
-            $("#RelatedPosts_Box").slideDown(300);
+                    $("#RelatedPosts_Box").append(div);
+                });
+                $("#GetAllRelatedPosts_Form_Box").fadeOut(0);
+                $("#GetAllRelatedPosts_Btn_Box").fadeIn(0);
+                $("#RelatedPosts_Box").slideDown(300);
+            }
+            else {
+                openModal("We're sorry, but it's unable to get related posts. Please, try again later", "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
+            }
         }
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, " <i class='fas fa-times-circle text-danger'></i> ");
@@ -2151,6 +2473,37 @@ $(document).on("click", ".select-project-result", function (event) {
         $("#GetFullProjectForAdmins_Form").submit();
     }
     else openModal("Invalid project ID. Please, try again", "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-slash text-warning'></i> ");
+});
+
+$("#GetRemovedProjectInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $("#GRP_Sbmt_Btn").attr("disabled", true);
+            $("#GRP_Sbmt_Btn").html("Loading...");
+
+            $("#GRP_Box").slideUp(300);
+            $("#GRP_Status_Lbl").html("removed <span class='text-dark'>" + convertDateAndTime(response.result.disabledAt, false, true) + "</span>");
+            $("#GRP_Name_Lbl").html(response.result.project.name);
+            $("#GRP_CreatedAt_Lbl").html("created <span class='text-dark'>" + convertDateAndTime(response.result.project.createdAt, false, true) + "</span>");
+            if (response.result.description != null) {
+                $("#GRP_Description_Lbl").html(response.result.description);
+            }
+            else {
+                $("#GRP_Description_Lbl").text("Removed by his own owner. Circumstances are unknown to us")
+            }
+            setTimeout(function () {
+                $("#GRP_Box").slideDown(300);
+                $("#GRP_Sbmt_Btn").html(" <i class='fas fa-check-double'></i> Check it Out");
+            }, 350);
+        }
+        else {
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
 });
 
 $("#SendMessageFromAdmins_Form").on("submit", function (event) {
@@ -3040,6 +3393,7 @@ $("#GetNotifications_Btn").on("click", function (event) {
         }
     });
 });
+
 $("#GetMessages_Btn").on("click", function (event) {
     event.preventDefault();
     let url = $("#GetAllMessages_Form").attr("action");
@@ -3501,79 +3855,28 @@ $(document).on("click", ".remove-notification", function (event) {
 
 $(document).on("click", ".send-reply-to-comment", function (event) {
     let trueId = getTrueId(event.target.id);
+    let currentId = $("#GR_Id_Val").val();
     if (trueId != "") {
+        $("#RepliesList_Box").empty();
+/*        if (currentId != trueId) {*/
+            $("#GR_SkipCount_Val").val(0);
+/*        }*/
+
         let userName = $("#GetAndSendReplyTitle-" + trueId).text();
         let text = $("#GetAndSendReplyText-" + trueId).text();
         $("#RTC_User").html(userName);
         $("#RTC_Username").html(userName);
         $("#RTC_TextValue").html(text);
         $("#RTC_CommentId_Val").val(trueId);
+
         $("#GR_Id_Val").val(trueId);
-
-        event.preventDefault();
-        let url = $("#GetReplies_Form").attr("action");
-        let data = $("#GetReplies_Form").serialize();
-        $.get(url, data, function (response) {
-            if (response.success) {
-                $("#RepliesList_Box").empty();
-                $("#RTC_Count").val(response.count);
-
-                if (response.loadedCount > 0) {
-                    $.each(response.result, function (index) {
-                        let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
-                        let title = $("<span class='h6'></h6>");
-                        let separator1 = $("<div></div>");
-                        let text = $("<small class='card-text white-space-on'></small>");
-                        let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
-
-                        title.html(response.result[index].username);
-                        text.html(response.result[index].text);
-                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
-
-                        div.append(sentAt);
-                        div.append(title);
-                        div.append(separator1);
-                        div.append(text);
-                        $("#RepliesList_Box").append(div);
-                    });
-                }
-                else {
-                    let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
-                    let titleText = $("<h4 class='h4 safe-font'></h4>");
-                    let text = $("<small class='card-text text-muted'></small>");
-
-                    titleText.text("No Replies");
-                    text.text("Try to be the first one who has replied to this comment");
-                    div.append(titleText);
-                    div.append(text);
-                    $("#RepliesList_Box").append(div);
-                }
-            }
-            else {
-                let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
-                let titleText = $("<h4 class='h4 safe-font'></h4>");
-                let text = $("<small class='card-text text-muted'></small>");
-
-                titleText.text("No Replies");
-                text.text("Try to be the first one who is going to reply to this comment");
-                div.append(titleText);
-                div.append(text);
-                $("#RepliesList_Box").append(div);
-            }
-        });
-
-        smallBarAnimatedOpenAndClose(true);
-        animatedOpen(false, "ReplyToComment_Container", false, false);
-    }
-    else {
-        openModal("You can't send reply for this comment", null, null, null, null, null, null, 2.75);
+        $("#GetReplies_Form").submit();
     }
 });
 
-//$("#LoadMoreReplies_Btn").on("click", function (event) {
-//    event.preventDefault();
-//    $("#GetAllReplies_Form").submit();
-//});
+$("#LoadMoreReplies_Btn").on("click", function (event) {
+    $("#GetReplies_Form").submit();
+});
 
 $(document).on("click", ".select-to-hide", function (event) {
     let trueId = getTrueId(event.target.id);
@@ -3926,14 +4229,28 @@ $("#TextPart").on("keyup", function () {
 $(".description-check").on("keyup", function (event) {
     let trueId = event.target.id;
     let neededBtn = $("#" + trueId).attr("data-bs-html");
+    let minLength = $("#" + trueId).attr("data-bs-min-length");
     let length = $("#" + trueId).val().length;
-    if (length >= 40) {
-        $("#" + neededBtn).attr("disabled", false);
-        $("#" + neededBtn).text("Disable");
+    minLength = parseInt(minLength);
+    minLength = minLength == 0 ? 40 : minLength;
+
+    if (length >= minLength) {
+        if (minLength >= 25) {
+            $("#" + neededBtn).attr("disabled", false);
+            $("#" + neededBtn).text("Disable");
+        }
+        else {
+            $("#" + neededBtn).attr("disabled", false);
+        }
     }
     else {
-        $("#" + neededBtn).attr("disabled", true);
-        $("#" + neededBtn).text("Description must be more than 40 symbs.");
+        if (minLength >= 25) {
+            $("#" + neededBtn).attr("disabled", true);
+            $("#" + neededBtn).text("Description must be more than" + minLength + " symbs.");
+        }
+        else {
+            $("#" + neededBtn).attr("disabled", true);
+        }
     }
 });
 $("#Text").on("keyup", function () {
@@ -4216,6 +4533,18 @@ $(document).on("click", ".link-the-project", function (event) {
             animatedOpen(false, "Preload_Container", true, false);
         }
     }
+});
+
+$(document).on("click", ".get-mentions", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#GetMentions_Id_Val").val(trueId);
+        $("#SendMention_PostId_Val").val(trueId);
+        $("#GetMentions_Form").submit();
+    }
+});
+$("#GetMoreMentions_Btn").on("click", function () {
+    $("#GetMentions_Form").submit();
 });
 
 $(document).on("click", ".get-user-short-info", function (event) {
@@ -5210,12 +5539,11 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
         }
     }, 150);
 
-    setTimeout(function () {
+    clearTimeout(modalTimeout);
+    modalTimeout = setTimeout(function () {
         animatedClose(false, "MainModal_Container");
-        //$("#MainModal_Container").css("bottom", "-1200px");
-        //$("#MainModal_Container").fadeOut(300);
         $("#MainModal_Container").css("z-index", 0);
-    }, (fadeOutTimer + 0.45) * 1000);
+    }, (fadeOutTimer + 0.3) * 1000);
 
     if (btn1Txt == null) $("#MMC_FirstBtn").html("Close");
     else $("#MMC_FirstBtn").html(btn1Txt);
@@ -5239,8 +5567,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_FirstBtn").on("click", function () {
-                    if (fullWidth < 717) closeContainerBubbleAnimation("MainModal_Container", true);
-                    else closeContainerBubbleAnimation("MainModal_Container", false);
+                    animatedClose(false, "MainModal_Container");
                 });
                 break;
             case 3:
@@ -5249,7 +5576,6 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 });
             case 4:
                 $("#MMC_FirstBtn").on("click", function () {
-/*                    smallBarAnimatedOpenAndClose(true);*/
                     animatedOpen(false, btn1Action, false, false);
                     $("#MainModal_Container").css("bottom", "-1200px");
                     $("#MainModal_Container").fadeOut(300);
@@ -5283,11 +5609,7 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_SecondBtn").on("click", function () {
-                    if (fullWidth < 717) {
-                        animatedClose(false, "MainModal_Container");
-                        closeContainerBubbleAnimation("MainModal_Container", true);
-                    }
-                    else animatedClose(false, "MainModal_Container");
+                    animatedClose(false, "MainModal_Container");
                 });
                 break;
             case 3:
@@ -5297,7 +5619,6 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 4:
                 $("#MMC_SecondBtn").on("click", function () {
-                    /*                    smallBarAnimatedOpenAndClose(true);*/
                     animatedOpen(false, btn2Action, false, false);
                     $("#MainModal_Container").css("bottom", "-1200px");
                     $("#MainModal_Container").fadeOut(300);

@@ -155,34 +155,27 @@ namespace ApplicationY.Repositories
             else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
         }
 
-        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool NeedLargerInfo, bool NeedPhoto, bool ForAdmins)
+        public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool ForAdmins)
         {
             if(Id != 0)
             {
-                bool Result = false;
-                if (!ForAdmins)
+                if(ForAdmins) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, IsDisabled = u.IsDisabled, SearchName = u.SearchName, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, IsVerifiedAccount = u.IsVerified, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, RemovedProjectsCount = u.Projects != null ? u.Projects.Count(p => p.IsRemoved) : 0 }).FirstOrDefaultAsync(u => u.Id == Id);
+                else
                 {
-                    if (NeedLargerInfo)
-                    {
-                        if (NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
-                        else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
-                    }
-                    else
-                    {
-                        Result = _cache.TryGetValue("user_" + Id, out User? UserInfo);
-                        if (!Result)
-                        {
-                            _cache.Set("user_" + Id, await _userManager.FindByIdAsync(Id.ToString()), new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
-                            return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
-                        }
-                        else
-                        {
-                            if(UserInfo != null) return new GetUserInfo_ViewModel { Id = UserInfo.Id, PseudoName = UserInfo.PseudoName, SearchName = UserInfo.SearchName, Description = UserInfo.Description, CountryFullName = UserInfo.Country!.ISO + ", " + UserInfo.Country!.Name };
-                            else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
-                        }
-                    }
+                    _cache.Remove("user_" + Id);
+                    _cache.Set("user_" + Id, await _userManager.FindByIdAsync(Id.ToString()), new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(12)));
+                    return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, CountryFullName = u.Country!.ISO + ", " + u.Country!.Name }).FirstOrDefaultAsync(u => u.Id == Id);
                 }
-                else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, IsDisabled = u.IsDisabled, SearchName = u.SearchName, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, IsVerifiedAccount = u.IsVerified, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, RemovedProjectsCount = u.Projects != null ? u.Projects.Count(p => p.IsRemoved) : 0 }).FirstOrDefaultAsync(u => u.Id == Id);
+            }
+            return null;
+        }
+
+        public async Task<GetUserInfo_ViewModel?> GetUserByIdWLargerInfoAsync(int Id, bool NeedPhoto)
+        {
+            if(Id != 0)
+            {
+                if (NeedPhoto) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, ProfilePhoto = u.ProfilePhoto, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
+                else return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, UserName = u.UserName, SearchName = u.SearchName, Description = u.Description, CreatedAt = u.CreatedAt, Email = u.Email, IsEmailConfirmed = u.EmailConfirmed, ProjectsCount = u.Projects != null ? u.Projects.Count : 0, SubscribersCount = u.Subscribtions != null ? u.Subscribtions.Count : 0, Country = new Country { Name = u.Country!.Name } }).FirstOrDefaultAsync(u => u.Id == Id);
             }
             return null;
         }

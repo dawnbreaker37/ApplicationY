@@ -1,4 +1,5 @@
-﻿using ApplicationY.ViewModels;
+﻿using ApplicationY.Models;
+using ApplicationY.ViewModels;
 
 namespace ApplicationY.Interfaces
 {
@@ -9,5 +10,6 @@ namespace ApplicationY.Interfaces
         public Task<int> GetUserRoleAsync(int UserId);
         public Task<string?> GetRoleNameAsync(int RoleId);
         public IQueryable<GetUserRole_ViewModel>? GetAllRoles(int CurrentRoleId);
+        public Task<DisabledProject?> DisabledProjectInfoAsync(int Id);
     }
 }

@@ -92,18 +92,28 @@ namespace ApplicationY.Controllers
                 User? UserInfo = await _userManager.GetUserAsync(User);
                 if (UserInfo != null)
                 {
+                    int ProjectsCount = 0;
+                    int RemovedProjectsCount = 0;
+                    int PostsCount = 0;
                     //await Response.Cookies.
-                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjects(UserInfo.Id, UserInfo.Id, false, false, false);
+                    IQueryable<Project?>? UserAllProjects_Preview = _projectRepository.GetUsersAllProjectsWInfo(UserInfo.Id, UserInfo.Id, true);
+                    IQueryable<Project?>? UserAllRemovedProjects_Preview = _projectRepository.GetUsersAllRemovedProjects(UserInfo.Id);
                     //IQueryable<GetPost_ViewModel>? GetUserAllPosts_Preview = _postRepository.GetUserAllPosts(UserInfo.Id, false);
 
+                    List<Project?>? RemovedProjects = UserAllRemovedProjects_Preview != null ? await UserAllRemovedProjects_Preview.ToListAsync() : null;
                     List<Project?>? Projects = UserAllProjects_Preview != null ? await UserAllProjects_Preview.ToListAsync() : null;
                     //List<GetPost_ViewModel>? AllPosts = GetUserAllPosts_Preview != null ? await GetUserAllPosts_Preview.ToListAsync() : null;
-                    int ProjectsCount = Projects != null ? Projects.Count : 0;
-                    int PostsCount = await _postRepository.GetUsersAllPostsCountAsync(UserInfo.Id);
+                    if(Projects != null)
+                    {
+                        ProjectsCount = Projects.Count;
+                        RemovedProjectsCount = RemovedProjects != null ? RemovedProjects.Count : 0;
+                        PostsCount = await _postRepository.GetUsersAllPostsCountAsync(UserInfo.Id);
+                    }
 
                     ViewBag.UserInfo = UserInfo;
                     ViewBag.Projects = Projects;
-                    //ViewBag.Posts = AllPosts;
+                    ViewBag.RemovedProjects = RemovedProjects;
+                    ViewBag.RemovedProjectsCount = RemovedProjectsCount;
                     ViewBag.Count = ProjectsCount;
                     ViewBag.PostsCount = PostsCount;
 
@@ -179,7 +189,7 @@ namespace ApplicationY.Controllers
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
                     IQueryable<Audio>? Audios_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, UserInfo.Id, false, true);
+                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, UserInfo.Id, false);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -418,9 +428,9 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetAdditionalInfo, bool GetFiles, bool GetRemovedToo)
+        public async Task<IActionResult> GetFullProject(int Id, int SenderId, bool GetUsername, bool GetFiles)
         {
-            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, SenderId, GetUsername, GetAdditionalInfo);
+            Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, SenderId, GetUsername);
             if (ProjectInfo != null)
             {
                 int ImagesCount = 0;
@@ -446,6 +456,7 @@ namespace ApplicationY.Controllers
                 }
 
                 if (SenderId != 0) IsLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, SenderId);
+                await _projectRepository.IncreaseProjectViews(Id, ProjectInfo.Views, 1);
 
                 return Json(new { success = true, getUsername = GetUsername, likesCount = LikesCount, imgsCount = ImagesCount, result = ProjectInfo, isLiked = IsLiked, audios = Audios, mainImg = MainImg, audiosCount = Audios != null ? Audios.Count : 0, images = Images });
             }
@@ -467,106 +478,121 @@ namespace ApplicationY.Controllers
         {
             if(Id != 0)
             {
-                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, 0, true, true);
+                Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, 0, true);
                 if(ProjectInfo != null)
                 {
-                    List<GetProjectImages_ViewModel>? Images = null;
-                    List<Audio>? Audios = null;
-
-                    GetCommentaries_ViewModel? LastSentComment = null;
-                    string? YoutubeVideoLink = null;
-                    string? AdditionalYoutubeLink = null;
-                    bool HasAlreadyBeenLiked = false;
-                    double PreviousPricePercentage = 0;
-                    double TotalDays = 0;
-                    int AudiosCount = 0;
-                    int ImagesCount = 0;
-
-                    int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
-                    int LikesCount = await _projectRepository.ProjectLikesCount(Id);
-                    int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
-                    int FullProjectsCount = await _projectRepository.GetProjectsCount(0);
-                    double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
-                    double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount  * 100, 1);
-                    IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id, ProjectInfo.MainPhotoId);
-                    IQueryable<Audio>? AudiosPreview = _audiosRepository.GetProjectAudios(Id);
-                    GetProjectImages_ViewModel? MainImgInfo = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
-
-                    if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
-
-                    StringBuilder sb = new StringBuilder();
-                    sb.Append(ProjectInfo.TextPart1);
-                    if (ProjectInfo.TextPart2 != null) sb.Append(ProjectInfo.TextPart2);
-                    if(ProjectInfo.TextPart3 != null) sb.Append(ProjectInfo.TextPart3);
-
-                    if (ProjectInfo.Deadline != null)
+                    if (!ProjectInfo.IsRemoved)
                     {
-                        TimeSpan StartDay = DateTime.Now.Subtract((DateTime)ProjectInfo.Deadline);
-                        TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
-                    }
+                        List<GetProjectImages_ViewModel>? Images = null;
+                        List<Audio>? Audios = null;
 
-                    if (ProjectInfo.PastTargetPrice != 0)
-                    {
-                        PreviousPricePercentage = (double)ProjectInfo.TargetPrice / ProjectInfo.PastTargetPrice * 100;
-                        if (PreviousPricePercentage < 100) PreviousPricePercentage = Math.Round(100 - PreviousPricePercentage, 1) * -1;
-                        else PreviousPricePercentage = Math.Round(PreviousPricePercentage - 100, 1);
-                    }
+                        GetCommentaries_ViewModel? LastSentComment = null;
+                        string? YoutubeVideoLink = null;
+                        string? AdditionalYoutubeLink = null;
+                        bool HasAlreadyBeenLiked = false;
+                        double PreviousPricePercentage = 0;
+                        double TotalDays = 0;
+                        int AudiosCount = 0;
+                        int ImagesCount = 0;
 
-                    if (ProjectInfo.YoutubeLink != null)
-                    {
-                        YoutubeVideoLink = "https://www.youtube.com/embed/" + ProjectInfo.YoutubeLink;
-                        AdditionalYoutubeLink= "https://www.youtube.com/watch?v=" + ProjectInfo.YoutubeLink;
-                    }
+                        int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
+                        int LikesCount = await _projectRepository.ProjectLikesCount(Id);
+                        int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
+                        int FullProjectsCount = await _projectRepository.GetProjectsCount(0);
+                        double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
+                        double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount * 100, 1);
+                        IQueryable<GetProjectImages_ViewModel>? Images_Preview = _imagesRepository.GetAllProjectImages(Id, ProjectInfo.MainPhotoId);
+                        IQueryable<Audio>? AudiosPreview = _audiosRepository.GetProjectAudios(Id);
+                        GetProjectImages_ViewModel? MainImgInfo = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
 
-                    if (Images_Preview != null)
-                    {
-                        Images = await Images_Preview.ToListAsync();
-                        if (MainImgInfo != null) Images = Images.Prepend(MainImgInfo).ToList();
-                        ImagesCount = Images.Count;
-                    }
-                    if (AudiosPreview != null)
-                    {
-                        Audios = await AudiosPreview.ToListAsync();
-                        AudiosCount = Audios.Count;
-                    }
+                        if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
 
-                    if (User.Identity.IsAuthenticated)
-                    {
-                        User? UserInfo = await _userManager.GetUserAsync(User);
+                        StringBuilder sb = new StringBuilder();
+                        sb.Append(ProjectInfo.TextPart1);
+                        if (ProjectInfo.TextPart2 != null) sb.Append(ProjectInfo.TextPart2);
+                        if (ProjectInfo.TextPart3 != null) sb.Append(ProjectInfo.TextPart3);
 
-                        if (UserInfo != null)
+                        if (ProjectInfo.Deadline != null)
                         {
-                            HasAlreadyBeenLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, UserInfo.Id);
-                            ViewBag.UserInfo = UserInfo;
+                            TimeSpan StartDay = DateTime.Now.Subtract((DateTime)ProjectInfo.Deadline);
+                            TotalDays = Math.Round(StartDay.TotalDays, 0) * -1;
                         }
-                        else ViewBag.UserInfo = null;
+
+                        if (ProjectInfo.PastTargetPrice != 0)
+                        {
+                            PreviousPricePercentage = (double)ProjectInfo.TargetPrice / ProjectInfo.PastTargetPrice * 100;
+                            if (PreviousPricePercentage < 100) PreviousPricePercentage = Math.Round(100 - PreviousPricePercentage, 1) * -1;
+                            else PreviousPricePercentage = Math.Round(PreviousPricePercentage - 100, 1);
+                        }
+
+                        if (ProjectInfo.YoutubeLink != null)
+                        {
+                            YoutubeVideoLink = "https://www.youtube.com/embed/" + ProjectInfo.YoutubeLink;
+                            AdditionalYoutubeLink = "https://www.youtube.com/watch?v=" + ProjectInfo.YoutubeLink;
+                        }
+
+                        if (Images_Preview != null)
+                        {
+                            Images = await Images_Preview.ToListAsync();
+                            if (MainImgInfo != null) Images = Images.Prepend(MainImgInfo).ToList();
+                            ImagesCount = Images.Count;
+                        }
+                        if (AudiosPreview != null)
+                        {
+                            Audios = await AudiosPreview.ToListAsync();
+                            AudiosCount = Audios.Count;
+                        }
+
+                        if (User.Identity.IsAuthenticated)
+                        {
+                            User? UserInfo = await _userManager.GetUserAsync(User);
+
+                            if (UserInfo != null)
+                            {
+                                HasAlreadyBeenLiked = await _projectRepository.HasProjectBeenAlreadyLiked(Id, UserInfo.Id);
+                                ViewBag.UserInfo = UserInfo;
+                            }
+                            else ViewBag.UserInfo = null;
+                        }
+                        int LinkedProjectsCount = await _postRepository.GetAssociatedPostsCountAsync(Id);
+                        await _projectRepository.IncreaseProjectViews(Id, ProjectInfo.Views, 1);
+
+                        ViewBag.ProjectInfo = ProjectInfo;
+                        ViewBag.TotalDays = TotalDays;
+                        ViewBag.Images = Images;
+                        ViewBag.Audios = Audios;
+                        ViewBag.ImagesCount = ImagesCount;
+                        ViewBag.LinkedProjectsCount = LinkedProjectsCount;
+                        ViewBag.MainImgInfo = MainImgInfo;
+                        ViewBag.AudiosCount = AudiosCount;
+                        ViewBag.ReleaseNotesCount = ReleaseNotesCount;
+                        ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
+                        ViewBag.FullText = sb;
+                        ViewBag.LikesCount = LikesCount;
+                        ViewBag.CommentsCount = CommentsCount;
+                        ViewBag.LastSentCommentInfo = LastSentComment;
+                        ViewBag.IsLiked = HasAlreadyBeenLiked;
+                        ViewBag.YTLink = YoutubeVideoLink;
+                        ViewBag.ProjectsByThisCategory = CategoryStatistics;
+                        ViewBag.CategoryPercentage = CategoryPercentage;
+                        ViewBag.AdditionalYTLink = AdditionalYoutubeLink;
+
+                        return View();
                     }
-                    int LinkedProjectsCount = await _postRepository.GetAssociatedPostsCountAsync(Id);
-
-                    ViewBag.ProjectInfo = ProjectInfo;
-                    ViewBag.TotalDays = TotalDays;
-                    ViewBag.Images = Images;
-                    ViewBag.Audios = Audios;
-                    ViewBag.ImagesCount = ImagesCount;
-                    ViewBag.LinkedProjectsCount = LinkedProjectsCount;
-                    ViewBag.MainImgInfo = MainImgInfo;
-                    ViewBag.AudiosCount = AudiosCount;
-                    ViewBag.ReleaseNotesCount = ReleaseNotesCount;
-                    ViewBag.TargetPriceChangePerc = PreviousPricePercentage;
-                    ViewBag.FullText = sb;
-                    ViewBag.LikesCount = LikesCount;
-                    ViewBag.CommentsCount = CommentsCount;
-                    ViewBag.LastSentCommentInfo = LastSentComment;
-                    ViewBag.IsLiked = HasAlreadyBeenLiked;
-                    ViewBag.YTLink = YoutubeVideoLink;
-                    ViewBag.ProjectsByThisCategory = CategoryStatistics;
-                    ViewBag.CategoryPercentage = CategoryPercentage;
-                    ViewBag.AdditionalYTLink = AdditionalYoutubeLink;
-
-                    return View();
+                    else
+                    {
+                        return RedirectToAction("RemovedProject", "Project", Id);
+                    }
                 }
             }
             return RedirectToAction("Index", "Home");
+        }
+
+        public IActionResult RemovedProject(int Id)
+        {
+            ViewBag.ProjectId = Id;
+
+            return View();
         }
 
         [HttpGet]
@@ -587,7 +613,7 @@ namespace ApplicationY.Controllers
         [HttpGet]
         public async Task<IActionResult> GetUserProjects(int Id, bool ForAdmins)
         {
-            IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(Id, 0, false, false, ForAdmins);
+            IQueryable<Project?>? Projects_Preview = _projectRepository.GetUsersAllProjects(Id, 0, ForAdmins);
             if(Projects_Preview != null)
             {
                 List<Project?>? Projects = await Projects_Preview.ToListAsync();

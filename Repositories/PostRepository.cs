@@ -144,8 +144,14 @@ namespace ApplicationY.Repositories
 
         public async Task<int> GetAssociatedPostsCountAsync(int ProjectId)
         {
-            if (ProjectId != 0) return await _context.Posts.CountAsync(p => p.LinkedProjectId == ProjectId);
+            if (ProjectId != 0) return await _context.Posts.CountAsync(p => p.LinkedProjectId == ProjectId && !p.IsPrivate && !p.IsRemoved);
             else return 0;
+        }
+
+        public IQueryable<GetPost_ViewModel>? GetRandomPosts(int Count)
+        {
+            if (Count != 0) return _context.Posts.AsNoTracking().Where(p => !p.IsPrivate && !p.IsRemoved && p.CreatedAt >= DateTime.Now.AddDays(-14)).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, Text = p.Text, AllowMentions = p.AllowMentions, CreatorName = p.User!.PseudoName, CreatorPhoto = p.User!.ProfilePhoto, UserId = p.UserId, Project = p.Project != null ? new Project { Id = p.Project.Id, Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null, LinkedProjectId = p.LinkedProjectId }).Take(Count).OrderByDescending(p => Guid.NewGuid());
+            else return null;
         }
     }
 }

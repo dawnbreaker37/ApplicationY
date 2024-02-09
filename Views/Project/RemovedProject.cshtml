@@ -1,0 +1,64 @@
+﻿
+@{
+    ViewData["Title"] = "Removed Project";
+}
+
+<div class="main-container w-100 p-3 shadow-standard" id="Preload_Container">
+    <div class="text-center mt-2">
+        <h1 class="h1">This Project's Removed</h1>
+        <p class="card-text text-muted">We're sorry, but this project was removed by his owner or by our supports so you cannot view it. <br /> If you're interested in who removed this project and when, click the button below</p>
+        <div class="mt-2">
+            <form method="get" asp-controller="Settings" asp-action="GetRemovedProjectInfo" id="GetRemovedProjectInfo_Form">
+                <input type="hidden" name="Id" value="@ViewBag.ProjectId" />
+                <button type="submit" class="btn btn-primary btn-standard-with-no-colour btn-sm" id="GRP_Sbmt_Btn">Get Removed Project Info</button>
+            </form>
+        </div>
+    </div>
+    <div class="border-top mt-3 pt-2">
+        <div class="row mt-2">
+            <div class="col">
+                <div>
+                    <div class="text-center">
+                        <h3 class="h3">When the project may be removed?</h3>
+                        <small class="card-text text-muted">be informed when the projects may be removed</small>
+                    </div>
+                    <div class="mt-2">
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5">1. Gross Violations</h5>
+                            <small class="card-text">Gross violations of <span class="fw-500">terms & conditions</span> for projects content may force us to remove your projects</small>
+                        </div>
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5">2. Doppelganger Projects</h5>
+                            <small class="card-text">Projects which <span class="fw-500">have got similar names and content</span> One of them must be removed (we'll remove the least popular one)</small>
+                        </div>
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5">3. Phantom Projects</h5>
+                            <small class="card-text">Projects that <span class="fw-500">open and close too often</span> Set a deadline date for your project if you want to automatically close it at your selected day</small>
+                        </div>
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5">4. Selfdestroyed Projects</h5>
+                            <small class="card-text">The owner of project removed his own project <span class="fw-500">by himself</span> The circumstances of that action <span class="fw-500">may not be known</span></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col border-start">
+                <div class="text-center">
+                    <h3 class="h3">About Removed Project</h3>
+                    <small class="card-text text-muted" id="GRP_Status_Lbl">load to show the info</small>
+                    <div style="display: none;" id="GRP_Box">
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5" id="GRP_Name_Lbl"></h5>
+                            <small class="card-text text-muted" id="GRP_CreatedAt_Lbl"></small>
+                        </div>
+                        <div class="box-container bg-light p-2 mt-2">
+                            <h5 class="h5">Reason</h5>
+                            <small class="card-text" id="GRP_Description_Lbl"></small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+

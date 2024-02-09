@@ -20,8 +20,9 @@ namespace ApplicationY.Controllers
         private readonly ICategory _categoryRepository;
         private readonly ISubscribe _subscribeRepository;
         private readonly IMemoryCache _cache;
+        private readonly IPost _postRepository;
 
-        public HomeController(Context context, ILogger<HomeController> logger, IMemoryCache cache, ISubscribe subscribeRepository, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
+        public HomeController(Context context, ILogger<HomeController> logger, IPost postRepository, IMemoryCache cache, ISubscribe subscribeRepository, ICategory categoryRepository, IUser user, IProject projectRepository, UserManager<User> userManager)
         {
             _context = context;
             _user = user;
@@ -31,18 +32,29 @@ namespace ApplicationY.Controllers
             _projectRepository = projectRepository;
             _categoryRepository = categoryRepository;
             _subscribeRepository = subscribeRepository;
+            _postRepository = postRepository;
         }
 
         public async Task<IActionResult> Index()
         {
+            List<GetPost_ViewModel>? Posts = null;
             User? UserInfo = await _userManager.GetUserAsync(User);
+
+            IQueryable<GetPost_ViewModel>? Posts_Preview = _postRepository.GetRandomPosts(30);
+            if (Posts_Preview != null)
+            {
+                Posts = await Posts_Preview.ToListAsync();
+            }
+
             if (UserInfo != null)
             {
                 int LikedProjectsCount = 0;
                 int SubscribtionsCount = 0;
                 List<GetSubscribtions_ViewModel>? Subscribtions = null;
                 List<GetLikedProjects_ViewModel>? LikedProjects = null;
+                List<LikedPost>? LikedPosts = null;
 
+                IQueryable<LikedPost>? LikedPosts_Preview = _postRepository.GetUsersLikedPosts(UserInfo.Id);
                 IQueryable<GetSubscribtions_ViewModel>? UserSubscribtions_Preview = _subscribeRepository.GetSubscribtions(UserInfo.Id);
                 IQueryable<GetLikedProjects_ViewModel>? LikedProjects_Preview = _projectRepository.GetLikedProjectsSimplified(UserInfo.Id);
                 if(UserSubscribtions_Preview != null)
@@ -54,6 +66,23 @@ namespace ApplicationY.Controllers
                 {
                     LikedProjects = await LikedProjects_Preview.ToListAsync();
                     LikedProjectsCount = LikedProjects.Count;
+                }
+                if(LikedPosts_Preview != null)
+                {
+                    LikedPosts = await LikedPosts_Preview.ToListAsync();
+                }
+                if(Posts != null && LikedPosts != null)
+                {
+                    foreach(GetPost_ViewModel Item in Posts)
+                    {
+                        foreach(LikedPost LikedPost in LikedPosts)
+                        {
+                            if(Item.Id == LikedPost.PostId)
+                            {
+                                Item.IsLiked = true;
+                            }
+                        }
+                    }
                 }
 
                 UserInfo.Country = await _context.Countries.AsNoTracking().FirstOrDefaultAsync(c => c.Id == UserInfo.CountryId);
@@ -71,6 +100,9 @@ namespace ApplicationY.Controllers
                 ViewBag.SubsCount = 0;
                 ViewBag.LikedProjectsCount = 0;
             }
+            ViewBag.Posts = Posts;
+            ViewBag.PostsCount = Posts != null ? Posts.Count : 0;
+
             return View();
         }
 

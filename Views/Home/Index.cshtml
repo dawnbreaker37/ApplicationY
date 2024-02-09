@@ -24,13 +24,63 @@
                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
                 <input type="hidden" name="ProjectId" id="DTP_ProjectId_Val" value="0" />
             </form>
-    </div>
+            <form method="post" asp-controller="Post" asp-action="Like" id="LikeThePost_Form">
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <input type="hidden" name="Id" id="LTP_PostId_Val" value="0" />
+            </form>
+            <form method="post" asp-controller="Post" asp-action="Dislike" id="DislikeThePost_Form">
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                <input type="hidden" name="Id" id="DLTP_PostId_Val" value="0" />
+            </form>
+        </div>
+
+        <div class="box-container card-box-container shadow-standard position-absolute p-2" id="Mentions_Container-CardBox">
+            <div class="p-2 pt-0">
+                <div>
+                    <form method="post" asp-controller="Mention" asp-action="Send" id="SendMention_Form">
+                        <div class="d-none">
+                            <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                            <input type="hidden" name="ProjectId" id="SendMention_PostId_Val" value="0" />
+                        </div>
+                        <div class="row">
+                            <div class="col col-1">
+                                <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MentionText_SbmtBtn" disabled> <i class="fas fa-arrow-up"></i></button>
+                            </div>
+                            <div class="col col-9">
+                                <textarea name="Text" id="MentionText" rows="1" placeholder="Enter text here" data-bs-html="MentionText_SbmtBtn" data-bs-min-length="3" maxlength="1500" class="form-control w-100 form-control-sm send-msg-form-control description-check"></textarea>
+                            </div>
+                            <div class="col col-2">
+                                <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100 text-full-delete" id="FullDelete-MentionText"> <i class="fas fa-backspace"></i> </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
     }
     <div class="d-none">
         <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
             <input type="hidden" name="Id" id="GSU_Id_Val" value="0" />
         </form>
+        <form method="get" asp-controller="Mention" asp-action="GetMentions" id="GetMentions_Form">
+            <input type="hidden" name="Id" id="GetMentions_Id_Val" />
+            <input type="hidden" name="SkipCount" id="GetMentions_SkipCount_Val" value="0" />
+            <input type="hidden" name="LoadCount" value="40" />
+        </form>
     </div>
+
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Mentions_Container">
+        <div class="header-container p-3 pb-2" id="Mentions_Container-Header">
+            <button type="button" class="btn btn-close float-end ms-1" id="Mentions_Container-Close" aria-label="close"></button>
+            <h5 class="h5 text-truncate">Mentions for the Post, <span id="MentionsCount_Lbl">0</span></h5>
+        </div>
+        <div class="mt-2 p-3 pb-2 pt-0" id="Mentions_Box">
+        </div>
+        <div class="mb-5 mt-2 pb-4 p-3 text-center">
+            <button type="button" class="btn btn-standard-not-animated text-primary btn-sm w-100 border-0" id="GetMoreMentions_Btn" disabled>Load More Mentions</button>
+        </div>
+    </div>
+
     <div class="box-container text-center p-2 shadow-sm">
         <div class="row text-center">
             <div class="col">
@@ -38,13 +88,6 @@
             </div>
             <div class="col">
                 <button class="btn btn-standard-not-animated w-100" type="button" data-bs-toggle="collapse" data-bs-target="#AccountInfo_Collapse" aria-expanded="false" aria-controls="AccountInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> Change Account </button>
-@*                 <div class="dropdown d-inline me-2">
-                    <button class="btn btn-standard-not-animated w-100" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> <br /> Change Account</button>
-                    <ul class="dropdown-menu p-1 mt-4 shadow-sm">
-                        <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="false" class="dropdown-item"> <i class="fas fa-sign-in-alt"></i> Log into another acc</a></li>
-                        <li><a asp-controller="Account" asp-action="Create" asp-route-SigningIn="true" class="dropdown-item mt-1"> <i class="fas fa-plus-circle"></i> Sign into another acc</a></li>
-                    </ul>
-                </div> *@
             </div>
             <div class="col d-sm-block d-xs-block d-md-none d-lg-none d-xl-none">
                 <button type="button" class="btn btn-standard-not-animated w-100 smallside-btn-close"> <i class="fas fa-times"></i> <br />Close</button>
@@ -132,24 +175,6 @@
                         <small class="card-text text-muted" id="USI_ProjectsCount_Lbl">Projects Count</small>
                     </div>
                 </div>
-                <div class="card-group mt-2">
-                    <div class="card p-2 bg-light">
-                        <p class="card-text fw-500">Contact Info</p>
-                        <small class="card-text" id="USI_Inbox_Lbl"> <i class="fas fa-inbox"></i> </small>
-                        <div class="mt-2"></div>
-                        <small class="card-text" id="USI_Date_Lbl"></small>
-                    </div>
-                    <div class="card p-2 bg-light">
-                        <p class="card-text fw-500">Links</p>
-                        <small class="card-text" id="USI_Link1_Lbl"></small>
-                        <div></div>
-                        <small class="card-text text-muted" id="USI_Link1Tag_Lbl">No Link Tag</small>
-                        <div class="border-top pt-1 mt-2"></div>
-                        <small class="card-text" id="USI_Link2_Lbl"></small>
-                        <div></div>
-                        <small class="card-text text-muted" id="USI_Link2Tag_Lbl">No Link Tag</small>
-                    </div>
-                </div>
                 <div class="mt-1 ms-1">
                     <small class="card-text white-space-on mt-2" id="USI_Description_Lbl">Description</small>
                     <div></div>
@@ -163,5 +188,91 @@
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
         <button type="button" class="btn btn-close float-end mt-1" aria-label="close" id="Preload_Container-Close"></button>
         <h5 class="h5 text-truncate">Newsline</h5>
+    </div>
+    <div class="mt-2 p-3 pt-0">
+        <div class="box-container w-100" id="Billboard_Box">
+            <div class="p-2 bg-gradient-one box-container">
+                <h1 class="h1 text-light">Welcome</h1>
+                <small class="card-text text-light">We're happy to see you in our app! Please, enjoy your time and make the most of it for you. If you have any questions, issues or complaints, please write to our email or user the in-app chat (don't even need to log in). Thank You!</small>
+                <div class="mt-3">
+                    <button type="button" class="btn btn-standard-with-no-colour btn-outline-light btn-sm write-via-email" id="WriteViaEmail_Btn"> <i class="fas fa-paperclip"></i> Write in-app</button>
+                    <button type="button" class="btn btn-standard-with-no-colour btn-outline-light btn-sm smallside-modal-open-by-hover" id="ContactsInfo_Modal" data-content="If you've any questions, issues or complaints, please tell us. That's the only way to make us and our app better. Here're our all contacts: <div class='bordered-container p-2 mt-3'><span class='h6 safe-font'> <i class='far fa-envelope text-primary'></i> Email:</span><div></div><small class='card-text'>bluejade@gmail.com</small><div class='border-top pt-2 mt-2'></div><span class='h6 safe-font'> <i class='fab fa-twitter text-primary'></i> X/Twitter:</span><div></div><small class='card-text'><a href='#' class='text-primary text-decoration-none'>bluejade's x/twitter</a></small><div class='border-top pt-2 mt-2'></div><span class='h6 safe-font'> <i class='fab fa-reddit text-danger'></i> Reddit</span><div></div><small><a href='#' class='text-primary text-decoration-none'>bluejade's reddit</a></small></div>"> <i class="far fa-address-book"></i> Our Contacts</button>
+                </div>
+            </div>
+        </div>
+
+        @if(ViewBag.PostsCount != 0)
+        {
+            @foreach(GetPost_ViewModel Item in ViewBag.Posts)
+            {
+                <div class="bordered-container p-2 mt-2" id="PostBox-@Item.Id">
+                    <div class="dropdown">
+                        <button class="btn btn-standard-not-animated float-end ms-1 btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
+                        <ul class="dropdown-menu shadow-sm p-1">
+                            <li><button type="button" class="dropdown-item mb-1 copy-the-text-of-the-post" id="CopyTheText-@Item.Id"> <i class="far fa-copy"></i> Copy to the clipboard</button></li>
+                            @if (Item.LinkedProjectId != 0)
+                            {
+                                <li><a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="dropdown-item"> <i class="far fa-folder-open"></i> Project Info</a></li>
+                            }
+                        </ul>
+                    </div>
+                    @if (UserInfo?.ProfilePhoto != null)
+                    {
+                        <img class="image-ultra-small-box" src="/ProfilePhotos/@UserInfo.ProfilePhoto" alt="Cannot display this image" />
+                        <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                    }
+                    else
+                    {
+                        <small class="card-text fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                    }
+                    @if (Item.Project != null)
+                    {
+                        <div class="box-container bg-light p-2 mt-2">
+                            <small class="card-text fw-500"> <i class="fas fa-link text-primary"></i> @Item.Project.Name</small>
+                            <div></div>
+                            <small class="card-text text-muted">created @Item.Project.CreatedAt.ToString("dd/MM/yyyy")</small>
+                            <div class="mt-3"></div>
+                            <small class="card-text white-space-on">@Item.Project.Description</small>
+                            <div class="box-container bg-light mt-2 p-2">
+                                <div class="row">
+                                    <div class="col">
+                                        <a asp-controller="Project" asp-action="Info" asp-route-Id="@Item.LinkedProjectId" class="btn btn-standard-not-animated btn-sm w-100"> <i class="fas fa-link"></i> Project Page</a>
+                                    </div>
+                                    <div class="col">
+                                        <button type="button" class="btn btn-standard-not-animated btn-sm w-100" disabled>@Item.Project.Views.ToString("N0") views</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                    <div class="mt-2">
+                        <p class="card-text white-space-on" id="PostsTextLbl-@Item.Id">@Item.Text</p>
+                    </div>
+                    <div class="border-top mt-2 pt-2">
+                        @if (!Item.IsLiked)
+                        {
+                            <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block like-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="far fa-heart"></i> Like</button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-standard-not-animated btn-sm me-2 d-inline-block dislike-the-post" id="LikeOrDislikeThePost_Btn-@Item.Id"> <i class="fas fa-heart text-primary"></i> Liked</button>
+                        }
+                        @if(Item.AllowMentions)
+                        {
+                            <button type="button" class="btn btn-standard-not-animated btn-sm load-mentions me-2 get-mentions" id="Post_LoadMentions-@Item.Id"> <i class="fas fa-quote-right text-primary"></i> Mentions</button>
+                        }
+                        <button type="button" class="btn btn-standard-not-animated btn-sm" disabled> <i class="fas fa-share"></i> Share</button>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <div class="mt-3 p-3 text-center">
+                <h1 class="h1"> <i class="far fa-sticky-note"></i> </h1>
+                <h3 class="h3 safe-font">No Posts For Today</h3>
+                <small class="card-text text-muted">We've not found any posts for you. You may try to read new posts later</small>
+            </div>
+        }
     </div>
 </div>

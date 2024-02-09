@@ -15,6 +15,7 @@ namespace ApplicationY.Interfaces
         public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId, int SkipCount, int Count);
         public IQueryable<GetReplies_ViewModel>? GetReplies(int CommentId, int SkipCount, int LoadCount);
         public Task<int> SendCommentAsync(SendComment_ViewModel Model);
+        public Task<string?> EditCommentAsync(SendComment_ViewModel Model);
         public Task<int> GetProjectCommentsCountAsync(int ProjectId);
         public Task<int> GetCommentRepliesCountAsync(int CommentId);
         public Task<GetCommentaries_ViewModel?> GetLastCommentsInfoAsync(int ProjectId);

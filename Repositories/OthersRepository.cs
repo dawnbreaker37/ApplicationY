@@ -2,7 +2,6 @@
 using ApplicationY.Interfaces;
 using ApplicationY.Models;
 using ApplicationY.ViewModels;
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 
 namespace ApplicationY.Repositories
@@ -13,6 +12,15 @@ namespace ApplicationY.Repositories
         public OthersRepository(Context context) : base(context)
         {
             _context = context;
+        }
+
+        public async Task<DisabledProject?> DisabledProjectInfoAsync(int Id)
+        {
+            if (Id != 0)
+            {
+                return await _context.DisabledProjects.AsNoTracking().Select(d => new DisabledProject { DisabledAt = d.DisabledAt, ProjectId = d.ProjectId, Description = d.Description, Project = d.Project != null ? new Project { Name = d.Project.Name, CreatedAt = d.Project.CreatedAt } : null }).FirstOrDefaultAsync(d => d.ProjectId == Id);
+            }
+            else return null;
         }
 
         public IQueryable<GetUserRole_ViewModel>? GetAllRoles(int CurrentRoleId)

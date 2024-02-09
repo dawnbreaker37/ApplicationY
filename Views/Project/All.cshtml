@@ -21,9 +21,6 @@
             <form method="get" asp-controller="Messages" asp-action="GetAllSent" id="GetAllSentMessages_Form">
                 <input type="hidden" name="Id" value="@UserInfo.Id" />
             </form>
-            <form method="get" asp-controller="Messages" asp-action="GetAllReplies" id="GetAllReplies_Form">
-                <input type="hidden" name="Id" id="GAR_Id_Val" value="0" />
-            </form>
             <form method="post" asp-controller="Project" asp-action="LockThePost" id="LockThePost_Form">
                 <input type="hidden" name="Id" id="LTP_Val_Id" value="0" />
                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
@@ -35,6 +32,11 @@
             <form method="post" asp-controller="Project" asp-action="RemoveThePost" id="RemoveThePost_Form">
                 <input type="hidden" name="Id" id="RTP_Val_Id" value="0" />
                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
+            <form method="get" asp-controller="Messages" asp-action="GetReplies" id="GetReplies_Form">
+                <input type="hidden" name="Id" id="GR_Id_Val" value="0" />
+                <input type="hidden" name="SkipCount" id="GR_SkipCount_Val" value="0" />
+                <input type="hidden" name="LoadCount" id="GR_LoadCount_Val" value="45" />
             </form>
         }
     </div>
@@ -133,7 +135,12 @@
                 <h6 class="h6" id="RTC_Username">Username</h6>
                 <small class="card-text text-muted white-space-on" id="RTC_TextValue">Replying message text</small>
             </div>
-            <div class="mt-2 mb-5" id="RepliesList_Box">
+            <div class="mt-2 mb-5">
+                <div id="RepliesList_Box">
+                </div>
+                <div>
+                    <button type="button" class="btn text-primary btn-standard-not-animated border-0 w-100 mt-1 btn-sm" id="LoadMoreReplies_Btn" disabled>Load More Replies</button>
+                </div>
             </div>
         </div>
     </div>
@@ -450,12 +457,13 @@
                     {
                         <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" id="UnableToLike_Btn"> <i class="fas fa-heart text-muted"></i> <br/>Unable To Like </button>
                     }
-                    @*                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-heart"></i> <br /> Like</button> *@
                 </div>
                 <div class="col">
                     <div>
                         <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
                             <input type="hidden" name="ProjectId" id="GCF_ProjectId_Val" value="0" />
+                            <input type="hidden" name="SkipCount" id="SkippedCount_Val" value="0" />
+                            <input type="hidden" name="Count" value="60" />
                             <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
                         </form>
                     </div>
@@ -532,11 +540,11 @@
                     <small class="card-text text-muted">Learn more about project budgets and prices from the QA page</small>
                 </div>
                 <div class="box-container bg-light p-2 mt-2" id="Deadline_Box">
-                    <small class="card-text fw-500"> <i class="far fa-dot-circle text-danger"></i> Deadline</small>
-                    <div class="mt-1"></div>
-                    <small class="card-text">Approximately at <span class="safe-font" id="DeadlineDate_Lbl"></span></small>
+                    <span class="h3 safe-font" id="DeadlineDaysLeft_Lbl">days left</span>
                     <div></div>
-                    <small class="card-text text-muted"><span class="safe-font" id="DeadlineDaysLeft_Lbl"></span> days left till end</small>
+                    <small class="card-text text-muted p-0">until end</small>
+                    <div class="mt-2"></div>
+                    <small class="card-text text-muted">Deadline approx. at <span class="safe-font text-dark" id="DeadlineDate_Lbl">dd/MM/yyyy</span></small>
                 </div>
             </div>
             <div class="card shadow-sm p-3" id="Preview_LinksBox">
@@ -593,17 +601,6 @@
             </div>
         </div>
 
-@*         <div class="box-container mt-2" style="display: none;" id="PreviewImages_Box">
-            <div class="card-group">
-                <div class="card p-2 shadow-sm">
-                    <h6 class="h6">Photos & Images</h6>
-                    <small class="card-text text-muted mt-2">This project has got <strong id="ImagesCount_Lbl">0</strong> photo(s)</small>
-                    <div class="horizontal-scrolled-container scrollbar-hidden mt-1" id="Images_Box">
-                    </div>
-                </div>
-            </div>
-        </div> *@
-
         <div class="box-container mt-2" style="display: none;" id="PreviewAudios_Box">
             <div class="card-group">
                 <div class="card p-2 shadow-sm">
@@ -643,7 +640,14 @@
     <div class="p-3 pt-0">
         @if(Count > 0)
         {
-            <small class="card-text text-muted" id="ProjectsCount_Lbl">You have <span id="ProjectsCount_Span">@Count</span> actual project(s)</small>
+            @if(ViewBag.RemovedProjectsCount == 0)
+            {
+                <small class="card-text text-muted" id="ProjectsCount_Lbl">You've got <span id="ProjectsCount_Span">@Count</span> project(s)</small>
+            }
+            else
+            {
+                <small class="card-text text-muted" id="ProjectsCount_Lbl">You've got <span class="text-primary" id="ProjectsCount_Span">@Count</span> active project(s) and <span class="text-danger">@ViewBag.RemovedProjectsCount</span> removed</small>
+            }
             <div id="HaveProjects_Box">
                 @foreach(Project Item in ViewBag.Projects)
                 {
@@ -696,6 +700,34 @@
                             <small class="card-text text-muted project-box" id="ProjectHelp-@Item.Id"> <i class="fas fa-ellipsis-h"></i> Click at any free part of box, to open settings box of selected project</small>
                         </div>
                     </div>
+                }
+
+                @if(ViewBag.RemovedProjects != null)
+                {
+                    <div class="bordered-container p-1 mt-2">
+                        <p class="card-text text-danger safe-font">Removed Projects</p>
+                    </div>
+                    @foreach (Project Item in ViewBag.RemovedProjects)
+                    {
+                        <div class="bordered-container border-danger p-2 mt-2" id="ProjectContainer-@Item.Id">
+                            <span class="badge warning-badge bg-danger fw-normal"> <i class="fas fa-minus"></i> Removed</span>
+                            <h2 class="h2 safe-font w-auto mt-1">@Item.Name</h2>
+                            @if (Item.TargetPrice != 0)
+                            {
+                                <small class="card-text text-muted w-auto"> <i class="fas fa-coins text-primary"></i> Target: $@Item.TargetPrice.ToString("N0")</small>
+                            }
+                            else
+                            {
+                                <small class="card-text text-muted w-auto"> <i class="fas fa-coins text-primary"></i> No target price</small>
+                            }
+                            <div class="mt-1"></div>
+                            <small class="card-text text-muted w-auto"> <i class="far fa-calendar-alt text-primary"></i> Created at: @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small>
+                            <div></div>
+                            <small class="text-muted"> <i class="fas fa-sync text-primary"></i> Last updated: @Item.LastUpdatedAt.ToString("dd/MM/yyyy"), at @Item.LastUpdatedAt.ToShortTimeString()</small>
+                            <div class="mt-2"></div>
+                            <a asp-controller="Project" asp-action="RemovedProject" asp-route-Id="@Item.Id" class="btn btn-text btn-sm fw-normal text-muted"> <i class="fas fa-ellipsis-h"></i> Removed projects can't be edited or viewed fully</a>
+                        </div>
+                    }
                 }
             </div>
             <div class="box-container text-center mt-5" style="display: none;" id="NoProjects_Box">

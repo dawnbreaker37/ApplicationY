@@ -70,10 +70,10 @@ namespace ApplicationY.Controllers
             if (ModelState.IsValid)
             {
                 bool Result = await _accountRepository.UpdatePasswordAsync(Model);
-                if (Result) return Json(new { success = true, alert = "Your password has successfully changed. Now, you can enter by your new password" });
+                if (Result) return Json(new { success = true, alert = "Your password has been successfully changed. Now, you can enter by your new password" });
                 else return Json(new { success = false, alert = "Something went wrong while we tried to reset your password. Please, check all datas and be sure that entered passwords are same and contain [8-24] digits, and then, try it again" });
             }
-            return Json(new { success = false, alert = "Passowords must contain [8-24] digits and be equal to each other" });
+            return Json(new { success = false, alert = "Passwords must contain [8-24] digits and be equal to each other" });
         }
 
         [HttpPost]
@@ -157,15 +157,22 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> SendCode(string Email)
+        public async Task<IActionResult> SendCode(string Email, bool NeedUniqueCode, int Id)
         {
             string? Text;
-            string? ReserveCode = await _accountRepository.SendTemporaryCodeAsync(0, Email, false);
+            string? ReserveCode = await _accountRepository.SendTemporaryCodeAsync(Id, Email, NeedUniqueCode);
             if (ReserveCode != null)
             {
                 User? UserInfo = await _context.Users.AsNoTracking().Select(u => new User { Email = u.Email, PseudoName = u.PseudoName }).FirstOrDefaultAsync(u => u.Email == Email);
-                if (UserInfo != null) Text = "Hello, <h5 style='font-weight: 500;'>" + UserInfo.PseudoName + "</h5>! Here's your reserve code for recovering the password of your account. We reccoment you to save this code somewhere for next times. Good luck! <div style='margin-top: 20px;'></div> <h3 style='font-weight: 500; color: #0d6efd;'>" + ReserveCode + "</h3>";
-                else Text = "Hello! Here's your reserve code for recovering the password of your account. We reccoment you to save this code somewhere for next times. Good luck! <div style='margin-top: 20px;'></div> <h3 style='font-weight: 500; color: #0d6efd;'>" + ReserveCode + "</h3>";
+                if (!NeedUniqueCode)
+                {
+                    if (UserInfo != null) Text = "Hello, <h5 style='font-weight: 500;'>" + UserInfo.PseudoName + "</h5>! Here's your code to recover your password. We reccomend you to save this code somewhere for next times. Good luck! <div style='margin-top: 20px;'></div> <h3 style='font-weight: 500; color: #0d6efd;'>" + ReserveCode + "</h3>";
+                    else Text = "Hello! Here's your code for your account. We reccomend you to save this code somewhere for next times. Good luck! <div style='margin-top: 20px;'></div> <h3 style='font-weight: 500; color: #0d6efd;'>" + ReserveCode + "</h3>";
+                }
+                else
+                {
+                    Text = "Hi! You've received a one-time code for your account and here's it. Please, enter it and continue your action in the app. Thank you! <div style='margin-top: 8px; border-radius: 8px; background-color: transparent; border: 2px solid rgb(240, 240, 240); text-align: center; padding: 4px;'><h3>Attached Code</h3><h2 style='margin-top: 12px; color: #0d6efd;'>" + ReserveCode + "</h2></div>";
+                }
 
                 MailKit_ViewModel KitModel = new MailKit_ViewModel();
                 SendEmail_ViewModel Model = new SendEmail_ViewModel
@@ -180,6 +187,17 @@ namespace ApplicationY.Controllers
                 if (Result2) return Json(new { success = true, email = UserInfo?.Email, text = "We've sent you your reserve code to your email. Please, check your mailbox and enter it in next widget" });
             }
             return Json(new { success = false, text = "An error occured while sending email. Please, try again later" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ConfirmTheCode(int Id, string Code)
+        {
+            (string?, string?) Result = await _accountRepository.CheckTheTemporaryCodeAsync(Id, Code);
+            if (Result.Item1 != null && Result.Item2 != null)
+            {
+                return Json(new { success = true, alert = "You've confirmed the code successfully", token = Result.Item1, reserveCode = Result.Item2 });
+            }
+            else return Json(new { success = false, alert = "Entered code is not correct. Please, try again" });
         }
 
         [HttpPost]

@@ -57,7 +57,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId, int SkipCount, int Count)
         {
-            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).Skip(SkipCount).Take(Count).OrderByDescending(c => c.SentAt);
+            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).Skip(SkipCount).Take(Count).OrderBy(c => c.SentAt);
             else return null;
         }
 
@@ -69,7 +69,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetReplies_ViewModel>? GetReplies(int Id, int SkipCount, int LoadCount)
         {
-            if (Id != 0) return _context.Replies.Where(r => r.CommentId == Id && !r.IsRemoved).AsNoTracking().Select(r => new GetReplies_ViewModel { Id = r.Id, SentAt = r.SentAt, Text = r.Text, Username = r.User!.PseudoName, UserId = r.UserId }).Skip(SkipCount).Take(LoadCount).OrderByDescending(r => r.SentAt);
+            if (Id != 0) return _context.Replies.Where(r => r.CommentId == Id && !r.IsRemoved).AsNoTracking().Select(r => new GetReplies_ViewModel { Id = r.Id, SentAt = r.SentAt, Text = r.Text, Username = r.User!.PseudoName, UserId = r.UserId }).Skip(SkipCount).Take(LoadCount).OrderBy(r => r.SentAt);
             else return null;
         }
 
@@ -197,6 +197,16 @@ namespace ApplicationY.Repositories
         {
             if (CommentId != 0) return await _context.Replies.AsNoTracking().CountAsync(r => r.CommentId == CommentId && !r.IsRemoved);
             else return 0;
+        }
+
+        public async Task<string?> EditCommentAsync(SendComment_ViewModel Model)
+        {
+            if(Model != null)
+            {
+                int Result = await _context.Comments.Where(c => c.Id == Model.Id && c.UserId == Model.UserId && c.ProjectId == Model.ProjectId).ExecuteUpdateAsync(c => c.SetProperty(c => c.Text, Model.Text));
+                if (Result != 0) return Model.Text;
+            }
+            return null;
         }
     }
 }
