@@ -138,7 +138,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetPost_ViewModel>? GetAllAssociatedPostsWAdditionalInfo(int ProjectId)
         {
-            if (ProjectId != 0) return _context.Posts.AsNoTracking().Where(p => p.LinkedProjectId == ProjectId && !p.IsPrivate && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, Text = p.Text, CreatedAt = p.CreatedAt, AllowMentions = p.AllowMentions, LikedCount = p.LikedPosts != null ? p.LikedPosts.Count(l => l.PostId == p.Id) : 0, CreatorName = p.User!.PseudoName, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
+            if (ProjectId != 0) return _context.Posts.AsNoTracking().Where(p => p.LinkedProjectId == ProjectId && !p.IsPrivate && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, Text = p.Text, CreatedAt = p.CreatedAt, AllowMentions = p.AllowMentions, CreatorName = p.User!.PseudoName, UserId = p.UserId }).OrderByDescending(p => p.CreatedAt);
             else return null;
         }
 

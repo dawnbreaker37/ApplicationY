@@ -40,18 +40,10 @@ window.onload = function () {
 
         let linkSpanElements = document.querySelectorAll(".post-text");
         recreateALink(linkSpanElements);
-        //for (let i = 0; i < linkSpanElements.length; i++) {
-        //    let newValue = recreateALink(linkSpanElements[i].innerHTML);
-        //    $("#" + linkSpanElements[i].id).html(newValue);
-        //}
     }
     else if (currentUrl[currentUrl.length - 1] == "/" || currentUrl.toLowerCase().includes("/home/index")) {
         let linkSpanElements = document.querySelectorAll(".post-text");
         recreateALink(linkSpanElements);
-        //for (let i = 0; i < linkSpanElements.length; i++) {
-        //    let newValue = recreateALink(linkSpanElements[i].innerHTML);
-        //    $("#" + linkSpanElements[i].id).html(newValue);
-        //}
     }
     else if (currentUrl.toLowerCase().includes("/project/create")) {
         let lastId = $("#LastCategoryId_Val").val();
@@ -144,6 +136,7 @@ $("#SignIn_Form").on("submit", function (event) {
         }
     });
 });
+
 $("#LogIn_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -2506,7 +2499,8 @@ $("#GetAllPosts_Form").on("submit", function (event) {
                 mentionsAllowedIcon.attr("id", "MentionsAllowedIcon-" + response.result[index].id);
 
                 img.attr("src", "/ProfilePhotos/" + userImgUrl);
-                mainText.html(response.result[index].text);
+                let newMainText = recreateALink_FromText(response.result[index].text);
+                mainText.html(newMainText);
                 dateNTime.text("sent " + convertDateAndTime(response.result[index].createdAt, true, true));
 
                 if (response.result[index].isPrivate) {
@@ -2554,7 +2548,7 @@ $("#GetAllPosts_Form").on("submit", function (event) {
         }
     });
 });
-
+//GetAllRelatedPosts_Form
 $("#EditPost_Form").on("submit", function (event) {
     event.preventDefault();
     findUserBySearchname($("#EPF_Text").val(), "EPF_Text");
@@ -2654,29 +2648,31 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
             $("#RelatedPosts_Box").empty();
             if (response.count > 0) {
                 $.each(response.result, function (index) {
-                    let div = $("<div class='box-container bg-light p-2 me-1 ms-1 d-inline-block'></div>");
+                    let div = $("<div class='box-container bg-light p-2 m-1'></div>");
                     let creatorName = $("<span class='h6 p-0 get-user-short-info'></span>");
                     let separator1 = $("<div></div>");
                     let createdAt = $("<small class='card-text text-muted'></small>");
                     let separator2 = $("<div class='mt-3'></div>");
                     let mainText = $("<span class='card-text white-space-on'></p>");
-                    let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
-                    let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like " + response.result[index].likedCount + "</button > ");
-                    let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
+                    //let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
+                    //let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like</button>");
+                    //let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
 
                     creatorName.attr("id", "GetShortUserInfo_ForPost_" + response.result[index].id + "-" + response.result[index].userId);
                     creatorName.text(response.result[index].creatorName);
                     createdAt.text(convertDateAndTime(response.result[index].createdAt, true, true));
+                    response.result[index].text = recreateALink_FromText(response.result[index].text);
                     mainText.html(response.result[index].text);
+                    $("#RelatedPostsCountMain_Lbl").text(response.count.toLocaleString());
 
-                    btnsDiv.append(likeThePostBtn);
-                    btnsDiv.append(shareThePostBtn);
+                    //btnsDiv.append(likeThePostBtn);
+                    //btnsDiv.append(shareThePostBtn);
                     div.append(creatorName);
                     div.append(separator1);
                     div.append(createdAt);
                     div.append(separator2);
                     div.append(mainText);
-                    div.append(btnsDiv);
+/*                    div.append(btnsDiv);*/
 
                     $("#RelatedPosts_Box").append(div);
                 });
@@ -4451,8 +4447,8 @@ $(document).on("click", ".btn-edit-post", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != null) {
         let text = $("#PostText-" + trueId).text();
-        $("#EPF_Text").val(text);
         $("#EPF_Id_Val").val(trueId);
+        decreateALink(text, "EPF_Text");
         animatedOpen(false, "EditPost_Container", false, false);
     }
 });
@@ -5798,6 +5794,16 @@ $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
     });
 });
 
+function recreateALink_FromText(value) {
+    if (value != undefined || value != null) {
+        value = value.replaceAll("#[", "<span class='get-user-short-info-by-searchname'>");
+        value = value.replaceAll("]]", "</span>");
+
+        return value;
+    }
+    else return null;
+}
+
 function recreateALink(value) {
     if (value != undefined || value != null) {
         for (let i = 0; i < value.length; i++) {
@@ -5807,6 +5813,15 @@ function recreateALink(value) {
             document.getElementById(value[i].id).innerHTML = newValue;
         }
     }
+}
+
+function decreateALink(value, replaceTo) {
+    if (value != undefined || value != null) {
+        value = value.replaceAll("#[", "");
+        value = value.replaceAll("]]", "");
+    }
+
+    if (replaceTo != null) $("#" + replaceTo).val(value);
 }
 
 function rowsCountAutoCorrection(element, length) {

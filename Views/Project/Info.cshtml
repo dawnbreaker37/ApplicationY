@@ -17,6 +17,11 @@
 }
 
 <div class="main-sidebar p-2 shadow-sm" id="Main_SideBar">
+    <div class="d-none">
+        <form method="get" asp-controller="User" asp-action="GetSuperShortUserInfo" id="GetSuperShortUserInfo_Form">
+            <input type="hidden" name="Searchname" id="GSSU_Searchname_Val" />
+        </form>
+    </div>
     @if (UserInfo != null)
     {
         <div class="d-none">
@@ -607,7 +612,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bordered-container w-100 horizontal-scrolled-container p-2 ps-1 pe-1 mt-1" style="display: none;" id="RelatedPosts_Box">
+            <div class="bordered-container w-100 mh-100 p-2 ps-1 pe-1 mt-1" style="display: none;" id="RelatedPosts_Box">
             </div>
         }
         <div class="card-group mt-2">

@@ -13,6 +13,7 @@ namespace ApplicationY.Models
         public DateTime CreatedAt { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }
+        public bool IsPinned { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsPrivate { get; set; }
         public bool AllowMentions { get; set; }
