@@ -9,6 +9,7 @@ namespace ApplicationY.Models
         [MaxLength(1500)]
         public string? Text { get; set; }
         public DateTime SentAt { get; set; }
+        public bool IsEdited { get; set; }
         [ForeignKey("User")]
         public int? UserId { get; set; }
         [ForeignKey("Project")]

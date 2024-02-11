@@ -57,7 +57,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetCommentaries_ViewModel>? GetComments(int ProjectId, int SkipCount, int Count)
         {
-            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).Skip(SkipCount).Take(Count).OrderBy(c => c.SentAt);
+            if (ProjectId != 0) return _context.Comments.AsNoTracking().Where(c => c.ProjectId == ProjectId && !c.IsRemoved).Select(c => new GetCommentaries_ViewModel { Id = c.Id, IsEdited = c.IsEdited, SenderId = c.UserId, RepliesCount = c.Replies != null ? c.Replies.Count : 0, SentAt = c.SentAt, SenderName = c.User!.PseudoName, Text = c.Text }).Skip(SkipCount).Take(Count).OrderBy(c => c.SentAt);
             else return null;
         }
 
@@ -203,10 +203,23 @@ namespace ApplicationY.Repositories
         {
             if(Model != null)
             {
-                int Result = await _context.Comments.Where(c => c.Id == Model.Id && c.UserId == Model.UserId && c.ProjectId == Model.ProjectId).ExecuteUpdateAsync(c => c.SetProperty(c => c.Text, Model.Text));
+                int Result = await _context.Comments.Where(c => c.Id == Model.Id && c.UserId == Model.UserId && c.ProjectId == Model.ProjectId).ExecuteUpdateAsync(c => c.SetProperty(c => c.Text, Model.Text).SetProperty(c => c.IsEdited, true));
                 if (Result != 0) return Model.Text;
             }
             return null;
+        }
+
+        public async Task<int> RemoveCommentAsync(int Id, int ProjectId, int UserId)
+        {
+            if(Id != 0 && UserId != 0 && ProjectId != 0)
+            {
+                int Result = await _context.Comments.Where(c => c.Id == Id && c.ProjectId == ProjectId && c.UserId == UserId).ExecuteUpdateAsync(c => c.SetProperty(c => c.IsRemoved, true));
+                if(Result != 0)
+                {
+                    return Id;
+                }
+            }
+            return 0;
         }
     }
 }

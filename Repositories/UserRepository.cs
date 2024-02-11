@@ -155,6 +155,12 @@ namespace ApplicationY.Repositories
             else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
         }
 
+        public async Task<GetUserInfo_ViewModel?> GetSuperShortUserInfoBySearchnameAsync(string Searchname)
+        {
+            if (Searchname != null) return await _context.Users.AsNoTracking().Select(s => new GetUserInfo_ViewModel { Id = s.Id, PseudoName = s.PseudoName, SearchName = s.SearchName }).FirstOrDefaultAsync(s => s.SearchName!.ToLower() == Searchname.ToLower());
+            else return null;
+        }
+
         public async Task<GetUserInfo_ViewModel?> GetUserByIdAsync(int Id, bool ForAdmins)
         {
             if(Id != 0)

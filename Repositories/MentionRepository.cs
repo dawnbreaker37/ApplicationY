@@ -22,7 +22,7 @@ namespace ApplicationY.Repositories
         {
             if(MentionModel != null)
             {
-                int Result = await _context.Mentions.Where(m => m.Id == MentionModel.Id && m.PostId == MentionModel.ProjectId && m.UserId == MentionModel.UserId).ExecuteUpdateAsync(m => m.SetProperty(m => m.Text, MentionModel.Text));
+                int Result = await _context.Mentions.Where(m => m.Id == MentionModel.Id && m.PostId == MentionModel.ProjectId && m.UserId == MentionModel.UserId).ExecuteUpdateAsync(m => m.SetProperty(m => m.Text, MentionModel.Text).SetProperty(m => m.IsEdited, true));
                 if (Result != 0) return MentionModel.Text;
             }
             return null;
@@ -36,7 +36,7 @@ namespace ApplicationY.Repositories
 
         public IQueryable<Mention>? GetPostMentions(int Id, int SkipCount, int Count)
         {
-            if (Id != 0) return _context.Mentions.AsNoTracking().Where(m => m.PostId == Id && !m.IsRemoved).Select(m => new Mention { Id = m.Id, SentAt = m.SentAt, Text = m.Text, User = new User { PseudoName = m.User!.PseudoName, SearchName = m.User.SearchName }, UserId = m.UserId }).Skip(SkipCount).Take(Count).OrderByDescending(m => m.SentAt);
+            if (Id != 0) return _context.Mentions.AsNoTracking().Where(m => m.PostId == Id && !m.IsRemoved).Select(m => new Mention { Id = m.Id, PostId = m.PostId, IsEdited = m.IsEdited, SentAt = m.SentAt, Text = m.Text, User = new User { PseudoName = m.User!.PseudoName, SearchName = m.User.SearchName }, UserId = m.UserId }).Skip(SkipCount).Take(Count).OrderByDescending(m => m.SentAt);
             else return null;
         }
 
@@ -52,20 +52,23 @@ namespace ApplicationY.Repositories
 
         public async Task<string?> SendMentionAsync(SendComment_ViewModel MentionModel)
         {
-            if(MentionModel != null)
-            {
-                Mention mention = new Mention()
+            bool AreMentionsAllowed = await _context.Posts.AsNoTracking().AnyAsync(m => m.Id == MentionModel.ProjectId && !m.IsRemoved && m.AllowMentions);
+            if (AreMentionsAllowed) {
+                if (MentionModel != null)
                 {
-                    IsRemoved = false,
-                    PostId = MentionModel.ProjectId,
-                    SentAt = DateTime.Now,
-                    Text = MentionModel.Text,
-                    UserId = MentionModel.UserId
-                };
-                await _context.AddAsync(mention);
-                await _context.SaveChangesAsync();
+                    Mention mention = new Mention()
+                    {
+                        IsRemoved = false,
+                        PostId = MentionModel.ProjectId,
+                        SentAt = DateTime.Now,
+                        Text = MentionModel.Text,
+                        UserId = MentionModel.UserId
+                    };
+                    await _context.AddAsync(mention);
+                    await _context.SaveChangesAsync();
 
-                return MentionModel.Text;
+                    return MentionModel.Text;
+                }
             }
             return null;
         }

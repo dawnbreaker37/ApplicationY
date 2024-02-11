@@ -40,6 +40,11 @@
                 <input type="hidden" name="UserId" id="SubOption_UserId_Val" value="0" />
                 <input type="hidden" name="SubscriberId" id="SubOption_SubscriberId_Val" value="@UserInfo.Id" />
             </form>
+            <form method="post" asp-controller="Messages" asp-action="RemoveComment" id="RemoveComment_Form">
+                <input type="hidden" name="Id" id="RemoveComment_Id_Val" value="0" />
+                <input type="hidden" name="ProjectId" id="RemoveComment_ProjectId_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
         </div>
 
         <div class="smallside-box-container shadow-standard" id="AboutCategories_Container">
@@ -128,6 +133,34 @@
                     <div>
                         <button type="button" class="btn text-primary btn-standard-not-animated border-0 w-100 mt-1 btn-sm" id="LoadMoreReplies_Btn" disabled>Load More Replies</button>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="EditComment_Container">
+            <div class="header-container p-3 pb-2" id="EditComment_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="EditComment_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">Edit Comment</h5>
+            </div>
+            <div class="mt-2 p-3 pb-2 pt-0">
+                <div class="box-container bg-light p-2" id="EditedComment_Box">
+                    <h6 class="h6 safe-font">Initial Comment</h6>
+                    <small class="card-text white-space-on" id="InitialText_Lbl"></small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="Messages" asp-action="EditComment" id="EditComment_Form">
+                        <input type="hidden" name="Id" id="CommentEdit_Id_Val" value="0" />
+                        <input type="hidden" name="ProjectId" id="CommentEdit_ProjectId_Val" value="0" />
+                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <div class="row mt-2">
+                            <div class="col col-10">
+                                <textarea class="form-control send-msg-form-control description-check" rows="1" maxlength="1500" name="Text" id="EditComment_Text" data-bs-min-length="3" data-bs-html="EditComment_Text-Sbmt_Btn" placeholder="Enter your new text here"></textarea>
+                            </div>
+                            <div class="col col-2">
+                                <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100 btn-sm rounded-message-btn mt-1" disabled id="EditComment_Text-Sbmt_Btn"> <i class="fas fa-arrow-up"></i> </button>
+                            </div>
+                        </div>
+                    </form>
                 </div>
             </div>
         </div>
@@ -384,6 +417,7 @@
 
 <div class="main-container shadow-standard scrollbar-hidden" id="Preload_Container">
     <div class="header-container p-3 pb-2" id="Preload_Container-Header">
+        <input type="hidden" id="CurrentProject_Id_Val" value="@ProjectInfo.Id" />
         <button type="button" class="btn btn-close float-end" aria-label="close" id="Preload_Container-Close"></button>
         <button type="button" class="btn btn-standard-not-animated btn-sm float-end me-2 btn-open-container" id="Purge_Container-Open"> <i class="fas fa-bolt text-danger"></i> Purge</button>
         <h6 class="h5 text-truncate">@ProjectInfo.Name</h6>

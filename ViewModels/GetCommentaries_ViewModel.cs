@@ -7,6 +7,7 @@
         public int? SenderId { get; set; }
         public string? SenderName { get; set; }
         public int? ProjectId { get; set; }
+        public bool IsEdited { get; set; }
         public bool IsRemoved { get; set; }
         public DateTime SentAt { get; set; }
         public int RepliesCount { get; set; }

@@ -105,6 +105,18 @@ namespace ApplicationY.Controllers
             else return Json(new { success = false, alert = "We're sorry, but we haven't found any information about this user :(" });
         }
 
+        [HttpGet]
+        public async Task<IActionResult> GetSuperShortUserInfo(string Searchname)
+        {
+            if(!String.IsNullOrEmpty(Searchname))
+            {
+                GetUserInfo_ViewModel? Result = await _userRepository.GetSuperShortUserInfoBySearchnameAsync(Searchname);
+                if (Result != null) return Json(new { success = true, result = Result });
+                else return Json(new { success = false, alert = "We're sorry, but we haven't found any user by this searchname" });
+            }
+            return Json(new { success = false, alert = "An unexpected error has been occured. Please, try again later" });
+        }
+
         public async Task<IActionResult> Verify(int Id)
         {
             if (User.Identity.IsAuthenticated)

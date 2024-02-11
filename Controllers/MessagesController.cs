@@ -59,20 +59,6 @@ namespace ApplicationY.Controllers
             else return Json(new { success = false, alert = "No found replies for this comment", count = 0 });
         }
 
-        //[HttpGet]
-        //public async Task<IActionResult> GetOtherReplies(int Id, int SkipCount, int LoadCount)
-        //{
-        //    IQueryable<GetReplies_ViewModel>? Replies_Preview = _messageRepository.GetReplies(Id, SkipCount, LoadCount);
-        //    if (Replies_Preview != null)
-        //    {
-        //        List<GetReplies_ViewModel>? Replies = await Replies_Preview.ToListAsync();
-
-        //        if (Replies != null) return Json(new { success = true, result = Replies, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
-        //        else return Json(new { success = true, count = 0, skippedCount = SkipCount, loadedCount = Replies != null ? Replies.Count : 0 });
-        //    }
-        //    else return Json(new { success = false, alert = "No other replies found for this comment", count = 0 });
-        //}
-
         [HttpPost]
         public async Task<IActionResult> MarkAsRead(int MessageId, int UserId)
         {
@@ -144,6 +130,26 @@ namespace ApplicationY.Controllers
             }
             else return Json(new { success = false, alert = "Unable to send comment for this project. Unexpected error" });
         }
+
+        [HttpPost]
+        public async Task<IActionResult> EditComment(SendComment_ViewModel Model)
+        {
+            if(ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                string? Result = await _messageRepository.EditCommentAsync(Model);
+                if (Result != null) return Json(new { success = true, result = Result });
+            }
+            return Json(new { success = false, alert = "Unable to edit selected comment. Please, try again later and be sure that that selected comment is yours" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemoveComment(int Id, int ProjectId, int UserId)
+        {
+            int Result = await _messageRepository.RemoveCommentAsync(Id, ProjectId, UserId);
+            if (Result != 0) return Json(new { success = true, alert = "Your comment has been successfully removed", result = Result });
+            else return Json(new { success = false, alert = "Unable to remove this comment. Please, try again later" });
+        }
+
 
         [HttpGet]
         public async Task<IActionResult> GetComments(int ProjectId, int SkipCount, int Count)

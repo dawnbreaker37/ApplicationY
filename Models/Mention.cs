@@ -10,6 +10,7 @@ namespace ApplicationY.Models
         public string? Text { get; set; }
         public DateTime SentAt { get; set; }
         public bool IsRemoved { get; set; } 
+        public bool IsEdited { get; set; }
         [ForeignKey("Post")]
         public int? PostId { get; set; }
         [ForeignKey("User")]

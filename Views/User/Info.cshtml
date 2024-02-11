@@ -15,6 +15,9 @@
             <input type="hidden" name="SkipCount" id="GetMentions_SkipCount_Val" value="0" />
             <input type="hidden" name="LoadCount" value="40" />
         </form>
+        <form method="get" asp-controller="User" asp-action="GetSuperShortUserInfo" id="GetSuperShortUserInfo_Form">
+            <input type="hidden" name="Searchname" id="GSSU_Searchname_Val" />
+        </form>
     </div>
     @if(UserInfo != null)
     {
@@ -43,6 +46,11 @@
             <form method="post" asp-controller="Post" asp-action="Dislike" id="DislikeThePost_Form">
                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
                 <input type="hidden" name="Id" id="DLTP_PostId_Val" value="0" />
+            </form>
+            <form method="post" asp-controller="Mention" asp-action="Remove" id="MentionRemove_Form">
+                <input type="hidden" name="Id" id="MentionRemove_Id_Val" value="0" />
+                <input type="hidden" name="PostId" id="MentionRemove_PostId_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
             </form>
         </div>
 
@@ -94,6 +102,34 @@
                         </div>
                     </div>
                 </form>
+            </div>
+        </div>
+
+        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="EditMention_Container">
+            <div class="header-container p-3 pb-2" id="EditMention_Container-Header">
+                <button type="button" class="btn btn-close float-end ms-1" id="EditMention_Container-Close" aria-label="close"></button>
+                <h5 class="h5 text-truncate">Edit Mention</h5>
+            </div>
+            <div class="mt-2 p-3 pb-2 pt-0">
+                <div class="box-container bg-light p-2" id="EditedMention_Box">
+                    <h6 class="h6 safe-font">Initial Text</h6>
+                    <small class="card-text white-space-on" id="InitialText_Lbl"></small>
+                </div>
+                <div class="mt-2">
+                    <form method="post" asp-controller="Mention" asp-action="Edit" id="EditMention_Form">
+                        <input type="hidden" name="Id" id="MentionEdit_Id_Val" value="0" />
+                        <input type="hidden" name="ProjectId" id="MentionEdit_PostId_Val" value="0" />
+                        <input type="hidden" name="UserId" value="@UserInfo.Id" />
+                        <div class="row mt-2">
+                            <div class="col col-10">
+                                <textarea class="form-control send-msg-form-control description-check" rows="1" maxlength="1500" name="Text" id="EditMention_Text" data-bs-min-length="3" data-bs-html="EditMention_Text-Sbmt_Btn" placeholder="Enter your new text here"></textarea>
+                            </div>
+                            <div class="col col-2">
+                                <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100 btn-sm rounded-message-btn mt-1" disabled id="EditMention_Text-Sbmt_Btn"> <i class="fas fa-arrow-up"></i> </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     }
@@ -388,7 +424,7 @@
                                 </div>
                             }
                             <div class="mt-2">
-                                <p class="card-text white-space-on" id="PostsTextLbl-@Item.Id">@Item.Text</p>
+                                <p class="card-text post-text white-space-on" id="PostsTextLbl-@Item.Id">@Item.Text</p>
                             </div>
                             <div class="border-top mt-2 pt-2">
                                     @if (!Item.IsLiked)
@@ -403,7 +439,7 @@
                                     {
                                         <button type="button" class="btn btn-standard-not-animated btn-sm get-mentions me-2 smallside-btn-open-container" id="PostInfo_GetMentions-@Item.Id"> <i class="fas fa-quote-right text-primary"></i> Mentions</button>
                                     }
-                                    <button type="button" class="btn btn-standard-not-animated btn-sm"> <i class="fas fa-share"></i> Share</button>
+                                    <button type="button" class="btn btn-standard-not-animated btn-sm" disabled> <i class="fas fa-share"></i> Share</button>
                             </div>
                     </div>   
                     }

@@ -49,6 +49,17 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Edit(SendComment_ViewModel EditMentionModel)
+        {
+            if(ModelState.IsValid && User.Identity.IsAuthenticated)
+            {
+                string? Result = await _mentionRepository.EditMentionAsync(EditMentionModel);
+                if (Result != null) return Json(new { success = true, result = Result });
+            }
+            return Json(new { success = false, alert = "Unable to edit this mention now. Please, try again later" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Remove(int Id, int PostId, int UserId)
         {
             int Result = await _mentionRepository.RemoveMentionAsync(Id, PostId, UserId);

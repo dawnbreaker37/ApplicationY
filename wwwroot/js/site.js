@@ -37,6 +37,21 @@ window.onload = function () {
         textDecoder("UserInfo_LinkTag1_Lbl", true, true);
         textDecoder("UserInfo_LinkTag2_Lbl", true, true);
         textDecoder("ProfileDescription_Lbl", true, true);
+
+        let linkSpanElements = document.querySelectorAll(".post-text");
+        recreateALink(linkSpanElements);
+        //for (let i = 0; i < linkSpanElements.length; i++) {
+        //    let newValue = recreateALink(linkSpanElements[i].innerHTML);
+        //    $("#" + linkSpanElements[i].id).html(newValue);
+        //}
+    }
+    else if (currentUrl[currentUrl.length - 1] == "/" || currentUrl.toLowerCase().includes("/home/index")) {
+        let linkSpanElements = document.querySelectorAll(".post-text");
+        recreateALink(linkSpanElements);
+        //for (let i = 0; i < linkSpanElements.length; i++) {
+        //    let newValue = recreateALink(linkSpanElements[i].innerHTML);
+        //    $("#" + linkSpanElements[i].id).html(newValue);
+        //}
     }
     else if (currentUrl.toLowerCase().includes("/project/create")) {
         let lastId = $("#LastCategoryId_Val").val();
@@ -954,8 +969,11 @@ $("#GetUpdates_Form").on("submit", function (event) {
 
 $("#CreatePost_Form").on("submit", function (event) {
     event.preventDefault();
+    let linkValues = findUserBySearchname($("#Text").val(), "Text");
+
     let url = $(this).attr("action");
     let data = $(this).serialize();
+
     $.post(url, data, function (response) {
         if (response.success) {
             let searchName = $("#PageInfo_UserSearchname").val();
@@ -982,6 +1000,28 @@ $("#SendMention_Form").on("submit", function (event) {
             let separator1 = $("<div></div>");
             let dateTime = $("<small class='card-text text-muted'>few seconds ago</small>");
             let text = $("<p class='card-text white-space-on mt-1'></p>");
+
+            let dropdownDiv = $("<div class='dropdown'></div>");
+            let dropdownOpen_Btn = $("<button type='button' class='btn btn-standard-not-animated btn-sm float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+            let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1 text-start'></ul>");
+            let dropdownLi0 = $("<li></li>");
+            let dropdownLi1 = $("<li class='mt-1'></li>");
+            let dropdownLi2 = $("<li></li>");
+            let sentDateTimeInfo = $("<small class='card-text text-muted p-1 w-100'></small>");
+            let mentionEditBtn = $("<button type='button' class='btn btn-standard-not-animated text-start w-100 btn-sm'> <i class='fas fa-edit'></i> Edit</button>");
+            let mentionRemoveBtn = $("<button type='button' class='btn btn-standard-not-animated text-start text-danger w-100 btn-sm' disabled> <i class='fas fa-trash-alt'></i> Remove</button>");
+
+            sentDateTimeInfo.text("sent few seconds ago");
+            dropdownLi0.append(sentDateTimeInfo);
+            dropdownLi1.append(mentionEditBtn);
+            dropdownLi2.append(mentionRemoveBtn);
+            dropdownUl.append(dropdownLi0);
+            dropdownUl.append(dropdownLi1);
+            dropdownUl.append(dropdownLi2);
+            dropdownDiv.append(dropdownOpen_Btn);
+            dropdownDiv.append(dropdownUl);
+            div.append(dropdownDiv);
+
             text.html(response.result);
             div.append(userName);
             div.append(separator1);
@@ -1000,28 +1040,83 @@ $("#SendMention_Form").on("submit", function (event) {
         }
     });
 });
+$("#MentionRemove_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = parseInt($("#MentionsCount_Lbl").text());
+            currentCount--;
+            if (currentCount > 0) {
+                slideToLeftAnimation("GotMentionBox-" + response.result);
+            }
+            else {
+                slideToLeftAnimation("GotMentionBox-" + response.result);
+                setTimeout(function () {
+                    animatedClose(false, "Mentions_Container");
+                }, 250);
+                setTimeout(function () {
+                    let div = $("<div class='box-container mt-3 p-1 text-center'></div>");
+                    let icon = $("<h1 class='h1'> <i class='far fa-sticky-note'></i> </h1>");
+                    let title = $("<h3 class='h3 safe-font'>No Mentions</h3>");
+                    let text = $("<small class='card-text text-muted'>This post haven't got any mention yet. You may be first one who've done it</small>");
+                    div.append(icon);
+                    div.append(title);
+                    div.append(text);
+                    $("#Mentions_Box").append(div); 
+                    openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-trash-alt text-danger'></i>");
+                }, 350);
+                setTimeout(function () {
+                    animatedOpen(false, "Mentions_Container", false, false);
+                }, 750);
+            }
+            $("#MentionsCount_Lbl").text(currentCount);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#EditMention_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentId = $("#MentionEdit_Id_Val").val();
+            $("#GotMentionText_Lbl-" + currentId).html(response.result);
+            $("#GotMentionDateNTime_Lbl-" + currentId).html($("#GotMentionDateNTime_Lbl-" + currentId).text() + ", edited");
+            animatedOpen(false, "Mentions_Container", false, false);
+        }
+        else {
+            $("#MentionEdit_Id_Val").val(0);
+            $("#MentionEdit_PostId_Val").val(0);
+            $("#EditMention_Text").val("");
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
 $("#GetMentions_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
     let data = $(this).serialize();
     $.get(url, data, function (response) {
         if (response.success) {
+            $("#GetMoreMentions_Btn").fadeIn(0);
             animatedClose(false, "Mentions_Container");
-
             setTimeout(function () {
                 if (response.count > 0) {
                     let currentUserId = $("#PageInfo_UserId").val();
+                    let currentDate = new Date();
+                    if (response.skippedCount == 0) {
+                        $("#Mentions_Box").empty();
+                    }
+
                     $.each(response.result, function (index) {
-                        //<div class="dropdown">
-                        //    <button class="btn btn-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        //        Dropdown button
-                        //    </button>
-                        //    <ul class="dropdown-menu">
-                        //        <li><a class="dropdown-item" href="#">Action</a></li>
-                        //        <li><a class="dropdown-item" href="#">Another action</a></li>
-                        //        <li><a class="dropdown-item" href="#">Something else here</a></li>
-                        //    </ul>
-                        //</div>
+                        let thisMentionDate = new Date(response.result[index].sentAt);
 
                         let div = $("<div class='mt-2 border-top p-2 pb-0'></div>");
                         let userName = $("<span class='h6'></h6>");
@@ -1036,10 +1131,19 @@ $("#GetMentions_Form").on("submit", function (event) {
                             let dropdownLi1 = $("<li class='mt-1'></li>");
                             let dropdownLi2 = $("<li></li>");
                             let sentDateTimeInfo = $("<small class='card-text text-muted p-1 w-100'></small>");
-                            let mentionEditBtn = $("<button type='button' class='btn btn-standard-not-animated text-start w-100 btn-sm'> <i class='fas fa-edit'></i> Edit</button>");
-                            let mentionRemoveBtn = $("<button type='button' class='btn btn-standard-not-animated text-start text-danger w-100 btn-sm'> <i class='fas fa-trash-alt'></i> Remove</button>");
+                            let mentionEditBtn = $("<button type='button' class='btn btn-standard-not-animated text-start w-100 btn-sm mention-edit'> <i class='fas fa-edit'></i> Edit</button>");
+                            let mentionRemoveBtn = $("<button type='button' class='btn btn-standard-not-animated text-start text-danger w-100 btn-sm mention-remove'> <i class='fas fa-trash-alt'></i> Remove</button>");
 
-                            sentDateTimeInfo.text("sent " + convertDateAndTime(response.result[index].sentAt, false, true));
+                            mentionEditBtn.attr("id", "MentionEdit_Btn-" + response.result[index].id);
+                            mentionEditBtn.attr("data-bs-html", "MentionEdit_PostVal-" + response.result[index].postId);
+                            let diff = Math.floor((currentDate - thisMentionDate) / (1000 * 60 * 60 * 24));
+                            if (diff > 4) {
+                                mentionEditBtn.attr("disabled", true);
+                                mentionEditBtn.html(" <i class='fas fa-edit'></i> Unable to Edit");
+                            }
+                            mentionRemoveBtn.attr("id", "MentionRemove_Btn-" + response.result[index].id);
+                            mentionRemoveBtn.attr("data-bs-html", "MentionRemove_PostVal-" + response.result[index].postId);
+                            sentDateTimeInfo.text("sent " + convertDateAndTime(thisMentionDate, false, true));
                             dropdownLi0.append(sentDateTimeInfo);
                             dropdownLi1.append(mentionEditBtn);
                             dropdownLi2.append(mentionRemoveBtn);
@@ -1052,8 +1156,17 @@ $("#GetMentions_Form").on("submit", function (event) {
                         } 
 
                         userName.text(response.result[index].user.pseudoName);
-                        dateTime.text(convertDateAndTime(response.result[index].sentAt, true, true));
+                        if (response.result[index].isEdited) {
+                            dateTime.text(convertDateAndTime(thisMentionDate, true, true) + ", edited");
+                        }
+                        else {
+                            dateTime.text(convertDateAndTime(thisMentionDate, true, true));
+                        }
                         text.html(response.result[index].text);
+
+                        div.attr("id", "GotMentionBox-" + response.result[index].id);
+                        text.attr("id", "GotMentionText_Lbl-" + response.result[index].id);
+                        dateTime.attr("id", "GotMentionDateNTime_Lbl-" + response.result[index].id);
 
                         div.append(userName);
                         div.append(separator1);
@@ -1072,6 +1185,9 @@ $("#GetMentions_Form").on("submit", function (event) {
                     }
                 }
                 else {
+                    $("#Mentions_Box").empty();
+                    $("#GetMoreMentions_Btn").fadeOut(0);
+
                     let div = $("<div class='box-container mt-3 p-1 text-center'></div>");
                     let icon = $("<h1 class='h1'> <i class='far fa-sticky-note'></i> </h1>");
                     let title = $("<h3 class='h3 safe-font'>No Mentions</h3>");
@@ -2067,7 +2183,86 @@ $("#SendComment_Form").on("submit", function (event) {
         }
     });
 });
+$("#RemoveComment_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
 
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentCount = parseInt($("#CommentsCount_Span").text());
+            currentCount--;
+            if (currentCount > 0) {
+                $("#CommentsCount_Span").text(currentCount);
+                slideToLeftAnimation("CommentBox-" + response.result);
+                openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-comment-slash text-danger'></i>");
+            }
+            else {
+                $("#CommentsCount_Span").text(" out of comments");
+                slideToLeftAnimation("CommentBox-" + response.result);
+                setTimeout(function () {
+                    animatedClose(false, "Comments_Container");
+                    let div = $("<div class='box-container mt-2 p-3 text-center'></div>");
+                    let title = $("<h3 class='h3 text-primary'></h3>");
+                    let titleText = $("<h6 class='h6 safe-font'></h6>");
+                    let text = $("<small class='card-text text-muted'></small>");
+
+                    title.html(" <i class='fas fa-comment-slash'></i> ");
+                    titleText.text("No recently sent comments");
+                    text.text("Try to look up for them later");
+
+                    div.append(title);
+                    div.append(titleText);
+                    div.append(text);
+                    $("#CommentsMain_Box").append(div);
+                }, 250);
+                setTimeout(function () {
+                    openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-comment-slash text-danger'></i>");
+                }, 400);
+                setTimeout(function () {
+                    animatedOpen(false, "Comments_Container", false, false);
+                }, 800);
+            }
+        }
+        else {
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#EditComment_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let currentId = $("#CommentEdit_Id_Val").val();
+            animatedClose(false, "EditComment_Container");
+            $("#GetAndSendReplyText-" + currentId).html(response.result);
+            $("#GetAndSendReplySentAt-" + currentId).text($("#GetAndSendReplySentAt-" + currentId).text() + ", edited");
+            $("#CommentEdit_Id_Val").val(0);
+            $("#CommentEdit_ProjectId_Val").val(0);
+            $("#EditComment_Text").val("");
+            setTimeout(function () {
+                smallBarAnimatedOpenAndClose(true);
+                animatedOpen(false, "Comments_Container", false, false);
+            }, 200);
+        }
+        else {
+            animatedClose(false, "EditComment_Container");
+            $("#CommentEdit_Id_Val").val(0);
+            $("#CommentEdit_ProjectId_Val").val(0);
+            $("#EditComment_Text").val("");
+            setTimeout(function () {
+                openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+            }, 150);
+            setTimeout(function () {
+                smallBarAnimatedOpenAndClose(true);
+                animatedOpen(false, "Comments_Container", false, false);
+            }, 650);
+        }
+    });
+});
 $("#GetComments_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -2075,23 +2270,69 @@ $("#GetComments_Form").on("submit", function (event) {
     $.get(url, data, function (response) {
         if (response.success) {
             if (response.count > 0) {
+                let currentUserId = $("#PageInfo_UserId").val();
                 let allLoadedCommentsCount = parseInt(response.skippedCount) + parseInt(response.loadedCount);
                 if (response.skippedCount <= 0) {
                     $("#CommentsMain_Box").empty();
                 }
+
                 $.each(response.result, function (index) {
                     let div = $("<div class='box-container mt-2 p-2 border-top border-straight'></div>");
                     let title = $("<h6 class='h6'></h6>");
                     let text = $("<small class='card-text white-space-on'></small>");
-                    let sentAt = $("<small class='card-text text-muted float-end ms-1'></small>");
+                    let sentAt = $("<small class='card-text text-muted float-end ms-1 mt-1'></small>");
                     let separatorOne = $("<div class='mt-2'></div>");
-                    let getAndSendRepliesBtn = $("<button type='button' class='btn btn-text btn-sm send-reply-to-comment'></button>")
+                    let getAndSendRepliesBtn = $("<button type='button' class='btn btn-text btn-sm send-reply-to-comment'></button>");
+
+                    if (currentUserId == response.result[index].senderId) {
+                        let todaysDate = new Date();
+                        let currentProjectId = $("#CurrentProject_Id_Val").val();
+
+                        let dropdownDiv = $("<div class='dropdown'></div>");
+                        let dropdownOpen_Btn = $("<button type='button' class='btn btn-standard-not-animated btn-sm float-end ms-1' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+                        let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1 text-start'></ul>");
+                        let dropdownLi0 = $("<li></li>");
+                        let dropdownLi1 = $("<li class='mt-1'></li>");
+                        let dropdownLi2 = $("<li></li>");
+                        let sentDateTimeInfo = $("<small class='card-text text-muted p-1 w-100'></small>");
+                        let commentEditBtn = $("<button type='button' class='btn btn-standard-not-animated text-start w-100 btn-sm comment-edit'> <i class='fas fa-edit'></i> Edit</button>");
+                        let commentRemoveBtn = $("<button type='button' class='btn btn-standard-not-animated text-start text-danger w-100 btn-sm comment-remove'> <i class='fas fa-trash-alt'></i> Remove</button>");
+
+                        commentEditBtn.attr("id", "CommentEdit_Id-" + response.result[index].id);
+                        commentEditBtn.attr("data-bs-html", "CommentEdit_ProjectId-" + currentProjectId);
+                        commentRemoveBtn.attr("id", "CommentRemove_Id-" + response.result[index].id);
+                        commentRemoveBtn.attr("data-bs-html", "CommentRemove_ProjectId-" + currentProjectId);
+                        sentDateTimeInfo.text("sent " + convertDateAndTime(response.result[index].sentAt, false, true));
+                        if (Math.floor((todaysDate - new Date(response.result[index].sentAt)) / (1000 * 60 * 60 * 24)) < 4) {
+                            commentEditBtn.attr("disabled", true);
+                            commentEditBtn.attr("id", null);
+                            commentEditBtn.attr("data-bs-html", null);
+                        }
+
+                        dropdownLi0.append(sentDateTimeInfo);
+                        dropdownLi1.append(commentEditBtn);
+                        dropdownLi2.append(commentRemoveBtn);
+                        dropdownUl.append(dropdownLi0);
+                        dropdownUl.append(dropdownLi1);
+                        dropdownUl.append(dropdownLi2);
+                        dropdownDiv.append(dropdownOpen_Btn);
+                        dropdownDiv.append(dropdownUl);
+
+                        div.append(dropdownDiv);
+                    }
 
                     title.text(response.result[index].senderName);
                     text.html(response.result[index].text);
-                    sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
+                    if (response.result[index].isEdited) {
+                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true) + ", edited");
+                    }
+                    else {
+                        sentAt.text(convertDateAndTime(response.result[index].sentAt, true, true));
+                    }
+                    div.attr("id", "CommentBox-" + response.result[index].id);
                     title.attr("id", "GetAndSendReplyTitle-" + response.result[index].id);
                     text.attr("id", "GetAndSendReplyText-" + response.result[index].id);
+                    sentAt.attr("id", "GetAndSendReplySentAt-" + response.result[index].id);
                     getAndSendRepliesBtn.attr("id", "GetAndSendReply-" + response.result[index].id);
                     getAndSendRepliesBtn.html(" <i class='fas fa-reply'></i> Replies (" + response.result[index].repliesCount.toLocaleString() + ")");
 
@@ -2110,11 +2351,11 @@ $("#GetComments_Form").on("submit", function (event) {
                 if (allLoadedCommentsCount < response.count) {
                     $("#LoadMoreComments_Btn").fadeIn(0);
                     $("#LoadMoreComments_Btn").attr("disabled", false);
-                    $("#LoadMoreComments_Btn").text("Load more comments");
+                    $("#LoadMoreComments_Btn").text("Load More Comments");
                 }
                 else {
                     $("#LoadMoreComments_Btn").attr("disabled", true);
-                    $("#LoadMoreComments_Btn").text("No more comments to load");
+                    $("#LoadMoreComments_Btn").text("No More Comments to Load");
                 }
             }
             else {
@@ -2135,9 +2376,9 @@ $("#GetComments_Form").on("submit", function (event) {
                 $("#CommentsCount_Val").val(0);
                 $("#CommentsCount_Span").text(" out of comments");
 
-                $("#LoadMoreComments_Btn").fadeIn(0);
-                $("#LoadMoreComments_Btn").attr("disabled", false);
-                $("#LoadMoreComments_Btn").text("Load more comments");
+                $("#LoadMoreComments_Btn").fadeOut(0);
+                $("#LoadMoreComments_Btn").attr("disabled", true);
+                $("#LoadMoreComments_Btn").text("Load More Comments");
             }
             smallBarAnimatedOpenAndClose(true);
             animatedOpen(false, "Comments_Container", false, false);
@@ -2316,6 +2557,8 @@ $("#GetAllPosts_Form").on("submit", function (event) {
 
 $("#EditPost_Form").on("submit", function (event) {
     event.preventDefault();
+    findUserBySearchname($("#EPF_Text").val(), "EPF_Text");
+
     let url = $(this).attr("action");
     let data = $(this).serialize();
 
@@ -4153,6 +4396,57 @@ $(document).on("click", ".btn-pause-audio", function (event) {
     }
 });
 
+$(document).on("click", ".comment-edit", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != undefined) {
+        let trueProjectId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        if (trueProjectId != undefined) {
+            $("#InitialText_Lbl").html($("#GetAndSendReplyText-" + trueId).html());
+            $("#EditComment_Text").val($("#GetAndSendReplyText-" + trueId).html());
+            $("#CommentEdit_Id_Val").val(trueId);
+            $("#CommentEdit_ProjectId_Val").val(trueProjectId);
+            animatedOpen(false, "EditComment_Container", false, false);
+        }
+    }
+});
+$(document).on("click", ".comment-remove", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != undefined) {
+        let trueProjectId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        if (trueProjectId != undefined) {
+            $("#RemoveComment_Id_Val").val(trueId);
+            $("#RemoveComment_ProjectId_Val").val(trueProjectId);
+            $("#RemoveComment_Form").submit();
+        }
+    }
+});
+
+$(document).on("click", ".mention-remove", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let truePostId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        if (truePostId != undefined) {
+            $("#MentionRemove_Id_Val").val(trueId);
+            $("#MentionRemove_PostId_Val").val(truePostId);
+            $("#MentionRemove_Form").submit();
+        }
+    }
+});
+$(document).on("click", ".mention-edit", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let truePostId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        if (truePostId != undefined) {
+            let initialText = $("#GotMentionText_Lbl-" + trueId).text();
+            $("#MentionEdit_Id_Val").val(trueId);
+            $("#MentionEdit_PostId_Val").val(truePostId);
+            $("#InitialText_Lbl").html(initialText);
+            $("#EditMention_Text").val(initialText);
+            animatedOpen(false, "EditMention_Container", false, false);
+        }
+    }
+});
+
 $(document).on("click", ".btn-edit-post", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != null) {
@@ -4212,9 +4506,6 @@ $("#RTM_Text").on("keyup", function () {
     let value = lengthCounter("RTM_Text", 1750);
     if (value < 1) $("#ReplyToMsgSend_Btn").attr("disabled", true);
     else $("#ReplyToMsgSend_Btn").attr("disabled", false);
-});
-$("#Text").on("click", function () {
-    findUserBySearchname($(this).val(), 0, 0);
 });
 
 $("#Name").on("keyup", function () {
@@ -4276,7 +4567,6 @@ $("#MentionedPeopleInfo_Btn").on("click", function () {
     let value = findUserBySearchname($("#Text").val());
     $("#MentionedPeopleCounter_Box").empty();
     mentionedPeopleIndex = 1;
-    additionalArray = [];
     if (value.length > 0) {
         for (let i = 0; i < value.length; i++) {
             let badge = $("<span class='badge bg-light text-dark rounded-pill fw-normal warning-badge me-1'></span>");
@@ -4538,6 +4828,7 @@ $(document).on("click", ".link-the-project", function (event) {
 $(document).on("click", ".get-mentions", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != "") {
+        $("#GetMentions_SkipCount_Val").val(0);
         $("#GetMentions_Id_Val").val(trueId);
         $("#SendMention_PostId_Val").val(trueId);
         $("#GetMentions_Form").submit();
@@ -5276,7 +5567,10 @@ function lengthCounter(element, maxValue) {
     return length;
 }
 
-function findUserBySearchname(value) {
+function findUserBySearchname(value, replaceTo) {
+    value = value + " ";
+    additionalArray = [];
+    $("#MentionedPeopleCounter_Box").empty();
     for (let i = 0; i < value.length; i++) {
         if (value[i] == "@") {
             mentionedPeopleIndex = i;
@@ -5284,6 +5578,13 @@ function findUserBySearchname(value) {
             additionalArray.push(name);
         }
     }
+
+    if (additionalArray.length > 0) {
+        for (let i = 0; i < additionalArray.length; i++) {
+            value = value.replace(additionalArray[i], "#[" + additionalArray[i] + "]]");
+        }
+    }
+    if (replaceTo != null) $("#" + replaceTo).val(value);
 
     return additionalArray;
 }
@@ -5446,6 +5747,66 @@ function youtubeLinkCorrector(initialLink) {
     trueLink = "https://www.youtube.com/embed/" + trueLink;
 
     return trueLink;
+}
+
+$(document).on("click", ".get-user-short-info-by-searchname", function (event) {
+    let trueSearchName = event.target.innerHTML;
+    trueSearchName = trueSearchName.substring(1, trueSearchName.length);
+    if (trueSearchName != null) {
+        $("#GSSU_Searchname_Val").val(trueSearchName);
+        $("#GetSuperShortUserInfo_Form").submit();
+    }
+});
+
+$("#GetSuperShortUserInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            $(".user-short-info-container").slideUp(300);
+            setTimeout(function () {
+                let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
+                let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto'></div>");
+                let title = $("<span class='h3 p-0'></span>");
+                let separatorOne = $("<div></div>");
+                let separatorTwo = $("<div></div>");
+                let searchName = $("<small class='card-text p-0 text-muted'></small>");
+                let relocateLink = $("<a class='btn btn-standard-not-animated btn-sm mt-3'> <i class='fas fa-link'></i> Page</a>");
+
+                div.append(closeBtn);
+                div.append(title);
+                div.append(separatorOne);
+                div.append(searchName);
+                div.append(separatorTwo);
+                div.append(relocateLink);
+                $("body").append(div);
+
+                div.slideDown(300);
+                setTimeout(function () {
+                    closeBtn.attr("onclick", "$('.user-short-info-container').slideUp(300);");
+                    title.text(response.result.pseudoName);
+                    searchName.text("@" + response.result.searchName);
+                    relocateLink.attr("href", "/User/Info/" + response.result.searchName);
+                }, 200);
+            }, 300);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-slash text-danger'></i>");
+        }
+    });
+});
+
+function recreateALink(value) {
+    if (value != undefined || value != null) {
+        for (let i = 0; i < value.length; i++) {
+            let newValue = document.getElementById(value[i].id).innerHTML;
+            newValue = newValue.replaceAll("#[", "<span class='get-user-short-info-by-searchname'>");
+            newValue = newValue.replaceAll("]]", "</span>");
+            document.getElementById(value[i].id).innerHTML = newValue;
+        }
+    }
 }
 
 function rowsCountAutoCorrection(element, length) {
@@ -5644,7 +6005,6 @@ function slideToLeftAnimation(element) {
     let elementCurrentLeft = $("#" + element).css("left");
     elementCurrentLeft = parseInt(elementCurrentLeft);
 
-/*    $("#" + element).css("border", "none");*/
     $("#" + element).css("filter", "blur(5px)");
     setTimeout(function () {
         $("#" + element).css("margin-left", "-2400px");

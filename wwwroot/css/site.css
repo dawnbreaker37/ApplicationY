@@ -824,8 +824,31 @@ body {
     min-height: 150px;
 }
 
-@keyframes comment-anim {
-    0% {
+.get-user-short-info-by-searchname {
+    cursor: pointer;
+    border-radius: 34px;
+    padding: 0;
+    color: #0d6efd;
+    font-weight: 500;
+    transition: all ease 0.2s;
+}
+.get-user-short-info-by-searchname:hover,
+.get-user-short-info-by-searchname:active {
+    padding: 0 3px 3px 3px;
+    background-color: rgb(240, 240, 240);
+}
+.user-short-info-container {
+    width: 40%;
+    border-radius: 8px;
+    background-color: transparent;
+    backdrop-filter: blur(9px);
+    display: none;
+    position: relative;
+    transition: all ease 0.3s;
+}
+
+    @keyframes comment-anim {
+        0% {
         transform: rotate(0);
     }
     20% {
@@ -1028,6 +1051,9 @@ body {
 }
 
 @media screen and (max-width: 768px) {
+    .user-short-info-container {
+        width: 95%;
+    }
     .image-main-box {
         width: 100%;
         height: 255px;
