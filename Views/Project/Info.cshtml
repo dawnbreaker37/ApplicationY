@@ -603,16 +603,15 @@
                         <div id="GetAllRelatedPosts_Form_Box">
                             <form method="get" asp-controller="Post" asp-action="GetAllRelatedPosts" id="GetAllRelatedPosts_Form">
                                 <input type="hidden" name="Id" value="@ProjectInfo.Id" />
-                                <button type="submit" class="btn btn-standard-not-animated btn-light w-100 btn-sm"> <i class="far fa-sticky-note"></i> <br/>Get Posts</button>
+                                <button type="submit" class="btn btn-standard-not-animated btn-light w-100 btn-sm" id="GetAllRelatedPosts_Form_Sbmt_Btn"> <i class="far fa-sticky-note"></i> <br/>Get Posts</button>
                             </form>
-                        </div>
-                        <div style="display: none;" id="GetAllRelatedPosts_Btn_Box">
-                            <button type="button" class="btn btn-standard-not-animated btn-light w-100 btn-sm"> <i class="far fa-sticky-note"></i> <br />Get Posts</button>
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="bordered-container w-100 mh-100 p-2 ps-1 pe-1 mt-1" style="display: none;" id="RelatedPosts_Box">
+            <div class="bordered-container w-100 p-1 mt-1" style="display: none;" id="RelatedPosts_Box">
+                <small class="card-text text-muted ms-1" id="RelatedPostsStatus_Lbl"></small>
+                <div class="box-container mh-280 overflow-auto" id="RelatedPostsMain_Box"></div>
             </div>
         }
         <div class="card-group mt-2">

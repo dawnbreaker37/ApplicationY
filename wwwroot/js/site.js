@@ -2645,10 +2645,12 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
    
     $.get(url, data, function (response) {
         if (response.success) {
-            $("#RelatedPosts_Box").empty();
+            $("#RelatedPostsMain_Box").empty();
             if (response.count > 0) {
+                $("#GetAllRelatedPosts_Form_Sbmt_Btn").attr("disabled", true);
+                $("#RelatedPostsStatus_Lbl").html("found and loaded <span class='fw-500'>" + response.count.toLocaleString() + "</span> posts related to this project");
                 $.each(response.result, function (index) {
-                    let div = $("<div class='box-container bg-light p-2 m-1'></div>");
+                    let div = $("<div class='box-container bg-light p-2 m-1 mt-2'></div>");
                     let creatorName = $("<span class='h6 p-0 get-user-short-info'></span>");
                     let separator1 = $("<div></div>");
                     let createdAt = $("<small class='card-text text-muted'></small>");
@@ -2673,11 +2675,9 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
                     div.append(separator2);
                     div.append(mainText);
 /*                    div.append(btnsDiv);*/
-
-                    $("#RelatedPosts_Box").append(div);
+                    //NotificationsLiquid_Container
+                    $("#RelatedPostsMain_Box").append(div);
                 });
-                $("#GetAllRelatedPosts_Form_Box").fadeOut(0);
-                $("#GetAllRelatedPosts_Btn_Box").fadeIn(0);
                 $("#RelatedPosts_Box").slideDown(300);
             }
             else {
@@ -5779,9 +5779,9 @@ $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
                 div.append(relocateLink);
                 $("body").append(div);
 
-                div.slideDown(300);
+                $(div).slideDown(350);
                 setTimeout(function () {
-                    closeBtn.attr("onclick", "$('.user-short-info-container').slideUp(300);");
+                    closeBtn.attr("onclick", "$('.user-short-info-container').slideUp(350);");
                     title.text(response.result.pseudoName);
                     searchName.text("@" + response.result.searchName);
                     relocateLink.attr("href", "/User/Info/" + response.result.searchName);
@@ -6186,13 +6186,10 @@ function closeContainerBubbleAnimation(element, isForSmallSide) {
 
 function bubbleAnimation(element, isForOpening) {
     if (isForOpening) {
-        $(".container").css("filter", "blur(4px)");
-        $(".smallside-modal-container").css("filter", "blur(4px)");
-        $(".static-bar").css("filter", "blur(4px)");
-        $(".main-container").not("bubble-container box-container").css("filter", "blur(4px)");
         $("#" + element).fadeIn(300);
         $("#" + element).css("z-index", "1000");
         $("#" + element).css("top", "55px");
+        $("#" + element).addClass("shadow-lg");
         setTimeout(function () {
             $("#" + element).css("width", "75%");
         }, 150);
@@ -6208,11 +6205,7 @@ function bubbleAnimation(element, isForOpening) {
         $(".bubble-container").css("top", "60px");
         $(".bubble-container").css("width", "75%");
         setTimeout(function () {
-            $(".container").css("filter", "none");
-            $(".main-container").not("bubble-container box-container").css("filter", "none");
-            $(".smallside-modal-container").css("filter", "none");
-            $(".static-bar").css("filter", "none");
-
+            $("#" + element).removeClass("shadow-lg");
             $(".bubble-container").css("width", "70%");
             $(".bubble-container").css("z-index", "-1");
         }, 300);
