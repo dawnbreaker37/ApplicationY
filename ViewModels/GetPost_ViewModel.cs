@@ -14,6 +14,7 @@ namespace ApplicationY.ViewModels
         public DateTime CreatedAt { get; set; }
         public int UserId { get; set; }
         public bool IsRemoved { get; set; }
+        public bool IsPinned { get; set; }
         public bool IsPrivate { get; set; }
         public bool IsLiked { get; set; }
         public int LikedCount { get; set; } 

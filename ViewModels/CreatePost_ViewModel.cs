@@ -11,6 +11,7 @@ namespace ApplicationY.ViewModels
         public DateTime CreatedAt { get; set; }
         public int? LinkedProjectId { get; set; }
         public bool AllowMentions { get; set; }
+        public bool IsPinned { get; set; }
         public bool IsPrivate { get; set; }
         public int UserId { get; set; }
     }

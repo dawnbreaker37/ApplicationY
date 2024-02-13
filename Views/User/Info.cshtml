@@ -383,6 +383,10 @@
                                 <div class="dropdown">
                                     <button class="btn btn-standard-not-animated float-end ms-1 btn-sm" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
                                     <ul class="dropdown-menu shadow-sm p-1">
+                                        @if(Item.IsPinned)
+                                        {
+                                            <li><small class="dropdown-item-text mb-1 text-muted text-center">Pinned</small></li>
+                                        }
                                         <li><button type="button" class="dropdown-item mb-1 copy-the-text-of-the-post" id="CopyTheText-@Item.Id"> <i class="far fa-copy"></i> Copy to the clipboard</button></li>
                                         @if(Item.LinkedProjectId != 0)
                                         {
@@ -394,15 +398,20 @@
                                         }
                                     </ul>
                                 </div>
-                            @if(UserInfo?.ProfilePhoto != null)
-                            {
-                                <img class="image-ultra-small-box" src="/ProfilePhotos/@UserInfo.ProfilePhoto" alt="Cannot display this image" />
-                                <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500" >@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
-                            }
-                            else
-                            {
-                                    <small class="card-text fs-6"><span class="fw-500">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
-                            }
+                                @if(Item.IsPinned)
+                                {
+                                    <small class="card-text text-muted fw-500"> <i class="fas fa-thumbtack fa-rotate-90 text-primary"></i> <span class="ps-1">Pinned</span></small>
+                                    <div class="mb-1"></div>
+                                }
+                                @if(UserInfo!.ProfilePhoto != null)
+                                {
+                                    <img class="image-ultra-small-box" src="/ProfilePhotos/@UserInfo.ProfilePhoto" alt="Cannot display this image" />
+                                    <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500" >@UserInfo.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                                }
+                                else
+                                {
+                                    <small class="card-text fs-6"><span class="fw-500">@UserInfo.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                                }
                             @if(Item.Project != null)
                             {
                                 <div class="box-container bg-light p-2 mt-2">

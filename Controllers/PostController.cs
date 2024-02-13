@@ -87,6 +87,22 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> Pin(int Id, int UserId)
+        {
+            int Result = await _postRepository.PinThePostAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Selected post has been successfully pinned" });
+            else return Json(new { success = false, alert = "Unable to pin that post. Please, be sure that you've tried to pin one of your own posts" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Unpin(int Id, int UserId)
+        {
+            int Result = await _postRepository.UnpinThePostAsync(Id, UserId);
+            if (Result != 0) return Json(new { success = true, result = Result, alert = "Selected post has been successfully unpinned" });
+            else return Json(new { success = false, alert = "Unable to pin that post. Please, be sure that you've tried to unpin one of your own posts" });
+        }
+
+        [HttpPost]
         public async Task<IActionResult> Remove(int Id, int UserId)
         {
             int Result = await _postRepository.RemovePostAsync(Id, UserId);

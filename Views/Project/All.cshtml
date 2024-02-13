@@ -33,6 +33,14 @@
                 <input type="hidden" name="Id" id="RTP_Val_Id" value="0" />
                 <input type="hidden" name="UserId" value="@UserInfo.Id" />
             </form>
+            <form method="post" asp-controller="Post" asp-action="Pin" id="PinThePost_Form">
+                <input type="hidden" name="Id" id="PinThePost_Id_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
+            <form method="post" asp-controller="Post" asp-action="Unpin" id="UnpinThePost_Form">
+                <input type="hidden" name="Id" id="UnpinThePost_Id_Val" value="0" />
+                <input type="hidden" name="UserId" value="@UserInfo.Id" />
+            </form>
             <form method="get" asp-controller="Messages" asp-action="GetReplies" id="GetReplies_Form">
                 <input type="hidden" name="Id" id="GR_Id_Val" value="0" />
                 <input type="hidden" name="SkipCount" id="GR_SkipCount_Val" value="0" />

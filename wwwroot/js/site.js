@@ -12,7 +12,7 @@ let fullHeigth = 0;
 let lastContainerName = undefined;
 let currentContainerName = null;
 let bufferText;
-
+//GetAllPosts_Form
 window.onload = function () {
     let currentUrl = document.location.href;
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
@@ -2471,6 +2471,7 @@ $("#GetAllPosts_Form").on("submit", function (event) {
             $.each(response.result, function (index) {
                 let div = $("<div class='bordered-container p-2 mt-2'></div>");
                 let img = $("<img class='image-ultra-small-box me-2' />");
+                let pinnedIcon = $("<span class='badge bg-light text-dark warning-badge fw-normal float-end ms-1' style='display: none;'> <i class='fas fa-thumbtack text-primary'></i> Pinned</span>");
                 let privateIcon = $("<span class='badge bg-light text-dark warning-badge fw-normal float-end ms-1' style='display: none;'> <i class='fas fa-lock text-danger'></i> Private</span>");
                 let mentionsAllowedIcon = $("<span class='badge bg-light text-dark warning-badge fw-normal float-end ms-1' style='display: none;'> <i class='fas fa-quote-right text-primary'></i> Mentions allowed</span>");
                 let userName = $("<span class='h6 mt-1'>You</h6>");
@@ -2483,12 +2484,15 @@ $("#GetAllPosts_Form").on("submit", function (event) {
                 let btnCol1 = $("<div class='col'></div>");
                 let btnCol2 = $("<div class='col'></div>");
                 let btnCol3 = $("<div class='col'></div>");
-                let editBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-edit-post'> <i class='fas fa-pen'></i> Edit</button>");
-                let lockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-lock-post'> <i class='fas fa-lock'></i> Lock</button>");
-                let unlockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-unlock-post'> <i class='fas fa-unlock'></i> Unlock</button>");
-                let removeBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 text-danger btn-preremove-post'> <i class='fas fa-trash-alt'></i> Remove</button>");
+                let btnCol4 = $("<div class='col'></div>");
+                let editBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-edit-post'> <i class='fas fa-pen'></i> <br/>Edit</button>");
+                let lockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-lock-post'> <i class='fas fa-lock text-danger'></i> <br/>Lock</button>");
+                let unlockBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 btn-unlock-post'> <i class='fas fa-unlock'></i> <br/>Unlock</button>");
+                let removeBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100 text-danger btn-preremove-post'> <i class='fas fa-trash-alt'></i> <br/>Remove</button>");
+                let pinOrUnpinTheBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm w-100'></button>");
 
                 div.attr("id", "PostBoxBox-" + response.result[index].id);
+                pinnedIcon.attr("id", "IsPinnedIcon-" + response.result[index].id);
                 privateIcon.attr("id", "IsPrivateIcon-" + response.result[index].id);
                 mainText.attr("id", "PostText-" + response.result[index].id);
                 dateNTime.attr("id", "PostDateNTime-" + response.result[index].id);
@@ -2497,12 +2501,22 @@ $("#GetAllPosts_Form").on("submit", function (event) {
                 unlockBtn.attr("id", "UnlockPost-" + response.result[index].id);
                 removeBtn.attr("id", "RemovePost-" + response.result[index].id);
                 mentionsAllowedIcon.attr("id", "MentionsAllowedIcon-" + response.result[index].id);
+                pinOrUnpinTheBtn.attr("id", "PinOrUnpinThePost-" + response.result[index].id);
 
                 img.attr("src", "/ProfilePhotos/" + userImgUrl);
                 let newMainText = recreateALink_FromText(response.result[index].text);
                 mainText.html(newMainText);
                 dateNTime.text("sent " + convertDateAndTime(response.result[index].createdAt, true, true));
 
+                if (response.result[index].isPinned) {
+                    pinnedIcon.fadeIn(0);
+                    pinOrUnpinTheBtn.addClass("unpin-the-post");
+                    pinOrUnpinTheBtn.html(" <i class='fas fa-unlink text-danger'></i> <br/>Unpin");
+                }
+                else {
+                    pinOrUnpinTheBtn.addClass("pin-the-post");
+                    pinOrUnpinTheBtn.html(" <i class='fas fa-thumbtack fa-rotate-90'></i> <br/>Pin");
+                }
                 if (response.result[index].isPrivate) {
                     privateIcon.fadeIn(0);
                     lockBtn.fadeOut(0);
@@ -2520,14 +2534,17 @@ $("#GetAllPosts_Form").on("submit", function (event) {
                 }
 
                 btnCol1.append(editBtn);
-                btnCol2.append(lockBtn);
-                btnCol2.append(unlockBtn);
-                btnCol3.append(removeBtn);
+                btnCol2.append(pinOrUnpinTheBtn);
+                btnCol3.append(lockBtn);
+                btnCol3.append(unlockBtn);
+                btnCol4.append(removeBtn);
                 btnsRow.append(btnCol1);
                 btnsRow.append(btnCol2);
                 btnsRow.append(btnCol3);
+                btnsRow.append(btnCol4);
                 btnsDiv.append(btnsRow);
 
+                div.append(pinnedIcon);
                 div.append(mentionsAllowedIcon);
                 div.append(privateIcon);
                 div.append(img);
@@ -2548,7 +2565,6 @@ $("#GetAllPosts_Form").on("submit", function (event) {
         }
     });
 });
-//GetAllRelatedPosts_Form
 $("#EditPost_Form").on("submit", function (event) {
     event.preventDefault();
     findUserBySearchname($("#EPF_Text").val(), "EPF_Text");
@@ -2605,6 +2621,42 @@ $("#UnlockThePost_Form").on("submit", function (event) {
         }
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, " <i class='fas fa-times-circle text-danger'></i> ");
+        }
+    });
+});
+$("#PinThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPinnedIcon-" + response.result).fadeIn(300);
+            $("#PinOrUnpinThePost-" + response.result).removeClass("pin-the-post");
+            $("#PinOrUnpinThePost-" + response.result).addClass("unpin-the-post");
+            $("#PinOrUnpinThePost-" + response.result).html(" <i class='fas fa-unlink text-danger'></i> <br/>Unpin");
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-thumbtack text-primary'></i>");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#UnpinThePost_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#IsPinnedIcon-" + response.result).fadeOut(300);
+            $("#PinOrUnpinThePost-" + response.result).addClass("pin-the-post");
+            $("#PinOrUnpinThePost-" + response.result).removeClass("unpin-the-post");
+            $("#PinOrUnpinThePost-" + response.result).html(" <i class='fas fa-thumbtack'></i> <br/>Pin");
+            openModal(response.alert, "Done", null, 2, null, null, null, 3.75, "<i class='fas fa-unlink text-danger'></i>");
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-times-circle text-danger'></i>");
         }
     });
 });
@@ -4478,6 +4530,20 @@ $(document).on("click", ".btn-preremove-post", function (event) {
         }, 6500);
     }
 });
+$(document).on("click", ".pin-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != undefined) {
+        $("#PinThePost_Id_Val").val(trueId);
+        $("#PinThePost_Form").submit();
+    }
+});
+$(document).on("click", ".unpin-the-post", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != undefined) {
+        $("#UnpinThePost_Id_Val").val(trueId);
+        $("#UnpinThePost_Form").submit();
+    }
+});
 $(document).on("click", ".btn-remove-post", function (event) {
     let trueId = getTrueId(event.target.id);
     if (trueId != null) {
@@ -5754,6 +5820,41 @@ $(document).on("click", ".get-user-short-info-by-searchname", function (event) {
     }
 });
 
+$("#WriteInApp_Btn").on("click", function () {
+    let currentUserId = $("#PageInfo_UserId").val();
+    if (currentUserId != undefined) {
+        sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
+        setTimeout(function () {
+            $("#SuperShortUserInfo_Container").remove();
+            let title = $("<h5 class='h5 text-truncate'>Send a Message</h5>");
+            let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
+            let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto' id='SuperShortUserInfo_Container'></div>");
+            let formDiv = $("<div class='box-container mt-3'></div>");
+            let form = $("<form method='post' asp-controller='Messages' asp-action='SendToAdmins' id='SendToAdmins_Form'></form>");
+            let senderId_Input = $("<input type='hidden' name='SenderId' />");
+            let userId_Input = $("<input type='hidden' name='UserId' value='-256' />");
+            let textArea = $("<textarea class='form-control w-100' maxlength='2500' rows='4' placeholder='Enter your message here'></textarea>");
+            let textArea_Status = $("<small class='card-text text-muted ms-1'>You may also send your messages via email</small>");
+            let sbmtBtn = $("<button type='submit' class='btn btn-primary w-100 btn-standard-with-no-colour mt-3'>Send</button>");
+
+            form.append(senderId_Input);
+            form.append(userId_Input);
+            form.append(textArea);
+            form.append(textArea_Status);
+            form.append(sbmtBtn);
+            formDiv.append(form);
+            div.append(closeBtn);
+            div.append(title);
+            div.append(formDiv);
+
+            $("body").append(div);
+
+            sharpOpeningAnimation(false, true, "SuperShortUserInfo_Container", false);
+            closeBtn.attr("onclick", "sharpOpeningAnimation(false, false, 'SuperShortUserInfo_Container', false);");
+        }, 250);
+    }
+});
+
 $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -5761,10 +5862,11 @@ $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
 
     $.get(url, data, function (response) {
         if (response.success) {
-            $(".user-short-info-container").slideUp(300);
+            sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
             setTimeout(function () {
+                $("#SuperShortUserInfo_Container").remove();
                 let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
-                let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto'></div>");
+                let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto' id='SuperShortUserInfo_Container'></div>");
                 let title = $("<span class='h3 p-0'></span>");
                 let separatorOne = $("<div></div>");
                 let separatorTwo = $("<div></div>");
@@ -5779,14 +5881,12 @@ $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
                 div.append(relocateLink);
                 $("body").append(div);
 
-                $(div).slideDown(350);
-                setTimeout(function () {
-                    closeBtn.attr("onclick", "$('.user-short-info-container').slideUp(350);");
-                    title.text(response.result.pseudoName);
-                    searchName.text("@" + response.result.searchName);
-                    relocateLink.attr("href", "/User/Info/" + response.result.searchName);
-                }, 200);
-            }, 300);
+                sharpOpeningAnimation(false, true, "SuperShortUserInfo_Container", false);
+                closeBtn.attr("onclick", "sharpOpeningAnimation(false, false, 'SuperShortUserInfo_Container', false);");
+                title.text(response.result.pseudoName);
+                searchName.text("@" + response.result.searchName);
+                relocateLink.attr("href", "/User/Info/" + response.result.searchName);
+            }, 225);
         }
         else {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-slash text-danger'></i>");
@@ -5863,6 +5963,38 @@ function checkAcceptability() {
     }
     else {
         $(".btn-submit").attr("disabled", true);
+    }
+}
+
+function sharpOpeningAnimation(isForAll, isForOpening, element, isSpeedUp) {
+    let predicatedSymbol;
+    if (isForAll) {
+        predicatedSymbol = ".";
+    }
+    else {
+        predicatedSymbol = "#";
+    }
+
+    if (isForOpening) {
+        $(predicatedSymbol + element).fadeIn(0);
+        $(predicatedSymbol + element).css("bottom", "-10px");
+        setTimeout(function () {
+            $(predicatedSymbol + element).css("bottom", "-46px");
+        }, 425);
+    }
+    else {
+        if (!isSpeedUp) {
+            $(predicatedSymbol + element).css("bottom", "10px");
+            setTimeout(function () {
+                $(predicatedSymbol + element).css("bottom", "-1200px");
+            }, 400);
+            setTimeout(function () {
+                $(predicatedSymbol + element).fadeOut(200);
+            }, 450);
+        }
+        else {
+            $(predicatedSymbol + element).css("bottom", "-1200px");
+        }
     }
 }
 

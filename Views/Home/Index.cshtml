@@ -231,7 +231,7 @@
                 <h1 class="h1 text-light">Welcome</h1>
                 <small class="card-text text-light">We're happy to see you in our app! Please, enjoy your time and make the most of it for you. If you have any questions, issues or complaints, please write to our email or user the in-app chat (don't even need to log in). Thank You!</small>
                 <div class="mt-3">
-                    <button type="button" class="btn btn-standard-with-no-colour btn-outline-light btn-sm write-via-email" id="WriteViaEmail_Btn"> <i class="fas fa-paperclip"></i> Write in-app</button>
+                    <button type="button" class="btn btn-standard-with-no-colour btn-outline-light btn-sm" id="WriteInApp_Btn"> <i class="fas fa-paperclip"></i> Write In-app</button>
                     <button type="button" class="btn btn-standard-with-no-colour btn-outline-light btn-sm smallside-modal-open-by-hover" id="ContactsInfo_Modal" data-content="If you've any questions, issues or complaints, please tell us. That's the only way to make us and our app better. Here're our all contacts: <div class='bordered-container p-2 mt-3'><span class='h6 safe-font'> <i class='far fa-envelope text-primary'></i> Email:</span><div></div><small class='card-text'>bluejade@gmail.com</small><div class='border-top pt-2 mt-2'></div><span class='h6 safe-font'> <i class='fab fa-twitter text-primary'></i> X/Twitter:</span><div></div><small class='card-text'><a href='#' class='text-primary text-decoration-none'>bluejade's x/twitter</a></small><div class='border-top pt-2 mt-2'></div><span class='h6 safe-font'> <i class='fab fa-reddit text-danger'></i> Reddit</span><div></div><small><a href='#' class='text-primary text-decoration-none'>bluejade's reddit</a></small></div>"> <i class="far fa-address-book"></i> Our Contacts</button>
                 </div>
             </div>
@@ -252,14 +252,19 @@
                             }
                         </ul>
                     </div>
-                    @if (UserInfo?.ProfilePhoto != null)
+                    @if (Item.IsPinned)
                     {
-                        <img class="image-ultra-small-box" src="/ProfilePhotos/@UserInfo.ProfilePhoto" alt="Cannot display this image" />
-                        <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                        <small class="card-text text-muted fw-500"> <i class="fas fa-thumbtack fa-rotate-90 text-primary"></i> <span class="ps-1">Pinned</span></small>
+                        <div class="mb-1"></div>
+                    }
+                    @if (Item.CreatorPhoto != null)
+                    {
+                        <img class="image-ultra-small-box" src="/ProfilePhotos/@Item.CreatorPhoto" alt="Cannot display this image" />
+                        <small class="card-text mt-1 ms-1 fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@Item.CreatorName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
                     }
                     else
                     {
-                        <small class="card-text fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@UserInfo?.PseudoName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
+                        <small class="card-text fs-6"><span class="fw-500 get-user-short-info" id="PostsGSU-@Item.UserId">@Item.CreatorName</span><br /><small class="card-text text-muted">posted @Item.CreatedAt.ToString("dd/MM/yyyy"), at @Item.CreatedAt.ToShortTimeString()</small></small>
                     }
                     @if (Item.Project != null)
                     {

@@ -75,8 +75,8 @@ namespace ApplicationY.Repositories
 
         public IQueryable<GetPost_ViewModel>? GetUserAllPosts(int UserId, bool GetAdditionalInfo)
         {
-            if (GetAdditionalInfo) return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, LinkedProjectId = p.LinkedProjectId, Text = p.Text, UserId = p.UserId, AllowMentions = p.AllowMentions, IsRemoved = p.IsRemoved, Project = p.Project != null ? new Project { Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null }).OrderByDescending(p => p.CreatedAt);
-            else return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, Text = p.Text, UserId = UserId, IsPrivate = p.IsPrivate, AllowMentions = p.AllowMentions, LinkedProjectId = p.LinkedProjectId }).OrderByDescending(p => p.CreatedAt);
+            if (GetAdditionalInfo) return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, LinkedProjectId = p.LinkedProjectId, Text = p.Text, UserId = p.UserId, AllowMentions = p.AllowMentions, IsRemoved = p.IsRemoved, IsPinned = p.IsPinned, Project = p.Project != null ? new Project { Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
+            else return _context.Posts.AsNoTracking().Where(p => p.UserId == UserId && !p.IsRemoved).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, Text = p.Text, UserId = UserId, IsPrivate = p.IsPrivate, AllowMentions = p.AllowMentions, LinkedProjectId = p.LinkedProjectId, IsPinned = p.IsPinned }).OrderByDescending(p => p.IsPinned).ThenByDescending(p => p.CreatedAt);
         }
 
         public async Task<int> RemovePostAsync(int Id, int UserId)
@@ -152,6 +152,26 @@ namespace ApplicationY.Repositories
         {
             if (Count != 0) return _context.Posts.AsNoTracking().Where(p => !p.IsPrivate && !p.IsRemoved && p.CreatedAt >= DateTime.Now.AddDays(-14)).Select(p => new GetPost_ViewModel { Id = p.Id, CreatedAt = p.CreatedAt, Text = p.Text, AllowMentions = p.AllowMentions, CreatorName = p.User!.PseudoName, CreatorPhoto = p.User!.ProfilePhoto, UserId = p.UserId, Project = p.Project != null ? new Project { Id = p.Project.Id, Name = p.Project.Name, Description = p.Project.Description, CreatedAt = p.Project.CreatedAt, Views = p.Project.Views } : null, LinkedProjectId = p.LinkedProjectId }).Take(Count).OrderByDescending(p => Guid.NewGuid());
             else return null;
+        }
+
+        public async Task<int> PinThePostAsync(int Id, int UserId)
+        {
+            if (Id != 0 && UserId != 0)
+            {
+                int Result = await _context.Posts.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && !p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, true));
+                if (Result != 0) return Id;
+            }
+            return 0;
+        }
+
+        public async Task<int> UnpinThePostAsync(int Id, int UserId)
+        {
+            if(Id != 0 && UserId != 0)
+            {
+                int Result = await _context.Posts.Where(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved && p.IsPinned).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsPinned, false));
+                if (Result != 0) return Id;
+            }
+            return 0;
         }
     }
 }

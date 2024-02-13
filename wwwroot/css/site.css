@@ -839,11 +839,15 @@ body {
 }
 .user-short-info-container {
     width: 40%;
+    left: 50%;
     border-radius: 8px;
     background-color: transparent;
     backdrop-filter: blur(9px);
+    bottom: -1200px;
     display: none;
-    position: relative;
+    z-index: 1000;
+    transform: translate(-50%, -50%);
+    position: fixed;
     transition: all ease 0.3s;
 }
 

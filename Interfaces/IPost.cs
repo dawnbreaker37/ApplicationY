@@ -12,6 +12,8 @@ namespace ApplicationY.Interfaces
         public Task<int> GetAssociatedPostsCountAsync(int ProjectId);
         public Task<int> GetUsersAllPostsCountAsync(int UserId);
         public Task<int> CreatePostAsync(CreatePost_ViewModel Model);
+        public Task<int> PinThePostAsync(int Id, int UserId);
+        public Task<int> UnpinThePostAsync(int Id, int UserId);
         public Task<int> EditPostAsync(CreatePost_ViewModel Model);
         public Task<int> LockThePostAsync(int Id, int UserId);
         public Task<int> UnlockThePostAsync(int Id, int UserId);
