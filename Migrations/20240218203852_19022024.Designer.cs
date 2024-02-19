@@ -4,6 +4,7 @@ using ApplicationY.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationY.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240218203852_19022024")]
+    partial class _19022024
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -616,30 +619,6 @@ namespace ApplicationY.Migrations
                     b.ToTable("Replies");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.SessionInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SessionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SessionInfos");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Subscribtion", b =>
                 {
                     b.Property<int>("Id")
@@ -662,6 +641,34 @@ namespace ApplicationY.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Subscribtions");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.TemporaryCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TemporaryCodes");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Update", b =>
@@ -1197,22 +1204,22 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.SessionInfo", b =>
-                {
-                    b.HasOne("ApplicationY.Models.User", "User")
-                        .WithMany("Sessions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Subscribtion", b =>
                 {
                     b.HasOne("ApplicationY.Models.User", "User")
                         .WithMany("Subscribtions")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.TemporaryCode", b =>
+                {
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany("TemporaryCodes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -1346,9 +1353,9 @@ namespace ApplicationY.Migrations
 
                     b.Navigation("Purges");
 
-                    b.Navigation("Sessions");
-
                     b.Navigation("Subscribtions");
+
+                    b.Navigation("TemporaryCodes");
                 });
 #pragma warning restore 612, 618
         }

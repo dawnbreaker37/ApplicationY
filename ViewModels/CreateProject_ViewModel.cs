@@ -23,6 +23,8 @@ namespace ApplicationY.ViewModels
         public DateTime? Deadline { get; set; }
         [MaxLength(1200)]
         public string? DonationRules { get; set; }
+        public bool AreCommentsDisabled { get; set; }
+        public bool PreviousCommentsDisableStatus { get; set; }
         public string? YoutubeLink { get; set; }
         [Required(ErrorMessage = "Select the category of your project")]
         public int CategoryId { get; set; }

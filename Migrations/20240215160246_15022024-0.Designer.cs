@@ -4,6 +4,7 @@ using ApplicationY.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace ApplicationY.Migrations
 {
     [DbContext(typeof(Context))]
-    partial class ContextModelSnapshot : ModelSnapshot
+    [Migration("20240215160246_15022024-0")]
+    partial class _150220240
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -370,44 +373,6 @@ namespace ApplicationY.Migrations
                     b.ToTable("Notifications");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.PaymentHistory", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<bool>("IsAbleToReturn")
-                        .HasColumnType("bit");
-
-                    b.Property<int?>("ProjectId")
-                        .HasColumnType("int");
-
-                    b.Property<int?>("SenderId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("SentFromCard")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("SentToCard")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("TransactionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ProjectId");
-
-                    b.HasIndex("SenderId");
-
-                    b.ToTable("PaymentHistories");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Post", b =>
                 {
                     b.Property<int>("Id")
@@ -458,9 +423,6 @@ namespace ApplicationY.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
-                    b.Property<bool>("AreCommentsDisabled")
-                        .HasColumnType("bit");
-
                     b.Property<int?>("CategoryId")
                         .HasColumnType("int");
 
@@ -507,9 +469,6 @@ namespace ApplicationY.Migrations
 
                     b.Property<int>("PastTargetPrice")
                         .HasColumnType("int");
-
-                    b.Property<bool>("PreviousCommentsDisableStatus")
-                        .HasColumnType("bit");
 
                     b.Property<string>("PriceChangeAnnotation")
                         .HasMaxLength(400)
@@ -616,30 +575,6 @@ namespace ApplicationY.Migrations
                     b.ToTable("Replies");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.SessionInfo", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Location")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<DateTime>("SessionDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("UserId")
-                        .HasColumnType("int");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("SessionInfos");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Subscribtion", b =>
                 {
                     b.Property<int>("Id")
@@ -662,6 +597,34 @@ namespace ApplicationY.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Subscribtions");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.TemporaryCode", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Code")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("SentDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(75)
+                        .HasColumnType("nvarchar(75)");
+
+                    b.Property<int>("UserId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("TemporaryCodes");
                 });
 
             modelBuilder.Entity("ApplicationY.Models.Update", b =>
@@ -738,9 +701,6 @@ namespace ApplicationY.Migrations
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsDisabled")
-                        .HasColumnType("bit");
-
-                    b.Property<bool>("IsEasyEntryEnabled")
                         .HasColumnType("bit");
 
                     b.Property<bool>("IsEmailChanged")
@@ -1118,21 +1078,6 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.PaymentHistory", b =>
-                {
-                    b.HasOne("ApplicationY.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId");
-
-                    b.HasOne("ApplicationY.Models.User", "User")
-                        .WithMany()
-                        .HasForeignKey("SenderId");
-
-                    b.Navigation("Project");
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Post", b =>
                 {
                     b.HasOne("ApplicationY.Models.Project", "Project")
@@ -1197,22 +1142,22 @@ namespace ApplicationY.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("ApplicationY.Models.SessionInfo", b =>
-                {
-                    b.HasOne("ApplicationY.Models.User", "User")
-                        .WithMany("Sessions")
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
-                });
-
             modelBuilder.Entity("ApplicationY.Models.Subscribtion", b =>
                 {
                     b.HasOne("ApplicationY.Models.User", "User")
                         .WithMany("Subscribtions")
                         .HasForeignKey("UserId");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ApplicationY.Models.TemporaryCode", b =>
+                {
+                    b.HasOne("ApplicationY.Models.User", "User")
+                        .WithMany("TemporaryCodes")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("User");
                 });
@@ -1346,9 +1291,9 @@ namespace ApplicationY.Migrations
 
                     b.Navigation("Purges");
 
-                    b.Navigation("Sessions");
-
                     b.Navigation("Subscribtions");
+
+                    b.Navigation("TemporaryCodes");
                 });
 #pragma warning restore 612, 618
         }

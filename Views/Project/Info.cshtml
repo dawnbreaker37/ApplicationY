@@ -186,18 +186,26 @@
     </div>
 
     <div class="box-container mt-2 p-3 bg-light">
-        <h6 class="h6 safe-font"> <i class="far fa-comments"></i> Comments, <span id="CommentsCountMain_Span">@CommentsCount.ToString("N0")</span></h6>
-        @if(LastSentComment == null)
+        @if(!ProjectInfo.AreCommentsDisabled)
         {
-            <small class="card-text text-muted">No recently sent comments</small>
+            <h6 class="h6 safe-font"> <i class="far fa-comments"></i> Comments, <span id="CommentsCountMain_Span">@CommentsCount.ToString("N0")</span></h6>
+            @if (LastSentComment == null)
+            {
+                <small class="card-text text-muted">No recently sent comments</small>
+            }
+            else
+            {
+                <div class="mt-2">
+                    <small class="card-text fw-500">@LastSentComment.SenderName</small>
+                    <div></div>
+                    <small class="card-text text-muted white-space-on">@LastSentComment.Text</small>
+                </div>
+            }
         }
         else
         {
-            <div class="mt-2">
-                <small class="card-text fw-500">@LastSentComment.SenderName</small>
-                <div></div>
-                <small class="card-text text-muted white-space-on">@LastSentComment.Text</small>
-            </div>
+            <h6 class="h6 safe-font"> <i class="fas fa-comment-slash"></i> Comments</h6>
+            <small class="card-text text-muted">Comments for this project are disabled. Read about <a asp-controller="Home" asp-action="QA" class="text-decoration-none text-primary">disabled comments by this link</a> </small>
         }
     </div>
 
@@ -286,7 +294,7 @@
         </div>
     </div>
 
-    @if (UserInfo != null)
+    @if (UserInfo != null && !ProjectInfo.AreMessagesDisabled)
     {
         <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
             <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
@@ -446,13 +454,13 @@
                 {
                     <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 btn-open-released-liquid-container" id="NotificationsLiquid_Container-Open" data-title="Informative Project" data-html="Let's talk about informative projects. This kind of projects're designed to be used as tools for some type of information about some previous content or project that're not used or actual at this time. This kind of projects has no available donations and investments. The owner of project could also use to inform people about his another projects through his informative one. And at least everyone could use to post some healthy and wealthy things absolutely free and get his own auditory here! <div class='bordered-container mt-2 p-2'><div class='row p-1 text-center'><div class='col'><h2 class='h2 text-primary'> <i class='fas fa-info-circle'></i> </h2><h4 class='h4'>Information and other things</h4><small class='card-text text-muted'>That's what you possibly may get from informative projects</small></div><div class='col'><h2 class='h2 text-secondary'> <i class='fab fa-creative-commons-zero'></i> </h2><h4 class='h4'>Absolutely free</h4><small class='card-text text-muted'>In this type of projects there're no risks to spend any amount. They're not designed for it!</small></div><div class='row mt-3 p-1'></div><div class='col'><h2 class='h2 text-black'> <i class='fas fa-users'></i> </h2><h4 class='h4'>Become a part of some community</h4><small class='card-text text-muted'>Subscribe and become a part of some community that could post and do some cool things that you may like</small></div><div class='col'><h2 class='h2 text-danger'> <i class='fas fa-bolt'></i> </h2><h4 class='h4'>Tell us when something's going wrong</h4><small class='card-text text-muted'>Please, <strong>don't</strong> subscribe to a user who publishes prohibited content or projects and <strong>purge</strong> them so we could be aware and fix it (by blocking that user or that project). Good luck!</small></div></div></div>"> <i class="fas fa-info-circle"></i> Informative Project</button>
                 }
-                @if (UserInfo != null)
+                @if (UserInfo != null && !ProjectInfo.AreMessagesDisabled)
                 {
                     <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 me-1 smallside-btn-open-container" id="SendMessage_Container-Open"> <i class="far fa-paper-plane"></i> Send Message</button>
                 }
                 else
                 {
-                    <button type="button" class="btn btn-light text-danger btn-standard-with-no-colour btn-sm float-end ms-1 me-1" disabled> <i class="far fa-paper-plane"></i> Sign In</button>
+                    <button type="button" class="btn btn-light btn-standard-with-no-colour btn-sm float-end ms-1 me-1 disabled" disabled> <i class="far fa-times-circle"></i> Disabled</button>
                 }
                 <div id="GSUIF_Box">
                     <form method="get" asp-controller="User" asp-action="GetShortUserInfo" id="GetShortUserInfo_Form">
@@ -510,14 +518,23 @@
                     }
                 </div>
                 <div class="col">
-                    <div>
-                        <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
-                            <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
-                            <input type="hidden" name="SkipCount" id="SkippedCount_Val" value="0" />
-                            <input type="hidden" name="Count" value="60" />
-                            <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
-                        </form>
-                    </div>
+                    @if (!ProjectInfo.AreCommentsDisabled)
+                    {
+                        <div>
+                            <form method="get" asp-controller="Messages" asp-action="GetComments" id="GetComments_Form">
+                                <input type="hidden" name="ProjectId" value="@ProjectInfo.Id" />
+                                <input type="hidden" name="SkipCount" id="SkippedCount_Val" value="0" />
+                                <input type="hidden" name="Count" value="60" />
+                                <button type="submit" class="btn btn-text btn-standard-with-no-colour w-100"> <i class="far fa-comments"></i> <br /> Comments</button>
+                            </form>
+                        </div>
+                    }
+                    else
+                    {
+                        <div>
+                            <button type="button" class="btn btn-text btn-standard-with-no-colour w-100 disabled" disabled> <i class="fas fa-comment-slash"></i> <br /> Disabled</button>
+                        </div>
+                    }
                 </div>
                 <div class="col">
                     <button type="button" class="btn btn-text btn-standard-with-no-colour w-100" data-bs-toggle="collapse" data-bs-target="#MoreInfo_Collapse" aria-expanded="false" aria-controls="MoreInfo_Collapse"> <i class="fas fa-ellipsis-h"></i> <br /> More</button>

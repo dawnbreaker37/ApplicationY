@@ -22,7 +22,7 @@ namespace ApplicationY.Repositories
         {
             if(MentionModel != null)
             {
-                int Result = await _context.Mentions.Where(m => m.Id == MentionModel.Id && m.PostId == MentionModel.ProjectId && m.UserId == MentionModel.UserId).ExecuteUpdateAsync(m => m.SetProperty(m => m.Text, MentionModel.Text).SetProperty(m => m.IsEdited, true));
+                int Result = await _context.Mentions.AsNoTracking().Where(m => m.Id == MentionModel.Id && m.PostId == MentionModel.ProjectId && m.UserId == MentionModel.UserId).ExecuteUpdateAsync(m => m.SetProperty(m => m.Text, MentionModel.Text).SetProperty(m => m.IsEdited, true));
                 if (Result != 0) return MentionModel.Text;
             }
             return null;
@@ -44,7 +44,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.Mentions.Where(p => !p.IsRemoved && p.Id == Id && p.UserId == UserId && p.PostId == PostId).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                int Result = await _context.Mentions.AsNoTracking().Where(p => !p.IsRemoved && p.Id == Id && p.UserId == UserId && p.PostId == PostId).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
                 if (Result != 0) return Id;
             }
             return 0;
@@ -53,22 +53,20 @@ namespace ApplicationY.Repositories
         public async Task<string?> SendMentionAsync(SendComment_ViewModel MentionModel)
         {
             bool AreMentionsAllowed = await _context.Posts.AsNoTracking().AnyAsync(m => m.Id == MentionModel.ProjectId && !m.IsRemoved && m.AllowMentions);
-            if (AreMentionsAllowed) {
-                if (MentionModel != null)
+            if (AreMentionsAllowed && MentionModel != null)
+            {
+                Mention mention = new Mention()
                 {
-                    Mention mention = new Mention()
-                    {
-                        IsRemoved = false,
-                        PostId = MentionModel.ProjectId,
-                        SentAt = DateTime.Now,
-                        Text = MentionModel.Text,
-                        UserId = MentionModel.UserId
-                    };
-                    await _context.AddAsync(mention);
-                    await _context.SaveChangesAsync();
+                    IsRemoved = false,
+                    PostId = MentionModel.ProjectId,
+                    SentAt = DateTime.Now,
+                    Text = MentionModel.Text,
+                    UserId = MentionModel.UserId
+                };
+                await _context.AddAsync(mention);
+                await _context.SaveChangesAsync();
 
-                    return MentionModel.Text;
-                }
+                return MentionModel.Text;
             }
             return null;
         }

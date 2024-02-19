@@ -213,6 +213,32 @@ namespace ApplicationY.Controllers
         }
 
         [HttpPost]
+        public async Task<IActionResult> EditEasyEntry(int Id, bool IsEasyEntryEnabled)
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                string? CurrentUserId = _userManager.GetUserId(User);
+                if (CurrentUserId == Id.ToString())
+                {
+                    int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Id && !u.IsDisabled).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsEasyEntryEnabled, IsEasyEntryEnabled));
+                    if (Result != 0)
+                    {
+                        if(IsEasyEntryEnabled) return Json(new { success = true, alert = "You've enabled <span class='fw-500'>easy entry</span>" });
+                        else return Json(new { success = true, alert = "Easy Entry is disabled. This will allow your to sign-in by using an one time code that we'll send to your email" });
+                    }
+                    else return Json(new { success = false, alert = "An unexpected error occured. Please, check all datas and then try again" });
+                }
+                else return Json(new { succcess = false, alert = "You are NOT able to edit any kind of information for other users" });
+                //User? UserInfo = await _userManager.GetUserAsync(User);
+                //if(UserInfo != null)
+                //{
+                //}
+            }
+            else return Json(new { success = false, alert = "You are not signed in. Please, sign in, to edit your account info" });
+        }
+
+
+        [HttpPost]
         public async Task<IActionResult> EditDescription(EditDescription_ViewModel Model)
         {
             if (ModelState.IsValid)
@@ -221,6 +247,18 @@ namespace ApplicationY.Controllers
                 if (Result) return Json(new { success = true, description = Model.Description, alert = "Your account description has successfully edited" });
             }
             return Json(new { success = false, alert = "An error occured while trying to edit your account description. Please, check all datas and try it again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> EditMainSettings(EditAccountMainSettings_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _userRepository.EditMainInfoAsync(Model);
+                if (Result) return Json(new { success = true, result = Model });
+                else return Json(new { success = false, alert = "Unable to edit main settings. Please, try again later" });
+            }
+            else return Json(new { success = false, alert = "An unexpected error occured. Please, try again later" });
         }
 
         [HttpPost]

@@ -41,10 +41,10 @@
         </div>
         <div class="row">
             <div class="col">
-                <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> <br /> Add Projects</a>
+                <a asp-controller="Project" asp-action="Create" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="far fa-plus-square"></i> <br /> Create Project</a>
             </div>
             <div class="col">
-                <a asp-controller="Post" asp-action="CreatePost" class="btn btn-light btn-standard-not-animated float-end w-100 btn-sm ms-1 me-1"> <i class="far fa-sticky-note"></i> <br />Add Post</a>
+                <a asp-controller="Post" asp-action="CreatePost" class="btn btn-light btn-standard-not-animated float-end w-100 btn-sm ms-1 me-1"> <i class="far fa-sticky-note"></i> <br />Create Post</a>
             </div>
             <div class="col">
                 <a asp-controller="Project" asp-action="Liked" class="btn btn-light btn-standard-not-animated w-100 float-end btn-sm ms-1 me-1"> <i class="far fa-heart"></i> <br/>Liked</a> 
@@ -72,7 +72,7 @@
     <div class="bubble-container mx-auto shadow-sm p-3" id="NotificationsLiquid_Container">
         <button type="button" class="btn btn-standard-not-animated rounded-pill btn-close-liquid-container me-1" id="SB_C-Title"></button>
         <div class="overflow-auto" id="NotificationsLiquid_Container_Box">
-            <div class="bg-transparent overflow-auto mh-450 scrollbar-hidden" id="SB_C-Body">
+            <div class="bg-transparent overflow-auto mh-450 scrollbar-hidden bubble-container-body" id="SB_C-Body">
 
             </div>
             <div class="d-none">
@@ -90,6 +90,7 @@
                 </form>
                 <form method="get" asp-controller="Messages" asp-action="GetMessageInfo" id="GetMessageInfo_Form">
                     <input type="hidden" name="Id" id="GMI_Id_Val" value="0" />
+                    <input type="hidden" name="IsFromSender" id="GMI_IsFromSender_Val" value="false" />
                 </form>
                 <form method="post" asp-controller="Messages" asp-action="RemoveSentMessage" id="RemoveSentMessage_Form">
                     <input type="hidden" name="Id" id="RSM_Id_Val" value="0" />

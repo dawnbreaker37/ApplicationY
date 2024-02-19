@@ -40,7 +40,7 @@ namespace ApplicationY.Repositories
         {
             if (UserId != 0 || SubscriberId != 0)
             {
-                bool Result = await _context.Subscribtions.AnyAsync(s => s.SubscriberId == SubscriberId && s.UserId == UserId && !s.IsRemoved);
+                bool Result = await _context.Subscribtions.AsNoTracking().AnyAsync(s => s.SubscriberId == SubscriberId && s.UserId == UserId && !s.IsRemoved);
                 return Result;
             }
             return false;
@@ -50,7 +50,7 @@ namespace ApplicationY.Repositories
         {
             if(UserId != 0 || SubscriberId != 0)
             {
-                bool HasBeenSubscribedAlready = await _context.Subscribtions.AnyAsync(s => s.IsRemoved && s.SubscriberId == SubscriberId && s.UserId == UserId);
+                bool HasBeenSubscribedAlready = await _context.Subscribtions.AsNoTracking().AnyAsync(s => s.IsRemoved && s.SubscriberId == SubscriberId && s.UserId == UserId);
                 if (HasBeenSubscribedAlready)
                 {
                     int Result = await _context.Subscribtions.AsNoTracking().Where(s => s.UserId == UserId && s.SubscriberId == SubscriberId && s.IsRemoved).ExecuteUpdateAsync(s => s.SetProperty(s => s.IsRemoved, false));

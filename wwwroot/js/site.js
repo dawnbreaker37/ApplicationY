@@ -537,6 +537,58 @@ $("#EditProfilePhoto_Form").on("submit", function (event) {
         }
     });
 });
+$("#EditMainSettings_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            if (response.result != null) {
+                if (response.result.areMessagesDisabled) {
+                    $("#DisabledMessages_Lbl").text("No one will be able to send you a message");
+                }
+                else {
+                    $("#DisabledMessages_Lbl").text("You'll receive all messages and notifications");
+                }
+
+                if (response.result.areCommentsDisabled) {
+                    $("#DisabledComments_Lbl").text("No one can watch and send a comment to your projects");
+                }
+                else {
+                    $("#DisabledComments_Lbl").text("Comments of your projects are free to watch");
+                }
+                $("#EditMainSettings_Sbmt_Btn").attr("disabled", true);
+                $("#EditMainSettings_Sbmt_Btn").html(" <i class='fas fa-check text-primary'></i> Settings Edited");
+                setTimeout(function () {
+                    $("#EditMainSettings_Sbmt_Btn").attr("disabled", false);
+                    $("#EditMainSettings_Sbmt_Btn").html(" <i class='fas fa-check'></i> Save Changes");
+                }, 2500);
+            }
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.75, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#IsEasyEntryEnabled").on("change", function () {
+    $("#EditEasyEntry_Form").submit();
+});
+$("#EditEasyEntry_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#EasyEntry_Lbl").html(response.alert);
+            addSavedBadge("EasyEntry_Lbl", 4);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
 
 $("#GetShortUserInfo_Form").on("submit", function (event) {
     event.preventDefault();
@@ -559,7 +611,6 @@ $("#GetShortUserInfo_Form").on("submit", function (event) {
                 $("#USI_Userpage_Link").attr("href", "/User/Info/" + response.result.searchName);
                 $("#USI_Userpage_Link").html(" <i class='fas fa-chevron-right'></i> " + response.result.pseudoName + "'s Page");
 
-                console.log(response.result.countryFullName);
                 if (response.result.countryFullName != null) {
                     $("#USI_CountryBadge").html(" <i class='fas fa-globe-americas'></i> " + response.result.countryFullName);
                 }
@@ -2340,7 +2391,7 @@ $("#GetComments_Form").on("submit", function (event) {
                     $("#CommentsCount_Span").text(response.count.toLocaleString());
                 });
                 $("#SkippedCount_Val").val(allLoadedCommentsCount);
-
+                //-256
                 if (allLoadedCommentsCount < response.count) {
                     $("#LoadMoreComments_Btn").fadeIn(0);
                     $("#LoadMoreComments_Btn").attr("disabled", false);
@@ -2708,9 +2759,6 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
                     let createdAt = $("<small class='card-text text-muted'></small>");
                     let separator2 = $("<div class='mt-3'></div>");
                     let mainText = $("<span class='card-text white-space-on'></p>");
-                    //let btnsDiv = $("<div class='box-container bg-light border-top pt-1 mt-1 border-radius-0'></div>");
-                    //let likeThePostBtn = $("<button type='button' class='btn btn-standard-not-animated me-2 btn-sm'> <i class='far fa-heart'></i> Like</button>");
-                    //let shareThePostBtn = $("<button type='button' class='btn btn-standard-not-animated btn-sm'> <i class='fas fa-share'></i> Share</button>");
 
                     creatorName.attr("id", "GetShortUserInfo_ForPost_" + response.result[index].id + "-" + response.result[index].userId);
                     creatorName.text(response.result[index].creatorName);
@@ -2719,15 +2767,12 @@ $("#GetAllRelatedPosts_Form").on("submit", function (event) {
                     mainText.html(response.result[index].text);
                     $("#RelatedPostsCountMain_Lbl").text(response.count.toLocaleString());
 
-                    //btnsDiv.append(likeThePostBtn);
-                    //btnsDiv.append(shareThePostBtn);
                     div.append(creatorName);
                     div.append(separator1);
                     div.append(createdAt);
                     div.append(separator2);
                     div.append(mainText);
-/*                    div.append(btnsDiv);*/
-                    //NotificationsLiquid_Container
+
                     $("#RelatedPostsMain_Box").append(div);
                 });
                 $("#RelatedPosts_Box").slideDown(300);
@@ -3088,6 +3133,7 @@ $("#GetShortUserInfoForAdmins_Form").on("submit", function (event) {
                 $("#EA_Id_Val").val(response.result.id);
                 $("#GUPFA_Sbmt_Btn").attr("disabled", false);
                 $("#SendMessage_Container-Open").attr("disabled", false);
+                $("#ReplyingMsg_Box").fadeOut(300);
                 if (response.roleInfo != null) {
                     if (response.roleInfo.roleId == 0) {
                         $("#SelectedUserInfo_AdminPostValue_Lbl").fadeOut();
@@ -3208,6 +3254,219 @@ $("#GetUserProjectsForAdmins_Form").on("submit", function (event) {
             openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, " <i class='fas fa-times-circle text-danger'></i> ");
         }
     });
+});
+$("#GetAllForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            let fullCount = parseInt($("#ReceivedMessages_Count").text());
+            if (fullCount > response.fullLoadedCount) {
+                $("#GAFA_SkippedCount_Val").val(response.skippedCount);
+                $("#LoadMoreMessagesForAdmins_Btn").text("Load More Messages");
+                $("#LoadMoreMessagesForAdmins_Btn").attr("disabled", false);
+            }
+            else {
+                $("#GAFA_Sbmt_Btn").attr("disabled", true);
+                $("#LoadMoreMessagesForAdmins_Btn").text("No More Messages to Load");
+                $("#LoadMoreMessagesForAdmins_Btn").attr("disabled", true);
+            }
+
+            $("#AlreadyLoadedMessages_Count").text(response.fullLoadedCount);
+            if (response.skippedCount == 0) {
+                $("#ReceivedMessages_Box").empty();
+            }
+
+            if (response.count > 0) {
+                setTimeout(function () {
+                    $("#ThisTimeLoadedMessages_Count").text("(" + response.count + " msgs for this time)");
+                    $.each(response.result, function (index) {
+                        let div = $("<div class='mt-2'></div>");
+                        let senderName = $("<span class='card-text text-muted p-1 ms-1'></h6>");
+                        let additionalInfoSettingsBox = $("<div class='box-container bg-transparent mt-2'></div>");
+                        let additionalInfoText_Lbl = $("<small class='card-text text-muted'></small>");
+                        let text = $("<p class='card-text white-space-on'></p>");
+
+                        let mainInsideBox = $("<div class='box-container bg-light p-2 mt-1'></div>");
+                        let actionsDropdown = $("<div class='dropstart'></div>");
+                        let dropdownOpenBtn = $("<button type='button' class='btn btn-standard-not-animated float-end ms-1 btn-sm' data-bs-toggle='dropdown' aria-expanded='false'> <i class='fas fa-ellipsis-h'></i> </button>");
+                        let dropdownUl = $("<ul class='dropdown-menu shadow-sm p-1'></div>");
+                        let dropdownLi0 = $("<li class='text-center'></li>");
+                        let dropdownLi1 = $("<li class='mt-1'></li>");
+                        let dropdownLi2 = $("<li class='mt-1'></li>");
+                        let dropdownLi3 = $("<li class='mt-1'></li>");
+                        let dropdownLi4 = $("<li class='mt-1'></li>");
+                        let dropdownMsgInfo = $("<small class='card-text text-muted'></small>");
+                        let dropdownSenderInfoBtn = $("<button type='button' class='dropdown-item select-search-result-user'> <i class='fas fa-user-circle'></i> Sender Info</button>");
+                        let dropdownSetCheckedBtn = $("<button type='button' class='dropdown-item mark-as-read-for-admins'></button>");
+                        let dropdownReplyBtn = $("<button type='button' class='dropdown-item'></button>");
+                        let dropdownRemoveBtn = $("<button type='button' class='dropdown-item text-danger select-to-remove-for-admins'> <i class='fas fa-trash-alt'></i> Remove</button>");
+
+                        div.attr("id", "AdminMsgBox-" + response.result[index].id);
+                        senderName.attr("id", "SenderNameLbl-" + response.result[index].id);
+                        text.attr("id", "TextLbl-" + response.result[index].id);
+                        dropdownRemoveBtn.attr("id", "AdminMsgRemove-" + response.result[index].id);
+                        dropdownReplyBtn.attr("id", "ReplyToMessage_" + response.result[index].id +"-" + response.result[index].senderId);
+                        dropdownReplyBtn.attr("data-bs-html", "ReplyToMessage_MsgId-" + response.result[index].id);
+                        additionalInfoText_Lbl.attr("id", "AdditionalInfoLbl-" + response.result[index].id);
+
+                        if (response.result[index].senderName != null) {
+                            dropdownReplyBtn.html(" <i class='fas fa-reply'></i> Reply");
+                            dropdownReplyBtn.addClass("reply-to-message");
+                            dropdownSenderInfoBtn.attr("id", "GetShortUserInfoViaMessages-" + response.result[index].senderId);
+                            senderName.text(response.result[index].senderName);
+                        }
+                        else {
+                            dropdownReplyBtn.html(" <i class='fas fa-reply'></i> Reply via email");
+                            dropdownReplyBtn.addClass("reply-to-message-via-email");
+                            dropdownSenderInfoBtn.attr("disabled", true);
+                            senderName.text(response.result[index].senderEmail);
+                        }
+
+                        text.html(response.result[index].text);
+                        if (response.result[index].isChecked) {
+                            dropdownSetCheckedBtn.attr("disabled", true);
+                            dropdownSetCheckedBtn.html(" <i class='fas fa-check-double text-primary'></i> Marked as read");
+                            dropdownMsgInfo.text("sent " + convertDateAndTime(response.result[index].sentAt, false, false) + ", already read");
+                            additionalInfoText_Lbl.html(" <i class='fas fa-check-double text-primary'></i> " + convertDateAndTime(response.result[index].sentAt, true, true));
+                        }
+                        else {
+                            dropdownSetCheckedBtn.attr("id", "MarkAsRead-" + response.result[index].id);
+                            dropdownSetCheckedBtn.html(" <i class='fas fa-check'></i> Mark as read");
+                            dropdownMsgInfo.text("sent " + convertDateAndTime(response.result[index].sentAt, false, false) + ", haven't read yet");
+                            additionalInfoText_Lbl.html(" <i class='fas fa-check'></i> " + convertDateAndTime(response.result[index].sentAt, true, true));
+                        }
+
+                        dropdownLi0.append(dropdownMsgInfo);
+                        dropdownLi1.append(dropdownSenderInfoBtn);
+                        dropdownLi2.append(dropdownReplyBtn);
+                        dropdownLi3.append(dropdownSetCheckedBtn);
+                        dropdownLi4.append(dropdownRemoveBtn);
+                        dropdownUl.append(dropdownLi0);
+                        dropdownUl.append(dropdownLi1);
+                        dropdownUl.append(dropdownLi2);
+                        dropdownUl.append(dropdownLi3);
+                        dropdownUl.append(dropdownLi4);
+                        actionsDropdown.append(dropdownOpenBtn);
+                        actionsDropdown.append(dropdownUl);
+
+                        additionalInfoSettingsBox.append(additionalInfoText_Lbl);
+                        mainInsideBox.append(actionsDropdown);
+                        mainInsideBox.append(text);
+                        mainInsideBox.append(additionalInfoSettingsBox);
+                        div.append(senderName);
+                        div.append(mainInsideBox);
+                        $("#ReceivedMessages_Box").append(div);
+                    });
+                }, 200);
+                animatedOpen(false, "Messages_Container", false, false);
+            }
+            else {
+                $("#ThisTimeLoadedMessages_Count").empty();
+            }
+        }
+    });
+});
+$("#LoadMoreMessagesForAdmins_Btn").on("click", function () {
+    $("#GetAllForAdmins_Form").submit();
+});
+$("#MarkAsReadForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let value = $("#AdditionalInfoLbl-" + response.id).html().substring($("#AdditionalInfoLbl-" + response.id).html().lastIndexOf(">") + 2);
+            $("#MarkAsRead-" + response.id).attr("disabled", true);
+            $("#MarkAsRead-" + response.id).html(" <i class='fas fa-check-double text-primary'></i> Marked as read");
+            $("#AdditionalInfoLbl-" + response.id).html(" <i class='fas fa-check-double text-primary'></i> " + value);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$("#RemoveMessageForAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+    $.post(url, data, function (response) {
+        if (response.success) {
+            let fullCount = parseInt($("#ReceivedMessages_Count").text());
+            let currentCount = parseInt($("#AlreadyLoadedMessages_Count").text());
+            currentCount--;
+            fullCount--;
+
+            if (fullCount == 0) $("#ReceivedMessages_Count").text("out of messages");
+            else $("#ReceivedMessages_Count").text(fullCount);
+            $("#AlreadyLoadedMessages_Count").text(currentCount);
+
+            if (currentCount > 0 && fullCount > 0) {
+                slideToLeftAnimation("AdminMsgBox-" + response.id);
+            }
+            else if (currentCount == 0 && fullCount > 0) {
+                animatedClose(false, "Messages_Container");
+                setTimeout(function () {
+                    $("#ReceivedMessages_Box").empty();
+                }, 200);
+            }
+            else {
+                $("#LoadMoreMessages_Box").fadeOut(300);
+                slideToLeftAnimation("AdminMsgBox-" + response.id);
+                setTimeout(function () {
+                    animatedClose(false, "Messages_Container");
+                }, 225);
+                setTimeout(function () {
+                    $("#ReceivedMessages_Box").empty();
+                    let div = $("<div class='mt-2 box-container text-center p-2'></div>");
+                    let icon = $("<h2 class='h2'> <i class='fas fa-comment-slash'></i> ");
+                    let title = $("<h4 class='h4 safe-font'>No More Messages</h4>");
+                    let text = $("<small class='card-text text-muted'>We haven't got more messages yet</small>");
+                    div.append(icon);
+                    div.append(title);
+                    div.append(text);
+                    $("#ReceivedMessages_Box").append(div);
+                    animatedOpen(false, "Messages_Container", false, false);
+                }, 450);
+            }
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.5, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+$(document).on("click", ".mark-as-read-for-admins", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#MessageId_Val").val(trueId);
+        $("#MarkAsReadForAdmins_Form").submit();
+    }
+});
+$(document).on("click", ".reply-to-message", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        let messageId = getTrueId($("#" + event.target.id).attr("data-bs-html"));
+        let messageSenderName = $("#SenderNameLbl-" + messageId).html();
+        let messageText = $("#TextLbl-" + messageId).html();
+
+        $("#MessageId_Val").val(messageId);
+        $("#SMFA_UserId_Val").val(trueId);
+        $("#ReplyingMsg_Box").fadeIn(300);
+        $("#SM_Username_Lbl").html(messageSenderName);
+        $("#ReplyingMsgText_Lbl").html(messageText);
+
+        $("#MarkAsReadForAdmins_Form").submit();
+        animatedOpen(false, "SendMessage_Container", false, false);
+    }
+});
+$(document).on("click", ".select-to-remove-for-admins", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != "") {
+        $("#RemoveMessage_Id_Val").val(trueId);
+        $("#RemoveMessageForAdmins_Form").submit();
+    }
 });
 
 $("#SearchForProjects_Btn").on("click", function () {
@@ -3693,6 +3952,7 @@ $("#GetMessages_Btn").on("click", function (event) {
         if (response.success) {
             $("#SB_C-Body").empty();
             if (response.count > 0) {
+                $("#GMI_IsFromSender_Val").val(false);
                 $("#SB_C-Title").html(" <i class='fas fa-times'></i> Received Messages ∙ " + response.count.toLocaleString());
 
                 $.each(response.result, function (index) {
@@ -3759,7 +4019,7 @@ $("#GetMessages_Btn").on("click", function (event) {
                     div.append(text);
                     $("#SB_C-Body").append(div);
                 });
-                let checkAll_SbmtBtn = $("<button type='button' class='btn btn-text mt-1 btn-sm select-to-mark' id='MarkAllMessagesAsRead--256'> <i class='fas fa-check-double text-primary'></i> Mark All as Read</button>");
+                let checkAll_SbmtBtn = $("<button type='button' class='btn btn-text mt-1 btn-sm select-to-mark' id='MarkAllMessagesAsRead--128'> <i class='fas fa-check-double text-primary'></i> Mark All as Read</button>");
                 $("#SB_C-Body").append(checkAll_SbmtBtn);           
             }
             else {
@@ -3773,7 +4033,14 @@ $("#GetMessages_Btn").on("click", function (event) {
                 $("#SB_C-Body").append(div);
                 $("#SB_C-Title").html(" <i class='fas fa-times'></i> Received Messages ∙ " + response.count.toLocaleString());
             }
-            bubbleAnimation("NotificationsLiquid_Container", true);
+
+            if ($("#NotificationsLiquid_Container").css("display") == "block") {
+                bubbleAnimation("NotificationsLiquid_Container", false);
+                bubbleAnimation("NotificationsLiquid_Container", true, false);
+            }
+            else {
+                bubbleAnimation("NotificationsLiquid_Container", true, true);
+            }
         }
         else {
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
@@ -3800,9 +4067,14 @@ $(document).on("submit", "#RemoveAllSentMessages_Form", function (event) {
                 div.append(text);
                 $("#SB_C-Body").append(div);
             }, 600);
-            setTimeout(function () {
-                bubbleAnimation("NotificationsLiquid_Container", true);
-            }, 1250);
+
+            if ($("#NotificationsLiquid_Container").css("display") == "block") {
+                bubbleAnimation("NotificationsLiquid_Container", false);
+                bubbleAnimation("NotificationsLiquid_Container", true, false);
+            }
+            else {
+                bubbleAnimation("NotificationsLiquid_Container", true, true);
+            }
         }
         else {
             bubbleAnimation("NotificationsLiquid_Container", false);
@@ -3821,8 +4093,16 @@ $("#GetSentMessages_Btn").on("click", function (event) {
     if (parseInt(userId)) {
         $.get(url, data, function (response) {
             if (response.success) {
+                if ($("#NotificationsLiquid_Container").css("display") == "block") {
+                    bubbleAnimation("NotificationsLiquid_Container", false);
+                    bubbleAnimation("NotificationsLiquid_Container", true, false);
+                }
+                else {
+                    bubbleAnimation("NotificationsLiquid_Container", true, true);
+                }
                 $("#SB_C-Body").empty();
                 if (response.count > 0) {
+                    $("#GMI_IsFromSender_Val").val(true);
                     $("#SB_C-Title").html(" <i class='fas fa-times'></i> Sent Messages ∙ " + response.count.toLocaleString());
 
                     $.each(response.result, function (index) {
@@ -3872,7 +4152,7 @@ $("#GetSentMessages_Btn").on("click", function (event) {
                         div.append(text);
                         $("#SB_C-Body").append(div);
                     });
-                    let removeAllMsgsForm = $("<div><form method='post' action='/Messages/RemoveSentMessage' id='RemoveAllSentMessages_Form'><input type='hidden' name='Id' value='-256' /> <input type='hidden' name='UserId' value='" + userId + "' /> <button type='submit' class= 'btn btn-text btn-sm' > <i class='fas fa-trash-alt text-danger'></i> Remove All</button ></form ></div>");
+                    let removeAllMsgsForm = $("<div><form method='post' action='/Messages/RemoveSentMessage' id='RemoveAllSentMessages_Form'><input type='hidden' name='Id' value='-128' /> <input type='hidden' name='UserId' value='" + userId + "' /> <button type='submit' class= 'btn btn-text btn-sm' > <i class='fas fa-trash-alt text-danger'></i> Remove All</button ></form ></div>");
                     $("#SB_C-Body").append(removeAllMsgsForm);
                 }
                 else {
@@ -3886,13 +4166,79 @@ $("#GetSentMessages_Btn").on("click", function (event) {
                     $("#SB_C-Body").append(div);
                     $("#SB_C-Title").html(" <i class='fas fa-times'></i> Sent Messages ∙ " + response.count.toLocaleString());
                 }
-                bubbleAnimation("NotificationsLiquid_Container", true);
             }
             else {
                 openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.5);
             }
         });
     }
+});
+
+$("#SendToAdmins_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 4, "<i class='fas fa-paper-plane text-primary'></i>");
+        }
+        else {
+            $("#SendAdminMsg_Email_Val").val(null);
+            $("#SendAdminMsg").val(null);
+            $("#SendAdminMsg_Sbmt_Btn").attr("disabled", true);
+            openModal(response.alert, "Got It", null, 2, null, null, null, 4, "<i class='fas fa-times-circle text-danger'></i>");
+        }
+    });
+});
+
+$(document).on("click", ".get-user-short-info-by-searchname", function (event) {
+    let trueSearchName = event.target.innerHTML;
+    trueSearchName = trueSearchName.substring(1, trueSearchName.length);
+    if (trueSearchName != null) {
+        $("#GSSU_Searchname_Val").val(trueSearchName);
+        $("#GetSuperShortUserInfo_Form").submit();
+    }
+});
+
+$("#GetSuperShortUserInfo_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.get(url, data, function (response) {
+        if (response.success) {
+            sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
+            setTimeout(function () {
+                $("#SuperShortUserInfo_Container").remove();
+                let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
+                let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto' id='SuperShortUserInfo_Container'></div>");
+                let title = $("<span class='h3 p-0'></span>");
+                let separatorOne = $("<div></div>");
+                let separatorTwo = $("<div></div>");
+                let searchName = $("<small class='card-text p-0 text-muted'></small>");
+                let relocateLink = $("<a class='btn btn-standard-not-animated btn-sm mt-3'> <i class='fas fa-link'></i> Page</a>");
+
+                div.append(closeBtn);
+                div.append(title);
+                div.append(separatorOne);
+                div.append(searchName);
+                div.append(separatorTwo);
+                div.append(relocateLink);
+                $("body").append(div);
+
+                sharpOpeningAnimation(false, true, "SuperShortUserInfo_Container", false);
+                closeBtn.attr("onclick", "sharpOpeningAnimation(false, false, 'SuperShortUserInfo_Container', false);");
+                title.text(response.result.pseudoName);
+                searchName.text("@" + response.result.searchName);
+                relocateLink.attr("href", "/User/Info/" + response.result.searchName);
+            }, 225);
+        }
+        else {
+            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-slash text-danger'></i>");
+        }
+    });
 });
 
 $("#ChangeRecoveringType_Btn").on("click", function () {
@@ -4147,7 +4493,7 @@ $(document).on("click", ".remove-notification", function (event) {
 $(document).on("click", ".send-reply-to-comment", function (event) {
     let trueId = getTrueId(event.target.id);
     let currentId = $("#GR_Id_Val").val();
-    if (trueId != "") {
+    if (trueId != undefined) {
         $("#RepliesList_Box").empty();
 /*        if (currentId != trueId) {*/
             $("#GR_SkipCount_Val").val(0);
@@ -4231,7 +4577,7 @@ $(document).on("click", ".select-to-remove-the-msg", function (event) {
                     }, 600);
                     setTimeout(function () {
                         bubbleAnimation("NotificationsLiquid_Container", true);
-                    }, 1250);
+                    }, 850);
                 }
             }
             else {
@@ -4253,10 +4599,13 @@ $(document).on("click", ".select-for-info", function (event) {
         $.get(url, data, function (response) {
             if (response.success) {
                 let sentBy = $("#SentFrom-" + trueId).text();
-                let div = $("<div class='box-container p-3 mt-2'></div>");
+                let div = $("<div class='bordered-container p-2 mt-2'></div>");
                 let header = $("<h5 class='h5 text-primary safe-font mb-2'></h5>");
                 let separatorFirst = $("<div class='mt-1'></div>");
                 let separatorSecond = $("<div class='mt-1'></div>");
+                let separatorThird = $("<div class='mt-1'></div>");
+                let sentToSmall = $("<small class='card-text text-muted'></small>");
+                let sentTo = $("<a class='card-text text-decoration-none text-primary'></a>");
                 let sentDate = $("<small class='card-text'></small>");
                 let isChecked = $("<small class='card-text'></small>");
                 let projectName = $("<small class='card-text'></p>");
@@ -4267,19 +4616,35 @@ $(document).on("click", ".select-for-info", function (event) {
                 else {
                     projectName.html("<span class='text-muted'>No mentioned project for this message</span>");
                 }
-                sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt, true, true));
+                sentDate.html("<span class='text-muted'>Sent at: </span>" + convertDateAndTime(response.result.sentAt, true, true) + ", (" + convertDateAndTime(response.result.sentAt, false) + ")");
                 if (response.result.isChecked) {
-                    isChecked.html(" <i class='fas fa-check-double text-primary'></i> This message has been checked");
+                    isChecked.html(" <i class='fas fa-check-double text-primary'></i> This message is checked");
                 }
                 else {
-                    isChecked.html(" <i class='fas fa-check text-muted'></i> This message isn't checked");
+                    isChecked.html(" <i class='fas fa-check text-muted'></i> This message hasn't been checked yet");
+                }
+                if (response.result.receiverName != null) {
+                    if (response.result.receiverSearchName != null) {
+                        sentTo.html(response.result.receiverName);
+                        sentTo.attr("href", "/User/Info/" + response.result.receiverSearchName);
+                        sentToSmall.text("Sent to ");
+                        sentToSmall.append(sentTo);
+                    }
+                    else {
+                        sentToSmall.html("Sent to <span class='text-dark'>" + response.result.receiverName + "</span>");
+                    }
+                }
+                else {
+                    sentToSmall.html("Sent to <span class='text-dark'>you</span>");
                 }
 
                 div.append(header);
+                div.append(sentToSmall);
+                div.append(separatorFirst);
                 div.append(projectName);
                 div.append(separatorSecond);
                 div.append(sentDate);
-                div.append(separatorFirst);
+                div.append(separatorThird);
                 div.append(isChecked);
 
                 bubbleAnimation("NotificationsLiquid_Container", false);
@@ -4288,7 +4653,7 @@ $(document).on("click", ".select-for-info", function (event) {
                     $("#SB_C-Body").empty();
                     $("#SB_C-Body").append(div);
                     bubbleAnimation("NotificationsLiquid_Container", true);
-                }, 800);
+                }, 850);
             }
             else {
                 closeContainerBubbleAnimation("NotificationsLiquid_Container", false);
@@ -4579,7 +4944,21 @@ $("#Project_Description").on("keyup", function () {
 $("#TextPart").on("keyup", function () {
     checkAcceptability();
 });
-$(".description-check").on("keyup", function (event) {
+
+$(document).on("keyup", ".form-control-check", function (event) {
+    let item = $("#" + event.target.id);
+    let neededBtn = $("#" + event.target.id).attr("data-bs-html");
+    let minVal = parseInt($("#" + event.target.id).attr("data-bs-min-length"));
+    minVal = minVal == NaN ? 1 : minVal;
+
+    if (item.val().length >= minVal) {
+        $("#" + neededBtn).attr("disabled", false);
+    }
+    else {
+       $("#" + neededBtn).attr("disabled", true);
+    }
+});
+$(document).on("keyup", ".description-check", function (event) {
     let trueId = event.target.id;
     let neededBtn = $("#" + trueId).attr("data-bs-html");
     let minLength = $("#" + trueId).attr("data-bs-min-length");
@@ -4606,6 +4985,17 @@ $(".description-check").on("keyup", function (event) {
         }
     }
 });
+
+$(document).on("click", ".btn-randomize", function (event) {
+    let setTo = getTrueId(event.target.id);
+    let type = parseInt($("#" + event.target.id).attr("data-bs-type"));
+    if (setTo != undefined) {
+        let value = createRandomValue(type);
+        $("#" + setTo).val(value);
+        openModal("<h3 class='h3' id='MMC_TextSpan_Span'>" + value + "</h3><div></div>This one's your new password. Create a new one or set your own if you don't like it", "Copy Password", "Close", 6, "MMC_TextSpan_Span", 2, null, 9, "<i class='fas fa-random text-official'></i>");
+    }
+});
+
 $("#Text").on("keyup", function () {
     let value = lengthCounter("Text", 2500);
     if (value < 1) {
@@ -4916,7 +5306,13 @@ $(document).on("click", ".select-to-reply", function (event) {
         let neededWidth = fullWidth;
         if (fullWidth >= 717) neededWidth = (fullWidth * 0.35) - 10;
 
-        bubbleAnimation("NotificationsLiquid_Container", false);
+        if ($("#NotificationsLiquid_Container").css("display") == "block") {
+            bubbleAnimation("NotificationsLiquid_Container", false);
+            bubbleAnimation("NotificationsLiquid_Container", true, false);
+        }
+        else {
+            bubbleAnimation("NotificationsLiquid_Container", true, true);
+        }
         smallBarAnimatedOpenAndClose(true);
 
         let messageSenderName = $("#SentFrom-" + trueId).text();
@@ -5008,7 +5404,13 @@ $(document).on("click", ".select-to-mark", function (event) {
                 }
             }
             else {
-                bubbleAnimation("NotificationsLiquid_Container", false);
+                if ($("#NotificationsLiquid_Container").css("display") == "block") {
+                    bubbleAnimation("NotificationsLiquid_Container", false);
+                    bubbleAnimation("NotificationsLiquid_Container", true, false);
+                }
+                else {
+                    bubbleAnimation("NotificationsLiquid_Container", true, true);
+                }
                 openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 3.25);
             }
         });
@@ -5187,6 +5589,26 @@ $(document).on("click", ".btn-hide", function (event) {
     let trueId = getTrueName(event.target.id);
     if (trueId != null) {
         slideToLeftAnimation(trueId);
+    }
+});
+
+$(document).on("keydown", ".only-keys-input", function (event) {
+    let keyCode = event.keyCode;
+    if (event.shiftKey) {
+        if (keyCode >= 65 && keyCode <= 90) return true;
+        else if (keyCode == 189) return true;
+        else if (keyCode == 8) return true;
+        else return false;
+    }
+    else {
+        if (keyCode >= 65 && keyCode <= 90) return true;
+        else if (keyCode >= 96 && keyCode <= 105) return true;
+        else if (keyCode == 16) return true;
+        else if (keyCode == 46) return true;
+        else if (keyCode >= 48 && keyCode <= 57) return true;
+        else if (keyCode == 8) return true;
+        else if (keyCode == 189) return true;
+        else return false;
     }
 });
 
@@ -5787,6 +6209,14 @@ function convertDateAndTime(value, asShort, showTimeInfo) {
     return fullAlert;
 }
 
+function addSavedBadge(addTo, duration) {
+    let initialValue = $("#" + addTo).html();
+    $("#" + addTo).html('<span class="badge bg-light border-primary rounded-pill p-1 text-primary safe-font"> <i class="far fa-check-circle"></i> Saved</span> ' + $("#" + addTo).html());
+    setTimeout(function () {
+        $("#" + addTo).html(initialValue);
+    }, (duration + 0.25) * 1000);
+}
+
 function getTrueId(fullName) {
     return fullName.substring(fullName.indexOf("-") + 1);
 }
@@ -5811,88 +6241,31 @@ function youtubeLinkCorrector(initialLink) {
     return trueLink;
 }
 
-$(document).on("click", ".get-user-short-info-by-searchname", function (event) {
-    let trueSearchName = event.target.innerHTML;
-    trueSearchName = trueSearchName.substring(1, trueSearchName.length);
-    if (trueSearchName != null) {
-        $("#GSSU_Searchname_Val").val(trueSearchName);
-        $("#GetSuperShortUserInfo_Form").submit();
+function createRandomValue(type) {
+    let value = "";
+    let alphabet = ["A", "a", "B", "b", "C", "c", "D", "d", "E", "e", "F", "f", "G", "g", "H", "h", "I", "i", "K", "k", "L", "l", "M", "m", "N", "n", "O", "o", "P", "p", "Q", "q", "R", "r", "S", "s", "T", "t", "V", "v", "W", "w", "X", "x", "Y", "y", "Z", "z"];
+    switch (type) {
+        case 0:
+            for (let i = 0; i < 12; i++) {
+                let symbol = Math.floor(Math.random() * 100);
+                if (symbol % 2 == 0) value += Math.floor(Math.random() * 9);
+                else {
+                    let randDigitNum = Math.floor(Math.random() * 47);
+                    let randDigit = alphabet[randDigitNum];
+                    value += randDigit;
+                }
+            }
+            break;
+        case 1:
+            value = Math.floor(Math.random() * 100) + 1 + "x";
+            break;
+        default:
+            value = Math.floor(Math.random() * 100) + 1 + "x";
+            break;
     }
-});
 
-$("#WriteInApp_Btn").on("click", function () {
-    let currentUserId = $("#PageInfo_UserId").val();
-    if (currentUserId != undefined) {
-        sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
-        setTimeout(function () {
-            $("#SuperShortUserInfo_Container").remove();
-            let title = $("<h5 class='h5 text-truncate'>Send a Message</h5>");
-            let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
-            let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto' id='SuperShortUserInfo_Container'></div>");
-            let formDiv = $("<div class='box-container mt-3'></div>");
-            let form = $("<form method='post' asp-controller='Messages' asp-action='SendToAdmins' id='SendToAdmins_Form'></form>");
-            let senderId_Input = $("<input type='hidden' name='SenderId' />");
-            let userId_Input = $("<input type='hidden' name='UserId' value='-256' />");
-            let textArea = $("<textarea class='form-control w-100' maxlength='2500' rows='4' placeholder='Enter your message here'></textarea>");
-            let textArea_Status = $("<small class='card-text text-muted ms-1'>You may also send your messages via email</small>");
-            let sbmtBtn = $("<button type='submit' class='btn btn-primary w-100 btn-standard-with-no-colour mt-3'>Send</button>");
-
-            form.append(senderId_Input);
-            form.append(userId_Input);
-            form.append(textArea);
-            form.append(textArea_Status);
-            form.append(sbmtBtn);
-            formDiv.append(form);
-            div.append(closeBtn);
-            div.append(title);
-            div.append(formDiv);
-
-            $("body").append(div);
-
-            sharpOpeningAnimation(false, true, "SuperShortUserInfo_Container", false);
-            closeBtn.attr("onclick", "sharpOpeningAnimation(false, false, 'SuperShortUserInfo_Container', false);");
-        }, 250);
-    }
-});
-
-$("#GetSuperShortUserInfo_Form").on("submit", function (event) {
-    event.preventDefault();
-    let url = $(this).attr("action");
-    let data = $(this).serialize();
-
-    $.get(url, data, function (response) {
-        if (response.success) {
-            sharpOpeningAnimation(false, false, "SuperShortUserInfo_Container", true);
-            setTimeout(function () {
-                $("#SuperShortUserInfo_Container").remove();
-                let closeBtn = $("<button type='button' class='btn btn-close btn-sm float-end ms-1' aria-label='close'></button>");
-                let div = $("<div class='user-short-info-container shadow-lg p-2 mx-auto' id='SuperShortUserInfo_Container'></div>");
-                let title = $("<span class='h3 p-0'></span>");
-                let separatorOne = $("<div></div>");
-                let separatorTwo = $("<div></div>");
-                let searchName = $("<small class='card-text p-0 text-muted'></small>");
-                let relocateLink = $("<a class='btn btn-standard-not-animated btn-sm mt-3'> <i class='fas fa-link'></i> Page</a>");
-
-                div.append(closeBtn);
-                div.append(title);
-                div.append(separatorOne);
-                div.append(searchName);
-                div.append(separatorTwo);
-                div.append(relocateLink);
-                $("body").append(div);
-
-                sharpOpeningAnimation(false, true, "SuperShortUserInfo_Container", false);
-                closeBtn.attr("onclick", "sharpOpeningAnimation(false, false, 'SuperShortUserInfo_Container', false);");
-                title.text(response.result.pseudoName);
-                searchName.text("@" + response.result.searchName);
-                relocateLink.attr("href", "/User/Info/" + response.result.searchName);
-            }, 225);
-        }
-        else {
-            openModal(response.alert, "Got It", null, 2, null, null, null, 3.25, "<i class='fas fa-slash text-danger'></i>");
-        }
-    });
-});
+    return value;
+}
 
 function recreateALink_FromText(value) {
     if (value != undefined || value != null) {
@@ -6032,6 +6405,8 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
         let modalH = $("#MainModal_Container").innerHeight();
         windowFullHeight -= modalH + 8;
 
+        sharpOpeningAnimation(true, false, "user-short-info-container", true);
+
         if (containersFullHeight > 0 && containersFullHeight < windowFullHeight && currentContainerType) {
             $("#MainModal_Container").css("bottom", containersFullHeight + 24 + "px");
             setTimeout(function () {
@@ -6075,7 +6450,8 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_FirstBtn").on("click", function () {
-                    animatedClose(false, "MainModal_Container");
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
                 });
                 break;
             case 3:
@@ -6095,8 +6471,18 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                     animatedClose(false, "MainModal_Container");
                 });
                 break;
+            case 6:
+                $("#MMC_FirstBtn").on("click", function () {
+                    let value = $("#" + btn1Action).html();
+                    navigator.clipboard.writeText(value);
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
+                    openModal("Selected value has been successfully copied to clipboard", null, null, null, null, null, null, 2.5, "<i class='fas fa-copy text-primary'></i>");
+                });
+                break;
             default:
-                animatedClose(false, "MainModal_Container");
+                $("#MainModal_Container").css("bottom", "-1200px");
+                $("#MainModal_Container").fadeOut(300);
                 break;
         }
     }
@@ -6117,7 +6503,8 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                 break;
             case 2:
                 $("#MMC_SecondBtn").on("click", function () {
-                    animatedClose(false, "MainModal_Container");
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
                 });
                 break;
             case 3:
@@ -6138,8 +6525,18 @@ function openModal(text, btn1Txt, btn2Txt, btn1WhatToDo, btn1Action, btn2WhatToD
                     animatedClose(false, "MainModal_Container");
                 });
                 break;
+            case 6:
+                $("#MMC_SecondBtn").on("click", function () {
+                    let value = $("#" + btn2Action).html();
+                    navigator.clipboard.writeText(value);
+                    $("#MainModal_Container").css("bottom", "-1200px");
+                    $("#MainModal_Container").fadeOut(300);
+                    openModal("Selected value has been successfully copied to clipboard", null, null, null, null, null, null, 3.75, "<i class='fas fa-copy text-primary'></i>");
+                });
+                break;
             default:
-                animatedClose(false, "MainModal_Container");
+                $("#MainModal_Container").css("bottom", "-1200px");
+                $("#MainModal_Container").fadeOut(300);
                 break;
         }
     }
@@ -6195,6 +6592,7 @@ function displayCorrect(width) {
     $(".main-container").css("max-height", neededH + "px");
     $(".bubble-container").css("max-height", neededH + "px");
     $(".smallside-box-container").css("max-height", neededH + "px");
+    $(".unkillable-smallside-box-container").css("max-height", neededH + "px");
     $(".btn-right-bottom-fixed").css("bottom", botNavbarH + 10 + "px");
     if (sideBarStatus < 0) {
         $("#MainBotOffNavbar").css("width", "100%");
@@ -6214,7 +6612,9 @@ function displayCorrect(width) {
             $(".static-bar").css("width", "100%");
             $(".static-bar").css("left", 0);
             $(".smallside-box-container").css("width", "99%");
+            $(".unkillable-smallside-box-container").css("width", "99%");
             $(".smallside-box-container").css("left", "2px");
+            $(".unkillable-smallside-box-container").css("left", "2px");
             $(".smallside-modal-container").css("left", "2.4%");
             $(".smallside-modal-container").css("width", "95%");
             $(".card-box-container").css("width", "100%");
@@ -6241,7 +6641,9 @@ function displayCorrect(width) {
             $(".static-bar").css("width", leftW + "px");
             $(".static-bar").css("left", leftBarW + "px");
             $(".smallside-box-container").css("width", smallSideContainerW + "px");
+            $(".unkillable-smallside-box-container").css("width", smallSideContainerW + "px");
             $(".smallside-box-container").css("left", "2px");
+            $(".unkillable-smallside-box-container").css("left", "2px");
             $(".smallside-modal-container").css("left", "10px");
             $(".smallside-modal-container").css("width", smallSideContainerW - 19 + "px");
             $(".card-box-container").css("width", smallSideContainerW + "px");
@@ -6316,28 +6718,51 @@ function closeContainerBubbleAnimation(element, isForSmallSide) {
     else animatedClose(false, element);
 }
 
-function bubbleAnimation(element, isForOpening) {
+function bubbleAnimation(element, isForOpening, isSpeedUp) {
     if (isForOpening) {
-        $("#" + element).fadeIn(300);
-        $("#" + element).css("z-index", "1000");
-        $("#" + element).css("top", "55px");
-        $("#" + element).addClass("shadow-lg");
-        setTimeout(function () {
-            $("#" + element).css("width", "75%");
-        }, 150);
-        setTimeout(function () {
-            $("#" + element).css("top", "10px");
-            $("#" + element).css("width", "70%");
-        }, 450);
-        setTimeout(function () {
-            $("#" + element).css("top", "25px");
-        }, 900);
+        if (isSpeedUp) {
+            $("#" + element).fadeIn(300);
+            $("#" + element).css("z-index", "1000");
+            $("#" + element).css("top", "55px");
+            $("#" + element).addClass("shadow-lg");
+            setTimeout(function () {
+                $("#" + element).css("width", "75%");
+            }, 150);
+            setTimeout(function () {
+                $("#" + element).css("top", "10px");
+                $("#" + element).css("width", "70%");
+            }, 450);
+            setTimeout(function () {
+                $(".bubble-container-body").css("filter", "none");
+                $("#" + element).css("top", "25px");
+            }, 900);
+        }
+        else {
+            setTimeout(function () {
+                $("#" + element).fadeIn(300);
+                $("#" + element).css("z-index", "1000");
+                $("#" + element).css("top", "55px");
+                $("#" + element).addClass("shadow-lg");
+                setTimeout(function () {
+                    $("#" + element).css("width", "75%");
+                }, 150);
+                setTimeout(function () {
+                    $("#" + element).css("top", "10px");
+                    $("#" + element).css("width", "70%");
+                    $(".bubble-container-body").css("filter", "none");
+                }, 450);
+                setTimeout(function () {
+                    $("#" + element).css("top", "25px");
+                }, 900);
+            }, 650);
+        }
     }
     else {
+        $(".bubble-container-body").css("filter", "blur(12px)");
         $(".bubble-container").css("top", "60px");
         $(".bubble-container").css("width", "75%");
         setTimeout(function () {
-            $("#" + element).removeClass("shadow-lg");
+            $(".bubble-container").removeClass("shadow-lg");
             $(".bubble-container").css("width", "70%");
             $(".bubble-container").css("z-index", "-1");
         }, 300);

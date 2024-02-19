@@ -39,7 +39,7 @@ namespace ApplicationY.Repositories
                     bool CheckPassword = await _userManager.CheckPasswordAsync(UserInfo, Model.Password);
                     if (CheckPassword && Model.ReserveCode == UserInfo.ReserveCode)
                     {
-                        bool IsNewEmailUnique = await _context.Users.AnyAsync(u => u.Email == Model.NewEmail);
+                        bool IsNewEmailUnique = await _context.Users.AsNoTracking().AnyAsync(u => u.Email == Model.NewEmail);
                         if (!IsNewEmailUnique)
                         {
                             string? ChangeEmailToken = await _userManager.GenerateChangeEmailTokenAsync(UserInfo, Model.NewEmail);
@@ -114,10 +114,10 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
-                int Result = await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsVerified, true));
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsVerified, true));
                 if (Result != 0)
                 {
-                    int InfoChangeResult = await _context.VerificationQueues.Where(u => u.UserId == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.VerifiedAt, DateTime.Now));
+                    int InfoChangeResult = await _context.VerificationQueues.AsNoTracking().Where(u => u.UserId == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.VerifiedAt, DateTime.Now));
                     if (InfoChangeResult != 0) return Id;
                 }
             }
@@ -126,7 +126,7 @@ namespace ApplicationY.Repositories
 
         public async Task<bool> QueueForVerificationAsync(int Id)
         {
-            bool HaveQueuedYet = await _context.VerificationQueues.AnyAsync(q => q.UserId == Id);
+            bool HaveQueuedYet = await _context.VerificationQueues.AsNoTracking().AnyAsync(q => q.UserId == Id);
             if (!HaveQueuedYet)
             {
                 VerificationQueue verificationQueue = new VerificationQueue()
@@ -164,7 +164,7 @@ namespace ApplicationY.Repositories
                 {
                     if (Id != 0)
                     {
-                        bool IsEmailEqualToId = await _context.Users.AnyAsync(u => u.Id == Id && u.Email == Email);
+                        bool IsEmailEqualToId = await _context.Users.AsNoTracking().AnyAsync(u => u.Id == Id && u.Email == Email);
                         if (IsEmailEqualToId)
                         {
                             Code = Guid.NewGuid().ToString("D").Substring(0, 8);
@@ -229,10 +229,9 @@ namespace ApplicationY.Repositories
         {
             if(Model != null && !String.IsNullOrEmpty(Model.Token))
             {
-                bool AreEmailAndIdEqual = await _context.Users.AnyAsync(u => u.Id == Model.Id && u.Email == Model.Email);
+                bool AreEmailAndIdEqual = await _context.Users.AsNoTracking().AnyAsync(u => u.Id == Model.Id && u.Email == Model.Email);
                 if (AreEmailAndIdEqual)
                 {
-                    //bool IsThereAnyCodeLikeThis = await _context.TemporaryCodes.AnyAsync(u => u.UserId == Model.Id && u.Code == Model.Code);
                     bool IsThereAnyCodeFromThisUser = _cache.TryGetValue("uniqueCode_" + Model.Id, out string? Code);
                     if (IsThereAnyCodeFromThisUser && Model.Code == Code)
                     {                       
@@ -255,7 +254,7 @@ namespace ApplicationY.Repositories
                 int SenderRoleId = await _othersRepository.GetUserRoleAsync(SenderId);
                 if(SenderRoleId > 0)
                 {
-                    bool IsAccountDisabled = await _context.Users.AnyAsync(u => u.IsDisabled);
+                    bool IsAccountDisabled = await _context.Users.AsNoTracking().AnyAsync(u => u.IsDisabled);
                     if (!IsAccountDisabled)
                     {
                         int TargetRoleId = await _othersRepository.GetUserRoleAsync(Id);
@@ -281,7 +280,7 @@ namespace ApplicationY.Repositories
                     else
                     {
                         await _context.Users.Where(u => u.Id == Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.IsDisabled, false));
-                        int Result = await _context.DisabledAccounts.Where(u => u.UserId == Id && u.SenderId == SenderId).ExecuteDeleteAsync();
+                        int Result = await _context.DisabledAccounts.AsNoTracking().Where(u => u.UserId == Id && u.SenderId == SenderId).ExecuteDeleteAsync();
                         if(Result != 0) { return Id; }
                     }
                 }

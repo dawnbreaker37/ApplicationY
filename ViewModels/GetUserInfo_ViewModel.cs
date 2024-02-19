@@ -8,6 +8,7 @@ namespace ApplicationY.ViewModels
     {
         public int Id { get; set; }
         public bool IsEmailConfirmed { get; set; }
+        public bool AreMessagesDisabled { get; set; }
         public string? UserName { get; set; }   
         public string? PseudoName { get; set; }
         public string? SearchName { get; set; }

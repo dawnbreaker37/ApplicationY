@@ -33,7 +33,7 @@ namespace ApplicationY.Repositories
                             string? NewFileName = Guid.NewGuid().ToString("D").Substring(0, 9);
                             string? FullFileName = string.Concat(NewFileName, Extension);
 
-                            using(FileStream fs= new FileStream(_webHostEnvironment.WebRootPath + "/ProjectAudios/" + FullFileName, FileMode.Create))
+                            using (FileStream fs = new FileStream(_webHostEnvironment.WebRootPath + "/ProjectAudios/" + FullFileName, FileMode.Create))
                             {
                                 await Audios[i].CopyToAsync(fs);
                                 Audio audio = new Audio
@@ -59,7 +59,7 @@ namespace ApplicationY.Repositories
         {
             if((Id != 0) && (!String.IsNullOrEmpty(Title) && Title.Length <= 40))
             {
-                int Result = await _context.Audios.Where(a => a.Id == Id && !a.IsRemoved).ExecuteUpdateAsync(a => a.SetProperty(a => a.Title, Title));
+                int Result = await _context.Audios.AsNoTracking().Where(a => a.Id == Id && !a.IsRemoved).ExecuteUpdateAsync(a => a.SetProperty(a => a.Title, Title));
                 if (Result != 0) return Title;
             }
             return null;

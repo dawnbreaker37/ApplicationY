@@ -32,6 +32,14 @@
             <input type="hidden" name="Id" id="GUIFA_Id_Val" value="0" />
             <input type="hidden" name="IsForAdmins" value="true" />
         </form>
+        <form method="post" asp-controller="Messages" asp-action="MarkAsRead" id="MarkAsReadForAdmins_Form">
+            <input type="hidden" name="MessageId" id="MessageId_Val" value="0" />
+            <input type="hidden" name="UserId" id="UserId_Val" value="-256" />
+        </form>
+        <form method="post" asp-controller="Messages" asp-action="RemoveSentMessage" id="RemoveMessageForAdmins_Form">
+            <input type="hidden" name="Id" id="RemoveMessage_Id_Val" value="0" />
+            <input type="hidden" name="UserId" value="-256" />
+        </form>
         <div class="d-none">
             <input type="hidden" id="AdminRoleId" value="@RoleInfo.RoleId" />
         </div>
@@ -39,13 +47,24 @@
     <div class="box-container shadow-sm p-3 text-center">
         <div class="row">
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="Search_Container-Open"> <i class="fas fa-search"></i> <br />Search</button>
+                <div>
+                    <form method="get" asp-controller="Messages" asp-action="GetAllForAdmins" id="GetAllForAdmins_Form">
+                        <input type="hidden" name="Id" value="@UserInfo.Id" />
+                        <input type="hidden" name="GetRemovedToo" value="false" />
+                        <input type="hidden" name="SkipCount" id="GAFA_SkippedCount_Val" value="0" />
+                        <input type="hidden" name="LoadCount" id="GAFA_LoadCount_Val" value="45" />
+                        <button type="submit" class="btn btn-navbar btn-sm w-100" id="GAFA_Sbmt_Btn"> <i class="fas fa-comment-dots"></i> <br />Messages</button>
+                    </form>
+                </div>
             </div>
             <div class="col">
                 <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="Preload_Container-Open"> <i class="fas fa-tools"></i> <br />Toolbox</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="AboutAdmin_Container-Open"> <i class="fas fa-user-shield"></i> <br />Info</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="Search_Container-Open"> <i class="fas fa-search"></i> <br />Search</button>
+            </div>
+            <div class="col">
+                <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="AboutAdmin_Container-Open"> <i class="fas fa-user-shield"></i> <br />About</button>
             </div>
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
@@ -60,12 +79,32 @@
         </div>
     </div>
 
+    <div class="smallside-box-container shadow-standard scrollbar-hidden" id="Messages_Container">
+        <div class="header-container p-3 pb-2" id="Messages_Container-Header">
+            <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="Messages_Container-Close"></button>
+            <span class="h5 text-truncate">Received Messages, <span id="ReceivedMessages_Count">@ViewBag.MessagesCount.ToString("N0")</span></span>
+            <div></div>
+            <small class="card-text text-muted">almost loaded <span id="AlreadyLoadedMessages_Count">0</span> messages <span id="ThisTimeLoadedMessages_Count"></span></small>
+        </div>
+        <div class="mt-2 p-3 pt-0">
+            <div id="ReceivedMessages_Box">
+
+            </div>
+            <div class="mt-1 text-center" id="LoadMoreMessages_Box">
+                <button type="button" class="btn btn-outline-primary w-100 btn-sm text-primary btn-standard-not-animated border-0" id="LoadMoreMessagesForAdmins_Btn" disabled>Load More Messages For Admins</button>
+            </div>
+        </div>
+    </div>
+
     <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
         <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
             <button type="button" class="btn btn-close btn-sm float-end ms-1" aria-label="close" id="SendMessage_Container-Close"></button>
             <h5 class="h5 text-truncate">Send Message to <span class="text-primary" id="SM_Username_Lbl"> unknown user</span></h5>
+            <div class="mt-1" style="display: none;" id="ReplyingMsg_Box">
+                <small class="card-text text-muted">Reply to <span class="text-dark" id="ReplyingMsgText_Lbl"> unknown message</span></small>
+            </div>
         </div>
-        <div class="mt-2 p-3 pt-0">
+        <div class="p-3 pt-2 border-top">
             <div>
                 <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessageFromAdmins_Form">
                     <input type="hidden" name="UserId" id="SMFA_UserId_Val" value="0" />
@@ -73,8 +112,8 @@
                     <div class="w-100">
                         <textarea name="Text" class="form-control send-msg-form-control" id="SMFA_Text_Textarea" rows="1" maxlength="2500" placeholder="Enter your message here"></textarea>
                     </div>
-                    <div>
-                        <small class="card-text text-muted">Your message will appear in notifications of users from  Admin or Support</small>
+                    <div class="ms-1">
+                        <small class="card-text text-muted">Your message will appear in notifications of users from Admin or Support</small>
                     </div>
                     <div class="mt-3">
                         <button type="submit" class="btn btn-primary btn-standard-with-no-colour w-100" id="SMFA_SendSbmt_Btn">Send Message</button>

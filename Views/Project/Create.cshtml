@@ -223,7 +223,23 @@
             <div class="d-none">
                 <input type="hidden" asp-for="UserId" value="@UserInfo!.Id" />
             </div>
-            <div>
+            @if(UserInfo.AreMessagesDisabled)
+            {
+                <div class="form-check form-switch">
+                    <input class="form-check-input" asp-for="AreCommentsDisabled" type="checkbox" checked value="true" disabled />
+                    <label class="form-check-label fw-500" asp-for="AreCommentsDisabled">Disable Comments</label>
+                </div>
+                <small class="card-text text-muted">Enable all comments from account settings to get access</small>
+            }
+            else 
+            {
+                <div class="form-check form-switch">
+                    <input class="form-check-input" asp-for="AreCommentsDisabled" type="checkbox" value="false" />
+                    <label class="form-check-label fw-500" asp-for="AreCommentsDisabled">Disable Comments</label>
+                </div>
+            }
+            <small class="card-text text-muted">Disables comments, but does not removes previously sent ones</small>
+            <div class="mt-3">
                 <label class="form-label fw-500" asp-for="Name">Title</label>
                 <span class="badge warning-badge" asp-validation-for="Name"></span>
                 <input asp-for="Name" class="form-control" placeholder="Enter your project title" autocomplete="off" />

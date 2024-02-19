@@ -12,13 +12,15 @@ namespace ApplicationY.Controllers
     {
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
+        private readonly IUser _userRepository;
         private readonly IMessage _messageRepository;
 
-        public MessagesController(Context context, UserManager<User> userManager, IMessage messageRepository)
+        public MessagesController(Context context, UserManager<User> userManager, IUser userRepository, IMessage messageRepository)
         {
             _context = context;
             _userManager = userManager;
             _messageRepository = messageRepository;
+            _userRepository = userRepository;
         }
 
         [HttpPost]
@@ -31,6 +33,18 @@ namespace ApplicationY.Controllers
                 else return Json(new { success = false, alert = "Message hasn't been sent. Please, check all datas and try again" });
             }
             else return Json(new { success = false, alert = "An error occured while trying to send the message. Please, be sure that the message text is correct and then try to send it again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SendToAdmins(SendMessage_ViewModel Model)
+        {
+            if (ModelState.IsValid)
+            {
+                bool Result = await _messageRepository.SendAsync(Model);
+                if (Result) return Json(new { success = true, alert = "Your message has been successfully sent. We'll reply to your account or email if haven't got account yet" });
+                else return Json(new { success = false, alert = "Unable to send message. Please, try again later, may be the system is overloaded now" });
+            }
+            else return Json(new { success = false, alert = "Something went wrong. Please, check all datas and then try again" });
         }
 
         [HttpPost]
@@ -68,11 +82,36 @@ namespace ApplicationY.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMessageInfo(int Id)
+        public async Task<IActionResult> GetMessageInfo(int Id, bool IsFromSender)
         {
-            GetMessages_ViewModel? MsgInfo = await _messageRepository.GetMessageInfo(Id);
-            if (MsgInfo != null) return Json(new { success = true, result = MsgInfo });
+            GetMessages_ViewModel? MsgInfo = await _messageRepository.GetMessageInfo(Id, IsFromSender);
+            if (MsgInfo != null)
+            {
+                if (IsFromSender)
+                {
+                    if (MsgInfo.UserId != -256)
+                    {
+                        MsgInfo.ReceiverName = await _userRepository.GetUserPseudonameOrSearchnameById(MsgInfo.UserId, false);
+                        MsgInfo.ReceiverSearchName = await _userRepository.GetUserPseudonameOrSearchnameById(MsgInfo.UserId, true);
+                    }
+                    else MsgInfo.ReceiverName = "Supports";
+                }
+                return Json(new { success = true, result = MsgInfo });
+            }
             else return Json(new { success = false, alert = "Selected message info wasn't found" });
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> GetAllForAdmins(int Id, bool GetRemovedToo, int SkipCount, int LoadCount)
+        {
+            IQueryable<GetMessages_ViewModel>? Messages_Preview = await _messageRepository.GetAdminsReceivedMessagesAsync(Id, GetRemovedToo, SkipCount, LoadCount);
+            if (Messages_Preview != null)
+            {
+                List<GetMessages_ViewModel>? Messages = await Messages_Preview.ToListAsync();
+                if (Messages != null) return Json(new { success = true, result = Messages, count = Messages.Count, skippedCount = SkipCount + Messages.Count, fullLoadedCount = SkipCount + Messages.Count });
+                else return Json(new { success = false, alert = "There are no messages to load" });
+            }
+            else return Json(new { success = false, alert = "Unable to get messages. Please, try again later" });
         }
 
         [HttpGet]
@@ -80,7 +119,7 @@ namespace ApplicationY.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                IQueryable<GetMessages_ViewModel>? MessagesPreview = _messageRepository.GetAllMyMessages(Id, false);
+                IQueryable<GetMessages_ViewModel>? MessagesPreview = _messageRepository.GetReceivedMessages(Id, false);
                 if (MessagesPreview != null)
                 {
                     List<GetMessages_ViewModel>? Messages = await MessagesPreview.ToListAsync();
@@ -98,7 +137,7 @@ namespace ApplicationY.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                IQueryable<GetMessages_ViewModel>? GetAllSentMessages = _messageRepository.GetAllMyMessages(Id, true);
+                IQueryable<GetMessages_ViewModel>? GetAllSentMessages = _messageRepository.GetSentMessages(Id, false);
                 if (GetAllSentMessages != null)
                 {
                     List<GetMessages_ViewModel>? Result = await GetAllSentMessages.ToListAsync();
@@ -114,7 +153,9 @@ namespace ApplicationY.Controllers
         [HttpPost]
         public async Task<IActionResult> RemoveSentMessage(int Id, int UserId)
         {
-            int Result = await _messageRepository.RemoveAsync(Id, UserId);
+            int Result = 0;
+            if (UserId == -256) Result = await _messageRepository.RemoveForAdminsAsync(Id);
+            else Result = await _messageRepository.RemoveAsync(Id, UserId);
             if (Result != 0) return Json(new { success = true, alert = "Selected message has been successfully deleted", id = Result });
             return Json(new { success = false, alert = "Unable to remove selected message" });
         }

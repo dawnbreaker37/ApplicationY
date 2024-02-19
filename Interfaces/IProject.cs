@@ -12,6 +12,7 @@ namespace ApplicationY.Interfaces
         public Task<int> IncreaseProjectViews(int Id, int CurrentCount, int Count);
         public Task<Project?> GetProjectAsync(int Id, int UserId, bool GetUsername);
         public Task<Project?> GetProjectAsync(int Id, int UserId);
+        public Task<Project?> GetProjectToEditAsync(int Id, int UserId);
         public Task<Project?> GetAllProjectAsync(int Id, bool GetUsername, bool GetAdditionalInfo);
         public IQueryable<Project?>? GetUsersAllProjectsWInfo(int UserId, int SenderId, bool GetAdditionalInfo);
         public IQueryable<Project?>? GetUsersAllProjects(int UserId, int SenderId, bool ForAdmins);

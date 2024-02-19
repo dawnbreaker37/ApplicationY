@@ -31,7 +31,7 @@
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-open-container" id="EditAccount_Container-Open"> <i class="fas fa-edit"></i> <br />Main</button>
             </div>
             <div class="col">
-                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditSecuritySettings_Container-Open"> <i class="fas fa-lock"></i> <br />Security</button>
+                <button type="button" class="btn btn-navbar btn-sm w-100 btn-open-container" id="EditSecuritySettings_Container-Open"> <i class="fas fa-cog"></i> <br />Settings</button>
             </div>
             <div class="col d-sm-block d-lg-none d-xl-none d-md-none">
                 <button type="button" class="btn btn-navbar btn-sm w-100 smallside-btn-close-n-open" id="Preload_Container-AdditionalOpen"> <i class="fas fa-times-circle text-danger"></i> <br />Close</button>
@@ -651,10 +651,62 @@
 <div class="main-container shadow-standard" id="EditSecuritySettings_Container">
     <div class="header-container p-3 pb-2" id="EditSecuritySettings_Container-Header">
         <button type="button" class="btn btn-close float-end ms-1" aria-label="close" id="EditSecuritySettings_Container-Close"></button>
-        <h5 class="h5 text-truncate">Security</h5>
+        <h5 class="h5 text-truncate">Settings</h5>
     </div>
     <div class="mt-2 p-3 pt-0">
         <div class="bordered-container p-2">
+            <h5 class="h5 safe-font">Main Settings</h5>
+            <div class="border-top mt-2 pt-2"></div>
+            <div>
+                <form method="post" asp-controller="Account" asp-action="EditMainSettings" id="EditMainSettings_Form">
+                    <div>
+                        <div class="d-none">
+                            <input type="hidden" asp-for="Id" value="@UserInfo.Id" />
+                        </div>
+                        @if(UserInfo.AreMessagesDisabled)
+                        {
+                            <div class="form-check form-switch">
+                                <input asp-for="AreMessagesDisabled" class="form-check-input" type="checkbox" value="true" checked />
+                                <label class="form-check-label fw-500" asp-for="AreMessagesDisabled">Disable Messages</label>
+                            </div>
+                            <small class="card-text text-muted" id="DisabledMessages_Lbl">No one will be able to send you a message</small>
+                        }
+                        else
+                        {
+                            <div class="form-check form-switch">
+                                <input asp-for="AreMessagesDisabled" class="form-check-input" type="checkbox" value="false" />
+                                <label class="form-check-label fw-500" asp-for="AreMessagesDisabled">Disable Messages</label>
+                            </div>
+                            <small class="card-text text-muted" id="DisabledMessages_Lbl">You'll receive all messages and notifications</small>
+                        }
+                    </div>
+                    <div class="mt-2">
+                        @if (UserInfo.AreCommentsDisabled)
+                        {
+                            <div class="form-check form-switch">
+                                <input asp-for="AreCommentsDisabled" class="form-check-input" type="checkbox" value="true" checked />
+                                <label class="form-check-label fw-500" asp-for="AreCommentsDisabled">Disable Comments</label>
+                                <button type="button" class="btn text-dark btn-standard-with-no-colour border-0 p-0 pb-1 ms-1 btn-sm info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Anyway you're free to disable comments of your selected project. This one will block all comments until you'll enable them back" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
+                            </div>
+                            <small class="card-text text-muted" id="DisabledComments_Lbl">No one can watch and send a comment to your projects</small>
+                        }
+                        else
+                        {
+                            <div class="form-check form-switch">
+                                <input asp-for="AreCommentsDisabled" class="form-check-input" type="checkbox" value="false" />
+                                <label class="form-check-label fw-500" asp-for="AreCommentsDisabled">Disable Comments</label>
+                                <button type="button" class="btn text-dark btn-standard-with-no-colour border-0 p-0 pb-1 ms-1 btn-sm info-popover" data-bs-custom-class="info-popover-show" data-bs-container="body" data-bs-toggle="popover" data-bs-placement="right" data-bs-content="Anyway you're free to disable comments of your selected project. This one will block all comments until you'll enable them back" data-bs-html="true"> <i class="fas fa-info-circle"></i> </button>
+                            </div>
+                            <small class="card-text text-muted" id="DisabledComments_Lbl">Comments of your projects are free to watch</small>
+                        }
+                    </div>
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-text btn-sm" id="EditMainSettings_Sbmt_Btn"> <i class="fas fa-check"></i> Save Changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="bordered-container p-2 mt-2">
             <h5 class="h5 safe-font">Email Settings</h5>
             <div class="border-top mt-2 pt-2"></div>
             <h6 class="h6">Email:</h6>
@@ -673,12 +725,36 @@
         <div class="bordered-container p-2 mt-2">
             <h5 class="h5 safe-font">Password Settings</h5>
             <div class="border-top mt-2 pt-2"></div>
+            <div>
+                <form method="post" asp-controller="Account" asp-action="EditEasyEntry" id="EditEasyEntry_Form">
+                    <div class="d-none">
+                        <input type="hidden" name="Id" value="@UserInfo.Id" />
+                    </div>
+                    @if(UserInfo.IsEasyEntryEnabled)
+                    {
+                        <div class="form-check form-switch">
+                            <input asp-for="IsEasyEntryEnabled" class="form-check-input" type="checkbox" value="true" checked />
+                            <label class="form-check-label fw-500" asp-for="IsEasyEntryEnabled">Easy Entry</label>
+                        </div>
+                        <small class="card-text text-muted" id="EasyEntry_Lbl">You've enabled <span class="fw-500">easy entry</span></small>
+                    }
+                    else
+                    {
+                        <div class="form-check form-switch">
+                            <input asp-for="IsEasyEntryEnabled" class="form-check-input" type="checkbox" value="false" />
+                            <label class="form-check-label fw-500" asp-for="IsEasyEntryEnabled">Easy Entry</label>
+                        </div>
+                        <small class="card-text text-muted" id="EasyEntry_Lbl">Easy Entry is disabled. This will allow your to sign-in by using an one time code that we'll send to your email</small>
+                    }
+                </form>
+            </div>
+            <div class="mt-3"></div>
             <h6 class="h6">Abitily to Change:</h6>
             @if(PermissionToChangePassword)
             {
                 <p class="card-text" id="PasswordStatus_Lbl">you may change your password</p>
                 <div class="mt-2"></div>
-                <h6 class="h6">Days Passed After Last Change:</h6>
+                <h6 class="h6">Days Passed From Last Change:</h6>
                 @if (ViewBag.LastPasswordChangeDays > 100)
                 {
                     <p class="card-text" id="PasswordUpdateDate_Lbl">more than 100 days</p>
@@ -694,7 +770,7 @@
             {
                 <p class="card-text" id="PasswordStatus_Lbl">you may not change it now</p>
                 <div class="mt-2"></div>
-                <h6 class="h6 safe-font">Days Passed After Last Change:</h6>
+                <h6 class="h6">Days Passed After Last Change:</h6>
                 <p class="card-text" id="PasswordUpdateDate_Lbl">@ViewBag.LastPasswordChangeDays/28 days (changed @UserInfo.PasswordResetDate.ToShortDateString(), at @UserInfo.PasswordResetDate.ToShortTimeString())</p>
                 <div class="mt-2"></div>
                 <button type="button" class="btn btn-text btn-sm" disabled> <i class="fas fa-pencil-alt"></i> Unable to Edit</button>

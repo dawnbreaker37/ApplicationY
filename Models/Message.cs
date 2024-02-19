@@ -10,6 +10,7 @@ namespace ApplicationY.Models
         public string? Text { get; set; }
         [ForeignKey("User")]
         public int? SenderId { get; set; }
+        public string? SenderEmail { get; set; }
         [ForeignKey("Project")]
         public int? ProjectId { get; set; }
         public int UserId { get; set; }

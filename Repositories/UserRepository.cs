@@ -96,6 +96,22 @@ namespace ApplicationY.Repositories
             return false;
         }
 
+        public async Task<bool> EditMainInfoAsync(EditAccountMainSettings_ViewModel Model)
+        {
+            if(Model != null)
+            {
+                int Result = await _context.Users.AsNoTracking().Where(u => u.Id == Model.Id).ExecuteUpdateAsync(u => u.SetProperty(u => u.AreCommentsDisabled, Model.AreCommentsDisabled).SetProperty(u => u.AreMessagesDisabled, Model.AreMessagesDisabled));
+                if (Result != 0)
+                {
+                    /*add tries with cache*/
+                    if (Model.AreCommentsDisabled) await _context.Projects.AsNoTracking().Where(p => p.UserId == Model.Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.PreviousCommentsDisableStatus, p => p.AreCommentsDisabled).SetProperty(p => p.AreCommentsDisabled, true));
+                    else await _context.Projects.AsNoTracking().Where(p => p.UserId == Model.Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.AreCommentsDisabled, p => p.PreviousCommentsDisableStatus));
+                    return true;
+                }
+            }
+            return false;
+        }
+
         public async Task<string?> EditPersonalInfoAsync(EditPersonalInfo_ViewModel Model)
         {
             if(Model.Id != 0 && Model.CountryId != 0)
@@ -129,7 +145,7 @@ namespace ApplicationY.Repositories
         {
             if (Model != null && !String.IsNullOrEmpty(Model.SearchName))
             {
-                bool IsSearchNameFree = await _context.Users.AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
+                bool IsSearchNameFree = await _context.Users.AsNoTracking().AnyAsync(u => (u.Id != Model.Id) && (u.SearchName != null && u.SearchName.ToLower() == Model.SearchName.ToLower()));
                 if (!IsSearchNameFree)
                 {
                     int Result = await _context.Users.AsNoTracking().Where(u => u.SearchName != null && Model.RealSearchName != null && u.SearchName.ToLower() == Model.RealSearchName.ToLower()).ExecuteUpdateAsync(u => u.SetProperty(u => u.PseudoName, Model.PseudoName).SetProperty(u => u.SearchName, Model.SearchName));
@@ -194,7 +210,17 @@ namespace ApplicationY.Repositories
 
         public async Task<GetUserInfo_ViewModel?> GetUserBySearchnameAsync(string? Searchname)
         {
-            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, IsVerifiedAccount = u.IsVerified, Description = u.Description, PseudoName = u.PseudoName, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            if (!String.IsNullOrEmpty(Searchname)) return await _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, Email = u.Email, Link1 = u.Link1, Link1Tag = u.Link1Tag, Link2 = u.Link2, Link2Tag = u.Link2Tag, CreatedAt = u.CreatedAt, IsVerifiedAccount = u.IsVerified, Description = u.Description, PseudoName = u.PseudoName, AreMessagesDisabled = u.AreMessagesDisabled, SearchName = u.SearchName, IsCompany = u.IsCompany, CountryFullName = u.Country != null ? u.Country!.Name : null, ProfilePhoto = u.ProfilePhoto }).FirstOrDefaultAsync(u => u.SearchName == null || u.SearchName.ToLower() == Searchname.ToLower());
+            else return null;
+        }
+
+        public async Task<string?> GetUserPseudonameOrSearchnameById(int? Id, bool IsSearchName)
+        {
+            if (Id != 0)
+            {
+                if (IsSearchName) return await _context.Users.AsNoTracking().Where(u => u.Id == Id && !u.IsDisabled).Select(u => u.SearchName).FirstOrDefaultAsync();
+                else return await _context.Users.AsNoTracking().Where(u => u.Id == Id && !u.IsDisabled).Select(u => u.PseudoName).FirstOrDefaultAsync();
+            }
             else return null;
         }
 
@@ -288,7 +314,6 @@ namespace ApplicationY.Repositories
                 if(!String.IsNullOrEmpty(Username) && String.IsNullOrEmpty(Email))
                 {
                     UserInfo = await _userManager.FindByNameAsync(Username);
-                    //UserInfo = await _context.Users.Select(u => new User { Id = u.Id, ReserveCode = u.ReserveCode, UserName = u.UserName, Email = u.Email }).AsNoTracking().FirstOrDefaultAsync(u => u.UserName == null || u.UserName == Username);
                     if (UserInfo != null && UserInfo.ReserveCode == ReserveCode)
                     {
                         string? TokenProvider = await _userManager.GeneratePasswordResetTokenAsync(UserInfo);
@@ -298,7 +323,6 @@ namespace ApplicationY.Repositories
                 else if(!String.IsNullOrEmpty(Email) && String.IsNullOrEmpty(Username))
                 {
                     UserInfo = await _userManager.FindByEmailAsync(Email);
-                    //UserInfo = await _context.Users.Select(u => new User { Id = u.Id, ReserveCode = u.ReserveCode, UserName = u.UserName, Email = u.Email }).AsNoTracking().FirstOrDefaultAsync(u => u.Email == null || u.Email == Email);
                     if (UserInfo != null && UserInfo.ReserveCode == ReserveCode)
                     {
                         string? TokenProvider = await _userManager.GeneratePasswordResetTokenAsync(UserInfo);

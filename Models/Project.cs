@@ -31,6 +31,8 @@ namespace ApplicationY.Models
         public int MainPhotoId { get; set; }
         public bool IsRemoved { get; set; }
         public bool IsClosed { get; set; }
+        public bool AreCommentsDisabled { get; set; }
+        public bool PreviousCommentsDisableStatus { get; set; }
         [ForeignKey("Category")]
         public int? CategoryId { get; set; }
         [ForeignKey("User")]
@@ -51,5 +53,7 @@ namespace ApplicationY.Models
         public string? UserName { get; set; }
         [NotMapped]
         public int Duration { get; set; }
+        [NotMapped]
+        public bool AreMessagesDisabled { get; set; }
     }
 }

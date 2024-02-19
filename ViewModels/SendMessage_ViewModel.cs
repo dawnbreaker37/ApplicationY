@@ -13,8 +13,8 @@ namespace ApplicationY.ViewModels
         public int? ProjectId { get; set; }
         [Required]
         public int UserId { get; set; }
-        [Required]
-        public int SenderId { get; set; }
+        public int? SenderId { get; set; }
+        public string? SenderEmail { get; set; }
         public int CommentId { get; set; }
     }
 }

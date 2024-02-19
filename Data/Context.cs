@@ -9,7 +9,6 @@ namespace ApplicationY.Data
     {
         public Context(DbContextOptions<Context> Options) : base(Options) { }
         public DbSet<User> Users { get; set; }
-        public DbSet<TemporaryCode> TemporaryCodes { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<Country> Countries { get; set; }
         public DbSet<Project> Projects { get; set; }
@@ -29,5 +28,7 @@ namespace ApplicationY.Data
         public DbSet<DisabledAccount> DisabledAccounts { get; set; }
         public DbSet<DisabledProject> DisabledProjects { get; set; }
         public DbSet<Mention> Mentions { get; set; }
+        public DbSet<PaymentHistory> PaymentHistories { get; set; }
+        public DbSet<SessionInfo> SessionInfos { get; set; }
     }
 }

@@ -189,7 +189,7 @@ namespace ApplicationY.Controllers
                     IQueryable<GetProjectImages_ViewModel>? Images_Preview = null;
                     IQueryable<Audio>? Audios_Preview = null;
 
-                    Project? ProjectInfo = await _projectRepository.GetProjectAsync(Id, UserInfo.Id, false);
+                    Project? ProjectInfo = await _projectRepository.GetProjectToEditAsync(Id, UserInfo.Id);
                     if (ProjectInfo != null && ProjectInfo.UserId == UserInfo.Id)
                     {
                         string? MainFullText = null;
@@ -494,10 +494,10 @@ namespace ApplicationY.Controllers
                         double TotalDays = 0;
                         int AudiosCount = 0;
                         int ImagesCount = 0;
+                        int CommentsCount = 0;
 
                         int ReleaseNotesCount = await _projectRepository.ReleaseNotesCountAsync(Id);
                         int LikesCount = await _projectRepository.ProjectLikesCount(Id);
-                        int CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
                         int FullProjectsCount = await _projectRepository.GetProjectsCount(0);
                         double CategoryStatistics = await _categoryRepository.GetProjectsCountByThisCategory(ProjectInfo.CategoryId);
                         double CategoryPercentage = Math.Round(CategoryStatistics / FullProjectsCount * 100, 1);
@@ -505,7 +505,11 @@ namespace ApplicationY.Controllers
                         IQueryable<Audio>? AudiosPreview = _audiosRepository.GetProjectAudios(Id);
                         GetProjectImages_ViewModel? MainImgInfo = await _imagesRepository.GetSingleImgAsync(ProjectInfo.MainPhotoId, Id);
 
-                        if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
+                        if (!ProjectInfo.AreCommentsDisabled)
+                        {
+                            CommentsCount = await _messageRepository.GetProjectCommentsCountAsync(Id);
+                            if (CommentsCount != 0) LastSentComment = await _messageRepository.GetLastCommentsInfoAsync(Id);
+                        }
 
                         StringBuilder sb = new StringBuilder();
                         sb.Append(ProjectInfo.TextPart1);

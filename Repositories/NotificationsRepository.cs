@@ -23,7 +23,7 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0)
             {
-                int Result = await _context.Notifications.Where(u => u.UserId == Id).ExecuteUpdateAsync(n => n.SetProperty(n => n.IsRemoved, true));
+                int Result = await _context.Notifications.AsNoTracking().Where(u => u.UserId == Id).ExecuteUpdateAsync(n => n.SetProperty(n => n.IsRemoved, true));
                 if (Result != 0) return true;
             }
             return false;
@@ -33,8 +33,8 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && UserId != 0)
             {
-                int Result = await _context.Notifications.Where(n => n.UserId == UserId && n.Id == Id).ExecuteUpdateAsync(n => n.SetProperty(n => n.IsRemoved, true));
-                if (Result != 0) return await _context.Notifications.CountAsync(n => n.UserId == UserId && !n.IsRemoved);
+                int Result = await _context.Notifications.AsNoTracking().Where(n => n.UserId == UserId && n.Id == Id).ExecuteUpdateAsync(n => n.SetProperty(n => n.IsRemoved, true));
+                if (Result != 0) return await _context.Notifications.AsNoTracking().CountAsync(n => n.UserId == UserId && !n.IsRemoved);
             }
             return -256;
         }

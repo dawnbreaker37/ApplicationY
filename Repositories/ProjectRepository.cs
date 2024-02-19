@@ -4,22 +4,23 @@ using ApplicationY.Models;
 using ApplicationY.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace ApplicationY.Repositories
 {
     public class ProjectRepository : Base<Project>, IProject
     {
         private readonly Context _context;
-        private readonly UserManager<User> _userManager;
         private readonly IWebHostEnvironment _webHostEnvironment;
         private readonly IImages _imagesRepository;
+        private readonly IMemoryCache _cache;
 
-        public ProjectRepository(Context context, UserManager<User> userManager, IImages imagesRepository, IWebHostEnvironment webHostEnvironment) : base(context)
+        public ProjectRepository(Context context, IMemoryCache cache, IImages imagesRepository, IWebHostEnvironment webHostEnvironment) : base(context)
         {
             _context = context;
-            _userManager = userManager;
             _imagesRepository = imagesRepository;
             _webHostEnvironment = webHostEnvironment;
+            _cache = cache;
         }
 
         public async Task<string?> CreateAsync(CreateProject_ViewModel Model)
@@ -61,7 +62,7 @@ namespace ApplicationY.Repositories
 
                 if (Model.YoutubeLink != null)
                 {
-                    if (Model.YoutubeLink.Contains("?"))
+                    if (Model.YoutubeLink.Contains('?'))
                     {
                         Model.YoutubeLink = Model.YoutubeLink.Substring(Model.YoutubeLink.LastIndexOf("=") + 1);
                     }
@@ -85,6 +86,8 @@ namespace ApplicationY.Repositories
                     UserId = Model.UserId,
                     TargetPrice = Model.ProjectPrice,
                     CategoryId = Model.CategoryId,
+                    AreCommentsDisabled = Model.AreCommentsDisabled,
+                    PreviousCommentsDisableStatus = false,
                     PastTargetPrice = 0,
                     Views = 0,
                     IsBudget = Model.IsBudget,
@@ -109,6 +112,7 @@ namespace ApplicationY.Repositories
                 string? Part1;
                 string? Part2 = null;
                 string? Part3 = null;
+                bool PreviousDisabledCommentsStatus = _cache.TryGetValue("disabledCommsStatus_" + Model.Id, out bool PrevDisabledCommentsStatus);
                 if (Model.TextPart.Length <= 4000)
                 {
                     Part1 = Model.TextPart;
@@ -139,7 +143,7 @@ namespace ApplicationY.Repositories
 
                 if (Model.YoutubeLink != null)
                 {
-                    if (Model.YoutubeLink.Contains("?"))
+                    if (Model.YoutubeLink.Contains('?'))
                     {
                         Model.YoutubeLink = Model.YoutubeLink.Substring(Model.YoutubeLink.LastIndexOf("=") + 1);
                     }
@@ -149,7 +153,18 @@ namespace ApplicationY.Repositories
                     }
                 }
 
-                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.IsBudget, Model.IsBudget).SetProperty(p => p.DonationRules, Model.DonationRules).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.Deadline, Model.Deadline).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
+                if (!PreviousDisabledCommentsStatus)
+                {
+                    PrevDisabledCommentsStatus = await _context.Projects.AsNoTracking().Where(c => c.Id == Model.Id && !c.IsRemoved).Select(c => c.AreCommentsDisabled).FirstOrDefaultAsync();
+                    _cache.Set("disabledCommsStatus_" + Model.Id, PreviousDisabledCommentsStatus, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(35)));
+                }
+                else
+                {
+                    _cache.Remove("disabledCommsStatus_" + Model.Id);
+                    _cache.Set("disabledCommsStatus_" + Model.Id, Model.AreCommentsDisabled, new MemoryCacheEntryOptions().SetAbsoluteExpiration(TimeSpan.FromMinutes(35)));
+                }
+
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Model.Id && p.UserId == Model.UserId).ExecuteUpdateAsync(p => p.SetProperty(p => p.AreCommentsDisabled, Model.AreCommentsDisabled).SetProperty(p => p.PreviousCommentsDisableStatus, PrevDisabledCommentsStatus).SetProperty(p => p.Name, Model.Name).SetProperty(p => p.Description, Model.Description).SetProperty(p => p.IsBudget, Model.IsBudget).SetProperty(p => p.DonationRules, Model.DonationRules).SetProperty(p => p.PriceChangeAnnotation, Model.TargetPriceChangeAnnotation).SetProperty(p => p.CategoryId, Model.CategoryId).SetProperty(p => p.Deadline, Model.Deadline).SetProperty(p => p.TextPart1, Part1).SetProperty(p => p.TextPart2, Part2).SetProperty(p => p.TextPart3, Part3).SetProperty(p => p.TargetPrice, Model.ProjectPrice).SetProperty(p => p.Link1, Model.Link1).SetProperty(p => p.Link2, Model.Link2).SetProperty(p => p.PastTargetPrice, PreviousPrice).SetProperty(p => p.YoutubeLink, Model.YoutubeLink).SetProperty(p => p.LastUpdatedAt, DateTime.Now));
                 if (Result != 0) return Model.Name;
             }
             return null;
@@ -165,12 +180,21 @@ namespace ApplicationY.Repositories
             return 0;
         }
 
+        public async Task<Project?> GetProjectToEditAsync(int Id, int UserId)
+        {
+            if (Id != 0 && UserId != 0)
+            {
+                return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, Name = p.Name, AreCommentsDisabled = p.AreCommentsDisabled, UserId = p.UserId, CategoryId = p.CategoryId, Deadline = p.Deadline, Description = p.Description, TextPart1 = p.TextPart1, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, DonationRules = p.DonationRules, IsBudget = p.IsBudget, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, Link1 = p.Link1, Link2 = p.Link2, YoutubeLink = p.YoutubeLink, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation }).FirstOrDefaultAsync(p => p.Id == Id && p.UserId == UserId && !p.IsRemoved);
+            }
+            else return null;
+        }
+
         public async Task<Project?> GetProjectAsync(int Id, int UserId, bool GetUsername)
         {
             if (Id != 0 || UserId != 0)
             {
-                if (GetUsername) return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, DonationRules = p.DonationRules, CategoryDescription = p.Category == null ? null : p.Category.Description, IsBudget = p.IsBudget, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || (p.UserId != UserId && !p.IsClosed)));
-                else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, IsBudget = p.IsBudget, DonationRules = p.DonationRules, Deadline = p.Deadline, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || p.UserId != UserId && !p.IsClosed));
+                if (GetUsername) return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, AreCommentsDisabled = p.AreCommentsDisabled, DonationRules = p.DonationRules, CategoryDescription = p.Category == null ? null : p.Category.Description, IsBudget = p.IsBudget, Deadline = p.Deadline, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, UserName = p.User!.PseudoName, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink, AreMessagesDisabled = p.User!.AreMessagesDisabled }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || (p.UserId != UserId && !p.IsClosed)));
+                else return await _context.Projects.AsNoTracking().Select(p => new Project { Id = p.Id, MainPhotoId = p.MainPhotoId, CategoryName = p.Category == null ? null : p.Category.Name, IsBudget = p.IsBudget, AreCommentsDisabled = p.AreCommentsDisabled, DonationRules = p.DonationRules, Deadline = p.Deadline, CategoryDescription = p.Category == null ? null : p.Category.Description, Name = p.Name, Description = p.Description, TextPart1 = p.TextPart1, CategoryId = p.CategoryId, TextPart2 = p.TextPart2, TextPart3 = p.TextPart3, CreatedAt = p.CreatedAt, IsClosed = p.IsClosed, IsRemoved = p.IsRemoved, LastUpdatedAt = p.LastUpdatedAt, Link1 = p.Link1, Link2 = p.Link2, TargetPrice = p.TargetPrice, PastTargetPrice = p.PastTargetPrice, PriceChangeAnnotation = p.PriceChangeAnnotation, UserId = p.UserId, Views = p.Views, YoutubeLink = p.YoutubeLink, AreMessagesDisabled = p.User!.AreMessagesDisabled }).FirstOrDefaultAsync(p => p.Id == Id && ((p.UserId == UserId && p.IsClosed) || p.UserId != UserId && !p.IsClosed));
             }
             return null;
         }
@@ -186,10 +210,7 @@ namespace ApplicationY.Repositories
         {
             if (Id != 0)
             {
-                if (CurrentCount > 0)
-                {
-                    CurrentCount += Count;
-                }
+                if (CurrentCount > 0) CurrentCount += Count;
                 else CurrentCount = Count;
                 return await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.Views, CurrentCount));
             }
@@ -280,7 +301,7 @@ namespace ApplicationY.Repositories
         {
             if(ProjectId != 0 && UserId != 0)
             {
-                bool IsThereAnythingLikeThat = await _context.Likes.AnyAsync(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved);
+                bool IsThereAnythingLikeThat = await _context.Likes.AsNoTracking().AnyAsync(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved);
                 if (IsThereAnythingLikeThat) return 0;
                 else
                 {
@@ -323,7 +344,7 @@ namespace ApplicationY.Repositories
         {
             if(ProjectId != 0 && UserId != 0)
             {
-                bool Result = await _context.Likes.AnyAsync(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved);
+                bool Result = await _context.Likes.AsNoTracking().AnyAsync(l => l.ProjectId == ProjectId && l.UserId == UserId && !l.IsRemoved);
                 return Result;
             }
             else return false;
@@ -374,7 +395,7 @@ namespace ApplicationY.Repositories
         {
             if(ProjectId != 0 && !String.IsNullOrEmpty(Title) && !String.IsNullOrEmpty(Description))
             {
-                bool IsProjectReadyForReleaseNote = await _context.Projects.AnyAsync(p => !p.IsRemoved && p.Id == ProjectId);
+                bool IsProjectReadyForReleaseNote = await _context.Projects.AsNoTracking().AnyAsync(p => !p.IsRemoved && p.Id == ProjectId);
                 if (IsProjectReadyForReleaseNote)
                 {
                     Update update = new Update
@@ -450,7 +471,6 @@ namespace ApplicationY.Repositories
 
                     if (Count > 0 && Count <= 6)
                     {
-                        //int MainImgId = await _context.Projects.AsNoTracking().Where(p => p.Id == Id).Select(p => p.MainPhotoId).FirstOrDefaultAsync();
                         List<string?> FileNames = new List<string?>();
                         for(int i = 0; i < Count; i++)
                         {
@@ -470,7 +490,7 @@ namespace ApplicationY.Repositories
                                 if (i == 0 && CurrentImgsCount == 0)
                                 {
                                     FirstImgId = Image.Id;
-                                    await _context.Projects.Where(p => p.Id == Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, FirstImgId));
+                                    await _context.Projects.AsNoTracking().Where(p => p.Id == Id && !p.IsRemoved).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, FirstImgId));
                                 }
                             }
                             FileNames = FileNames.Append(FullName).ToList();
@@ -484,10 +504,10 @@ namespace ApplicationY.Repositories
 
         public async Task<int> DisableProjectAsync(int Id, int DisablerId, string Description)
         {
-            bool IsTheDisablerAnAdmin = await _context.UserRoles.AnyAsync(x => x.UserId == DisablerId);
+            bool IsTheDisablerAnAdmin = await _context.UserRoles.AsNoTracking().AnyAsync(x => x.UserId == DisablerId);
             if(IsTheDisablerAnAdmin && (!String.IsNullOrEmpty(Description) && Description.Length >= 40 && Description.Length < 320))
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, true));
                 if(Result != 0)
                 {
                     DisabledProject disabledProject = new DisabledProject
@@ -507,13 +527,13 @@ namespace ApplicationY.Repositories
 
         public async Task<int> EnableProjectAsync(int Id, int DisablerId)
         {
-            bool IsTheDisablerAnAdmin = await _context.UserRoles.AnyAsync(x => x.UserId == DisablerId);
+            bool IsTheDisablerAnAdmin = await _context.UserRoles.AsNoTracking().AnyAsync(x => x.UserId == DisablerId);
             if (IsTheDisablerAnAdmin)
             {
-                int Result = await _context.Projects.Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, false));
+                int Result = await _context.Projects.AsNoTracking().Where(p => p.Id == Id).ExecuteUpdateAsync(p => p.SetProperty(p => p.IsRemoved, false));
                 if (Result != 0)
                 {
-                    await _context.DisabledProjects.Where(p => p.ProjectId == Id).ExecuteDeleteAsync();
+                    await _context.DisabledProjects.AsNoTracking().Where(p => p.ProjectId == Id).ExecuteDeleteAsync();
                     return Id;
                 }
             }

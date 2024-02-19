@@ -16,10 +16,7 @@ namespace ApplicationY.Repositories
 
         public async Task<DisabledProject?> DisabledProjectInfoAsync(int Id)
         {
-            if (Id != 0)
-            {
-                return await _context.DisabledProjects.AsNoTracking().Select(d => new DisabledProject { DisabledAt = d.DisabledAt, ProjectId = d.ProjectId, Description = d.Description, Project = d.Project != null ? new Project { Name = d.Project.Name, CreatedAt = d.Project.CreatedAt } : null }).FirstOrDefaultAsync(d => d.ProjectId == Id);
-            }
+            if (Id != 0) return await _context.DisabledProjects.AsNoTracking().Select(d => new DisabledProject { DisabledAt = d.DisabledAt, ProjectId = d.ProjectId, Description = d.Description, Project = d.Project != null ? new Project { Name = d.Project.Name, CreatedAt = d.Project.CreatedAt } : null }).FirstOrDefaultAsync(d => d.ProjectId == Id);
             else return null;
         }
 
@@ -57,7 +54,7 @@ namespace ApplicationY.Repositories
             if(UserId == 0)
             {
                 if (Id != 0 && SenderId != 0 && !String.IsNullOrEmpty(Description) && Description.Length <= 900) {
-                    bool AnyPurgeForThisProjectFromThisUser = await _context.Purges.AnyAsync(p => p.UserId == SenderId && p.ProjectId == Id);
+                    bool AnyPurgeForThisProjectFromThisUser = await _context.Purges.AsNoTracking().AnyAsync(p => p.UserId == SenderId && p.ProjectId == Id);
                     if (!AnyPurgeForThisProjectFromThisUser)
                     {
                         Purge purge = new Purge
@@ -81,7 +78,7 @@ namespace ApplicationY.Repositories
             {
                 if (UserId != 0 && SenderId != 0 && !String.IsNullOrEmpty(Description) && Description.Length <= 900)
                 {
-                    bool AnyPurgeForThisUserFromThisSender = await _context.Purges.AnyAsync(p => p.UserId == SenderId && p.UserId == UserId);
+                    bool AnyPurgeForThisUserFromThisSender = await _context.Purges.AsNoTracking().AnyAsync(p => p.UserId == SenderId && p.UserId == UserId);
                     if (!AnyPurgeForThisUserFromThisSender)
                     {
                         Purge purge = new Purge

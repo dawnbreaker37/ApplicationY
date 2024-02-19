@@ -78,32 +78,35 @@
             </div>
         </div>
 
-        <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
-            <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
-                <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
-                <h5 class="h5 text-truncate">Send Message</h5>
+        @if (!CurrentUserInfo.AreMessagesDisabled)
+        {
+            <div class="smallside-box-container shadow-standard scrollbar-hidden" id="SendMessage_Container">
+                <div class="header-container p-3 pb-2" id="SendMessage_Container-Header">
+                    <button type="button" class="btn btn-close float-end ms-1" id="SendMessage_Container-Close" aria-label="close"></button>
+                    <h5 class="h5 text-truncate">Send Message</h5>
+                </div>
+                <div class="mt-2 p-3 pt-0">
+                    <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessage_Form">
+                        <div class="d-none">
+                            <input type="hidden" name="SenderId" value="@UserInfo.Id" />
+                            <input type="hidden" name="ProjectId" value="0" />
+                            <input type="hidden" name="UserId" value="@CurrentUserInfo.Id" />
+                        </div>
+                        <div class="row">
+                            <div class="col col-1">
+                                <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MsgSendSbmt_Btn" disabled> <i class="fas fa-arrow-up"></i></button>
+                            </div>
+                            <div class="col col-9">
+                                <textarea name="Text" id="Text" rows="1" placeholder="Enter text here" class="form-control w-100 form-control-sm send-msg-form-control"></textarea>
+                            </div>
+                            <div class="col col-2">
+                                <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100 text-full-delete" id="FullDelete-Text"> <i class="fas fa-backspace"></i> </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
             </div>
-            <div class="mt-2 p-3 pt-0">
-                <form method="post" asp-controller="Messages" asp-action="Send" id="SendMessage_Form">
-                    <div class="d-none">
-                        <input type="hidden" name="SenderId" value="@UserInfo.Id" />
-                        <input type="hidden" name="ProjectId" value="0" />
-                        <input type="hidden" name="UserId" value="@CurrentUserInfo.Id" />
-                    </div>
-                    <div class="row">
-                        <div class="col col-1">
-                            <button type="submit" class="btn btn-sm mt-1 rounded-message-btn" id="MsgSendSbmt_Btn" disabled> <i class="fas fa-arrow-up"></i></button>
-                        </div>
-                        <div class="col col-9">
-                            <textarea name="Text" id="Text" rows="1" placeholder="Enter text here" class="form-control w-100 form-control-sm send-msg-form-control"></textarea>
-                        </div>
-                        <div class="col col-2">
-                            <button type="button" class="btn btn-sm mt-1 rounded-message-btn w-100 text-full-delete" id="FullDelete-Text"> <i class="fas fa-backspace"></i> </button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
+        }
 
         <div class="smallside-box-container shadow-standard scrollbar-hidden" id="EditMention_Container">
             <div class="header-container p-3 pb-2" id="EditMention_Container-Header">
@@ -273,13 +276,20 @@
                         }
                     </div>
                     <div class="col">
-                        <button type="button" class="btn btn-lg btn-standard-not-animated border-0 smallside-btn-open-container" id="SendMessage_Container-Open"> <i class="far fa-comment-dots smallside-btn-open-container" id="SendMessage_Container-OpenY"></i> </button>
+                        @if(!CurrentUserInfo.AreMessagesDisabled)
+                        {
+                            <button type="button" class="btn btn-lg btn-standard-not-animated border-0 smallside-btn-open-container" id="SendMessage_Container-Open"> <i class="far fa-comment-dots smallside-btn-open-container" id="SendMessage_Container-OpenY"></i> </button>
+                        }
+                        else
+                        {
+                            <button type="button" class="btn btn-lg btn-standard-not-animated border-0 disabled" disabled> <i class="fas fa-comment-slash"></i> </button>
+                        }
                     </div>
                     <div class="col">
                         <div class="dropdown">
                             <button class="btn btn-lg btn-standard-not-animated border-0" type="button" data-bs-toggle="dropdown" aria-expanded="false"> <i class="fas fa-ellipsis-h"></i> </button>
                             <ul class="dropdown-menu shadow-sm p-1">
-                                <li><button type="button" class="dropdown-item copy-the-main-link mb-1"> <i class="far fa-copy"></i> Copy the Link</button></li>
+                                <li><button type="button" class="dropdown-item copy-the-main-link mb-1"> <i class="far fa-copy"></i> Copy Link</button></li>
                                 <li><button type="button" class="dropdown-item mb-1"> <i class="far fa-paper-plane"></i> Write via Inbox</button></li>
                                 <li><button type="button" class="dropdown-item text-danger btn-open-container" id="Purge_Container-Open"> <i class="fas fa-bolt"></i> Purge</button></li>
                             </ul>

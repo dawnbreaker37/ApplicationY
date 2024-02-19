@@ -13,11 +13,13 @@ namespace ApplicationY.Controllers
         private readonly Context _context;
         private readonly UserManager<User> _userManager;
         private readonly IOthers _othersRepository;
-        public SettingsController(Context context, UserManager<User> userManager, IOthers othersRepository)
+        private readonly IMessage _messagesRepository;
+        public SettingsController(Context context, UserManager<User> userManager, IOthers othersRepository, IMessage messagesRepository)
         {
             _context = context;
             _userManager = userManager;
             _othersRepository = othersRepository;
+            _messagesRepository = messagesRepository;   
         }
 
         public async Task<IActionResult> MainAdministrationPanel()
@@ -37,10 +39,12 @@ namespace ApplicationY.Controllers
                         {
                             GetAllRoles_Result = await GetAllRoles.ToListAsync();
                         }
+                        int MessagesCount = await _messagesRepository.GetReceivedMessagesCount(UserInfo.Id, -256, false);
 
                         ViewBag.UserInfo = UserInfo;
                         ViewBag.FullRoleInfo = FullRoleInfo;
                         ViewBag.RoleId = UserRole;
+                        ViewBag.MessagesCount = MessagesCount;
                         ViewBag.AllRoles = GetAllRoles_Result;
 
                         return View();

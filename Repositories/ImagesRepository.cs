@@ -45,11 +45,11 @@ namespace ApplicationY.Repositories
         {
             if(Id != 0 && ProjectId != 0)
             {
-                bool IsThisTheMainImg = await _context.Projects.AnyAsync(p => p.Id == ProjectId && p.MainPhotoId == Id);
+                bool IsThisTheMainImg = await _context.Projects.AsNoTracking().AnyAsync(p => p.Id == ProjectId && p.MainPhotoId == Id);
                 if (IsThisTheMainImg)
                 {
                     int OtherImgId = await _context.Images.AsNoTracking().Where(i => i.ProjectId == ProjectId && !i.IsRemoved && i.Id != Id).Select(i => i.Id).FirstOrDefaultAsync();
-                    await _context.Projects.Where(p => p.Id == ProjectId).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, OtherImgId));
+                    await _context.Projects.AsNoTracking().Where(p => p.Id == ProjectId).ExecuteUpdateAsync(p => p.SetProperty(p => p.MainPhotoId, OtherImgId));
                 }
                 int Result = await _context.Images.AsNoTracking().Where(i => i.Id == Id && i.ProjectId == ProjectId && !i.IsRemoved).ExecuteUpdateAsync(i => i.SetProperty(i => i.IsRemoved, true));
                 if (Result != 0) return Id;

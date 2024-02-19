@@ -21,6 +21,9 @@ namespace ApplicationY.ViewModels
         public string? Description { get; set; }
         [Required]
         public string? RealSearchName { get; set; }
+        public bool AreMessagesDisabled { get; set; }
+        public bool AreCommentsDisabled { get; set; }
+        public bool IsEasyEntryEnabled { get; set; }
 
     }
 }

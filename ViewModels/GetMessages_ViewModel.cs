@@ -12,11 +12,14 @@ namespace ApplicationY.ViewModels
         public int? ProjectId { get; set; }
         public bool IsRemoved { get; set; }
         public int? SenderId { get; set; }
+        public string? SenderEmail { get; set; }
         public bool IsChecked { get; set; }
         public int RepliesCount { get; set; }
         public bool IsFromSupports { get; set; }
         public DateTime SentAt { get; set; }
         public string? SenderName { get; set; }
+        public string? ReceiverName { get; set; }
+        public string? ReceiverSearchName { get; set; }
         public string? ProjectName { get; set; }
     }
 }

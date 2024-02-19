@@ -390,6 +390,13 @@ html {
     transform: translate(-50%, 0);
     transition: all ease 0.45s;
 }
+.bubble-container-body {
+    transition: all ease 0.275s;
+}
+
+.border-radius-max {
+    border-radius: 34px;
+}
 
 .smallside-box-container {
     z-index: 1000;
@@ -400,6 +407,16 @@ html {
     position: fixed;
     border-radius: 8px 8px 1px 1px;
     transition: all ease 0.5s;
+}
+.unkillable-smallside-box-container {
+    z-index: 0;
+    overflow-y: hidden;
+    bottom: 0;
+    display: block;
+    background-color: white;
+    position: fixed;
+    border-radius: 8px 8px 1px 1px;
+    transition: all ease 0.45s;
 }
 
 .btn-navbar {
@@ -823,7 +840,6 @@ body {
 .min-height-150 {
     min-height: 150px;
 }
-
 .get-user-short-info-by-searchname {
     cursor: pointer;
     border-radius: 34px;
