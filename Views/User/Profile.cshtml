@@ -661,7 +661,7 @@
                 <form method="post" asp-controller="Account" asp-action="EditMainSettings" id="EditMainSettings_Form">
                     <div>
                         <div class="d-none">
-                            <input type="hidden" asp-for="Id" value="@UserInfo.Id" />
+                            <input type="hidden" asp-for="Id" id="EMS_Id_Val" value="@UserInfo.Id" />
                         </div>
                         @if(UserInfo.AreMessagesDisabled)
                         {
@@ -777,16 +777,26 @@
             }
         </div>
             <div class="bordered-container p-2 mt-2">
-                <h5 class="h5 safe-font">Log Out</h5>
-                <div class="mt-2 border-top pt-2">
                 <div>
-                    <form method="post" asp-controller="Account" asp-action="LogOut">
-                        <button type="submit" class="btn btn-danger btn-standard-with-no-colour btn-sm"> <i class="fas fa-sign-out-alt"></i> Log Out</button>
-                    </form>
+                    <h5 class="h5 safe-font">Log Out</h5>
+                    <div class="mt-2 border-top pt-2">
+                    <div>
+                        <form method="post" asp-controller="Account" asp-action="LogOut">
+                            <button type="submit" class="btn btn-danger btn-standard-with-no-colour btn-sm"> <i class="fas fa-sign-out-alt"></i> Log Out</button>
+                        </form>
+                    </div>
+                    <div class="mt-1">
+                        <small class="card-text text-muted">Terminates only this session</small>
+                    </div>
+                    </div>
                 </div>
-                <div class="mt-1">
-                    <small class="card-text text-muted">Terminates only this session</small>
-                </div>
+                <div class="border-top mt-2 pt-2">
+                    <div>
+                        <button type="button" class="btn btn-danger btn-standard-with-no-colour btn-sm" disabled> <i class="far fa-times-circle"></i> Terminate all Sessions</button>
+                        <div class="mt-1">
+                            <small class="card-text text-muted">Terminates all sessions, except this one</small>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

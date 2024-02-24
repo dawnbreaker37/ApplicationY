@@ -12,7 +12,7 @@ let fullHeigth = 0;
 let lastContainerName = undefined;
 let currentContainerName = null;
 let bufferText;
-//GetAllPosts_Form
+
 window.onload = function () {
     let currentUrl = document.location.href;
     botNavbarH = $("#MainBotOffNavbar").innerHeight();
@@ -118,6 +118,21 @@ $("#SearchName").on("change", function (event) {
     });
 });
 
+//$("#TerminateAllSessions_Form").on("submit", function (event) {
+//    event.preventDefault();
+//    let url = $(this).attr("action");
+//    let data = $(this).serialize();
+
+//    $.post(url, data, function (response) {
+//        if (response.success) {
+//            openModal(response.alert, "Done", null, 2, null, null, null, 4, "<i class='fas fa-sign-out-alt text-official'></i>");
+//        }
+//        else {
+//            openModal(response.alert, "Got It", null, 2, null, null, null, 4, "<i class='fas fa-times text-danger'></i>");
+//        }
+//    });
+//});
+
 $("#SignIn_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -137,6 +152,62 @@ $("#SignIn_Form").on("submit", function (event) {
     });
 });
 
+$("#SendOneTimePasswordCode_Again").on("click", function () {
+    $("#FindUserExistence_Form").submit();
+});
+$("#FindUserExistence_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        $("#SendOneTimePasswordCode_Again").attr("disabled", true);
+        $("#SendOneTimePasswordCode_Again").html("Send Code Again");
+        if (response.success) {
+            let containerName;
+            let currentUrl = document.location.href;
+            if (currentUrl.toLowerCase().includes("true")) containerName = "Second_Container";
+            else containerName = "Preload_Container";
+            animatedClose(false, containerName);
+            $("#UserSignIn_StepOne_Box").fadeOut(250);
+
+            $("#SignIn_StepOneOpen_Btn").fadeIn(300);
+            if (response.easyEntryEnabled) {
+                let timeOut = 66;
+                modalInterval = setInterval(function () {
+                    timeOut--;
+                    $("#SendOneTimePasswordCode_Again").attr("disabled", true);
+                    $("#SendOneTimePasswordCode_Again").html(timeOut + " sec. to send again");
+                }, 1000);
+                modalTimeout = setTimeout(function () {
+                    clearInterval(modalInterval);
+                    $("#SendOneTimePasswordCode_Again").attr("disabled", false);
+                    $("#SendOneTimePasswordCode_Again").html("Send Code");
+                }, timeOut * 1000);
+
+                $("#SignInWithCode_Form_Sbmt_Btn").attr("disabled", false);
+                $("#LogInViaCode_Id_Val").val(response.result.id);
+                $("#LogInViaCode_Email_Val").val(response.result.email);
+                $("#UserSignIn_StepHalfAndTwo_Box").fadeIn(250);
+                $("#Password").attr("placeholder", "Enter 8-digit One-time Code");
+            }
+            else {
+                $("#SignIn_Form_Sbmt_Btn").attr("disabled", false);
+                $("#LogIn_UserName").val(response.result.email);
+                $("#UserSignIn_StepTwo_Box").fadeIn(250);
+                $("#Password").attr("placeholder", "Enter Your Password");
+            }
+            setTimeout(function () {
+                animatedOpen(false, containerName, true, true);
+            }, 250);
+        }
+        else {
+            $("#UsernameOrEmail").val(null);
+            openModal("We have not found any account with similar <span class='fw-500'>username</span > or <span class='fw-500'>email</span>. Please, check your entered data and then try again, or create an account if you do not have one", "Okay", null, 2, null, null, null, 4.5, "<i class='fas fa-exclamation-circle text-official'></i>");
+        }
+    });
+});
+
 $("#LogIn_Form").on("submit", function (event) {
     event.preventDefault();
     let url = $(this).attr("action");
@@ -147,11 +218,33 @@ $("#LogIn_Form").on("submit", function (event) {
             $("#LogIn_Password").attr("readonly", true);
             $("#LogIn_UserName").attr("readonly", true);
             $("#LogInSbmt_Btn").attr("disabled", true);
-            openModal(response.alert, "<i class='fas fa-home'></i> Relocate To Home Page", null, 0, "/Home/Index", null, null, 3.75);
+            openModal(response.alert, "<i class='fas fa-home'></i> Relocate to Home Page", null, 0, "/Home/Index", null, null, 3.75);
         }
         else {
+            if (response.accessFailedCount >= 5) {
+                $("#LogIn_Password").attr("readonly", true);
+                $("#LogIn_UserName").attr("readonly", true);
+                $("#LogInSbmt_Btn").attr("disabled", true);
+            }
             $("#LogIn_Password").val("");
             openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4.25);
+        }
+    });
+});
+$("#LogInViaCode_Form").on("submit", function (event) {
+    event.preventDefault();
+    let url = $(this).attr("action");
+    let data = $(this).serialize();
+
+    $.post(url, data, function (response) {
+        if (response.success) {
+            $("#LogInViaCode_Id_Val").val(null);
+            $("#LogInViaCode_Username_Val").val(null);
+            $("#OneTimeCode_Password_Val").val(null);
+            openModal(response.alert, " <i class='fas fa-home'></i> Relocate Now", null, 0, "/Home/Index", null, null, 4.5, "<i class='far fa-check-circle text-primary'></i>");
+        }
+        else {
+            openModal(response.alert, " <i class='fas fa-redo-alt'></i> Send Again", null, 2, null, null, null, 6.75, "<i class='fas fa-times-circle text-official'></i>");
         }
     });
 });
@@ -345,6 +438,7 @@ $("#SendCode_Form").on("submit", function (event) {
         if (response.success) {
             $(".modal").modal("hide");
             $("#PR_Username").val(response.email);
+            $("#SearchByUsername_Val").val(false);
             openModal(response.text, null, null, null, null, null, null, 3.75);
 
             setTimeout(function () {
@@ -385,17 +479,19 @@ $("#UpdatePassword_Form").on("submit", function (event) {
             $("#PasswordUpdateDate_Lbl").html('few seconds ago');
             $("#PasswordStatus_Lbl").text("you may not change it now");
             $("#PasswordChange_Container-Open").attr("disabled", true);
-            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4);
             animatedClose(true, "smallside-box-container");
             setTimeout(function () {
                 animatedOpen(false, "EditSecuritySettings_Container", false, false);
             }, 350);
+            setTimeout(function () {
+                openModal(response.alert, "Close", null, 2, null, null, null, 4, "<i class='far fa-check-circle text-primary'></i>");
+            }, 525);
         }
         else {
             $("#PasswordUpdateDate_Lbl").html('<span class="text-dark"><i class="fas fa-redo-alt"></i> Elapsed time from last update:</span> few seconds');
             $("#PasswordStatus_Lbl").text("you may not change it now");
             $("#PasswordChange_Container-Open").attr("disabled", true);
-            openModal(response.alert, " <i class='fas fa-times text-danger'></i> Close", null, 2, null, null, null, 4);
+            openModal(response.alert, " Close", null, 2, null, null, null, 4, "<i class='fas fa-times-circle text-danger'></i>");
             $("#NewPassword_Confirm").val("");
         }
     });
@@ -4242,27 +4338,26 @@ $("#GetSuperShortUserInfo_Form").on("submit", function (event) {
 });
 
 $("#ChangeRecoveringType_Btn").on("click", function () {
-    let currentTypeName = $("#PR_CurrentTypeVal").val();
+    let currentTypeName = parseInt($("#PR_CurrentTypeVal").val());
     animatedClose(false, "PasswordRecovering_Container");
     if (currentTypeName == 0) {
         $("#PR_Username").attr("placeholder", "Enter your email here");
         $("#PR_Username_Lbl").text("Email");
         $("#PR_CurrentTypeVal").val(1);
         $("#PR_ByUsername").val(false);
+        $("#SearchByUsername_Val").val(false);
         $(this).text("Continue With Username");
-        //smallSideModal("You've changed type of account search from username by email", 6);
     }
     else {
         $("#PR_CurrentTypeVal").val(0);
         $("#PR_Username").attr("placeholder", "Enter your username here");
         $("#PR_Username_Lbl").text("Username");
         $("#PR_ByUsername").val(true);
+        $("#SearchByUsername_Val").val(true);
         $(this).text("Continue With Email");
-        //smallSideModal("You've changed type of account search from email by username", 6);
+
     }
-/*    setTimeout(function () {*/
-        animatedOpen(false, "PasswordRecovering_Container", false, false);
-/*    }, 8000);*/
+    animatedOpen(false, "PasswordRecovering_Container", false, false);
 });
 
 $("#GetMailOfCreator_Btn").on("click", function () {
@@ -5217,6 +5312,23 @@ $("#UserImprove_Container-Open").on("click", function () {
     $("#CUR_UserId_Val").val(userId);
 });
 
+$("#CreateInformativeProject_Btn").on("click", function () {
+    $("#TargetPriceChangeAnnotation").val(null);
+    $("#IsBudget").val(false);
+    $("#DonationRules").val(null);
+    $("#ProjectPrice").val(0);
+    $("#BudgetInfo_Box").fadeOut(300);
+    $("#CreateProject_Header_Lbl").text("Informative Project");
+    $("#CreateProject_Container-Open").attr("disabled", false);
+    animatedOpen(false, "CreateProject_Container", true, true);
+});
+$("#CreateDonationProject_Btn").on("click", function () {
+    $("#BudgetInfo_Box").fadeIn(300);
+    $("#CreateProject_Header_Lbl").text("Donation Project");
+    $("#CreateProject_Container-Open").attr("disabled", false);
+    animatedOpen(false, "CreateProject_Container", true, true);
+});
+
 $("#PreviewTheProject_Btn").on("click", function () {
     previewCombinizer(true);
 });
@@ -5535,6 +5647,12 @@ $(document).on("click", ".btn-static-bar-open", function (event) {
         $("#" + trueId).css("z-index", 0);
     }, 350);
 });
+$(document).on("click", ".btn-box-open", function (event) {
+    let trueId = getTrueId(event.target.id);
+    if (trueId != undefined) {
+        $(".b")
+    }
+})
 $(document).on("click", ".btn-status-bar-close", function (event) {
     let trueId = getTrueName(event.target.id);
     let currentBtnBottom = $("#" + trueId + "-Open").css("bottom");

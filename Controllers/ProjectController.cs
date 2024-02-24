@@ -52,13 +52,34 @@ namespace ApplicationY.Controllers
                     LastCategoryId = Categories.Select(c => c.Id).LastOrDefault();
                     Count = Categories.Count;
                 }
+                if(UserInfo != null)
+                {
+                    int ProjectsLeftToCreat = 0;
+                    int ProjectsInfoCount = await _projectRepository.GetCountByIdAsync(UserInfo.Id);
+                    bool IsAbleToCreateProject = false;
+                    if (UserInfo.EmailConfirmed && ProjectsInfoCount < 64)
+                    {
+                        IsAbleToCreateProject = true;
+                        ProjectsLeftToCreat = 64 - ProjectsInfoCount;
+                    }
+                    else if (!UserInfo.EmailConfirmed && ProjectsInfoCount < 40)
+                    {
+                        IsAbleToCreateProject = true;
+                        ProjectsLeftToCreat = 40 - ProjectsInfoCount;
+                    }
+                    else IsAbleToCreateProject = false;
 
-                ViewBag.UserInfo = UserInfo;
-                ViewBag.Categories = Categories;
-                ViewBag.LastCategoryId = LastCategoryId;
-                ViewBag.Count = Count;
+                    ViewBag.CreatedProjectsCount = ProjectsInfoCount;
+                    ViewBag.ProjectsLeftToCreate = ProjectsLeftToCreat;
+                    ViewBag.IsAbleToCreateAnotherOne = IsAbleToCreateProject;
+                    ViewBag.UserInfo = UserInfo;
+                    ViewBag.Categories = Categories;
+                    ViewBag.LastCategoryId = LastCategoryId;
+                    ViewBag.Count = Count;
 
-                return View();
+                    return View();
+                }
+                else RedirectToAction("Index", "Home");
             }
             return RedirectToAction("Create", "Account");
         }

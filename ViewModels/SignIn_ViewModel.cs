@@ -4,6 +4,7 @@ namespace ApplicationY.ViewModels
 {
     public class SignIn_ViewModel
     {
+        public int Id { get; set; }
         [DataType(DataType.EmailAddress)]
         [Required(ErrorMessage = "E-Mail is required")]
         public string? Email { get; set; }
@@ -17,5 +18,7 @@ namespace ApplicationY.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords are not equal to each other")]
         public string? PasswordConfirm { get; set; }
+        [MaxLength(75)]
+        public string? UsernameOrEmail { get; set; }
     }
 }

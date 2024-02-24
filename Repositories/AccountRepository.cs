@@ -143,7 +143,7 @@ namespace ApplicationY.Repositories
             return false;
         }
 
-        public async Task<string?> SendTemporaryCodeAsync(int Id, string Email, bool NeedsUniqueCode)
+        public async Task<string?> SendTemporaryCodeAsync(int Id, string? Email, bool NeedsUniqueCode)
         {
             if (!String.IsNullOrEmpty(Email))
             {

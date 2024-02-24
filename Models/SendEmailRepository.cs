@@ -35,7 +35,6 @@ namespace ApplicationY.Models
 
                     return true;
                 }
-                return false;
             }
         }
     }

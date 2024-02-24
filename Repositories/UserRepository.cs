@@ -25,6 +25,16 @@ namespace ApplicationY.Repositories
             _webHostEnvironment = webHostEnvironment;
         }
 
+        public async Task<User?> CheckUserEntryTypeByUsernameOrEmail(string UsernameOrEmail)
+        {
+            if(!String.IsNullOrEmpty(UsernameOrEmail))
+            {
+                User? Result = await _context.Users.AsNoTracking().Where(u => (u.Email!.ToLower() == UsernameOrEmail || u.UserName!.ToLower() == UsernameOrEmail) && (!u.IsDisabled)).Select(u => new User { Id = u.Id, Email = u.Email, AccessFailedCount = u.AccessFailedCount, IsEasyEntryEnabled = u.IsEasyEntryEnabled }).FirstOrDefaultAsync();
+                if (Result != null) return Result;
+            }
+            return null;
+        }
+
         public async Task<string?> CreateUserAsync(SignIn_ViewModel Model)
         {
             if (Model.Email != null && Model.Password != null && Model.UserName != null)
@@ -165,10 +175,30 @@ namespace ApplicationY.Repositories
             else return null;
         }
 
+        public async Task<int> GetAccessFailedCountByEmailOrUserNameAsync(string? UsernameOrEmail)
+        {
+            if (UsernameOrEmail != null) return await _context.Users.AsNoTracking().Where(u => (u.Email == UsernameOrEmail || u.UserName == UsernameOrEmail) && (!u.IsDisabled)).Select(u => u.AccessFailedCount).FirstOrDefaultAsync();
+            else return 0;
+        }
+
         public IQueryable<GetUserInfo_ViewModel> GetRandomUsers(int MaxCount)
         {
             if (MaxCount != 0) return _context.Users.AsNoTracking().Where(u=> u.Projects != null && u.Projects.Count != 0).Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, IsCompany = u.IsCompany, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(MaxCount);
             else return _context.Users.AsNoTracking().Select(u => new GetUserInfo_ViewModel { Id = u.Id, PseudoName = u.PseudoName, SearchName = u.SearchName, Description = u.Description, ProjectsCount = u.Projects == null ? 0 : u.Projects.Count, IsCompany = u.IsCompany, CountryFullName = u.Country!.Name }).OrderByDescending(u => Guid.NewGuid()).Take(10);
+        }
+
+        public async Task<(string?, string?)> GetReserveCodeAndEmailByEmailOrUserNameAsync(string? UsernameOrEmail)
+        {
+            if (UsernameOrEmail != null)
+            {
+                if (UsernameOrEmail.Contains('@')) return (await _context.Users.AsNoTracking().Where(u => (u.UserName == UsernameOrEmail || u.Email == UsernameOrEmail) && !u.IsDisabled).Select(u => u.ReserveCode).FirstOrDefaultAsync(), UsernameOrEmail);
+                else
+                {
+                    User? FullResult = await _context.Users.AsNoTracking().Where(u => (u.UserName == UsernameOrEmail || u.Email == UsernameOrEmail) && !u.IsDisabled).Select(u => new User { ReserveCode = u.ReserveCode, Email = u.Email }).FirstOrDefaultAsync();
+                    if (FullResult != null) return (FullResult.ReserveCode, FullResult.Email);
+                }
+            }
+            return (null, null);
         }
 
         public async Task<GetUserInfo_ViewModel?> GetSuperShortUserInfoBySearchnameAsync(string Searchname)
@@ -299,9 +329,31 @@ namespace ApplicationY.Repositories
                     if (UserInfo != null)
                     {
                         Result = await _signInManager.PasswordSignInAsync(UserInfo, Model.Password, true, true);
-                        if(Result.Succeeded) return true;
+                        if (Result.Succeeded) return true;
                     }
                 }
+            }
+            return false;
+        }
+
+        public async Task<bool> LogInViaCodeAsync(LogIn_ViewModel Model)
+        {
+            if(Model.Id != 0)
+            {
+                //bool Result = await _context.Users.AnyAsync(u => u.Id == Model.Id && u.Email == Model.UserName && !u.IsDisabled);
+                //if(Result)
+                //{
+                    bool CheckCode = _cache.TryGetValue("uniqueCode_" + Model.Id, out string? CodeValue);
+                    if(CheckCode && CodeValue != null)
+                    {
+                        User? UserInfo = await _userManager.FindByIdAsync(Model.Id.ToString());
+                        if(UserInfo != null)
+                        {
+                            await _signInManager.SignInAsync(UserInfo, true);
+                            return true;
+                        }
+                    }
+                //}
             }
             return false;
         }

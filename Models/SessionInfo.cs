@@ -7,6 +7,7 @@ namespace ApplicationY.Models
         public int Id { get; set; }
         public DateTime SessionDate { get; set; }
         public string? Location { get; set; }
+        public bool IsClosed { get; set; }
         [ForeignKey("User")]
         public int UserId { get; set; }
         public User? User { get; set; }

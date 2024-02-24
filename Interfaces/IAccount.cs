@@ -9,7 +9,7 @@ namespace ApplicationY.Interfaces
         public Task<int> VerifyUserAsync(int Id);
         public Task<VerificationQueue?> HasTheVerificationBeenSent(int Id);
         public Task<int> SendVerificationEmailAsync(string Id);
-        public Task<string?> SendTemporaryCodeAsync(int Id, string Email, bool NeedsUniqueCode);
+        public Task<string?> SendTemporaryCodeAsync(int Id, string? Email, bool NeedsUniqueCode);
         public Task<(string?, string?)> CheckTheTemporaryCodeAsync(int Id, string Code);
         public Task<bool> UpdatePasswordAsync(UpdatePassword_ViewModel Model);
         public Task<bool> ChangePasswordAsync(PasswordChange_ViewModel Model);

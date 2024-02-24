@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using System.Security.Claims;
 
 namespace ApplicationY.Controllers
@@ -18,13 +19,15 @@ namespace ApplicationY.Controllers
         private readonly IUser _userRepository;
         private readonly IAccount _accountRepository;
         private readonly IMailService _mailServiceRepository;
+        private readonly IMemoryCache _cache;
 
-        public AccountController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IUser userRepository, IAccount accountRepository, IMailService mailServiceRepository)
+        public AccountController(Context context, UserManager<User> userManager, SignInManager<User> signInManager, IUser userRepository, IAccount accountRepository, IMailService mailServiceRepository, IMemoryCache cache)
         {
             _context = context;
             _userManager = userManager;
             _userRepository = userRepository;
             _signInManager = signInManager;
+            _cache = cache;
             _accountRepository = accountRepository; 
             _mailServiceRepository = mailServiceRepository;
         }
@@ -33,6 +36,36 @@ namespace ApplicationY.Controllers
         {
             ViewBag.Reason = SigningIn;
             return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> FindUserExistence(string UsernameOrEmail)
+        {
+            User? UserInfo = await _userRepository.CheckUserEntryTypeByUsernameOrEmail(UsernameOrEmail);
+            if (UserInfo != null && UserInfo.AccessFailedCount < 5)
+            {
+                if (UserInfo.IsEasyEntryEnabled)
+                {
+                    string? Code = await _accountRepository.SendTemporaryCodeAsync(UserInfo.Id, UserInfo.Email, true);
+                    if (Code != null)
+                    {
+                        MailKit_ViewModel KitModel = new MailKit_ViewModel();
+                        SendEmail_ViewModel Model = new SendEmail_ViewModel
+                        {
+                            Body = "<div style='border: 2px solid rgb(240, 240, 240); border-radius: 8px; padding: 2px 5px 2px 5px; text-align: center;'><h2 style='color: #0d6efd; font-family: 'Trebuchet MS;'>" + Code + "</h2><div style='margin-top: 6px;'></div><p style='color: rgb(240, 240, 240);'>Here's your one-time 8-digit code to enter into your account via <span style='color: #0d6efd;'>Easy Entry</span></p><div style='border-top: 1px solid rgb(240, 240, 240); margin-top: 1px; padding-top: 1px;'></div><p style='color: brown;'>If this message was <span style='font-weight: 500;'>not</span> triggered by you, please immediately enter to your account, disable easy entry and change your password</p></div>",
+                            FromEmail = "bluejade@mail.ru",
+                            Subject = "Easy Entry Code",
+                            Title = "Easy Entry Code",
+                            ToEmail = UserInfo.Email
+                        };
+                        bool Result = await _mailServiceRepository.SendEmailAsync(Model, KitModel);
+                        if (Result) return Json(new { success = true, result = UserInfo, easyEntryEnabled = true });
+                        else return Json(new { success = false, alert = "We're sorry, but an unexpected error has been occured. We're unable to send an email. Please, try to send a message to our supports if you've checked all datas and they're true" });
+                    }
+                }
+                else return Json(new { success = true, result = UserInfo, easyEntryEnabled = false });
+            }
+            return Json(new { success = false });
         }
 
         [HttpPost]
@@ -51,10 +84,40 @@ namespace ApplicationY.Controllers
         {
             if (ModelState.IsValid)
             {
-                bool Result = await _userRepository.LogInAsync(Model);
-                if (Result) return Json(new { success = true, alert = "You've logged in successfully. You'll be relocated to main page in a moment" });
+                int AccessFailedCount = await _userRepository.GetAccessFailedCountByEmailOrUserNameAsync(Model.UserName);
+                if (AccessFailedCount < 5)
+                {
+                    bool Result = await _userRepository.LogInAsync(Model);
+                    if (Result) return Json(new { success = true, alert = "You've logged in successfully. You'll be relocated to main page in a moment" });
+                    else
+                    {
+                        if(AccessFailedCount >= 4)
+                        {
+                            (string?, string?) ReserveCodeAndEmail = await _userRepository.GetReserveCodeAndEmailByEmailOrUserNameAsync(Model.UserName);
+                            MailKit_ViewModel kitModel = new MailKit_ViewModel();
+                            SendEmail_ViewModel sendEmailModel = new SendEmail_ViewModel()
+                            {
+                                Title = "Your Password Has Been Reset",
+                                FromEmail = "bluejade@mail.ru",
+                                Body = "<div style='border: 2px solid rgb(240, 240, 240); border-radius: 8px; padding: 2px; text-align: center;'><p style='font-weight: 500; font-size: small;'>Hi! We're informing you that your account has been disabled for <span color='#0d6efd;'>several mins</span> due to a suspitious activity from it. Someone has tried many times to enter into your account, so, to secure your account we've disabled it for a several time. Note that you'll still be able to enter to it if you haven't logged out before. In such cases we recommend to reset the password of account for your own safety.</p><div style='border-top: 1px solid rgb(240, 240, 240); margin-top: 2px; padding-top: 2px;'></div><p>Here's your <span style='font-weight: 500;'>reserve code</span> in case if you want to reset the password of your account. Thank you <h1 style='margin-top: 4px; color: #0d6efd;'>" + ReserveCodeAndEmail.Item1 + "</h1></div>",
+                                Subject = Model.UserName,
+                                ToEmail = ReserveCodeAndEmail.Item2
+                            };
+                            await _mailServiceRepository.SendEmailAsync(sendEmailModel, kitModel);
+                        }
+                    }
+                }
+                else return Json(new { success = false, accessFailedCount = AccessFailedCount, alert = "You've exceeded the limit of incorrect entries. Your access to this account has been limited" });
             }
-            return Json(new { success = false, alert = "Wrong username/email or password. Please, try again" });
+            return Json(new { success = false, accessFailedCount = 0, alert = "Wrong username/email or password. Please, try again" });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> LogInViaCode(LogIn_ViewModel Model)
+        {
+            bool Result = await _userRepository.LogInViaCodeAsync(Model);
+            if (Result) return Json(new { success = true, alert = "You've logged in successfully. You'll be relocated to main page in a moment" });
+            else return Json(new { success = false, alert = "Wrong username/email or one-time code. Please, check all datas and try again" });
         }
 
         [HttpPost]

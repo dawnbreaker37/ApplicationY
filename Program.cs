@@ -8,6 +8,14 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddResponseCompression(Options =>
+{
+    Options.EnableForHttps = true;
+    Options.MimeTypes = new[] { "/application/javascript" };
+    Options.ExcludedMimeTypes = new[] { "/plain/text" };
+    Options.MimeTypes = new[] { "/application/json" };
+});
+
 builder.Services.AddControllersWithViews();
 builder.Services.AddTransient(typeof(IBase<>), typeof(Base<>));
 builder.Services.AddTransient<IProject, ProjectRepository>();
@@ -23,6 +31,7 @@ builder.Services.AddTransient<IAudios, AudiosRepository>();
 builder.Services.AddTransient<ISubscribe, SubscribersRepository>();
 builder.Services.AddTransient<IMention, MentionRepository>();
 builder.Services.AddTransient<IOthers, OthersRepository>();
+builder.Services.AddTransient<ISessionInfo, SessionRepository>();
 builder.Services.AddIdentity<User, IdentityRole<int>>(Opt =>
 {
     Opt.Password.RequiredUniqueChars = 8;
